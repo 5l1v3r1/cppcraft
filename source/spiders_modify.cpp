@@ -9,8 +9,11 @@
 #include "precompq.hpp"
 #include "sectors.hpp"
 #include "torchlight.hpp"
+#include <cstring>
 
 using namespace library;
+
+
 
 namespace cppcraft
 {
@@ -31,7 +34,7 @@ namespace cppcraft
 		else s->progress = Sector::PROG_NEEDRECOMP;
 		
 		// write updated sector to disk
-		chunks.addSector(*s);
+		//chunks.addSector(*s);
 		
 		return true;
 	}
@@ -90,7 +93,7 @@ namespace cppcraft
 		}
 		
 		// write updated sector to disk
-		chunks.addSector(*s);
+		//chunks.addSector(*s);
 		
 		if (isLight(id))
 		{
@@ -190,7 +193,7 @@ namespace cppcraft
 		// NOTE: after this point, the sector may be cleared! don't assume blockpt exists!
 		
 		// write updated sector to disk
-		chunks.addSector(*s);
+		//chunks.addSector(*s);
 		
 		/*
 		If b.id = _TNT Then
@@ -221,7 +224,58 @@ namespace cppcraft
 		// return COPY of block
 		return block;
 	}
+
+	bool Spiders::addsector(int bx, int by, int bz, Sector::sectorblock_t* sectorblock)
+	{
+		if (sectorblock == nullptr) return false;
+
+		Sector* s = spiderwrap(bx, by, bz);
+		if (s == nullptr) return false;
+
+                if (!s->blockpt) s->blockpt = new Sector::sectorblock_t;
+                if (!s->blockpt) return false;
+
+                memcpy(s->blockpt, sectorblock, sizeof(Sector::sectorblock_t));
+
+		// flag sector as having modified blocks
+		s->contents = Sector::CONT_SAVEDATA;
+
+		// we have no idea if the sector is culled anymore, so remove it
+		s->culled = false;
+
+                s->progress = Sector::PROG_NEEDRECOMP;
+
+		// write updated sector to disk
+		//chunks.addSector(*s);
+
+                // update neighboring sectors (depending on edges)
+                updateSurroundings(*s, bx, by, bz, false);
+
+                if (s->blockpt->lights > 0) torchlight.lightSectorUpdates(*s, false);
+
+		// update shadows on nearby sectors by following sun trajectory
+		skylightReachDown(*s);
+
+		return true;
+	}
 	
+	bool Spiders::addemptysector(int bx, int by, int bz)
+	{
+		Sector* s = spiderwrap(bx, by, bz);
+		if (s == nullptr) return false;
+
+                s->clear();
+
+                // write updated sector to disk
+                //chunks.addSector(*s);
+
+                // update neighboring sectors (depending on edges)
+                updateSurroundings(*s, bx, by, bz, false);
+
+		return true;
+	}
+	
+
 	void Spiders::skylightReachDown(Sector& sector)
 	{
 		for (int y = 0; y < sector.getY(); y++)

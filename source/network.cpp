@@ -8,6 +8,7 @@
 #include "player.hpp"
 #include "player_logic.hpp"
 #include "sectors.hpp"
+#include "flatlands.hpp"
 #include "spiders.hpp"
 #include "sun.hpp"
 #include "world.hpp"
@@ -87,7 +88,7 @@ namespace cppcraft
 		block.type = NetworkBlock::BADD;
 		block.wc = badd->wcoord;
 		block.bc = badd->bcoord;
-		block.block = Block(badd->block.id, badd->block.bf);
+		block.block = Block(blockid(badd->block), blockbf(badd->block));
 		
 		network.addBlock(Network::INCOMING, block);
 	}
@@ -97,7 +98,7 @@ namespace cppcraft
 		block.type = NetworkBlock::BSET;
 		block.wc = bset->wcoord;
 		block.bc = bset->bcoord;
-		block.block = Block(bset->block.id, bset->block.bf);
+		block.block = Block(blockid(bset->block), blockbf(bset->block));
 		
 		network.addBlock(Network::INCOMING, block);
 	}
@@ -110,7 +111,33 @@ namespace cppcraft
 		
 		network.addBlock(Network::INCOMING, block);
 	}
-	
+
+	void flatlandAdded(lattice_flatland* fl)
+	{
+		NetworkFlatland flatland;
+		flatland.fc = fl->fcoord;
+		memcpy(&flatland.fdata, &fl->fdata, sizeof(flatland.fdata));
+
+		network.addFlatland(flatland);
+	}
+
+	void sectorAdded(lattice_sector* s)
+	{
+		NetworkSector sector;
+		sector.wc = s->wcoord;
+		memcpy(&sector.sector, &s->s, sizeof(sector.sector));
+
+		network.addSector(sector);
+	}
+
+	void emptysectorAdded(lattice_emptysector* s)
+	{
+		NetworkEmptySector sector;
+		sector.wc = s->wcoord;
+
+		network.addEmptySector(sector);
+	}
+
 	void userAdded(NetPlayer::userid_t userid, lattice_user* user)
 	{
 		UnpackCoordF coord(user->wpos, user->bpos);
@@ -269,7 +296,15 @@ namespace cppcraft
 		case T_BREM:
 			blockAdded((lattice_brem*) mp->args);
 			break;
-			
+		case T_FLATLAND:
+			flatlandAdded((lattice_flatland*) mp->args);
+			break;
+		case T_SECTOR:
+			sectorAdded((lattice_sector*) mp->args);
+			break;
+		case T_EMPTYSECTOR:
+			emptysectorAdded((lattice_emptysector*) mp->args);
+			break;
 		case T_LOG:
 			logger << Log::INFO << "SERVER  " << ((const char*) mp->args) << Log::ENDL;
 			chatbox.add("SERVER", (const char*) mp->args, Chatbox::L_SERVER);
@@ -307,6 +342,89 @@ namespace cppcraft
 			ntt.protated |= player.changedRotation;
 			if (ntt.protated) ntt.prot   = vec2(player.xrotrad, player.yrotrad);
 			
+                        // receive flatlands from network thread
+                        while (ntt.incoming_flatlands.size())
+                        {
+                                NetworkFlatland& flatland = ntt.incoming_flatlands.front();
+
+
+                                // set final world coordinates
+                                int sx = flatland.fc.x - world.getWX();
+                                int sz = flatland.fc.z - world.getWZ();
+                                // validate position is inside our grid
+                                if (sx < 0 || sx >= Sectors.getXZ() ||
+                                    sz < 0 || sz >= Sectors.getXZ())
+                                {
+                                    ntt.incoming_flatlands.pop_front();
+                                    logger << Log::INFO << "Failed Flatland: (" << flatland.fc.x << "," << flatland.fc.z << ")" << Log::ENDL;
+                                    continue;
+                                }
+
+                                memcpy(&flatlands(sx, sz).fdata, &flatland.fdata, FlatlandSector::FLATLAND_SIZE);
+
+                                ntt.incoming_flatlands.pop_front();
+                        }
+
+                        // receive sectors from network thread
+                        while (ntt.incoming_sectors.size())
+                        {
+                                NetworkSector& sector = ntt.incoming_sectors.front();
+
+                                // set final world coordinates
+                                int sx = sector.wc.x - world.getWX();
+                                int sy = sector.wc.y - world.getWY();
+                                int sz = sector.wc.z - world.getWZ();
+                                // validate position is inside our grid
+                                if (sx < 0 || sx >= Sectors.getXZ() ||
+                                    sy < 0 || sy >= Sectors.getY() ||
+                                    sz < 0 || sz >= Sectors.getXZ())
+                                {
+                                    ntt.incoming_sectors.pop_front();
+                                    logger << Log::INFO << "Failed Sector: (" << sector.wc.x << "," << sector.wc.y << "," << sector.wc.z << ")" << Log::ENDL;
+                                    continue;
+                                }
+                                int bx = (sx << Sector::BLOCKS_XZ_SH);
+                                int by = (sy << Sector::BLOCKS_Y_SH);
+                                int bz = (sz << Sector::BLOCKS_XZ_SH);
+
+                                if(Spiders::addsector(bx, by, bz, &sector.sector) == false)
+                                {
+                                    logger << Log::INFO << "Failed Sector: (" << sector.wc.x << "," << sector.wc.y << "," << sector.wc.z << ")" << Log::ENDL;
+                                }
+
+                                ntt.incoming_sectors.pop_front();
+                        }
+
+                        // receive emptysectors from network thread
+                        while (ntt.incoming_emptysectors.size())
+                        {
+                                NetworkEmptySector& emptysector = ntt.incoming_emptysectors.front();
+
+                                // set final world coordinates
+                                int sx = emptysector.wc.x - world.getWX();
+                                int sy = emptysector.wc.y - world.getWY();
+                                int sz = emptysector.wc.z - world.getWZ();
+                                // validate position is inside our grid
+                                if (sx < 0 || sx >= Sectors.getXZ() ||
+                                    sy < 0 || sy >= Sectors.getY() ||
+                                    sz < 0 || sz >= Sectors.getXZ())
+                                {
+                                    ntt.incoming_emptysectors.pop_front();
+                                    logger << Log::INFO << "Failed Empty Sector: (" << emptysector.wc.x << "," << emptysector.wc.y << "," << emptysector.wc.z << ")" << Log::ENDL;
+                                    continue;
+                                }
+                                int bx = (sx << Sector::BLOCKS_XZ_SH);
+                                int by = (sy << Sector::BLOCKS_Y_SH);
+                                int bz = (sz << Sector::BLOCKS_XZ_SH);
+
+                                if (Spiders::addemptysector(bx, by, bz) == false)
+                                {
+                                    logger << Log::INFO << "Failed Empty Sector: (" << emptysector.wc.x << "," << emptysector.wc.y << "," << emptysector.wc.z << ")" << Log::ENDL;
+                                }
+
+                                ntt.incoming_emptysectors.pop_front();
+                        }
+
 			// receive blocks from network thread
 			while (ntt.incoming.size())
 			{
@@ -404,9 +522,10 @@ namespace cppcraft
 			{
 				NetworkBlock& nb = ntt.outgoing.front();
 				::block_t block;
-				block.id = nb.block.getID();
-				block.bf = nb.block.getData() >> 10;
-				
+				//block.id = nb.block.getID();
+				//block.bf = nb.block.getData() >> 10;
+				block = nb.block.getData();
+
 				// make world modification
 				switch (nb.type)
 				{
@@ -448,7 +567,25 @@ namespace cppcraft
 		}
 		mtx.unlock();
 	}
-	
+
+	void Network::addFlatland(const NetworkFlatland& fl)
+	{
+		mtx.lock();
+		ntt.incoming_flatlands.push_front(fl);
+		mtx.unlock();
+	}
+	void Network::addSector(const NetworkSector& s)
+	{
+		mtx.lock();
+		ntt.incoming_sectors.push_front(s);
+		mtx.unlock();
+	}
+	void Network::addEmptySector(const NetworkEmptySector& s)
+	{
+		mtx.lock();
+		ntt.incoming_emptysectors.push_front(s);
+		mtx.unlock();
+	}
 	void Network::sendChat(const std::string& text)
 	{
 		mtx.lock();

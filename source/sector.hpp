@@ -144,6 +144,7 @@ namespace cppcraft
 		friend class SectorContainer;
 		friend class Seamless;
 		friend class Spiders;
+		friend class Network;
 	};
 	#pragma pack(pop)
 }
