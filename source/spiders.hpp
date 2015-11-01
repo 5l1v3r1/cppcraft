@@ -1,6 +1,8 @@
 #ifndef SPIDERS_HPP
 #define SPIDERS_HPP
 
+#include "sector.hpp"
+
 namespace library
 {
 	class vec3;
@@ -37,7 +39,9 @@ namespace cppcraft
 		static bool updateBlock(int bx, int by, int bz, block_t bitfield, bool immediate);
 		static bool addblock(int bx, int by, int bz, block_t id, block_t bitfield, bool immediate);
 		static Block removeBlock(int bx, int by, int bz, bool immediate);
-		
+		static bool addsector(int bx, int by, int bz, Sector::sectorblock_t* sectorblock);
+		static bool addemptysector(int bx, int by, int bz);
+
 		// world distance calculations
 		static library::vec3 distanceToWorldXZ(int wx, int wz);
 		

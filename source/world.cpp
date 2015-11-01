@@ -28,6 +28,7 @@ namespace cppcraft
 		worldCoords.x = WORLD_STARTING_X - sectors_xz / 2; //+ 84; //
 		worldCoords.y = 0;
 		worldCoords.z = WORLD_STARTING_Z - sectors_xz / 2; //- 104; //
+
 		// finally, world folder, where world-data is located
 		if (worldFolder.size() == 0)
 		{

@@ -12,6 +12,8 @@
 
 using namespace library;
 
+
+
 namespace cppcraft
 {
 	bool Spiders::updateBlock(int bx, int by, int bz, block_t bitfield, bool immediate)
@@ -29,7 +31,7 @@ namespace cppcraft
 		s->updateMesh(by);
 		
 		// write updated sector to disk
-		chunks.addSector(*s);
+		//chunks.addSector(*s);
 		
 		return true;
 	}
@@ -69,7 +71,7 @@ namespace cppcraft
 		}
 		
 		// write updated sector to disk
-		chunks.addSector(*s);
+		//chunks.addSector(*s);
 		
 		if (isLight(id))
 		{
@@ -134,7 +136,7 @@ namespace cppcraft
 		s->updateMesh(Sector::MESHGEN_ALL);
 		
 		// write updated sector to disk
-		chunks.addSector(*s);
+		//chunks.addSector(*s);
 		
 		// update neighboring sectors (depending on edges)
 		updateSurroundings(*s, bx, by, bz);
@@ -147,6 +149,50 @@ namespace cppcraft
 		
 		// return COPY of block
 		return block;
+	}
+
+	bool Spiders::addsector(int bx, int by, int bz, Sector::sectorblock_t* sectorblock)
+	{
+		if (sectorblock == nullptr) return false;
+
+		Sector* s = spiderwrap(bx, by, bz);
+		if (s == nullptr) return false;
+		
+		/*
+        if (!s->blockpt) s->blockpt = new Sector::sectorblock_t;
+        if (!s->blockpt) return false;
+		
+        memcpy(s->blockpt, sectorblock, sizeof(Sector::sectorblock_t));
+		*/
+		
+		// write updated sector to disk
+		//chunks.addSector(*s);
+		
+        // update neighboring sectors (depending on edges)
+        updateSurroundings(*s, bx, by, bz);
+		
+        if (s->lightCount() > 0)
+			torchlight.lightSectorUpdates(*s, false);
+		
+		// update shadows on nearby sectors by following sun trajectory
+		//skylightReachDown(*s);
+		
+		return true;
+	}
+	
+	bool Spiders::addemptysector(int bx, int by, int bz)
+	{
+		Sector* s = spiderwrap(bx, by, bz);
+		if (s == nullptr) return false;
+		s->clear();
+		
+		// write updated sector to disk
+		//chunks.addSector(*s);
+		
+		// update neighboring sectors (depending on edges)
+		updateSurroundings(*s, bx, by, bz, false);
+		
+		return true;
 	}
 	
 	inline void updateNeighboringSector(Sector& sector, int y)

@@ -3,15 +3,47 @@
 
 #include <stdint.h>
 
+#include "lattice_config.h"
 #include "coordinates.h"
 
 #define LATTICE_NICKLEN 32
 #define LATTICE_STRLEN 512
 
-typedef struct block_t {
-    uint16_t id : 10;
-    uint16_t bf : 6;
-} block_t;
+typedef uint16_t block_t;
+
+#define blockid(x) ( (x) & 1023 )
+#define blockbf(x) ( ((x) >> 10) & 63 )
+#define islight(id) (  (id) == BLOCKSDB_TORCH        || \
+                       (id) == BLOCKSDB_MOLTENSTONE  || \
+                       (id) == BLOCKSDB_LAVABLOCK    || \
+                       (id) == BLOCKSDB_REDSTONE     || \
+                       (id) == BLOCKSDB_GREENSTONE   || \
+                       (id) == BLOCKSDB_FIRE         || \
+                       (id) == BLOCKSDB_LANTERN  )
+
+// number of colors in flatland data
+#define FLATLAND_TERRAIN_COLORS 8
+// the terrain color datatype
+
+typedef uint32_t flatland_color_t;
+
+typedef struct flatdata_t {
+    flatland_color_t color[FLATLAND_TERRAIN_COLORS];
+    uint8_t terrain;
+    uint8_t skylevel;
+    uint8_t groundlevel;
+    uint8_t unused1;
+} flatdata_t;
+
+typedef struct sectorblock_t {
+    //sectorblock_t() {}
+    block_t  b[BLOCKSDB_COUNT_BX][BLOCKSDB_COUNT_BZ][BLOCKSDB_COUNT_BY];
+    int16_t  blocks;
+    int16_t  lights;
+    uint8_t  hardsolid;
+    uint8_t  special;
+    uint16_t version;
+} sectorblock_t;
 
 #define HAND_TYPE uint16_t
 
@@ -113,7 +145,9 @@ struct message {
 #define T_TRACKERFAILURE 40
 #define T_SERVEREOL      41
 #define T_PCHAT          42
-
+#define T_EMPTYSECTOR    43
+#define T_SECTOR         44
+#define T_FLATLAND       45
 
 #define MFLAG_FROM      0x00000001         // Is fromuid set
 
@@ -313,6 +347,28 @@ typedef struct lattice_bump {
     b_coord bad_bcoord;
 
 } lattice_bump;
+
+typedef struct lattice_emptysector {
+
+    w_coord wcoord;
+
+} lattice_emptysector;
+
+typedef struct lattice_sector {
+
+    w_coord wcoord;
+    sectorblock_t s;
+
+} lattice_sector;
+
+typedef struct lattice_flatland {
+
+    f_coord fcoord;
+
+    flatdata_t fdata[BLOCKSDB_FLATDATA_COUNT]; // bx bz
+
+} lattice_flatland;
+
 
 // ----------------------------------
 
