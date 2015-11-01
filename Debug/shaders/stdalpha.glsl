@@ -21,8 +21,8 @@ out vec3 texCoord;
 out vec4 biomeColor;
 out vec4 lightdata;
 out vec4 torchlight;
-out vec3 out_normal;
-out vec3 v_normals;
+flat out vec3 out_normal;
+flat out vec3 v_normals;
 
 const int TX_2SIDED
 const int TX_CROSS
@@ -91,8 +91,8 @@ in vec4 biomeColor;
 in vec4 lightdata;
 in vec4 torchlight;
 in vec3 biomeCoords;
-in vec3 out_normal;
-in vec3 v_normals;
+flat in vec3 out_normal;
+flat in vec3 v_normals;
 
 layout(location = 0) out vec4 color;
 #ifdef VIEW_NORMALS

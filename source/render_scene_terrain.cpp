@@ -87,8 +87,8 @@ namespace cppcraft
 			
 			if (x0 < visibility_border)
 				x0 = visibility_border;
-			if (x1 >= Sectors.getXZ() - visibility_border)
-				x1 = Sectors.getXZ()-1-visibility_border;
+			if (x1 >= sectors.getXZ() - visibility_border)
+				x1 = sectors.getXZ()-1-visibility_border;
 		}
 		else
 		{
@@ -101,8 +101,8 @@ namespace cppcraft
 			
 			if (x1 < visibility_border)
 				x1 = visibility_border;
-			if (x0 >= Sectors.getXZ()-visibility_border)
-				x0 = Sectors.getXZ()-1-visibility_border;
+			if (x0 >= sectors.getXZ()-visibility_border)
+				x0 = sectors.getXZ()-1-visibility_border;
 			
 			xstp = -1;
 		}
@@ -120,8 +120,8 @@ namespace cppcraft
 			
 			if (z0 < visibility_border)
 				z0 = visibility_border;
-			if (z1 >= Sectors.getXZ()-visibility_border)
-				z1 = Sectors.getXZ()-1-visibility_border;
+			if (z1 >= sectors.getXZ()-visibility_border)
+				z1 = sectors.getXZ()-1-visibility_border;
 		}
 		else
 		{
@@ -134,8 +134,8 @@ namespace cppcraft
 			
 			if (z1 < visibility_border)
 				z1 = visibility_border;
-			if (z0 >= Sectors.getXZ()-visibility_border)
-				z0 = Sectors.getXZ()-1-visibility_border;
+			if (z0 >= sectors.getXZ()-visibility_border)
+				z0 = sectors.getXZ()-1-visibility_border;
 			
 			zstp = -1;
 		}

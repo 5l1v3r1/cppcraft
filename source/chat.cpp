@@ -4,7 +4,6 @@
 #include <library/opengl/oglfont.hpp>
 #include <library/opengl/input.hpp>
 #include "player_inputs.hpp"
-#include "network.hpp"
 #include "renderman.hpp"
 #include "shaderman.hpp"
 #include <sstream>
@@ -223,7 +222,8 @@ namespace cppcraft
 			std::string ctext = input.getText() + ((((int) renderer.frametick / 50) % 2 == 0) ? "_" : " ");
 			std::string now = timeString(currentTime());
 			
-			size_t msglen = now.size() + 2 + network.getNickname().size() + 2 + ctext.size();
+			const std::string nickname = "**FIXME**";
+			size_t msglen = now.size() + 2 + nickname.size() + 2 + ctext.size();
 			
 			matbox = ortho;
 			matbox.translate_xy(cbPos.x, cbPos.y + textScale.y + 0.005);
@@ -238,7 +238,7 @@ namespace cppcraft
 			// print actual text typed into chatbox
 			vec3 textPos(cbPos);
 			textPos.y += textScale.y + 0.005;
-			renderSourcedMessage(font, textPos, textScale, now, network.getNickname(), ctext);
+			renderSourcedMessage(font, textPos, textScale, now, nickname, ctext);
 		}
 		else
 		{

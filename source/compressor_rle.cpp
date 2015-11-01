@@ -32,20 +32,20 @@ namespace cppcraft
 		// last entry in palette entries list (used as count)
 		RLEEntry* entries = entry + rh->getEntries();
 		// entry point to sector blocks
-		Block* sblock = sb.b[0][0];
+		Block* sblock = sb.b;
 		
 		for (; entry < entries; entry++)
 		{
 			block_t blockData = palette[ entry->palid ];
 			while (entry->count--)
 			{
-				*sblock = blockData; sblock++;
+				*sblock = Block(blockData); sblock++;
 			}
 		}
 		// set sectorblock info
 		sb.blocks = rh->getBlocks();
 		sb.lights = rh->getLights();
-		sb.hardsolid = rh->getHardsolid();
+		//sb.hardsolid = rh->getHardsolid();
 	}
 	
 }

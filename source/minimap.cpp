@@ -6,7 +6,6 @@
 #include <library/opengl/vao.hpp>
 #include <library/opengl/texture.hpp>
 #include "biome.hpp"
-#include "flatlands.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
 #include "seamless.hpp"
@@ -35,7 +34,7 @@ namespace cppcraft
 		logger << Log::INFO << "* Initializing minimap" << Log::ENDL;
 		
 		// 32-bits, one pixel per sector on (X, Z) axes
-		bitmap = new Bitmap(Sectors.getXZ() * 2, Sectors.getXZ() * 2, 32);
+		bitmap = new Bitmap(sectors.getXZ() * 2, sectors.getXZ() * 2, 32);
 		// create texture
 		texture = new Texture(GL_TEXTURE_2D);
 		texture->create(*bitmap, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
@@ -64,8 +63,8 @@ namespace cppcraft
 	void Minimap::update(double px, double pz)
 	{
 		// minimap subpixel offset
-		this->ofsX = (px - (Sectors.getXZ() * Sector::BLOCKS_XZ / 2)) / Seamless::OFFSET * 2;
-		this->ofsY = (pz - (Sectors.getXZ() * Sector::BLOCKS_XZ / 2)) / Seamless::OFFSET * 2;
+		this->ofsX = (px - (sectors.getXZ() * Sector::BLOCKS_XZ / 2)) / Seamless::OFFSET * 2;
+		this->ofsY = (pz - (sectors.getXZ() * Sector::BLOCKS_XZ / 2)) / Seamless::OFFSET * 2;
 		
 		minimapMutex.lock();
 		// update synchronization
@@ -99,12 +98,12 @@ namespace cppcraft
 		minimapVAO.render(GL_QUADS);
 	}
 	
-	inline int fgetSkylevel(FlatlandSector& fs, int x, int z)
+	inline int fgetSkylevel(Flatland& fs, int x, int z)
 	{
 		return fs(x, z).skyLevel;
 	}
 	
-	Bitmap::rgba8_t fgetColor(FlatlandSector& fs, int x, int z, int clid)
+	Bitmap::rgba8_t fgetColor(Flatland& fs, int x, int z, int clid)
 	{
 		Bitmap::rgba8_t color = fs(x & (Sector::BLOCKS_XZ-1), z & (Sector::BLOCKS_XZ-1)).fcolor[clid];
 		unsigned char* p = (unsigned char*) &color;
@@ -166,7 +165,7 @@ namespace cppcraft
 		return depth;
 	}
 	
-	Bitmap::rgba8_t getBlockColor(FlatlandSector& fs, int x, int y, int z)
+	Bitmap::rgba8_t getBlockColor(Flatland& fs, int x, int y, int z)
 	{
 		if (y == 0) return BGRA8(48, 48, 48, 255);
 		
@@ -232,7 +231,7 @@ namespace cppcraft
 		}
 		else if (b.getID() >= _GIANTSHROOMCORE && b.getID() <= _GIANTSHROOMTOPSPECLE)
 		{
-			c = Biomes::getSpecialColorBGRA(b.getSpecial());
+			c = Biomes::getSpecialColorBGRA(b.getExtra());
 		}
 		else if (b.getID() == _LOWICE)
 		{
@@ -287,7 +286,7 @@ namespace cppcraft
 	{
 		// read certain blocks from sector, and determine pixel value
 		// set pixel value in the correct 2x2 position on pixel table
-		FlatlandSector& fs = flatlands(sector.getX(), sector.getZ());
+		Flatland& fs = sectors(sector.getX(), sector.getZ()).flat();
 		
 		// fetch sky levels
 		int skylevel[8];
@@ -327,8 +326,8 @@ namespace cppcraft
 					getBlockColor(fs, bx+11, skylevel[7], bz+11), 0.5);
 		
 		// set final color @ pixel (px, pz)
-		int px = bitmap->getWidth()  / 2 - Sectors.getXZ() + 2 * sector.getX();
-		int pz = bitmap->getHeight() / 2 - Sectors.getXZ() + 2 * sector.getZ();
+		int px = bitmap->getWidth()  / 2 - sectors.getXZ() + 2 * sector.getX();
+		int pz = bitmap->getHeight() / 2 - sectors.getXZ() + 2 * sector.getZ();
 		
 		Bitmap::rgba8_t* pixels = bitmap->data();
 		int scan = bitmap->getWidth();

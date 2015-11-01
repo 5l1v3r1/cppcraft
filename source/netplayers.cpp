@@ -6,7 +6,6 @@
 #include <library/bitmap/colortools.hpp>
 #include "blockmodels.hpp"
 #include "camera.hpp"
-#include "network.hpp"
 #include "player.hpp"
 #include "render_gui.hpp"
 #include "sectors.hpp"
@@ -115,9 +114,9 @@ namespace cppcraft
 	void NetPlayers::createTestPlayer()
 	{
 		w_coord wc;
-		wc.x = world.getWX() + Sectors.getXZ() / 2;
-		wc.z = world.getWZ() + Sectors.getXZ() / 2 - 1;
-		wc.y = Sectors.getY() / 2 + 6;
+		wc.x = world.getWX() + sectors.getXZ() / 2;
+		wc.z = world.getWZ() + sectors.getXZ() / 2 - 1;
+		wc.y = 0;
 		
 		vec3 pos(-6, 2.45, 9);
 		

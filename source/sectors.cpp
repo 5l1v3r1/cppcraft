@@ -1,25 +1,24 @@
 #include "sectors.hpp"
 
 #include "generator.hpp"
-#include "generatorq.hpp"
+#include <stdint.h>
 
 namespace cppcraft
 {
-	SectorContainer Sectors;
+	Sectors sectors;
 	
-	Sector* SectorContainer::sectorAt(float x, float y, float z) const
+	Sector* Sectors::sectorAt(float x, float z)
 	{
-		if (y >= 0 && y < Sector::BLOCKS_Y  * Sectors.getY() &&
-			x >= 0 && x < Sector::BLOCKS_XZ * Sectors.getXZ() &&
-			z >= 0 && z < Sector::BLOCKS_XZ * Sectors.getXZ())
+		if (x >= 0 && x < Sector::BLOCKS_XZ * getXZ() &&
+			z >= 0 && z < Sector::BLOCKS_XZ * getXZ())
 		{
-			return getSectorPtr(x / Sector::BLOCKS_XZ, y / Sector::BLOCKS_Y, z / Sector::BLOCKS_XZ);
+			return getSectorRef(x / Sector::BLOCKS_XZ, z / Sector::BLOCKS_XZ);
 		}
 		return nullptr;
 	}
 	
 	// allocates and initializes all Sectors
-	void SectorContainer::init(int sectors_xz)
+	void Sectors::init(int sectors_xz)
 	{
 		// set number of sectors on X/Z axes
 		this->sectors_XZ = sectors_xz;
@@ -29,60 +28,64 @@ namespace cppcraft
 		for (int x = 0; x < sectors_XZ; x++)
 		for (int z = 0; z < sectors_XZ; z++)
 		{
-			Sector* &first = getSectorColumn(x, z);
-			first = new Sector[SECTORS_Y];
-			
-			for (int y = 0; y < SECTORS_Y;  y++)
-			{
-				// initialize sector
-				first[y] = Sector(x, y, z);
-			}
+			// place pointer to new sector into (x, z)
+			getSectorRef(x, z) = new Sector(x, z);
 			
 		} // y, z, x
 	}
-	SectorContainer::~SectorContainer()
+	Sectors::~Sectors()
 	{
 		// iterate sectors
 		for (int x = 0; x < sectors_XZ; x++)
 		for (int z = 0; z < sectors_XZ; z++)
 		{
-			delete[] getSectorColumn(x, z);
+			delete getSectorRef(x, z);
 		}
 		delete[] this->sectors;
 	}
 	
-	void SectorContainer::updateAll()
+	void Sectors::updateAll()
+	{
+		// iterate sectors
+		for (int x = 0; x < sectors_XZ; x++)
+		for (int z = 0; z < sectors_XZ; z++)
+		{
+			Sector& sect = this[0](x, z);
+			
+			//! re-schedule all sectors to have the mesh regenerated
+			//! unless they are flagged as having all parts already scheduled
+			if (sect.meshgen != Sector::MESHGEN_ALL)
+				sect.updateMesh(Sector::MESHGEN_ALL);
+			
+		} // y, z, x
+	}
+	void Sectors::regenerateAll()
 	{
 		// iterate sectors
 		for (int x = 0; x < sectors_XZ; x++)
 		for (int z = 0; z < sectors_XZ; z++)
 		{
 			// get column
-			Sector* base = getSectorColumn(x, z);
-			// update all sectors in column
-			for (int y = 2; y < SECTORS_Y;  y++)
-			{
-				// recompile sector, if (we know) its at least not culled
-				if (base[y].contents == Sector::CONT_SAVEDATA &&
-					base[y].culled == false)
-					base[y].progress = Sector::PROG_NEEDRECOMP;
-			}
+			Sector& sect = this[0](x, z);
+			// clear generated flag and add to generator queue
+			sect.gen_flags &= ~1;
+			Generator::add(sect);
+			
 		} // y, z, x
 	}
-	void SectorContainer::regenerateAll()
+	
+	Flatland::flatland_t& Sectors::flatland_at(int x, int z)
 	{
-		// iterate sectors
-		for (int x = 0; x < sectors_XZ; x++)
-		for (int z = 0; z < sectors_XZ; z++)
-		{
-			// get column
-			Sector* base = getSectorColumn(x, z);
-			// clear all sectors in column, and add to generator queue
-			for (int y = 0; y < SECTORS_Y;  y++)
-			{
-				base[y].invalidate();
-			}
-			Generator::generate(Sectors(x, 0, z), nullptr, 0.0);
-		} // y, z, x
+		// find flatland sector
+		int fx = (x >> Sector::BLOCKS_XZ_SH) & INT32_MAX;
+		fx %= getXZ();
+		int fz = (z >> Sector::BLOCKS_XZ_SH) & INT32_MAX;
+		fz %= getXZ();
+		// find internal position
+		int bx = x & (Sector::BLOCKS_XZ-1);
+		int bz = z & (Sector::BLOCKS_XZ-1);
+		// return data structure
+		return flatland(fx, fz)(bx, bz);
 	}
+	
 }

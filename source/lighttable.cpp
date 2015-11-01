@@ -2,7 +2,7 @@
 
 #include <library/log.hpp>
 #include "lighting.hpp"
-#include "sector.hpp"
+#include "blocks_bordered.hpp"
 #include <cstring>
 
 using namespace library;
@@ -30,9 +30,10 @@ namespace cppcraft
 		this->value[index] = vcolor;
 	}
 	
-	vertex_color_t LightList::tableLight(Sector& sector, int x, int y, int z, int normal)
+	vertex_color_t LightList::tableLight(bordered_sector_t& sector, int x, int y, int z, int normal)
 	{
 		// if the table entry has already been set, 
+		/*
 		if (table.isset(x, y, z))
 		{
 			// return immediately with the precalculated complex color
@@ -40,13 +41,16 @@ namespace cppcraft
 		}
 		
 		// otherwise, calculate new complex color
-		vertex_color_t vcolor = Lighting.lightCheck(*this, sector, x, y, z, Lighting.ray_count);
+		vertex_color_t vcolor = Lighting.lightCheck(*this, sector, x, y, z, normal);
 		
 		// set (remember) value
 		table.set(x, y, z, vcolor);
 		
 		// return value
 		return vcolor;
+		*/
+		
+		return sector(x, y, z).getBlockLight();
 	}
 	
 }

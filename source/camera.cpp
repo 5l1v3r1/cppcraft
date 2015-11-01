@@ -24,15 +24,15 @@ namespace cppcraft
 		this->ref      = false;
 		this->needsupd = false;
 		
-		if (Sectors.getXZ() >= 80)
+		if (sectors.getXZ() >= 80)
 			this->gridsize = 32;
-		else if (Sectors.getXZ() >= 40)
+		else if (sectors.getXZ() >= 40)
 			this->gridsize = 16;
 		else
 			this->gridsize = 8;
 		
 		// sectors view depth-range
-		this->cameraViewSectors = Sectors.getXZ() / 2 - 2;
+		this->cameraViewSectors = sectors.getXZ() / 2 - 2;
 		// unit blocks depth-range
 		this->FOV   = config.get("frustum.fov", 61.0f);
 		this->znear = 0.136;
@@ -47,7 +47,7 @@ namespace cppcraft
 	void Camera::setWorldOffset(double posX, double posY, double posZ)
 	{
 		// calculate sectoral offsets
-		int halfWorld = Sectors.getXZ() * Sector::BLOCKS_XZ / 2;
+		int halfWorld = sectors.getXZ() * Sector::BLOCKS_XZ / 2;
 		
 		int dwx = World::WORLD_STARTING_X - world.getWX();
 		dwx = dwx * Sector::BLOCKS_XZ - halfWorld;

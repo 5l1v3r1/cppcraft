@@ -2,11 +2,10 @@
 
 #include "chunks.hpp"
 #include "columns.hpp"
-#include "flatlands.hpp"
 #include "player.hpp"
 #include "player_inputs.hpp"
 #include "precompq.hpp"
-#include "precompq_schedule.hpp"
+#include "compiler_scheduler.hpp"
 #include "sectors.hpp"
 #include "threading.hpp"
 #include "worldbuilder.hpp"
@@ -23,13 +22,13 @@ namespace cppcraft
 	void WorldManager::teleport(const World::world_t& coords, const library::vec3& position)
 	{
 		// center local grid on world coordinate location
-		teleport_wcoords.x = coords.x - Sectors.getXZ() / 2;
+		teleport_wcoords.x = coords.x - sectors.getXZ() / 2;
 		teleport_wcoords.y = 0;
-		teleport_wcoords.z = coords.z - Sectors.getXZ() / 2;
+		teleport_wcoords.z = coords.z - sectors.getXZ() / 2;
 		// center player on grid, add his local coordinates and offset by world coords.y
-		teleport_xyz.x = position.x + Sector::BLOCKS_XZ * Sectors.getXZ() / 2;
+		teleport_xyz.x = position.x + Sector::BLOCKS_XZ * sectors.getXZ() / 2;
 		teleport_xyz.y = position.y + Sector::BLOCKS_Y  * coords.y;
-		teleport_xyz.z = position.z + Sector::BLOCKS_XZ * Sectors.getXZ() / 2;
+		teleport_xyz.z = position.z + Sector::BLOCKS_XZ * sectors.getXZ() / 2;
 		// bzzzzzzzzzzzz
 		teleport_teleport = true;
 	}
@@ -53,9 +52,9 @@ namespace cppcraft
 		// flush chunk queue
 		chunks.flushChunks();
 		// finish running jobs
-		precompq.finish();
+		///precompq.finish();
 		// clear precomp scheduler
-		PrecompScheduler::reset();
+		CompilerScheduler::reset();
 		
 		mtx.sectorseam.lock();
 		{
@@ -63,8 +62,9 @@ namespace cppcraft
 			world.transitionTo(teleport_wcoords.x, teleport_wcoords.z);
 			
 			// invalidate ALL sectors
-			Sectors.regenerateAll();
+			sectors.regenerateAll();
 			
+			// move player to:
 			// center grid, center sector, center block
 			player.X = teleport_xyz.x;
 			player.Y = teleport_xyz.y;
@@ -72,8 +72,9 @@ namespace cppcraft
 			
 			mtx.compiler.lock();
 			{
-				for (int x = 0; x < Sectors.getXZ(); x++)
-				for (int z = 0; z < Sectors.getXZ(); z++)
+				// disable all terrain meshes
+				for (int x = 0; x < sectors.getXZ(); x++)
+				for (int z = 0; z < sectors.getXZ(); z++)
 				for (int y = 0; y < columns.getColumnsY(); y++)
 				{
 					columns(x, y, z).reset(y);

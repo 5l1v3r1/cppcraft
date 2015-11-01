@@ -1,6 +1,5 @@
 #include "threading.hpp"
 
-#include "library/config.hpp"
 #include "worldmanager.hpp"
 
 namespace cppcraft
@@ -10,7 +9,7 @@ namespace cppcraft
 	void ThreadingClass::initThreading(WorldManager& worldman)
 	{
 		// start world manager thread
-		mtx.worldman = std::thread(&WorldManager::main, &worldman);
+		mtx.worldman = std::thread(&WorldManager::submain, &worldman);
 	}
 	
 	void ThreadingClass::cleanupThreading()

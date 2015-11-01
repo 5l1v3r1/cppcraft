@@ -33,8 +33,10 @@ namespace cppcraft
 		
 		// initializer
 		void init(gamestate_t, library::WindowClass& scr, std::string& folder);
+		void exit();
 		void initPlayer();
 		// running thread function
+		void submain();
 		void main();
 		
 		void teleport(const World::world_t& coords, const library::vec3& position);

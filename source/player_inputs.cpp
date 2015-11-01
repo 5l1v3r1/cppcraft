@@ -5,7 +5,6 @@
 #include "chat.hpp"
 #include "gameconf.hpp"
 #include "menu.hpp"
-#include "network.hpp"
 #include "player_inputs.hpp"
 #include "player_logic.hpp"
 #include "sectors.hpp"
@@ -182,7 +181,7 @@ namespace cppcraft
 				input.hold(GLFW_KEY_F1);
 				
 				thesun.setRadianAngle(3.14159 * 1/8);
-				Sectors.updateAll();
+				//Sectors.updateAll();
 				worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F2) == Input::KEY_PRESSED)
@@ -190,7 +189,7 @@ namespace cppcraft
 				input.hold(GLFW_KEY_F2);
 				
 				thesun.setRadianAngle(3.14159 * 2/8);
-				Sectors.updateAll();
+				//Sectors.updateAll();
 				worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F3) == Input::KEY_PRESSED)
@@ -198,7 +197,7 @@ namespace cppcraft
 				input.hold(GLFW_KEY_F3);
 				
 				thesun.setRadianAngle(3.14159 * 3/8);
-				Sectors.updateAll();
+				//Sectors.updateAll();
 				worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F4) == Input::KEY_PRESSED)
@@ -206,7 +205,7 @@ namespace cppcraft
 				input.hold(GLFW_KEY_F4);
 				
 				thesun.setRadianAngle(-1);
-				Sectors.updateAll();
+				//Sectors.updateAll();
 				worldbuilder.reset();
 			}
 			
@@ -214,24 +213,23 @@ namespace cppcraft
 			{
 				input.hold(GLFW_KEY_C);
 				
-				Sector* sector = Sectors.sectorAt(player.X, player.Y, player.Z);
+				Sector* sector = sectors.sectorAt(player.X, player.Z);
 				if (sector)
 				{
-					logger << Log::INFO << "Sector (" << sector->getX() << ", " << sector->getY() << ", " << sector->getZ() << "): " << (int) sector->progress << Log::ENDL;
-					logger << Log::INFO << "culled= " << (int) sector->culled << ", render= " << sector->render 
-						<< ", content= " << (int) sector->contents << ", progress= " << (int) sector->progress << Log::ENDL;
+					logger << Log::INFO << "Sector (" << sector->getX() << ", " << sector->getZ() << "): " << (int) sector->generated() << Log::ENDL;
 				}
 			}
 			else if (input.getKey(GLFW_KEY_V) == Input::KEY_PRESSED)
 			{
 				input.hold(GLFW_KEY_V);
 				
+				/*
 				PackCoord plc(player.X, player.Y, player.Z);
 				if (plc.valid)
 				{
 					logger << Log::INFO << "World (" << plc.wc.x << ", " << plc.wc.y << ", " << plc.wc.z << ")" << Log::ENDL;
 					logger << Log::INFO << "Block (" << plc.bc.x << ", " << plc.bc.y << ", " << plc.bc.z << ")" << Log::ENDL;
-				}
+				}*/
 			}
 			
 			if (input.getKey(keyconf.k_flying) || keyconf.jbuttons[keyconf.joy_btn_flying])
@@ -305,8 +303,8 @@ namespace cppcraft
 			if (chatbox.isOpen() == false)
 			{
 				// say something, as long as its something :)
-				if (input.getText().size())
-					network.sendChat(input.getText());
+				//if (input.getText().size())
+				//	network.sendChat(input.getText());
 			}
 			input.clearText();
 		}

@@ -2,7 +2,6 @@
 
 #include <library/config.hpp>
 #include "sectors.hpp"
-#include "flatlands.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
 #include <fstream>
@@ -21,9 +20,7 @@ namespace cppcraft
 		const std::string DEFAULT_WORLD_FOLDER = "Worlds/test";
 		
 		int sectors_xz = config.get("world.viewdist", 48);
-		Sectors.init(sectors_xz);
-		// also, initialize 2D flatlands (fsectors)
-		flatlands.init();
+		sectors.init(sectors_xz);
 		
 		/// load world position from folder ///
 		
@@ -74,9 +71,9 @@ namespace cppcraft
 	void World::increaseDelta(int dx, int dz)
 	{
 		internal.x += dx;
-		while (internal.x < 0) internal.x += Sectors.getXZ();
+		while (internal.x < 0) internal.x += sectors.getXZ();
 		internal.z += dz;
-		while (internal.z < 0) internal.z += Sectors.getXZ();
+		while (internal.z < 0) internal.z += sectors.getXZ();
 	}
 	
 	void World::transitionTo(int wx, int wz)

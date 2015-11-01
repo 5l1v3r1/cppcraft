@@ -4,13 +4,13 @@
 
 # build options
 # -Ofast -mfpmath=both -march=native
-# -ggdb3 -fstack-protector -fexceptions
-BUILDOPT = -Ofast -ffast-math -march=native
+# -ggdb3 -fstack-protector
+BUILDOPT = -ggdb3 -fstack-protector #-Ofast -ffast-math -march=native
 # output file
 OUTPUT   = ./Debug/cppcraft
 
 # code folder
-SOURCE = source
+SOURCE = source source/generator
 
 # resource file
 ifeq ($(OS),Windows_NT)
@@ -22,9 +22,10 @@ endif
 # compiler
 CC = g++ $(BUILDOPT) -std=c++11
 # compiler flags
-CCFLAGS = -c -Wall -Wextra -pedantic -Iinc
+CCFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
 # linker flags
-LFLAGS  = -Llib -llibrary -lbass -llzo2 -llattice -lGLEW -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
+LFLAGS  = -static-libgcc -static-libstdc++ -Llib \
+	-llibrary -lbass -llzo2 -llattice -lGLEW -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
 ifeq ($(OS),Windows_NT)
 	LFLAGS  = -Llib -static -llibrary -lpthread -lbassdll -lglfw3 -lgdi32 -lglew32s -lopengl32 -llzo2 -llattice -lws2_32
 endif
@@ -58,6 +59,8 @@ CXXMODS = $(wildcard $(CXXDIRS))
 CCOBJS  = $(CCMODS:.c=.o)
 # convert .cpp to .o
 CXXOBJS = $(CXXMODS:.cpp=.o)
+# convert .o to .d
+DEPENDS = $(CXXOBJS:.o=.d) $(CCOBJS:.o=.d)
 # resource .rc to .o
 CCRES   = $(RESOURCES:.rc=.o)
 
@@ -69,4 +72,6 @@ all: $(CXXOBJS) $(CCOBJS) $(CCRES)
 
 # remove each known .o file, and output
 clean:
-	$(RM) $(CXXOBJS) $(CCOBJS) $(CCRES) *~ $(OUTPUT).*
+	$(RM) $(CXXOBJS) $(CCOBJS) $(CCRES) $(DEPENDS) *~ $(OUTPUT).*
+
+-include $(DEPENDS)

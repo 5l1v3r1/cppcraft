@@ -1,7 +1,6 @@
 #include "worldmanager.hpp"
 
 #include "chunks.hpp"
-#include "flatlands.hpp"
 #include "items.hpp"
 #include "lighting.hpp"
 #include "menu.hpp"
@@ -10,6 +9,7 @@
 #include "precompq.hpp"
 #include "sectors.hpp"
 #include "soundman.hpp"
+#include "threadpool.hpp"
 #include "world.hpp"
 #include "worldbuilder.hpp"
 
@@ -24,6 +24,8 @@ namespace cppcraft
 		player.initPlayer();
 		// initialize chunk systems
 		chunks.initChunks();
+		// initialize threads
+		AsyncPool::init();
 		// initialize precompiler systems
 		precompq.init();
 		// initialize lighting
@@ -43,13 +45,24 @@ namespace cppcraft
 		// initialize keyboard / joystick input
 		player.initInputs(gameScreen);
 	}
+	void WorldManager::exit()
+	{
+		// flush if queue still exists
+		chunks.flushChunks();
+		
+		// save our stuff!
+		world.save();
+		
+		// stop threadpool
+		AsyncPool::stop();
+	}
 	
 	void WorldManager::initPlayer()
 	{
 		// center grid, center sector, center block
-		player.X = ((float)Sectors.getXZ() / 2.0 - 0.5) * Sector::BLOCKS_XZ + 0.5;
+		player.X = ((float)sectors.getXZ() / 2.0 - 0.5) * Sector::BLOCKS_XZ + 0.5;
 		player.Z = player.X;
-		player.Y = Sectors.getY() * Sector::BLOCKS_Y * 0.75;
+		player.Y = Sector::BLOCKS_Y * 0.75;
 		// load world data (if any)
 		world.load();
 	}

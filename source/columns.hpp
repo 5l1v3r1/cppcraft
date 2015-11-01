@@ -100,10 +100,10 @@ namespace cppcraft
 		// column index operator
 		inline Column& operator() (int x, int y, int z)
 		{
-			x = (x + world.getDeltaX()) % Sectors.getXZ();
-			z = (z + world.getDeltaZ()) % Sectors.getXZ();
+			x = (x + world.getDeltaX()) % sectors.getXZ();
+			z = (z + world.getDeltaZ()) % sectors.getXZ();
 			
-			return columns[((x * Sectors.getXZ() + z) * height) + y];
+			return columns[((x * sectors.getXZ() + z) * height) + y];
 		}
 		
 	private:

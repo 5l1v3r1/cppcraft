@@ -1,11 +1,12 @@
 #include "worldbuilder.hpp"
 
-#include "library/log.hpp"
-#include "library/timing/timer.hpp"
+#include <library/log.hpp>
+#include <library/timing/timer.hpp>
 #include "compilers.hpp"
 #include "generator.hpp"
 #include "precompq.hpp"
 #include "sectors.hpp"
+#include "lighting.hpp"
 
 using namespace library;
 
@@ -35,17 +36,20 @@ namespace cppcraft
 	
 	bool wrunPrecomp(int xx, int zz)
 	{
-		Sector* sector = &Sectors(xx, 0, zz);
-		Sector* topsector = sector + Sectors.getY();
-		while (sector < topsector)
+		Sector& sector = sectors(xx, zz);
+		
+		if (sector.atmospherics == false)
 		{
-			if (sector->progress == Sector::PROG_NEEDRECOMP)
-			{
-				// stop if adding to precompq fails
-				if (precompq.addPrecomp(*sector) == false) return true;
-			}
-			sector++;
+			Lighting.atmosphericFlood(sector);
+			//return true;
 		}
+		
+		/*
+		if (sector.meshgen)
+		{
+			// add to mesh generation
+			precompq.add(sector);
+		}*/
 		return false;
 	}
 	
@@ -59,18 +63,18 @@ namespace cppcraft
 		//int diagonalsRun = 0;
 		//const int maxDiagsRun = 8;
 		
-		int center_x = Sectors.getXZ() / 2;
+		int center_x = sectors.getXZ() / 2;
 		#define center_z center_x
 		
 		// boundary clamping macro
 		#define rad_clamp()									\
-		if (z1 >= Sectors.getXZ()) z1 = Sectors.getXZ()-1;	\
+		if (z1 >= sectors.getXZ()) z1 = sectors.getXZ()-1;	\
 		if (z0 < 0) z0 = 0;									\
-		if (x1 >= Sectors.getXZ()) x1 = Sectors.getXZ()-1;  \
+		if (x1 >= sectors.getXZ()) x1 = sectors.getXZ()-1;  \
 		if (x0 < 0) x0 = 0;
 		
 		// diagonal max value
-		int corner_rad = Sectors.getXZ() / 2;
+		int corner_rad = sectors.getXZ() / 2;
 		
 		// iterator start/stop values for X, Z
 		int x0 = center_x - this->diagonal - 1;

@@ -4,7 +4,7 @@
 #include <library/sound/stream_channel.hpp>
 #include "biome.hpp"
 #include "blocks.hpp"
-#include "flatlands.hpp"
+#include "sectors.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
@@ -116,7 +116,7 @@ namespace cppcraft
 	{
 		// if player is under the terrain, somehow change
 		// ambience & music to cave themes
-		int groundLevel = flatlands.getGroundLevel(player.X, player.Z);
+		int groundLevel = sectors.flatland_at(player.X, player.Z).groundLevel;
 		const int CAVE_DEPTH = 6;
 		
 		bool inCaves = (player.Y < groundLevel - CAVE_DEPTH && player.Y < 64);

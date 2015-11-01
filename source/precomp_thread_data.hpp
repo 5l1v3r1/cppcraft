@@ -19,8 +19,8 @@ namespace cppcraft
 		vertex_t* databuffer[RenderConst::MAX_UNIQUE_SHADERS];
 		int       vertices[RenderConst::MAX_UNIQUE_SHADERS];
 		
-		Sector* sector;
-		visiblefaces_t* testdata;
+		// all the blocks
+		bordered_sector_t* sector;
 		
 		// lightdata scratch table
 		LightList ldata;
@@ -35,9 +35,6 @@ namespace cppcraft
 		// selected shader type (determined by block id)
 		int shaderLine;
 		
-		// vertex offset positions
-		short worldY, worldY_extra;
-		
 		// special properties of big tiles
 		bool repeat_y;
 		static const int repeat_factor;
@@ -45,11 +42,6 @@ namespace cppcraft
 		
 		// flatlands biome color index
 		int colorIndex;
-		
-		FlatlandSector* flatl;
-		FlatlandSector* flatl_x;
-		FlatlandSector* flatl_z;
-		FlatlandSector* flatl_xz;
 		
 		// vertex biome color index
 		int lastclid;

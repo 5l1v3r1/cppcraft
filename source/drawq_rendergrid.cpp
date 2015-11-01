@@ -28,8 +28,6 @@ namespace cppcraft
 		// FIXME: "stepsize + 1" should be "stepsize," but that causes frustum test misses
 		const float size = (stepsize+1) << 3;
 		
-		static const int MAX_Y = Sectors.SECTORS_Y * Sector::BLOCKS_Y;
-		
 		int countX = (x1 - x0) / bigstpx + 1;
 		int countZ = (z1 - z0) / bigstpz + 1;
 		
@@ -42,7 +40,7 @@ namespace cppcraft
 				
 				for (int z = z0; cz-- != 0; z += bigstpz)
 				{
-					if (rg.frustum->column(x2, z * Sector::BLOCKS_XZ + sizez, 0, MAX_Y, size))
+					if (rg.frustum->column(x2, z * Sector::BLOCKS_XZ + sizez, 0, Sector::BLOCKS_Y, size))
 					{
 						if (gridtest)
 							gridTesting(rg, x, z, stepsize);
@@ -61,7 +59,7 @@ namespace cppcraft
 				
 				for (int x = x0; cx-- != 0; x += bigstpx)
 				{
-					if (rg.frustum->column(x * Sector::BLOCKS_XZ + sizex, z2, 0, MAX_Y, size))
+					if (rg.frustum->column(x * Sector::BLOCKS_XZ + sizex, z2, 0, Sector::BLOCKS_Y, size))
 					{
 						if (gridtest)
 							gridTesting(rg, x, z, stepsize);
@@ -84,20 +82,20 @@ namespace cppcraft
 			if (x0 < visibility_border) x0 = visibility_border;
 			
 			x1 = x + (axis - 1);
-			if (x1 >= Sectors.getXZ() - visibility_border)
-				x1 = Sectors.getXZ()-1 - visibility_border;
+			if (x1 >= sectors.getXZ() - visibility_border)
+				x1 = sectors.getXZ()-1 - visibility_border;
 			
-			if (x0 >= Sectors.getXZ() - visibility_border || x0 > x1) return;
+			if (x0 >= sectors.getXZ() - visibility_border || x0 > x1) return;
 		}
 		else
 		{
-			if (x0 >= Sectors.getXZ() - visibility_border)
-				x0 = Sectors.getXZ()-1 - visibility_border;
+			if (x0 >= sectors.getXZ() - visibility_border)
+				x0 = sectors.getXZ()-1 - visibility_border;
 			
 			x1 = x - (axis - 1);
 			if (x1 < visibility_border) x1 = visibility_border;
 			
-			if (x1 >= Sectors.getXZ() - visibility_border || x1 > x0) return;
+			if (x1 >= sectors.getXZ() - visibility_border || x1 > x0) return;
 		}
 		
 		int y0, y1;
@@ -117,25 +115,25 @@ namespace cppcraft
 			if (z0 < visibility_border) z0 = visibility_border;
 			
 			z1 = z + (axis - 1);
-			if (z1 >= Sectors.getXZ() - visibility_border)
-				z1 = Sectors.getXZ()-1 - visibility_border;
+			if (z1 >= sectors.getXZ() - visibility_border)
+				z1 = sectors.getXZ()-1 - visibility_border;
 			
-			if (z0 >= Sectors.getXZ() - visibility_border || z0 > z1) return;
+			if (z0 >= sectors.getXZ() - visibility_border || z0 > z1) return;
 		}
 		else
 		{
-			if (z0 >= Sectors.getXZ() - visibility_border)
-				z0 = Sectors.getXZ()-1 - visibility_border;
+			if (z0 >= sectors.getXZ() - visibility_border)
+				z0 = sectors.getXZ()-1 - visibility_border;
 			
 			z1 = z - (axis - 1);
 			if (z1 < visibility_border) z1 = visibility_border;
 			
-			if (z1 >= Sectors.getXZ() - visibility_border || z1 > z0) return;
+			if (z1 >= sectors.getXZ() - visibility_border || z1 > z0) return;
 		}
 		
 		int y = y0;
 		x = x0; z = z0;
-		float center_grid = Sectors.getXZ() / 2;
+		float center_grid = sectors.getXZ() / 2;
 		float max_gridrad = (center_grid-1);
 		max_gridrad *= max_gridrad;
 		

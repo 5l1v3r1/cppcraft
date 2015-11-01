@@ -1,6 +1,7 @@
 #include "precomp_thread_data.hpp"
 
 #include "blockmodels.hpp"
+#include "blocks_bordered.hpp"
 #include "spiders.hpp"
 
 namespace cppcraft
@@ -78,10 +79,10 @@ namespace cppcraft
 		int model = currentBlock.getFacing();
 		
 		// find all direct neighbors
-		Block& mpx = Spiders::getBlock(*sector, bx+1, by, bz);
-		Block& mnx = Spiders::getBlock(*sector, bx-1, by, bz);
-		Block& mpz = Spiders::getBlock(*sector, bx, by, bz+1);
-		Block& mnz = Spiders::getBlock(*sector, bx, by, bz-1);
+		Block& mpx = sector->get(bx+1, by, bz);
+		Block& mnx = sector->get(bx-1, by, bz);
+		Block& mpz = sector->get(bx, by, bz+1);
+		Block& mnz = sector->get(bx, by, bz-1);
 		
 		// select special models for stair connections
 		// all stairs connect, even if they don't have the same id

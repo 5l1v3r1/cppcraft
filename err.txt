@@ -1,1 +1,0 @@
-(information) Failed to load std.cfg. Your Cppcheck installation is broken, please re-install. The Cppcheck binary was compiled without CFGDIR set. Either the std.cfg should be available in cfg or the CFGDIR should be configured.

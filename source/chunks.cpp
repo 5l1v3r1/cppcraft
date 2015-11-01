@@ -5,14 +5,14 @@
 #include <library/log.hpp>
 #include "compressor.hpp"
 #include "sectors.hpp"
-#include "flatlands.hpp"
 #include "world.hpp"
+#include <cassert>
 
 using namespace library;
 
 namespace cppcraft
 {
-	static const int chunk_offset = Chunks::CHUNK_SIZE * Sectors.getY() * Chunks::CHUNK_SIZE;
+	static const int chunk_offset = Chunks::CHUNK_SIZE * Chunks::CHUNK_SIZE;
 	
 	Chunks chunks;
 	
@@ -131,57 +131,47 @@ namespace cppcraft
 		int dx = (world.getWX() + s.getX()) & (CHUNK_SIZE - 1);
 		int dz = (world.getWZ() + s.getZ()) & (CHUNK_SIZE - 1);
 		
-		int P = (1 + dx + s.getY() * CHUNK_SIZE + dz * CHUNK_SIZE * Sectors.getY()) * sizeof(int);
+		int P = (1 + dx + dz * CHUNK_SIZE) * sizeof(int);
 		int PL;
 		
-		if (s.contents == Sector::CONT_NULLSECTOR)
-		{
-			// nullsector has location '0'
-			PL = 0;
+		// get location of data for this sector (slot)
+		// relative to beginning of file
+		File.seekg(P);
+		// read position data
+		File.read((char*) &PL, sizeof(PL));
+		
+		// if we failed to read, PL must be set to 0
+		if (!File) PL = 0;
+		
+		if (PL == 0)
+		{   // sector was not written! sound the alarm!
+			int currentCnt;
+			// get current number of sectors already written
+			File.seekg(0);
+			File.read( (char*) &currentCnt, sizeof(currentCnt) );
+			
+			// if we failed to read, currentCnt must be set to 0
+			if (!File) currentCnt = 0;
+			
+			PL = (1 + chunk_offset) * sizeof(int) + currentCnt * sizeof(Sector::sectorblock_t);
+			
 			// put location of data
 			File.seekp(P);
 			File.write( (char*) &PL, sizeof(PL) );
+			
+			// increase count, and update it
+			currentCnt++;
+			File.seekp(0);
+			File.write( (char*) &currentCnt, sizeof(currentCnt) );
 		}
-		else
-		{
-			// get location of data for this sector (slot)
-			// relative to beginning of file
-			File.seekg(P);
-			// read position data
-			File.read((char*) &PL, sizeof(PL));
-			
-			// if we failed to read, PL must be set to 0
-			if (!File) PL = 0;
-			
-			if (PL == 0)
-			{   // sector was not written! sound the alarm!
-				int currentCnt;
-				// get current number of sectors already written
-				File.seekg(0);
-				File.read( (char*) &currentCnt, sizeof(currentCnt) );
-				
-				// if we failed to read, currentCnt must be set to 0
-				if (!File) currentCnt = 0;
-				
-				PL = (1 + chunk_offset) * sizeof(int) + currentCnt * sizeof(Sector::sectorblock_t);
-				
-				// put location of data
-				File.seekp(P);
-				File.write( (char*) &PL, sizeof(PL) );
-				
-				// increase count, and update it
-				currentCnt++;
-				File.seekp(0);
-				File.write( (char*) &currentCnt, sizeof(currentCnt) );
-			}
-			
-			// reset all state flags
-			File.clear();
-			
-			// write sectorblock_t to disk
-			File.seekp(PL);
-			File.write( (char*) s.blockpt, sizeof(Sector::sectorblock_t) );
-		}
+		
+		// reset all state flags
+		File.clear();
+		
+		// write sectorblock_t to disk
+		File.seekp(PL);
+		File.write( (char*) &s.getBlocks(), sizeof(Sector::sectorblock_t) );
+		
 		if (!File)
 		{
 			logger << Log::ERR << "Error writing sectoral data: " << PL << Log::ENDL;
@@ -194,29 +184,30 @@ namespace cppcraft
 		
 	} // writeSector
 	
-	void Chunks::loadSector(Sector& sector, std::ifstream& File, unsigned int PL)
+	bool Chunks::loadSector(Sector& sector, std::ifstream& File, unsigned int PL)
 	{
-		// allocate sectorblock_t if necessary
-		if (sector.blockpt == nullptr)
-			sector.createBlocks();
+		// sector needs to have blocks allocated
+		assert(sector.hasBlocks() == true);
 		
 		File.seekg(PL);
-		File.read( (char*) sector.blockpt, sizeof(Sector::sectorblock_t) );
+		File.read( (char*) &sector.getBlocks(), sizeof(Sector::sectorblock_t) );
 		
 		if (!File.good())
 		{
 			logger << Log::ERR << "Sector data unreadable(2)! Sector flagged as saved." << Log::ENDL;
-			sector.contents = Sector::CONT_NULLSECTOR;
-			return;
+			//sector.generated = false;
+			return false;
 		}
 		
-		if (sector.blockpt->blocks == 0)
+		if (sector.getBlocks().blocks == 0)
 		{
 			logger << Log::WARN << "*** Recorrection to nullsector - buggy chunk file" << Log::ENDL;
-			sector.contents = Sector::CONT_NULLSECTOR;
+			//sector.generated = false;
+			return false;
 		}
 		
 		// if (s->blockpt->special) loadSpecialDataEx(s, File);
+		return true;
 	}
 	
 }

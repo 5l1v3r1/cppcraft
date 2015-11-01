@@ -1,9 +1,9 @@
 #include <library/log.hpp>
+#include "blocks_bordered.hpp"
 #include "gameconf.hpp"
 #include "precomp_thread.hpp"
 #include "precompiler.hpp"
 #include "renderconst.hpp"
-#include "sector.hpp"
 #include "spiders.hpp"
 #include "tiles.hpp"
 
@@ -31,7 +31,7 @@ namespace cppcraft
 		if (precomp.datadump == nullptr)
 		{
 			logger << Log::ERR << "PrecompThread::ambientOcclusion(): datadump was null" << Log::ENDL;
-			precomp.result = Precomp::STATUS_FAILED;
+			precomp.status = Precomp::STATUS_FAILED;
 			return;
 		}
 		
@@ -44,7 +44,7 @@ namespace cppcraft
 		
 		// ambient occlusion processing stage
 	#ifdef AMBIENT_OCCLUSION_GRADIENTS
-		ambientOcclusionGradients(*precomp.sector, precomp.datadump, cnt);
+		ambientOcclusionGradients(precomp.sector, precomp.datadump, cnt);
 	#endif
 		
 	#ifdef TIMING
@@ -80,7 +80,7 @@ namespace cppcraft
 	#endif
 		
 		// set result
-		precomp.result = Precomp::STATUS_DONE;
+		precomp.status = Precomp::STATUS_DONE;
 	}
 	
 	
@@ -89,20 +89,16 @@ namespace cppcraft
 		if (side1 & side2) return 3;
 		return side1 + side2 + corner;
 	}
-	inline unsigned char blockIsOccluder(int x, int y, int z)
+	inline unsigned char blockIsOccluder(bordered_sector_t& sector, int x, int y, int z)
 	{
-		block_t id = Spiders::getBlock(x, y, z).getID();
+		block_t id = sector(x, y, z).getID();
 		return (id > AIR_END && id < CROSS_START && id != _LANTERN && id != _VINES) & 1;
 	}
 	
-	void PrecompThread::ambientOcclusionGradients(Sector& sector, vertex_t* datadump, int vertexCount)
+	void PrecompThread::ambientOcclusionGradients(bordered_sector_t& sector, vertex_t* datadump, int vertexCount)
 	{
 		static unsigned char shadowRamp[] = 
 			{ 255, 255 - 72, 255 - 90, 255 - 130 };
-		
-		// world height in block units
-		int sbx = sector.getX() << Sector::BLOCKS_XZ_SH;
-		int sbz = sector.getZ() << Sector::BLOCKS_XZ_SH;
 		
 		// calculate face counts for each integral vertex position
 		vertex_t* vt; // first vertex
@@ -110,9 +106,7 @@ namespace cppcraft
 		// the channel used for AO in a vertex
 		#define vertexAO(vt)  ((unsigned char*)&((vt)->c))[2]
 		
-		unsigned char vside1;
-		unsigned char vside2;
-		unsigned char vcorner;
+		unsigned char vside1, vside2, vcorner;
 		
 		for (vt = datadump; vt < vt_max; vt++)
 		if (vt->face) // only supported faces!
@@ -127,9 +121,9 @@ namespace cppcraft
 			// 3 = +y top,   4 = -y bottom
 			// 5 = +x right, 6 = -x left
 			
-			int x = ((vt->x + 4) >> RenderConst::VERTEX_SHL) + sbx;
+			int x = ((vt->x + 4) >> RenderConst::VERTEX_SHL);
 			int y = ((vt->y + 4) >> RenderConst::VERTEX_SHL);
-			int z = ((vt->z + 4) >> RenderConst::VERTEX_SHL) + sbz;
+			int z = ((vt->z + 4) >> RenderConst::VERTEX_SHL);
 			// move points back to where they should be
 			x -= (corner & 1);         // extra height from some models
 			y -= ((corner & 2) >> 1) - (vt->face >> 6);
@@ -141,21 +135,21 @@ namespace cppcraft
 			
 			if (face < 3) // +/-z
 			{
-				vside1  = blockIsOccluder(x+vdirX, y,       z+vdirZ);
-				vside2  = blockIsOccluder(x,       y+vdirY, z+vdirZ);
-				vcorner = blockIsOccluder(x+vdirX, y+vdirY, z+vdirZ);
+				vside1  = blockIsOccluder(sector, x+vdirX, y,       z+vdirZ);
+				vside2  = blockIsOccluder(sector, x,       y+vdirY, z+vdirZ);
+				vcorner = blockIsOccluder(sector, x+vdirX, y+vdirY, z+vdirZ);
 			}
 			else if (face < 5) // +/-y
 			{
-				vside1  = blockIsOccluder(x+vdirX, y+vdirY, z);
-				vside2  = blockIsOccluder(x,       y+vdirY, z+vdirZ);
-				vcorner = blockIsOccluder(x+vdirX, y+vdirY, z+vdirZ);
+				vside1  = blockIsOccluder(sector, x+vdirX, y+vdirY, z);
+				vside2  = blockIsOccluder(sector, x,       y+vdirY, z+vdirZ);
+				vcorner = blockIsOccluder(sector, x+vdirX, y+vdirY, z+vdirZ);
 			}
 			else // +/-x
 			{
-				vside1  = blockIsOccluder(x+vdirX, y+vdirY, z);
-				vside2  = blockIsOccluder(x+vdirX, y,       z+vdirZ);
-				vcorner = blockIsOccluder(x+vdirX, y+vdirY, z+vdirZ);
+				vside1  = blockIsOccluder(sector, x+vdirX, y+vdirY, z);
+				vside2  = blockIsOccluder(sector, x+vdirX, y,       z+vdirZ);
+				vcorner = blockIsOccluder(sector, x+vdirX, y+vdirY, z+vdirZ);
 			}
 			
 			unsigned char v = cubeAO(vside1, vside2, vcorner);

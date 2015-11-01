@@ -502,23 +502,24 @@ namespace cppcraft
 			switch (b.getFacing())
 			{
 				case 0: // +z
-					if (b.getSpecial() and 2) return dx < 0.25;
+					if (b.getExtra() & 2) return dx < 0.25;
 					return dz > 0.75;
 				case 1: // -z
-					if (b.getSpecial() and 2) return dx > 0.75;
+					if (b.getExtra() & 2) return dx > 0.75;
 					return dz < 0.25;
 				case 2: // +x
-					if (b.getSpecial() and 2) return dz > 0.75;
+					if (b.getExtra() & 2) return dz > 0.75;
 					return dx > 0.75;
 				case 3: // -x
-					if (b.getSpecial() and 2) return dz < 0.25;
+					if (b.getExtra() & 2) return dz < 0.25;
 					return dx < 0.25;
 			}
 		}
 		else if (b.getID() == _LANTERN || b.getID() == _LANTERN_OFF)
 		{
 			const float csize = 0.2;
-			return (dx > csize and dx < 1.0 - csize) and (dy < 0.6) and (dz > csize and dz < 1.0 - csize);
+			return (dx > csize && dx < 1.0 - csize)
+				&& (dy < 0.6) && (dz > csize && dz < 1.0 - csize);
 		}
 		else if (b.getID() >= STAIRS_START && b.getID() <= STAIRS_END)
 		{
@@ -544,11 +545,11 @@ namespace cppcraft
 		}
 		else if (b.getID() >= LOWBLOCK_START && b.getID() <= LOWBLOCK_END)
 		{
-			return (dy >= b.getSpecial() * 0.125) and (dy < (1 + b.getSpecial()) * 0.125);
+			return (dy >= b.getExtra() * 0.125) && (dy < (1 + b.getExtra()) * 0.125);
 		}
 		else if (b.getID() >= HALFBLOCK_START && b.getID() <= HALFBLOCK_END)
 		{
-			return (dy >= b.getSpecial() * 0.5) and (dy < (1 + b.getSpecial()) * 0.5);
+			return (dy >= b.getExtra() * 0.5) && (dy < (1 + b.getExtra()) * 0.5);
 		}
 		else if (b.getID() >= CROSS_START && b.getID() <= CROSS_END)
 		{
@@ -708,14 +709,17 @@ namespace cppcraft
 		}
 		else if (isHalfblock(this->getID()))
 		{
-			if (isHalfblock(b.getID())) return b.getSpecial() != this->getSpecial();
+			if (isHalfblock(b.getID()))
+				return (b.getExtra() != this->getExtra());
 			
 			return (isAir(b.getID()) || b.getID() > HALFBLOCK_END);
 		}
 		else if (isLowblock(this->getID()))
 		{
-			if (isLowblock(b.getID())) return b.getSpecial() != this->getSpecial();
-			if (isHalfblock(b.getID())) return b.getSpecial() != (this->getSpecial() / 8);
+			if (isLowblock(b.getID()))
+				return (b.getExtra() != this->getExtra());
+			if (isHalfblock(b.getID())) 
+				return (b.getExtra() != (this->getExtra() / 8));
 			
 			return (b.getID() == _AIR) || (b.getID() > LOWBLOCK_END);
 		}
@@ -753,30 +757,30 @@ namespace cppcraft
 			if (b.getID() < HALFBLOCK_START) return false;
 			
 			// half and low blocks:
-			return b.getSpecial() != 0;
+			return b.getExtra() != 0;
 		}
 		else if (isHalfblock(this->getID()))
 		{
-			if (this->getSpecial() == 0) return true;
+			if (this->getExtra() == 0) return true;
 			
-			if (isHalfblock(b.getID())) return b.getSpecial() != 0;
-			if (isLowblock(b.getID())) return b.getSpecial() != 0;
+			if (isHalfblock(b.getID())) return b.getExtra() != 0;
+			if (isLowblock(b.getID())) return b.getExtra() != 0;
 			
 			return (b.getID() == _AIR || b.getID() > LOWBLOCK_END);
 		}
 		else if (isLowblock(this->getID()))
 		{
-			if (this->getSpecial() < 7) return true;
+			if (this->getExtra() < 7) return true;
 			
-			if (isHalfblock(b.getID())) return b.getSpecial() != 0;
-			if (isLowblock(b.getID())) return b.getSpecial() != 0;
+			if (isHalfblock(b.getID())) return b.getExtra() != 0;
+			if (isLowblock(b.getID())) return b.getExtra() != 0;
 			
 			return (b.getID() == _AIR || b.getID() > LOWBLOCK_END);
 		}
 		else if (this->getID() < ALPHA_BARRIER)
 		{
-			if (isHalfblock(b.getID())) return b.getSpecial() != 0;
-			if (isLowblock(b.getID())) return b.getSpecial() != 0;
+			if (isHalfblock(b.getID())) return b.getExtra() != 0;
+			if (isLowblock(b.getID())) return b.getExtra() != 0;
 			
 			return (b.getID() == _AIR) || b.getID() > LOWBLOCK_END;
 		}
@@ -800,26 +804,26 @@ namespace cppcraft
 		}
 		else if (isHalfblock(this->getID()))
 		{
-			if (this->getSpecial() == 1) return true; // since the block is on top of itself, always draw
+			if (this->getExtra() == 1) return true; // since the block is on top of itself, always draw
 			
-			if (isHalfblock(b.getID())) return b.getSpecial() == 0;
-			if (isLowblock(b.getID())) return b.getSpecial() != 7;
+			if (isHalfblock(b.getID())) return b.getExtra() == 0;
+			if (isLowblock(b.getID())) return b.getExtra() != 7;
 			
 			return (b.getID() == _AIR) || b.getID() > LOWBLOCK_END;
 		}
 		else if (isLowblock(this->getID()))
 		{
-			if (this->getSpecial() != 0) return true; // since the block is on top of itself, always draw
+			if (this->getExtra() != 0) return true; // since the block is on top of itself, always draw
 			
-			if (isHalfblock(b.getID())) return b.getSpecial() == 0;
-			if (isLowblock(b.getID())) return b.getSpecial() != 7;
+			if (isHalfblock(b.getID())) return b.getExtra() == 0;
+			if (isLowblock(b.getID())) return b.getExtra() != 7;
 			
 			return (b.getID() == _AIR) || b.getID() > LOWBLOCK_END;
 		}
 		else if (this->getID() < ALPHA_BARRIER)
 		{
-			if (isHalfblock(b.getID())) return b.getSpecial() != 1;
-			if (isLowblock(b.getID())) return b.getSpecial() != 7;
+			if (isHalfblock(b.getID())) return b.getExtra() != 1;
+			if (isLowblock(b.getID())) return b.getExtra() != 7;
 			
 			return (b.getID() == _AIR) || b.getID() > LOWBLOCK_END;
 		}

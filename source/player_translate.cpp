@@ -3,7 +3,6 @@
 #include <library/log.hpp>
 #include <library/math/toolbox.hpp>
 #include <library/opengl/input.hpp>
-#include "flatlands.hpp"
 #include "player.hpp"
 #include "player_inputs.hpp"
 #include "player_physics.hpp"
@@ -391,9 +390,9 @@ namespace cppcraft
 		plogic.Moved = moved;
 		
 		/// set player sector ///
-		plogic.sector = Sectors.sectorAt(player.X, player.Y, player.Z);
+		plogic.sector = sectors.sectorAt(player.X, player.Z);
 		/// set player terrain id ///
-		plogic.terrain = flatlands.getTerrain(player.X, player.Z);
+		plogic.terrain = sectors.flatland_at(player.X, player.Z).terrain;
 		
 		// if the player is flying, set certain flags and just exit
 		if (player.Flying)

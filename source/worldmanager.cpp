@@ -4,8 +4,7 @@
 #include <library/timing/timer.hpp>
 #include <library/sleep.hpp>
 #include "chunks.hpp"
-#include "generatorq.hpp"
-#include "network.hpp"
+#include "generator.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
@@ -24,18 +23,13 @@ namespace cppcraft
 	static const double MAX_TIMING_WAIT  = 0.012;
 	static const double TIMING_SLEEP_TIME = TIMING_TICKTIMER / 2.0;
 	
+	void WorldManager::submain()
+	{
+		main();
+		exit();
+	}
 	void WorldManager::main()
 	{
-		try
-		{
-			// start me some networking
-			network.init(*this);
-		}
-		catch (std::string exc)
-		{
-			logger << Log::ERR << "Network::init(): " << exc << Log::ENDL;
-		}
-		
 		// integral delta timing
 		Timer timer;
 		double localTime = timer.getTime();
@@ -114,7 +108,7 @@ namespace cppcraft
 				/// ---------- GENERATOR ----------- ///
 				///----------------------------------///
 				// mandatory to run entire operation
-				generatorQueue.run();
+				Generator::run();
 				
 				double timeOut = localTime + MAX_TIMING_WAIT;
 				
@@ -123,10 +117,10 @@ namespace cppcraft
 				
 				// update shadows if sun has travelled far
 				// but not when connected to a network
-				if (network.isConnected() == false)
-				{
-					thesun.travelCheck();
-				}
+				//if (network.isConnected() == false)
+				//{
+				//	thesun.travelCheck();
+				//}
 				
 				///----------------------------------///
 				/// --------- PRECOMPILER ---------- ///
@@ -153,6 +147,7 @@ namespace cppcraft
 				/// -------- WORLD BUILDER --------- ///
 				///----------------------------------///
 				// precompq queue must be empty (aka ready for more stuff)
+				/*
 				if (precompq.ready())
 				{
 					//double t0 = timer.getTime();
@@ -176,13 +171,13 @@ namespace cppcraft
 					
 					//double t1 = timer.getTime();
 					//logger << "WB time: " << t1 - t0 << Log::ENDL;
-				}
+				}*/
 				
 				break;
-			} // world builder
+			} // world tick
 			
 			// send & receive stuff
-			network.handleNetworking();
+			//network.handleNetworking();
 			
 			// flush chunk write queue
 			chunks.flushChunks();
@@ -194,17 +189,6 @@ namespace cppcraft
 			}*/
 		}
 		
-		// flush if queue still exists
-		chunks.flushChunks();
-		
-		// save our stuff!
-		world.save();
-		
-		// stop precompq
-		precompq.stop();
-		
-		// stop & wait for network thread
-		network.stop();
-		
-	}
+	} // world thread
+	
 }

@@ -30,7 +30,7 @@ namespace cppcraft
 		//////////////////////
 		// allocate columns //
 		//////////////////////
-		int num_columns = Sectors.getXZ() * Sectors.getXZ() * this->height;
+		int num_columns = sectors.getXZ() * sectors.getXZ() * this->height;
 		this->columns = 
 			new Column[num_columns]();
 		
@@ -53,13 +53,13 @@ namespace cppcraft
 		
 		sectorLevels = new int[this->height];
 		sectorLevels[0] = 0;
-		sectorLevels[1] = 7;
-		sectorLevels[2] = 8;
+		sectorLevels[1] = 3;
+		sectorLevels[2] = 4;
 		
 		sectorSizes = new int[this->height];
-		sectorSizes[0] = 7;
-		sectorSizes[1] = 1;
-		sectorSizes[2] = Sectors.getY() - 8;
+		sectorSizes[0] =  3;
+		sectorSizes[1] =  1;
+		sectorSizes[2] = 12;
 		
 		// NOTE ASSUMPTION: TOP COLUMN IS TALLEST
 		int tallest = sectorSizes[height - 1];
@@ -78,7 +78,7 @@ namespace cppcraft
 	}
 	Columns::~Columns()
 	{
-		int num_columns = Sectors.getXZ() * Sectors.getXZ() * this->height;
+		int num_columns = sectors.getXZ() * sectors.getXZ() * this->height;
 		for (int i = 0; i < num_columns; i++)
 		{
 			int y = i % this->height;

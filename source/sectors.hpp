@@ -6,34 +6,40 @@
 namespace cppcraft
 {
 
-	class SectorContainer
+	class Sectors
 	{
 	public:
-		~SectorContainer();
+		~Sectors();
 		
-		static const int SECTORS_Y = 32;
-		static const int SECTORS_Y_SHL = 5;
 		static const int MAX_SECTORS_XZ_GRIDSIZE = 128;
 		
 		// initializes with axis length, called from World::init()
 		void init(int xz);
+		// returns the sector axes length (double the view distance)
+		int getXZ() const { return this->sectors_XZ; }
 		
-		inline int getXZ() const { return this->sectors_XZ; }
-		inline int getY()  const { return SECTORS_Y; }
-		
-		// returns a reference to a Sector located at (x, y, z)
-		inline Sector& operator() (int x, int y, int z)
+		// returns a reference to a Sector located at (x, z)
+		inline Sector& operator() (int sx, int sz)
 		{
-			return *this->getSectorPtr(x, y, z);
+			return *this->getSector(sx, sz);
 		}
-		// returns a reference to a Sector located at (x, 0, z)
-		inline Sector& operator() (int x, int z)
+		inline Flatland& flatland(int sx, int sz)
 		{
-			return *this->getSectorColumn(x, z);
+			return this->getSector(sx, sz)->flat();
 		}
 		
-		// returns sector at position (x, y, z), or null
-		Sector* sectorAt(float x, float y, float z) const;
+		// returns sector at position (x, z), or null
+		Sector* sectorAt(float x, float z);
+		// returns flatland at (x, z), or GOD HELP US ALL
+		Flatland::flatland_t& flatland_at(int x, int z);
+		
+		// the rectilinear distance from origin, used in sorting by viewdistance 
+		// for mesh generation and terrain generation priority list
+		int rectilinearDistance(Sector& sector) const
+		{
+			// simple rectilinear distance (aka manhattan distance)
+			return std::abs(sector.getX() - sectors_XZ / 2) + std::abs(sector.getZ() - sectors_XZ / 2);
+		}
 		
 		// updates all sectors, for eg. when sun-position changed
 		void updateAll();
@@ -41,35 +47,36 @@ namespace cppcraft
 		void regenerateAll();
 		
 	private:
-		// returns a reference to a pointer to a sector, which is ONLY used by Seamless
-		inline Sector*& getSectorColumn(int x, int z)
+		// returns a pointer to the sector at (x, z)
+		inline Sector* getSector(int x, int z)
 		{
 			return this->sectors[x * sectors_XZ + z];
 		}
-		inline Sector* getSectorPtr(int x, int y, int z) const
+		// returns a reference to a pointer to a sector, which is ONLY used by Seamless
+		inline Sector*& getSectorRef(int x, int z)
 		{
-			// custom order: (x, z, y)
-			// internal only, outside sources don't care
-			return this->sectors[x * sectors_XZ + z] + y;
+			return this->sectors[x * sectors_XZ + z];
 		}
 		
 		// Seamless: moves sector (x2, z2) to (x, z)
 		inline void move(int x, int z, int x2, int z2)
 		{
-			Sector*& s = getSectorColumn(x, z);
+			Sector*& s = getSectorRef(x, z);
 			// move to new position
-			s = getSectorColumn(x2, z2);
+			s = getSectorRef(x2, z2);
 			s->x = x;
 			s->z = z;
 		}
 		
-		Sector** sectors;
-		int sectors_XZ; // sectors XZ-axes size
+		// 3d and 2d data containers
+		Sector**   sectors;
+		// sectors XZ-axes size
+		int sectors_XZ;
 		
 		friend class Seamless;
 		friend class Spiders;
 	};
-	extern SectorContainer Sectors;
+	extern Sectors sectors;
 	
 }
 

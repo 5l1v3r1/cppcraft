@@ -9,6 +9,7 @@
 
 namespace cppcraft
 {
+	// _AIR block with max lighting
 	Block air_block(_AIR);
 	
 	// wrap absolute position
@@ -18,86 +19,65 @@ namespace cppcraft
 		int fy = by >> Sector::BLOCKS_Y_SH;
 		int fz = bz >> Sector::BLOCKS_XZ_SH;
 		
-		if (fx < 0 || fx >= Sectors.getXZ() || 
-			fz < 0 || fz >= Sectors.getXZ() || 
-			fy < 0 || fy >= Sectors.SECTORS_Y)
+		if (fx < 0 || fx >= sectors.getXZ() || 
+			fz < 0 || fz >= sectors.getXZ() || 
+			fy != 0)
 				return nullptr;
 		
 		bx &= (Sector::BLOCKS_XZ-1);
 		by &= (Sector::BLOCKS_Y-1);
 		bz &= (Sector::BLOCKS_XZ-1);
-		return Sectors.getSectorPtr(fx, fy, fz);
+		return sectors.getSector(fx, fz);
 	}
 	
 	// wrap position relative to sector
 	Sector* Spiders::spiderwrap(Sector& s, int& bx, int& by, int& bz)
 	{
 		int fx = s.getX() + (bx >> Sector::BLOCKS_XZ_SH);
-		int fy = s.getY() + (by >> Sector::BLOCKS_Y_SH);
+		int fy = by >> Sector::BLOCKS_Y_SH;
 		int fz = s.getZ() + (bz >> Sector::BLOCKS_XZ_SH);
 		
-		if (fx < 0 || fx >= Sectors.getXZ() || 
-			fz < 0 || fz >= Sectors.getXZ() || 
-			fy < 0 || fy >= Sectors.SECTORS_Y)
+		if (fx < 0 || fx >= sectors.getXZ() || 
+			fz < 0 || fz >= sectors.getXZ() || 
+			fy != 0)
 				return nullptr;
 		
 		bx &= (Sector::BLOCKS_XZ-1);
 		by &= (Sector::BLOCKS_Y-1);
 		bz &= (Sector::BLOCKS_XZ-1);
-		return Sectors.getSectorPtr(fx, fy, fz);
+		return sectors.getSector(fx, fz);
 	}
 	
 	Block& Spiders::getBlock(int x, int y, int z)
 	{
 		Sector* ptr = spiderwrap(x, y, z);
-		if (ptr == nullptr) return air_block;
-		
-		if (ptr->progress == Sector::PROG_NEEDGEN)
+		if (ptr)
 		{
-			if (ptr->contents == Sector::CONT_NULLSECTOR)
-			{
-				throw std::string("ERROR: Sector was nullsector (CONT_NULLSECTOR), yet needed generation (PROG_NEEDGEN).");
-			}
-			// generate sector
-			Generator::generate(*ptr, nullptr, 0);
+			if (ptr->generated() == false)
+				return air_block;
+			
+			return ptr[0](x, y, z);
 		}
-		if (ptr->contents == Sector::CONT_NULLSECTOR) return air_block;
-		
-		return ptr[0](x, y, z);
+		return air_block;
 	}
 	
 	Block& Spiders::getBlock(Sector& s, int x, int y, int z)
 	{
 		Sector* ptr = spiderwrap(s, x, y, z);
-		if (ptr == nullptr) return air_block;
-		
-		if (ptr->progress == Sector::PROG_NEEDGEN)
+		if (ptr)
 		{
-			if (ptr->contents == Sector::CONT_NULLSECTOR)
-			{
-				throw std::string("ERROR: Sector was nullsector (CONT_NULLSECTOR), yet needed generation (PROG_NEEDGEN).");
-			}
-			// generate sector
-			Generator::generate(*ptr, nullptr, 0);
+			if (ptr->generated() == false)
+				return air_block;
+			return ptr[0](x, y, z);
 		}
-		if (ptr->contents == Sector::CONT_NULLSECTOR) return air_block;
-		
-		return ptr[0](x, y, z);
-	}
-	Block& Spiders::getBlockNoGen(Sector& s, int x, int y, int z)
-	{
-		Sector* ptr = spiderwrap(s, x, y, z);
-		if (ptr == nullptr) return air_block;
-		if (ptr->contents < Sector::CONT_SAVEDATA) return air_block;
-		
-		return ptr[0](x, y, z);
+		return air_block;
 	}
 	
 	Block& Spiders::getBlock(double x, double y, double z, double size)
 	{
 		// make damn sure!
 		if (y < 0.0) return air_block;
-		if (y >= Sectors.getY() * Sector::BLOCKS_Y) return air_block;
+		if (y >= BLOCKS_Y) return air_block;
 		
 		int    by = int(y);  // integral
 		double fy = y - by;  // fractional
@@ -107,7 +87,7 @@ namespace cppcraft
 		for (dx = x-size; dx <= x+size; dx += size)
 		{
 			Block& b = getBlock(int(dx), by, int(dz));
-			if (b.getID() != _AIR)
+			if (b.getID())
 			{
 				double fx = dx - int(dx);
 				double fz = dz - int(dz);
@@ -126,7 +106,7 @@ namespace cppcraft
 	{
 		// make damn sure!
 		if (y < 0.0) return _AIR;
-		if (y >= Sectors.getY() * Sector::BLOCKS_Y) return _AIR;
+		if (y >= BLOCKS_Y) return _AIR;
 		
 		int    by = int(y);  // integral
 		double fy = y - by;  // fractional
@@ -155,7 +135,7 @@ namespace cppcraft
 	vertex_color_t Spiders::getLightNow(double x, double y, double z)
 	{
 		if (y <= 0) return 0; // mega-dark
-		if (y >= Sectors.getY() * Sector::BLOCKS_Y) return 255 << 8;
+		if (y >= BLOCKS_Y) return 255 << 8;
 		
 		int ix = x, iy = y, iz = z;
 		Sector* sector = Spiders::spiderwrap(ix, iy, iz);
@@ -169,7 +149,7 @@ namespace cppcraft
 		torchlight.lightGatherer(*sector, lightNowList);
 		
 		// return calculated shadows & lighting
-		return Lighting.lightCheck(lightNowList, *sector, ix, iy, iz, 1);
+		return Lighting.lightCheck(lightNowList, *sector, ix, iy, iz, 2);
 	}
 	
 }

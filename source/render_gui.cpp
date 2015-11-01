@@ -14,6 +14,9 @@
 
 #include "drawq.hpp"
 
+#include "player.hpp"
+#include "spiders.hpp"
+
 using namespace library;
 
 namespace cppcraft
@@ -117,7 +120,11 @@ namespace cppcraft
 			fps = fps + wspace;
 		}
 		
-		std::string debugText = "fps: " + fps + " upd: " + std::to_string(camera.needsupd);
+		Block& plblock = Spiders::getBlock(player.X, player.Y, player.Z);
+		std::string debugText = 
+				"fps: " + fps + 
+				" skylight: " + std::to_string(plblock.getSkyLight()) + 
+				" blklight: " + std::to_string(plblock.getBlockLight());
 		
 		font.print(vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		

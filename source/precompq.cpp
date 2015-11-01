@@ -2,14 +2,15 @@
 
 #include <library/log.hpp>
 #include <library/timing/timer.hpp>
-#include <library/threading/TThreadPool.hpp>
 #include "columns.hpp"
+#include "compiler_scheduler.hpp"
 #include "gameconf.hpp"
-#include "precompiler.hpp"
 #include "precomp_thread.hpp"
-#include "precompq_schedule.hpp"
+#include "precompiler.hpp"
 #include "sectors.hpp"
+#include "threadpool.hpp"
 #include "worldbuilder.hpp"
+#include <cassert>
 #include <mutex>
 //#define DEBUG
 
@@ -18,279 +19,125 @@ using namespace library;
 namespace cppcraft
 {
 	PrecompQ precompq;
-	ThreadPool::TPool* threadpool;
-	std::mutex jobsynch;
+	
+	static std::mutex mtx_avail;
+	// queue of available jobs, waiting to be loaded
+	static std::deque<PrecompJob*> available;
 	
 	class PrecompJob : public ThreadPool::TPool::TJob
 	{
 	public:
-		PrecompJob (int p) : ThreadPool::TPool::TJob(p)
+		PrecompJob ()
+			: ThreadPool::TPool::TJob()
 		{
 			this->pt = new PrecompThread();
-			precomp = nullptr;
-			is_done = true;
 		}
 		
-		void prepareJob()
+		void run (void* precomp_in)
 		{
-			is_done  = false;
-		}
-		void run (void* _precomp)
-		{
-			this->precomp = (Precomp*) _precomp;
+			Precomp* precomp = (Precomp*) precomp_in;
 			
-			if (precomp->getJob() == Sector::PROG_RECOMPILING)
-			{
-				// first precompiler stage: mesh generation
-				pt->precompile(*precomp);
-			}
-			else if (precomp->getJob() == Sector::PROG_AO)
-			{
-				// second stage: AO
-				pt->ambientOcclusion(*precomp);
-			}
-			else
-			{
-				logger << Log::WARN << "PrecompJob(): Unknown job: " << precomp->getJob() << Log::ENDL;
-				precomp->result = Precomp::STATUS_FAILED;
-			}
+			// first stage: mesh generation
+			pt->precompile(*precomp);
+			// second stage: AO
+			pt->ambientOcclusion(*precomp);
 			
-			jobsynch.lock();
-			this->is_done = true;
-			jobsynch.unlock();
+			/////////////////////////
+			CompilerScheduler::add(precomp);
+			/////////////////////////
+			// re-use this expensive PrecompJob object
+			mtx_avail.lock();
+			available.push_back(this);
+			mtx_avail.unlock();
 		}
-		
-		bool isDone()
-		{
-			jobsynch.lock();
-			bool result = is_done;
-			jobsynch.unlock();
-			return result;
-		}
-		Precomp* getPrecomp()
-		{
-			return precomp;
-		}
-		
 	private:
 		PrecompThread* pt;
-		Precomp* precomp;
-		bool     is_done;
+		std::deque<PrecompJob*> fini;
 	};
-	std::vector<PrecompJob> jobs;
 	
 	void PrecompQ::init()
 	{
-		// initialize precompiler backend
-		precompiler.init();
+		// initialize precompiler stuff
+		Precomp::init();
 		
-		// create dormant thread pool
-		this->threads = config.get("world.threads", 2);
-		threadpool = new ThreadPool::TPool(this->threads);
-		
-		// create jobs
+		// create all the available jobs
 		int jobCount = config.get("world.jobs", 2);
 		for (int i = 0; i < jobCount; i++)
-			jobs.emplace_back(i);
-		
-		// next job is first job
-		this->nextJobID = 0;
-	}
-	// stop precompq
-	void PrecompQ::stop()
-	{
-		delete threadpool;
+			available.push_back(new PrecompJob);
 	}
 	
-	
-	bool PrecompQ::startJob(Precomp& precomp)
+	void PrecompQ::add(Sector& sector)
 	{
-		if (jobs[this->nextJobID].isDone() == false) return true;
+		assert(sector.generated() == true);
+		//assert(sector.meshgen != 0);
 		
-		// complete any previously running job
-		Precomp* prev = jobs[this->nextJobID].getPrecomp();
-		if (prev) checkJobStatus(*prev);
+		queue.push_back(&sector);
+	}
+	
+	void PrecompQ::startJob(Sector* sector)
+	{
+		// re-validate sector
+		// the sector may have changed since being added to meshgen
+		if (sector->generated() == false) return;
+		//if (sector->meshgen == 0) return;
 		
-		// execute new job
-		Sector& sector = *precomp.sector;
-		if (sector.progress == Sector::PROG_RECOMPILE)
-		{
-			sector.progress = Sector::PROG_RECOMPILING;
-		}
-		else if (sector.progress == Sector::PROG_NEEDAO)
-		{
-			sector.progress = Sector::PROG_AO;
-		}
-		else
-		{
-			// an error hath occured
-			logger << Log::ERR << "PrecompQ::startJob(): Unknown progress (" << (int)sector.progress << ")" << Log::ENDL;
-			return false;
-		}
+		// NOTE:
+		// either way, if we cancel or not, the sector will no longer be in the queue
 		
-		precomp.result = Precomp::STATUS_NEW;
-		precomp.job    = sector.progress;
-		jobs[this->nextJobID].prepareJob();
+		// create new Precomp
+		int y0 = 0;
+		int y1 = BLOCKS_Y;
+		Precomp* precomp = new Precomp(sector, y0, y1);
+		
+		// retrieve an available job
+		mtx_avail.lock();
+		assert(!available.empty());
+		
+		PrecompJob* job = available.front();
+		available.pop_front();
+		
+		mtx_avail.unlock();
 		
 		// schedule job
-		threadpool->run(&jobs[this->nextJobID], &precomp, false);
-		
-		// go to next job
-		this->nextJobID = (this->nextJobID + 1) % jobs.size();
-		// return good news
-		return (this->nextJobID == 0);
+		AsyncPool::sched(job, &precomp, false);
 	}
 	
-	void PrecompQ::finish()
+	bool PrecompQ::has_available() const
 	{
-		threadpool->sync_all();
-		this->nextJobID = 0;
-	}
-	
-	// before we can use this job index, we need to check if there are any results
-	// from completing a previous job on this index (there are a limited number of jobs)
-	void PrecompQ::checkJobStatus(Precomp& precomp)
-	{
-		if (precomp.alive)
-		{
-			// check if the precomp/sector has been reset
-			// if the progress value is obviously not the result of a job,
-			// then we will simply ignore the result of the operation
-			if (precomp.sector)
-			{
-				if (precomp.sector->progress <= Sector::PROG_RECOMPILE ||
-					precomp.sector->progress == Sector::PROG_COMPILED)
-				{
-					// this sector has been reset (eg. by Seamless)
-					precomp.result = Precomp::STATUS_NEW;
-					return;
-				}
-			}
-			
-			Precomp::jobresult_t result = precomp.getResult();
-			Sector& sector = *precomp.sector;
-			
-			if (result == Precomp::STATUS_NEW)
-			{
-				// this precomp is ready to go, or waiting to be replaced
-				return;
-			}
-			else if (result == Precomp::STATUS_FAILED)
-			{
-				logger << Log::WARN << "PrecompQ(): Job returned failure" << Log::ENDL;
-				sector.culled = true;
-				sector.render = false;
-				sector.progress = Sector::PROG_COMPILED;
-				precomp.alive = false;
-			}
-			else if (result == Precomp::STATUS_CULLED)
-			{
-				sector.culled = true;
-				sector.render = false;
-				sector.progress = Sector::PROG_COMPILED;
-				precomp.alive = false;
-			}
-			else if (result == Precomp::STATUS_DONE)
-			{
-				if (sector.progress == Sector::PROG_RECOMPILING)
-					sector.progress = Sector::PROG_NEEDAO;
-					
-				else if (sector.progress == Sector::PROG_AO)
-					sector.progress = Sector::PROG_NEEDCOMPILE;
-					
-				else
-					logger << Log::WARN << "Unusual sector progress: " << (int)sector.progress << Log::ENDL;
-			}
-			else
-			{
-				// blast the logs with an error
-				logger << Log::ERR << "Precomp(): Job running? result = " << result << Log::ENDL;
-			}
-		}
-		// reset result, since we no longer want to change status
-		precomp.result = Precomp::STATUS_NEW;
+		mtx_avail.lock();
+		bool result = available.empty();
+		mtx_avail.unlock();
+		return result;
 	}
 	
 	bool PrecompQ::run(Timer& timer, double timeOut)
 	{
 		/// ------------ PRECOMPILER ------------ ///
-		bool everythingDead = true;
-		bool nomorejobs = false;
 		
-		// check for any finished jobs
-		for (PrecompJob& job : jobs)
+		// since we are the only ones that can take stuff
+		// from the available queue, we should be good to just
+		// check if there are any available, and thats it
+		while (!queue.empty() && has_available())
 		{
-			// complete any previously running job
-			if (job.isDone())
-			if (job.getPrecomp())
-			{
-				checkJobStatus(*job.getPrecomp());
-			}
-		}
-		
-		for (int i = 0; i < Precompiler::MAX_PRECOMPQ; i++)
-		{
-			if (precompiler[i].alive)
-			{
-				Sector& sector = *precompiler[i].sector;
-				
-				if (sector.progress == Sector::PROG_RECOMPILE)
-				{
-					if (precompiler[i].isolator())
-					{
-						// start job
-						if (nomorejobs == false)
-						if (startJob(precompiler[i])) nomorejobs = true;
-					}
-					// always check if time is out
-					if (timer.getTime() > timeOut) return true;
-				}
-				else if (sector.progress == Sector::PROG_NEEDAO)
-				{
-					// start job
-					if (nomorejobs == false)
-					if (startJob(precompiler[i])) nomorejobs = true;
-				}
-				else if (sector.progress == Sector::PROG_RECOMPILING || sector.progress == Sector::PROG_AO)
-				{
-					// being worked on by precompiler / ao
-				}
-				else if (sector.progress == Sector::PROG_NEEDCOMPILE)
-				{
-					// ready for completion
-					// verify that this sector can be assembled into a column properly
-					precompiler[i].complete();
-				}
-				else  // if (precompiler[currentPrecomp].sector->precomp == 0)
-				{
-					// this sector has been reset, probably by seamless()
-					// so, just disable it
-					precompiler[i].alive = false;
-				}
-				
-				if (precompiler[i].alive) everythingDead = false;
-				
-			} // if precomp is alive
-			
-		} // for each precomp
-		
-		if (everythingDead)
-		{
-			// reset counters
-			queueCount = 0;
+			// since we are here, we have something waiting to have mesh regenerated
+			// and we have available slots to process the sector.. so let's go!
+			startJob(queue.front());
+			queue.pop_front();
 		}
 		
 		// always check if time is out
-		if (timer.getTime() > timeOut) return true;
-		
-		// handle transition from this thread to rendering thread
-		// from precomp scheduler to compiler scheduler
-		// also re-creates missing content making sure things aren't put on the backburner
-		PrecompScheduler::scheduling();
-		
-		// always check if time is out
-		if (timer.getTime() > timeOut) return true;
-		
-		return false;
+		return (timer.getTime() > timeOut);
+	}
+	
+	void PrecompQ::schedule(Sector& sector)
+	{
+		this->queue.push_back(&sector);
+	}
+	
+	void PrecompQ::add_finished(Precomp& pc)
+	{
+		// not sure what to do here, atm.
+		// maybe just delete it
+		delete &pc;
 	}
 }

@@ -2,6 +2,7 @@
 *.slo
 *.lo
 *.o
+*.d
 
 # Compiled Dynamic libraries
 *.so
@@ -40,4 +41,3 @@ Debug/Worlds/test/world.data
 # Edited files
 *~
 .codelite/
-

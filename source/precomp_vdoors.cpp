@@ -9,13 +9,13 @@ namespace cppcraft
 		// find direction door is facing
 		int model = currentBlock.getFacing();
 		// if the door is open, select next set of doors
-		if (currentBlock.getSpecial() & 2) model += 4;
+		if (currentBlock.getExtra() & 2) model += 4;
 		
 		int vertices = blockmodels.doors.copyTo(model, indic);
 		
 		applyFaceLightingAll(bx, by, bz);
 		
-		short tid = Block::cubeFaceById(currentBlock.getID(), 0, currentBlock.getSpecial() & 1);
+		short tid = Block::cubeFaceById(currentBlock.getID(), 0, currentBlock.getExtra() & 1);
 		
 		for (int i = 0; i < vertices; i++)
 		{

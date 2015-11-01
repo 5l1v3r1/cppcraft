@@ -4,7 +4,6 @@
 #include <library/math/vector.hpp>
 #include "items.hpp"
 #include "menu.hpp"
-#include "network.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
@@ -45,37 +44,39 @@ namespace cppcraft
 		
 		if (isDoor(id))
 		{
-			block_t newState = (selectedBlock.getSpecial() >> 1) xor 1;
+			block_t newState = (selectedBlock.getExtra() >> 1) xor 1;
 			
 			// modulate bitfield
-			selectedBlock.setSpecial( (selectedBlock.getSpecial() & 1) + (newState << 1) );
+			selectedBlock.setExtra( (selectedBlock.getExtra() & 1) + (newState << 1) );
 			
 			// collect into 6 bits
-			block_t bitfield = selectedBlock.getFacing() + (selectedBlock.getSpecial() << 2);
+			block_t bitfield = selectedBlock.getFacing() + (selectedBlock.getExtra() << 2);
 			
 			Spiders::updateBlock(ddx, ddy, ddz, bitfield, true);
 			
-			NetworkBlock nblock(ddx, ddy, ddz, selectedBlock, NetworkBlock::BSET);
-			network.addBlock(Network::OUTGOING, nblock);
+			//NetworkBlock nblock(ddx, ddy, ddz, selectedBlock, NetworkBlock::BSET);
+			//network.addBlock(Network::OUTGOING, nblock);
 			
-			const block_t door_ul_bit = 1 << 2;
+			const Block::bfield_t door_ul_bit = 1 << 2;
 			
-			if (selectedBlock.getSpecial() & 1) // lower
+			if (selectedBlock.getExtra() & 1) // lower
 			{
 				// update upper also
 				Spiders::updateBlock(ddx, ddy+1, ddz, bitfield - door_ul_bit, true);
+				
 				// send network update
-				NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, bitfield - door_ul_bit), NetworkBlock::BSET);
-				network.addBlock(Network::OUTGOING, nblock);
+				//NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, bitfield - door_ul_bit), NetworkBlock::BSET);
+				//network.addBlock(Network::OUTGOING, nblock);
 				
 			}
 			else
 			{
 				// update lower also
 				Spiders::updateBlock(ddx, ddy-1, ddz, bitfield + door_ul_bit, true);
+				
 				// send network update
-				NetworkBlock nblock(ddx, ddy-1, ddz, Block(id, bitfield + door_ul_bit), NetworkBlock::BSET);
-				network.addBlock(Network::OUTGOING, nblock);
+				//NetworkBlock nblock(ddx, ddy-1, ddz, Block(id, bitfield + door_ul_bit), NetworkBlock::BSET);
+				//network.addBlock(Network::OUTGOING, nblock);
 				
 			}
 			
@@ -214,11 +215,11 @@ namespace cppcraft
 						soundman.playMaterial(id, Soundman::sound_place);
 						
 						// upper
-						NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, facing), NetworkBlock::BSET);
-						network.addBlock(Network::OUTGOING, nblock);
+						//NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, facing), NetworkBlock::BSET);
+						//network.addBlock(Network::OUTGOING, nblock);
 						// lower
-						nblock = NetworkBlock(ddx, ddy, ddz, Block(id, facing + (1 << 2)), NetworkBlock::BSET);
-						network.addBlock(Network::OUTGOING, nblock);
+						//nblock = NetworkBlock(ddx, ddy, ddz, Block(id, facing + (1 << 2)), NetworkBlock::BSET);
+						//network.addBlock(Network::OUTGOING, nblock);
 						
 					} // upper door test
 				}
@@ -240,8 +241,8 @@ namespace cppcraft
 						soundman.playMaterial(id, Soundman::sound_place);
 						
 						// send update to network
-						NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);
-						network.addBlock(Network::OUTGOING, nblock);
+						//NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);
+						//network.addBlock(Network::OUTGOING, nblock);
 					}
 					
 				}
@@ -325,21 +326,21 @@ namespace cppcraft
 				if (isDoor(selection.block->getID()))
 				{
 					// remove the other doorpiece
-					if (selection.block->getSpecial() & 1)
+					if (selection.block->getExtra() & 1)
 					{
 						// we're at lower, remove upper
 						Spiders::removeBlock(ddx, ddy+1, ddz, true);
 						// send update to network
-						NetworkBlock nblock(ddx, ddy+1, ddz, Block(), NetworkBlock::BREM);
-						network.addBlock(Network::OUTGOING, nblock);
+						//NetworkBlock nblock(ddx, ddy+1, ddz, Block(), NetworkBlock::BREM);
+						//network.addBlock(Network::OUTGOING, nblock);
 					}
 					else
 					{
 						// we're at upper, remove lower
 						Spiders::removeBlock(ddx, ddy-1, ddz, true);
 						// send update to network
-						NetworkBlock nblock(ddx, ddy-1, ddz, Block(), NetworkBlock::BREM);
-						network.addBlock(Network::OUTGOING, nblock);
+						//NetworkBlock nblock(ddx, ddy-1, ddz, Block(), NetworkBlock::BREM);
+						//network.addBlock(Network::OUTGOING, nblock);
 					}
 				}
 				
@@ -352,8 +353,8 @@ namespace cppcraft
 					soundman.playMaterial(removed.getID(), Soundman::sound_remove);
 					
 					// send update to network
-					NetworkBlock nblock(ddx, ddy, ddz, Block(), NetworkBlock::BREM);
-					network.addBlock(Network::OUTGOING, nblock);
+					//NetworkBlock nblock(ddx, ddy, ddz, Block(), NetworkBlock::BREM);
+					//network.addBlock(Network::OUTGOING, nblock);
 					
 					// --------------------------------
 					int FIXME_create_some_smoke_n_shits;
@@ -425,7 +426,7 @@ namespace cppcraft
 						int ddy = ray.y;
 						int ddz = ray.z;
 						// find position in local grid
-						Sector* sector = Sectors.sectorAt(ddx, ddy, ddz);
+						Sector* sector = sectors.sectorAt(ddx, ddz);
 						
 						// outside of local grid? nothing to select
 						if (sector == nullptr) break;

@@ -1,6 +1,8 @@
 #ifndef PRECOMPQ_HPP
 #define PRECOMPQ_HPP
 
+#include <deque>
+
 namespace library
 {
 	class Timer;
@@ -14,42 +16,30 @@ namespace cppcraft
 	class PrecompQ
 	{
 	public:
-		//! adds a specific @sector to the precompiler queue
-		bool addPrecomp(Sector& sector);
-		//! adds a complete column of sectors from the column containing @sector
-		void addTruckload(Sector& sector);
-		
-		//! initializes threadpool and creates N jobs
+		//! \brief initializes threadpool and creates N jobs
 		void init();
-		//! returns true if we must add stuff to precompq
-		inline bool ready() const
-		{
-			return queueCount == 0;
-		}
-		//! finish any remaining queue
-		void finish();
-		//! stops threadpool
-		void stop();
 		
-		// executes one round of precompilation
-		// very time consuming, running N threads in parallell and waits for them to finish
+		//! \brief Queues a sector for the mesh generator subsystem
+		void add(Sector& sector);
+		
+		//! \brief executes one round of mesh generation scheduling
+		//! \warn  very time consuming, running N threads in parallell and waits for them to finish
 		bool run(library::Timer& timer, double timeOut);
+		
+		//! \brief schedules a sector for mesh generation
+		void schedule(Sector& sector);
+		
+		//! 
+		void add_finished(Precomp&);
 		
 	private:
 		// starting a job is actually a little complicated
-		bool startJob(Precomp& precomp);
-		// check job status...
-		void checkJobStatus(Precomp& precomp);
+		void startJob(Sector* sector);
 		
-		int precompIndex(Sector& sector) const;
-		int newPrecompIndex() const;
+		bool has_available() const;
 		
-		// the number of precomps that was added to queue
-		int queueCount = 0;
-		// number of parallell threads
-		int threads;
-		// next job ID
-		int nextJobID;
+		// queue of sectors waiting for mesh generation
+		std::deque<Sector*> queue;
 	};
 	extern PrecompQ precompq;
 }

@@ -9,10 +9,10 @@ namespace cppcraft
 {
 	void BlockModels::initLanterns()
 	{
-		const float lantsize = 0.125;
-		const float lantsz_y = 0.250;
+		const double lantsize = 0.125;
+		const double lantsz_y = 0.250;
 		
-		float vertex_lantern[6][12] =
+		double vertex_lantern[6][12] =
 		{
 			{0.5-lantsize, 0.5-lantsize, 0.5+lantsize,  0.5+lantsize, 0.5-lantsize, 0.5+lantsize,  0.5+lantsize, 0.5+lantsz_y, 0.5+lantsize,  0.5-lantsize, 0.5+lantsz_y, 0.5+lantsize}, // front 
 			{0.5-lantsize, 0.5-lantsize, 0.5-lantsize,  0.5-lantsize, 0.5+lantsz_y, 0.5-lantsize,  0.5+lantsize, 0.5+lantsz_y, 0.5-lantsize,  0.5+lantsize, 0.5-lantsize, 0.5-lantsize}, // back
@@ -22,13 +22,13 @@ namespace cppcraft
 			{0.5-lantsize, 0.5-lantsize, 0.5-lantsize,  0.5-lantsize, 0.5-lantsize, 0.5+lantsize,  0.5-lantsize, 0.5+lantsz_y, 0.5+lantsize,  0.5-lantsize, 0.5+lantsz_y, 0.5-lantsize}  // left
 		};
 		
-		const float lantheight = 0.75;   // bottom height of taper
-		const float lant___top = 0.875;  // top height of taper
+		const double lantheight = 0.75;   // bottom height of taper
+		const double lant___top = 0.875;  // top height of taper
 		
-		const float lant_tap_in = 0.375; // top taper inwards
-		const float lant_tp_out = 0.25;  // bottom taper inwards
+		const double lant_tap_in = 0.375; // top taper inwards
+		const double lant_tp_out = 0.25;  // bottom taper inwards
 		
-		float vertex_lantern_top[6][12] =
+		double vertex_lantern_top[6][12] =
 		{
 			{0.0 + lant_tp_out, lantheight, 1.0 - lant_tp_out,  1.0 - lant_tp_out, lantheight, 1.0 - lant_tp_out,  1.0 - lant_tap_in, lant___top, 1.0 - lant_tap_in,  0.0 + lant_tap_in, lant___top, 1.0 - lant_tap_in}, // front 
 			{0.0 + lant_tp_out, lantheight, 0.0 + lant_tp_out,  0.0 + lant_tap_in, lant___top, 0.0 + lant_tap_in,  1.0 - lant_tap_in, lant___top, 0.0 + lant_tap_in,  1.0 - lant_tp_out, lantheight, 0.0 + lant_tp_out}, // back

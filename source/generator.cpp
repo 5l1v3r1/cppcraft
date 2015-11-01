@@ -4,9 +4,9 @@
 #include <library/log.hpp>
 #include <library/timing/timer.hpp>
 #include "chunks.hpp"
-#include "flatlands.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
+#include "lighting.hpp"
 #include "sectors.hpp"
 #include "torchlight.hpp"
 #include "world.hpp"
@@ -14,54 +14,66 @@
 // load compressor last
 #include "compressor.hpp"
 #include <cstring>
+#include <library/threading/TThreadPool.hpp>
+#include <deque>
 
 using namespace library;
 
 namespace cppcraft
 {
-	unsigned int g_fres[Chunks::CHUNK_SIZE][Sectors.SECTORS_Y][Chunks::CHUNK_SIZE];
+	unsigned int g_fres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 	unsigned int g_compres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 	
-	std::deque<Sector*> propagationQueue;
+	static std::deque<Sector*> propagationQueue;
+	static std::deque<Sector*> queue;
 	
 	void Generator::init()
 	{
-		for (int x = 0; x < Sectors.getXZ(); x++)
-		for (int z = 0; z < Sectors.getXZ(); z++)
+		// load all block data in view
+		for (int z = 0; z < sectors.getXZ(); z++)
+		for (int x = 0; x < sectors.getXZ(); x++)
 		{
-			if (Sectors(x, z).contents == Sector::CONT_UNKNOWN)
-			{
-				Generator::generate(Sectors(x, z), nullptr, 0);
-			}
+			// during loading, some additional sectors
+			// may have been loaded through files so, we
+			// check if the sector isnt already generated
+			if (sectors(x, z).generated() == false)
+				Generator::add(sectors(x, z));
+		}
+	}
+	
+	void Generator::add(Sector& sector)
+	{
+		if (sector.generating())
+			return;
+		
+		queue.push_back(&sector);
+	}
+	
+	void Generator::run()
+	{
+		while (!queue.empty())
+		{
+			Sector* sect = queue.front();
+			queue.pop_front();
+			
+			// schedule terrain generator for sector
+			
 		}
 	}
 	
 	void Generator::loadSector(Sector& sector, std::ifstream& file, unsigned int PL)
 	{
-		// start by setting sector as having savedata
-		sector.contents = Sector::CONT_SAVEDATA;
+		// start by setting sector as not having been generated yet
+		//sector.generated = false;
+		sector.atmospherics = false;
 		
-		// load sector, which can return a nullsector
+		// load sector, which can return a not-generated sector
 		chunks.loadSector(sector, file, PL);
 		
-		// if the sector still has saved data, process sector and propagate light
-		if (sector.contents == Sector::CONT_SAVEDATA)
+		// if the sector still not generated, we need to invoke the terrain generator
+		if (sector.generated() == false)
 		{
-			// place sector in precompiler queue
-			sector.progress = Sector::PROG_NEEDRECOMP;
-			
-			// update sector neighbors, if there are emissive lights on this sector
-			if (sector.lightCount())
-			{
-				// add sector to light propagation queue
-				propagationQueue.push_back(&sector);
-			}
-		}
-		else
-		{
-			// clean out sector, since it didn't have savedata
-			// it's probably extremely null already, but we're making sure
-			sector.clear();
+			/// invoke terrain generator here ///
 		}
 	}
 	
@@ -73,9 +85,9 @@ namespace cppcraft
 	bool Generator::generate(Sector& sector, Timer* timer, double timeOut)
 	{
 		
-		if (sector.progress != Sector::PROG_NEEDGEN)
+		if (sector.generated())
 		{
-			logger << Log::WARN << "Generator::generate(): sector did not need gen" << Log::ENDL;
+			logger << Log::WARN << "Generator::generate(): sector content already generated" << Log::ENDL;
 			return false;
 		}
 		
@@ -114,13 +126,13 @@ namespace cppcraft
 		int x2 = x1 + Chunks::CHUNK_SIZE;
 		
 		if (x1 < 0) x1 = 0;            // CLAMP AFTER x2 IS SET!!!
-		if (x2 > Sectors.getXZ()) x2 = Sectors.getXZ();
+		if (x2 > sectors.getXZ()) x2 = sectors.getXZ();
 		
 		int z1 = sector.getZ() - dz;
 		int z2 = z1 + Chunks::CHUNK_SIZE;
 		
 		if (z1 < 0) z1 = 0;            // CLAMP AFTER z2 IS SET!!!
-		if (z2 > Sectors.getXZ()) z2 = Sectors.getXZ();
+		if (z2 > sectors.getXZ()) z2 = sectors.getXZ();
 		
 		bool minimapUpdated = false;
 		
@@ -129,13 +141,13 @@ namespace cppcraft
 			for (int z = z1; z < z2; z++)
 			{
 				// bottom / first sector in column
-				Sector& firstsector = Sectors(x, 0, z);
+				Sector& sector = sectors(x, z);
 				
 				//-------------------------------------------------//
 				// load only sectors that are flagged as 'unknown' //
 				//-------------------------------------------------//
 				
-				if (firstsector.contents == Sector::CONT_UNKNOWN)
+				if (sector.generated() == false)
 				{
 					// find sectors internal chunk position
 					dx = (x + world.getWX()) & (Chunks::CHUNK_SIZE-1);
@@ -147,9 +159,10 @@ namespace cppcraft
 						// read entire compressed column
 						// compressed column also contains the flatland(x, z) for this area
 						Compressor::load(cf, g_compres[dx][dz], x, z);
+						Lighting.atmosphericInit(sector);
 						
 						// update minimap (colors)
-						minimap.addSector(firstsector);
+						minimap.addSector(sector);
 						minimapUpdated = true;
 					}
 					else
@@ -157,42 +170,23 @@ namespace cppcraft
 						// reset flatlands
 						//flatlands(x, z).reset();
 						
-						// for each sector on y-axis,
-						for (int y = 0; y < Sectors.getY(); y++)
-						{
-							// clean out sector
-							Sectors(x, y, z).clear();
-						}
+						// clean out sector
+						sector.clear();
 					}
 					
 					if (ff_open)
 					{
-						// load single-file
-						for (int y = 0; y < Sectors.getY(); y++)
+						// load single-file, if this sector has an entry
+						if (g_fres[dz][dx])
 						{
-							// for each sector on y-axis with entry
-							if (g_fres[dz][y][dx])
-							{
-								// load sector using loadSectorEx method
-								loadSector(Sectors(x, y, z), ff, g_fres[dz][y][dx]);
-							}	
-							
+							// load sector using loadSectorEx method
+							loadSector(sector, ff, g_fres[dz][dx]);
 						}
 						
 					} // ff is open
 					
 				} // sector in unknown-state
 				
-				// for each finished column we can potentially exit
-				// if the current time is more than the timeout value, we need to exit now
-				/*if (timer)
-				{
-					if (timer->getDeltaTime() > timeOut)
-					{
-						if (minimapUpdated) minimap.setUpdated();
-						return true;
-					}
-				}*/
 			} // z
 		} // x
 		
@@ -203,16 +197,15 @@ namespace cppcraft
 			Sector* lsector = propagationQueue.front();
 			propagationQueue.pop_front();
 			
-			// worst-case emissive block reach (_TORCH)
 			torchlight.lightSectorUpdates(*lsector, false);
 		}
 		
-		if (minimapUpdated) minimap.setUpdated();
+		if (minimapUpdated)
+			minimap.setUpdated();
 		
 		if (timer)
-		{
-			return timer->getTime() > timeOut;
-		}
+			return (timer->getTime() > timeOut);
+    
 		// time did not run out
 		return false;
 		

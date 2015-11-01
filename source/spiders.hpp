@@ -42,10 +42,7 @@ namespace cppcraft
 		static library::vec3 distanceToWorldXZ(int wx, int wz);
 		
 		// updating neighbors
-		static void updateSurroundings(Sector&, int bx, int by, int bz, bool immediate);
-		static void skylightReachDown(Sector& sector);
-		// check if a column no longer has any blocks, and if so disable rendering it
-		static void checkColumn(Sector& sector);
+		static void updateSurroundings(Sector&, int bx, int by, int bz);
 		
 		// realtime complex lighting calculation
 		static vertex_color_t getLightNow(double x, double y, double z);

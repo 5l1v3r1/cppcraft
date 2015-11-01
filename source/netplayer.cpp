@@ -28,7 +28,7 @@ namespace cppcraft
 	{
 		/// check if player is in local grid ///
 		if (wc_to.x < world.getWX() || wc_to.z < world.getWZ() ||
-			wc_to.x >= world.getWX() + Sectors.getXZ() || wc_to.z >= world.getWZ() + Sectors.getXZ())
+			wc_to.x >= world.getWX() + sectors.getXZ() || wc_to.z >= world.getWZ() + sectors.getXZ())
 		{
 			// since the player is obviously outside render distance, get out
 			//logger << Log::INFO << this->name << " was outside rendering distance" << Log::ENDL;

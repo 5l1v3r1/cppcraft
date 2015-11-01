@@ -26,7 +26,7 @@ flat out float worldLight;
 flat out float reflection;
 out vec3 v_pos;
 out vec3 v_reflect;
-out vec3 v_normals;
+flat out vec3 v_normals;
 
 const int TX_REPEAT
 const int TX_SOLID
@@ -83,7 +83,7 @@ flat in float worldLight;
 flat in float reflection;
 in vec3 v_pos;
 in vec3 v_reflect;
-in vec3 v_normals;
+flat in vec3 v_normals;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 normals;

@@ -5,11 +5,10 @@
 #include <library/math/toolbox.hpp>
 #include <library/opengl/opengl.hpp>
 #include "biome.hpp"
-#include "flatlands.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
 #include "renderconst.hpp"
-#include "sector.hpp"
+#include "sectors.hpp"
 #include "tiles.hpp"
 #include "threading.hpp"
 #include "world.hpp"
@@ -362,7 +361,7 @@ namespace cppcraft
 				vec3 position(player.X, 0, player.Z);
 				position += vec3(toolbox::rndNorm(180), 0, toolbox::rndNorm(180));
 				
-				FlatlandSector::flatland_t& fs = flatlands.getData(position.x, position.z);
+				Flatland::flatland_t& fs = sectors.flatland_at(position.x, position.z);
 				// use skylevel as particle base height
 				position.y = fs.skyLevel;
 				

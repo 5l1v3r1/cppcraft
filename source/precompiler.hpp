@@ -3,19 +3,24 @@
 
 #define USE_BIOMEDATA
 
-#include "blocks.hpp"
+#include "blocks_bordered.hpp"
 #include "renderconst.hpp"
 #include "vertex_block.hpp"
+#include <deque>
 #include <vector>
 
 namespace cppcraft
 {
 	class Sector;
+	class PrecompJob;
 	
 	class Precomp
 	{
 	public:
-		Precomp();
+		static void init();
+		
+		/// this constructor MUST be called from main world thread
+		Precomp(Sector*, int y0, int y1);
 		~Precomp();
 		
 		enum jobresult_t
@@ -26,64 +31,35 @@ namespace cppcraft
 			STATUS_DONE
 		};
 		
-		inline bool isAlive() const
+		inline jobresult_t getStatus() const
 		{
-			return alive;
-		}
-		inline jobresult_t getResult() const
-		{
-			return result;
-		}
-		inline int getJob() const
-		{
-			return job;
+			return status;
 		}
 		
-		bool isolator();
-		//! try to complete a column and schedule it for transfer to renderer
+		//! transfer this finished job to renderer
 		void complete();
 		
+		// process finished early, due to nothing to do (eg. no blocks)
+		void early_finish();
+		// some requirement not fulfilled, cancel job and retry later
 		void cancel();
-		void kill();
 		
-		bool        alive;
-		jobresult_t result;
-		// the job we are to do
-		int         job;
-		// testdata from isolator
-		visiblefaces_t vfaces;
-		// sector as mesh source
-		Sector*   sector;
+		jobresult_t status;
+		// the queue for when we are finished
+		std::deque<PrecompJob*>* done_queue;
+		
+		// our source sector (with additional data)
+		bordered_sector_t sector;
+		
 		// resulting mesh data
 		vertex_t* datadump;
 		// resulting index data
 		indice_t* indidump;
-		indice_t indices     [RenderConst::MAX_UNIQUE_SHADERS];
+		indice_t indices           [RenderConst::MAX_UNIQUE_SHADERS];
 		
 		unsigned short vertices    [RenderConst::MAX_UNIQUE_SHADERS];
 		unsigned short bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
 	};
-	
-	class Precompiler
-	{
-	public:
-		static const int MAX_PRECOMPQ = 64;
-		
-		inline Precomp& operator[] (std::size_t i)
-		{
-			return this->queue[i];
-		}
-		
-		// initializes the precompiler pipeline stage
-		void init();
-		
-		// executes a round of precompilation
-		void run();
-		
-	private:
-		Precomp queue[MAX_PRECOMPQ];
-	};
-	extern Precompiler precompiler;
 	
 }
 

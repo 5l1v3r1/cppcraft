@@ -9,129 +9,118 @@
 
 namespace cppcraft
 {
-	typedef unsigned short block_t;
-	class Sector;
+	typedef uint16_t block_t;
 	
-	struct visiblefaces_t
-	{
-		// block data pointer (to this sector)
-		Sector* sector;
-		
-		// neighboring sector status values
-		int test_x_m;
-		int test_x_p;
-		int test_y_m;
-		int test_y_p;
-		int test_z_m;
-		int test_z_p;
-		// neighboring sector block data pointers
-		Sector* sb_x_m;
-		Sector* sb_x_p;
-		Sector* sb_y_m;
-		Sector* sb_y_p;
-		Sector* sb_z_m;
-		Sector* sb_z_p;
-	};
+	class Sector;
+	class bordered_sector_t;
 	
 	#pragma pack(push, 2)
 	class Block
 	{
-	private:
-		block_t data;
-		//block_t extra;
-		
 	public:
+		typedef uint16_t block_t;
+		typedef uint8_t  bfield_t;
+		typedef uint8_t  light_t;
+		
 		// DOES NOTHING on default constructor
 		Block() {}
 		// constructor taking block id as parameter
-		Block(block_t data)
+		Block(block_t id)
 		{
-			this->data = data;
+			this->id = id;
+			this->bitfield = 0;
+			this->light = 0;
 		}
 		// semi-complete constructor
-		Block(block_t id, block_t bitfield)
+		Block(block_t id, bfield_t bitfield)
 		{
-			this->data = id;
-			this->data |= bitfield << 10;
+			this->id = id;
+			this->bitfield = bitfield;
+			this->light = 0;
 		}
-		// complete constructor
-		Block(block_t id, block_t facing, block_t special)
+		// complete whole constructor
+		Block(block_t id, bfield_t facing, bfield_t extra)
 		{
-			this->data = id;
-			this->data |= facing << 10;
-			this->data |= special << 12;
-		}
-		
-		static Block fromBlock_t(block_t bdata)
-		{
-			Block b; b.data = bdata;
-			return b;
+			this->id = id;
+			this->bitfield = facing | (extra << 3);
+			this->light = 0;
 		}
 		
 		// sets/gets the block ID for this block
-		inline void setID(block_t id)
+		void setID(block_t id)
 		{
 			// remove id part
-			this->data &= 0xFC00;
-			// add new id
-			this->data |= id;
+			this->id = id;
 		}
-		inline block_t getID() const
+		block_t getID() const
 		{
-			return this->data & 1023; //0x3FF;
+			return this->id;
 		}
 		// sets/gets block facing bits
-		inline void setFacing(block_t facing)
+		void setFacing(bfield_t facing)
 		{
-			// remove old facing
-			this->data &= 0xF3FF;
-			// add new facing
-			this->data |= facing << 10;
+			// mask out old facing
+			this->bitfield &= 0xF8;
+			// mask in new facing
+			this->bitfield |= facing;
 		}
-		inline block_t getFacing() const
+		bfield_t getFacing() const
 		{
-			return (this->data >> 10) & 3;
+			return this->bitfield & 0x07;
 		}
 		// set/get special bits for this block
-		inline void setSpecial(block_t special)
+		void setExtra(bfield_t extra)
 		{
 			// remove special part
-			this->data &= 0xFFF;
+			this->bitfield &= 0x07;
 			// add new special part
-			this->data |= special << 12;
+			this->bitfield |= (extra << 3);
 		}
-		inline block_t getSpecial() const
+		bfield_t getExtra() const
 		{
-			return this->data >> 12;
-		}
-		// set combined data segment (ID not included), aka bitfield-part
-		inline void setBitfield(block_t bitf)
-		{
-			// remove previous bitfield
-			this->data &= 1023;
-			// set new bitfield
-			this->data |= (bitf & 63) << 10;
-		}
-		inline block_t getData() const
-		{
-			return this->data;
+			return this->bitfield >> 3;
 		}
 		
-		/*inline block_t getLight() const
+		// set/get whole bitfield part
+		void setBitfield(bfield_t bitf)
 		{
-			return extra & 0xFF;
+			this->bitfield = bitf;
 		}
-		inline void setLight(block_t light)
+		bfield_t getBitfield()
 		{
-			extra &= 0xFF00;
-			extra |= light;
-		}*/
+			return this->bitfield;
+		}
+		
+		// returns the whole block as 32bits of data
+		inline uint32_t getWhole() const
+		{
+			return *(uint32_t*) this;
+		}
+		
+		inline light_t getSkyLight() const
+		{
+			return this->light & 0x0F;
+		}
+		inline void setSkyLight(light_t level)
+		{
+			this->light &= 0xF0;
+			this->light |= level;
+		}
+		inline light_t getBlockLight() const
+		{
+			return this->light >> 8;
+		}
+		inline void setBlockLight(light_t level)
+		{
+			this->light &= 0x0F;
+			this->light |= level << 8;
+		}
 		
 		// human readable name of a block
 		std::string getName() const;
 		
 		// run visibility tests, revealing visible sides of this cube by comparing neighbors
-		unsigned short visibleFaces(visiblefaces_t& pcg, int bx, int by, int bz) const;
+		unsigned short visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const;
 		// run visibility tests using spiders
 		unsigned short visibleFaces(Sector& sector, int bx, int by, int bz) const;
 		
@@ -179,6 +168,11 @@ namespace cppcraft
 		
 		// human readable name of a block
 		static std::string getBlockName(block_t id);
+    
+	private:
+		block_t  id;
+		bfield_t bitfield;
+		light_t  light;
 	};
 	#pragma pack(pop)
 	

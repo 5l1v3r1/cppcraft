@@ -5,7 +5,6 @@
 #include "precomp_thread_data.hpp"
 #include "renderconst.hpp"
 #include "sectors.hpp"
-#include "flatlands.hpp"
 #include "tiles.hpp"
 #include "threading.hpp"
 #include <cstring>
@@ -55,7 +54,6 @@ namespace cppcraft
 	
 	void PrecompThread::precompile(Precomp& pc)
 	{
-		Sector& sector = pc.sector[0];
 		PrecompThreadData& pcg = *this->ptd;
 		
 		// reset light list
@@ -73,86 +71,34 @@ namespace cppcraft
 		// number of big tiles
 		pcg.bigTextures = tiles.bigTilesX * tiles.bigTilesY;
 		
-		// Y-world coordinate
-		pcg.worldY = (sector.getY() * Sector::BLOCKS_Y) * RenderConst::VERTEX_SCALE;
-		
-		// flatland data (biome +++)
-		pcg.flatl = &flatlands(sector.getX(), sector.getZ());
-		// flatlands +x
-		pcg.flatl_x = &flatlands(sector.getX()+1, sector.getZ());
-		// flatlands +z
-		pcg.flatl_z = &flatlands(sector.getX(), sector.getZ()+1);
-		// flatlands +xz
-		pcg.flatl_xz = &flatlands(sector.getX()+1, sector.getZ()+1);
 		// initialize to invalid CRC value
 		pcg.fbicrc = 256;
 		
-		// set sector & testdata (visible neighbors)
-		pcg.sector   = pc.sector;
-		pcg.testdata = &pc.vfaces;
+		// set sector
+		pcg.sector = &pc.sector;
 		
-		if (sector.solidFlags() != Sector::MAX_HARDSOLID)
+		// iterate all (for now)
+		int y0 = 0;
+		int y1 = BLOCKS_Y;
+		
+		for (int bx = 0;  bx < BLOCKS_XZ; bx++)
+		for (int bz = 0;  bz < BLOCKS_XZ; bz++)
+		for (int by = y0; bx < y1; by++)
 		{
-			// iterate all
-			int bx = Sector::BLOCKS_XZ-1;
-			int by = Sector::BLOCKS_Y -1;
-			int bz = Sector::BLOCKS_XZ-1;
 			// get pointer to current block
-			Block* currentBlock = &sector(bx, by, bz);
-			// number of non-air blocks
-			int blocks = sector.blockCount();
+			Block& currentBlock = pc.sector(bx, by, bz);
 			
-			while (blocks)
+			// ignore AIR and invalid blocks
+			if (currentBlock.getID() > AIR_END && currentBlock.getID() <= MAX_UNIQUE_IDS)
 			{
-				// ignore AIR and invalid blocks
-				if (currentBlock->getID() > AIR_END && currentBlock->getID() <= MAX_UNIQUE_IDS)
-				{
-					// process one block id, and potentially add it to mesh
-					// the generated mesh is added to a shaderline determined by its block id
-					pcg.process_block(*currentBlock, bx, by, bz);
-					
-					// count down blocks
-					blocks -= 1;
-				} // if (valid id)
-				
-				by -= 1;
-				if (by == -1)
-				{
-					bz -= 1;
-					if (bz == -1)
-					{
-						bx -= 1;
-						if (bx == -1) break;
-						bz = Sector::BLOCKS_XZ - 1;
-					}
-					by = Sector::BLOCKS_Y - 1;
-				}
-				// current block pointer
-				currentBlock -= 1;
+				// process one block id, and potentially add it to mesh
+				// the generated mesh is added to a shaderline determined by its block id
+				pcg.process_block(currentBlock, bx, by, bz);
 			}
-		}
-		else
-		{
-			for (int bx = Sector::BLOCKS_XZ-1; bx >= 0; bx--)
-			for (int bz = Sector::BLOCKS_XZ-1; bz >= 0; bz--)
-			for (int by = Sector::BLOCKS_Y-1; by >= 0; by--)
+			else
 			{
-				// iterate only edges
-				if ((bx == 0 && pcg.testdata->test_x_m) || (bx == Sector::BLOCKS_XZ-1 && pcg.testdata->test_x_p) || 
-					(by == 0 && pcg.testdata->test_y_m) || (by == Sector::BLOCKS_Y-1  && pcg.testdata->test_y_p) ||
-					(bz == 0 && pcg.testdata->test_z_m) || (bz == Sector::BLOCKS_XZ-1 && pcg.testdata->test_z_p))
-				{
-					Block& currentBlock = sector(bx, by, bz);
-					// ignore AIR and invalid blocks
-					if (currentBlock.getID() > AIR_END && currentBlock.getID() <= MAX_UNIQUE_IDS)
-					{
-						// process one block id, and potentially add it to mesh
-						// the generated mesh is added to a shaderline determined by its block id
-						pcg.process_block(currentBlock, bx, by, bz);
-						
-					} // if (valid id)
-				}
-			}
+				printf("invalid id: %d\n", currentBlock.getID());
+			} // if (valid id)
 		}
 		
 		// count the number of vertices we've collected
@@ -166,7 +112,7 @@ namespace cppcraft
 		{
 			// no vertices, we can exit early, but make sure to
 			// mark the sector as culled
-			pc.result = Precomp::STATUS_CULLED;
+			pc.status = Precomp::STATUS_CULLED;
 			return;
 		}
 		
@@ -190,7 +136,7 @@ namespace cppcraft
 		}
 		
 		// set job as done
-		pc.result = Precomp::STATUS_DONE;
+		pc.status = Precomp::STATUS_DONE;
 	}
 	
 }

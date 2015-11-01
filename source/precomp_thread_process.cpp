@@ -3,7 +3,6 @@
 #include <library/log.hpp>
 #include "biome.hpp"
 #include "blockmodels.hpp"
-#include "flatlands.hpp"
 #include "precomp_thread_data.hpp"
 #include "renderconst.hpp"
 #include "torchlight.hpp"
@@ -38,18 +37,18 @@ namespace cppcraft
 		unsigned short sides = 1;
 		// which model to emit
 		int model = 0;
-		worldY_extra = 0;
+		//worldY_extra = 0;
 		
 		if (id < HALFBLOCK_START)
 		{
 			// all solid blocks
-			sides = currentBlock.visibleFaces(*testdata, bx, by, bz);
+			sides = currentBlock.visibleFaces(*sector, bx, by, bz);
 			model = BlockModels::MI_BLOCK;
 		}
 		else if (id == _WATER)
 		{
 			// water
-			sides = currentBlock.visibleFaces(*testdata, bx, by, bz);
+			sides = currentBlock.visibleFaces(*sector, bx, by, bz);
 			model = BlockModels::MI_BLOCK;
 		}
 		else if (isHalfblock(id))
@@ -57,16 +56,16 @@ namespace cppcraft
 			if (isStair(id))
 			{
 				// stairs belong in halfblock category
-				sides = currentBlock.visibleFaces(*testdata, bx, by, bz);
+				sides = currentBlock.visibleFaces(*sector, bx, by, bz);
 				model = PC_STAIR;
 			}
 			else
 			{
 				// halfblocks
-				sides = currentBlock.visibleFaces(*testdata, bx, by, bz);
+				sides = currentBlock.visibleFaces(*sector, bx, by, bz);
 				model = BlockModels::MI_HALFBLOCK;
 				
-				if (currentBlock.getSpecial() == 0)
+				if (currentBlock.getExtra() == 0)
 				{
 					// theres a half block of air above this halfblock, so
 					sides |= 4; // pop back ze top!
@@ -76,16 +75,16 @@ namespace cppcraft
 					// theres a half block of air under this halfblock, so
 					sides |= 8; // pop back ze bottom!
 					// and, lift it up half a block
-					worldY_extra = 0.5 * RenderConst::VERTEX_SCALE;
+					//worldY_extra = 0.5 * RenderConst::VERTEX_SCALE;
 				}
 			} // stair or regular halfblocks
 		}
 		else if (isLowblock(id))
 		{
-			sides = currentBlock.visibleFaces(*testdata, bx, by, bz);
+			sides = currentBlock.visibleFaces(*sector, bx, by, bz);
 			model  = BlockModels::MI_LOWBLOCK;
 			
-			worldY_extra = currentBlock.getSpecial() * RenderConst::VERTEX_SCALE * 0.125;
+			//worldY_extra = currentBlock.getSpecial() * RenderConst::VERTEX_SCALE * 0.125;
 		}
 		else if (isCross(id))
 		{
@@ -131,7 +130,7 @@ namespace cppcraft
 				sides = Block(_STONE).visibleFaces(*testdata, bx, by, bz);
 			}
 			else*/
-			sides = currentBlock.visibleFaces(*testdata, bx, by, bz);
+			sides = currentBlock.visibleFaces(*sector, bx, by, bz);
 			model  = BlockModels::MI_BLOCK;
 			
 			// check if any are visible
@@ -219,22 +218,13 @@ namespace cppcraft
 					if (ldata.gathered == false)
 					{
 						// shortcut to light list
-						LightList& list = ldata;
+						//LightList& list = ldata;
 						// clear light scratch table
-						list.table.clear();
+						//list.table.clear();
 						
-						// light gathering
-						if (sector->hasLight == 1)
-						{
-							// avoid gathering light data
-							list.gathered = true;
-							list.lights.clear();
-						}
-						else
-						{
-							// gather light data
-							torchlight.lightGatherer(*sector, list);
-						}
+						// gather light data
+						//torchlight.lightGatherer(*sector, list);
+						ldata.gathered = true;
 						
 					} // initialize light list
 					
@@ -276,7 +266,7 @@ namespace cppcraft
 				}
 				else
 				{
-					fbiome[0] = Biomes::getSpecialColorRGBA(currentBlock.getSpecial());
+					fbiome[0] = Biomes::getSpecialColorRGBA(currentBlock.getExtra());
 					fbiome[1] = fbiome[0];
 					fbiome[2] = fbiome[0];
 					fbiome[3] = fbiome[0];
@@ -285,34 +275,10 @@ namespace cppcraft
 			else if (fbicrc != BIOME_CRC())
 			{
 				// collect { biome_r, biome_g_, biome_b, skylevel } into a vec4:
-				fbiome[0] = flatl[0](bx, bz).fcolor[colorIndex];
-				
-				if (bx < Sector::BLOCKS_XZ-1)
-					fbiome[1] = flatl[0](bx+1, bz).fcolor[colorIndex];
-				else
-					fbiome[1] = flatl_x[0](0, bz).fcolor[colorIndex];
-				
-				if (bz < Sector::BLOCKS_XZ-1)
-					fbiome[2] = flatl[0](bx, bz+1).fcolor[colorIndex];
-				else
-					fbiome[2] = flatl_z[0](bx, 0).fcolor[colorIndex];
-				
-				if ((bx < Sector::BLOCKS_XZ-1) && (bz < Sector::BLOCKS_XZ-1))
-				{
-					fbiome[3] = flatl[0](bx+1, bz+1).fcolor[colorIndex];
-				}
-				else if (bx < Sector::BLOCKS_XZ-1)
-				{
-					fbiome[3] = flatl_z[0](bx+1, 0).fcolor[colorIndex];
-				}
-				else if (bz < Sector::BLOCKS_XZ-1)
-				{
-					fbiome[3] = flatl_x[0](0, bz+1).fcolor[colorIndex];
-				}
-				else
-				{
-					fbiome[3] = flatl_xz[0](0, 0).fcolor[colorIndex];
-				}
+				fbiome[0] = sector->fget(bx  , bz  ).fcolor[colorIndex];
+				fbiome[1] = sector->fget(bx+1, bz  ).fcolor[colorIndex];
+				fbiome[2] = sector->fget(bx  , bz+1).fcolor[colorIndex];
+				fbiome[3] = sector->fget(bx+1, bz+1).fcolor[colorIndex];
 				
 				// unique value
 				fbicrc = BIOME_CRC();
@@ -322,9 +288,9 @@ namespace cppcraft
 		#endif
 			
 			// vertex position in 16bits
-			short vx = (bx << RenderConst::VERTEX_SHL);
-			short vy = (by << RenderConst::VERTEX_SHL) + worldY + worldY_extra;
-			short vz = (bz << RenderConst::VERTEX_SHL);
+			short vx = bx << RenderConst::VERTEX_SHL;
+			short vy = by << RenderConst::VERTEX_SHL;
+			short vz = bz << RenderConst::VERTEX_SHL;
 			
 			///////////////////////////////
 			//  now, emit some vertices  //
@@ -417,7 +383,7 @@ namespace cppcraft
 			
 			if (this->vertices[shaderLine] + 128 >= pipelineSize[shaderLine])
 			{
-				//logger << shaderLine << ": Increasing size from " << pipelineSize[shaderLine] << " to " << pipelineSize[shaderLine] + 256 << Log::ENDL;
+				logger << shaderLine << ": Increasing size from " << pipelineSize[shaderLine] << " to " << pipelineSize[shaderLine] + 256 << Log::ENDL;
 				// resize operation
 				vertex_t* old = this->databuffer[shaderLine];
 				// increase size

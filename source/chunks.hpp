@@ -48,7 +48,7 @@ namespace cppcraft
 	private:
 		void writeChunk(Chunk&);
 		void writeSector(Sector& s, std::fstream& File);
-		void loadSector(Sector& sector, std::ifstream&, unsigned int position);
+		bool loadSector(Sector& sector, std::ifstream&, unsigned int position);
 		
 		// special data
 		//int createSpecial(Sector* s, short bx, short by, short bz, int id);

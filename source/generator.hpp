@@ -23,8 +23,15 @@ namespace cppcraft
 	class Generator
 	{
 	public:
+		// initialize the generator
 		static void init();
-		static bool generate(Sector& sector, library::Timer* timer, double timeOut);
+		// add generator jobs to queue
+		static void add(Sector& sector);
+		// schedule some generator jobs, from the queue
+		static void run();
+		
+		// unused atm
+		bool generate(Sector& sector, library::Timer* timer, double timeOut);
 		
 	private:
 		static void loadSector(Sector&, std::ifstream&, unsigned int);

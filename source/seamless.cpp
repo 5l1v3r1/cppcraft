@@ -10,7 +10,7 @@
 
 #include "columns.hpp"
 #include "camera.hpp"
-#include "generatorq.hpp"
+#include "generator.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
@@ -54,44 +54,34 @@ namespace cppcraft
 		static void updateSectorColumn(int x, int z);
 	};
 	
-	void Seamstress::resetSectorColumn(Sector* base)
+	void Seamstress::resetSectorColumn(Sector* sector)
 	{
 		//! NOTE: GRIDTESTING DEALLOCATES VBO DATA
 		//!       IN ANOTHER THREAD! DON'T REMOVE VBODATA!
 		
-		// for each sector in column,
-		for (int y = 0; y < SectorContainer::SECTORS_Y; y++)
-		{
-			// invalidate sector, which makes it regenerate
-			base[y].invalidate();
-		}
+		// we have to load new block content
+		sector->gen_flags = 0;
 		// add to generator queue
-		generatorQueue.add(base);
+		Generator::add(*sector);
 	}
 	
 	void Seamstress::updateSectorColumn(int x, int z)
 	{
-		// for each sector in column,
-		Sector* base = &Sectors(x, 0, z);
-		for (int y = 0; y < SectorContainer::SECTORS_Y; y++)
+		Sector& sector = sectors(x, z);
+		
+		// if this sector is beyond needing generation
+		if (sector.generated())
 		{
-			// if this sector is beyond needing generation
-			if (base[y].contents == Sector::CONT_SAVEDATA)
-			{
-				// newly introduced sectors can have additional torchlight
-				// this sector has NEW exposure to lights it didn't have before
-				base[y].hasLight = 0;
-				// recompile sector mesh
-				base[y].progress = Sector::PROG_NEEDRECOMP;
-			}
+			// then, regenerate its mesh
+			sector.updateMesh(Sector::MESHGEN_ALL);
 		}
 	} // updateSectorColumn
 	
 	// things that must be done prior to moving the world
-	void Seamless::seamless_preconditions()
+	void Seamless::preconditions()
 	{
-		// finish all running precompiler threads
-		precompq.finish();
+		// FIXME: think about what needs to be done here
+		///precompq.finish();
 	}
 	
 	// big huge monster function
@@ -99,13 +89,13 @@ namespace cppcraft
 	bool Seamless::seamlessness()
 	{
 		int x, y, z;
-		int halfworld = Sectors.getXZ() * Sector::BLOCKS_XZ / 2;
+		int halfworld = sectors.getXZ() * Sector::BLOCKS_XZ / 2;
 		bool returnvalue = false;
 		
 		// if player is beyond negative seam offset point on x axis
 		if (player.X <= halfworld - Seamless::OFFSET)
 		{
-			seamless_preconditions();
+			preconditions();
 			
 			mtx.sectorseam.lock();
 			
@@ -117,33 +107,26 @@ namespace cppcraft
 			world.increaseDelta(-1, 0);
 			
 			// only 25% left on the negative side
-			for (z = 0; z < Sectors.getXZ(); z++)
+			for (z = 0; z < sectors.getXZ(); z++)
 			{
 				// remember old sector, at the end of x-axis
-				Sector* oldpointer = Sectors.getSectorColumn(Sectors.getXZ()-1, z);
+				Sector* oldpointer = sectors.getSectorRef(sectors.getXZ()-1, z);
 				
 				// move forward on the x-axis
-				for (x = Sectors.getXZ() - 1; x >= 1; x--)
+				for (x = sectors.getXZ() - 1; x >= 1; x--)
 				{
 					// move sector columns on x
-					Sectors.move(x,z, x-1,z);
+					sectors.move(x,z, x-1,z);
 				}
 				
 				// set first column on x-axis to old pointer
-				Sectors.getSectorColumn(0, z) = oldpointer;
+				sectors.getSectorRef(0, z) = oldpointer;
 				oldpointer->x = 0;
 				
 				// reset it completely
 				Seamstress::resetSectorColumn(oldpointer);
 				// flag neighboring sector as dirty, if necessary
 				Seamstress::updateSectorColumn(1, z);
-				
-				// fuck if i know
-				if (thesun.getAngle().x < 0.0)
-				{
-					Seamstress::updateSectorColumn(2, z);
-					Seamstress::updateSectorColumn(3, z);
-				}
 				
 				// reset edge columns
 				for (y = 0; y < columns.getColumnsY(); y++)
@@ -159,7 +142,7 @@ namespace cppcraft
 		}
 		else if (player.X >= halfworld + Seamless::OFFSET)
 		{
-			seamless_preconditions();
+			preconditions();
 			
 			mtx.sectorseam.lock();
 			
@@ -171,34 +154,28 @@ namespace cppcraft
 			world.increaseDelta(1, 0);
 			
 			// only 25% left on the positive side
-			for (z = 0; z < Sectors.getXZ(); z++)
+			for (z = 0; z < sectors.getXZ(); z++)
 			{
 				// remember first sector on x-axis
-				Sector* oldpointer = Sectors.getSectorColumn(0, z);
+				Sector* oldpointer = sectors.getSectorRef(0, z);
 				
-				for (x = 0; x < Sectors.getXZ()-1; x++)
+				for (x = 0; x < sectors.getXZ()-1; x++)
 				{
-					Sectors.move(x,z, x+1,z);
+					sectors.move(x,z, x+1,z);
 				}
 				
 				// move oldpointer-sector to end of x-axis
-				Sectors.getSectorColumn(Sectors.getXZ()-1, z) = oldpointer;
-				oldpointer->x = Sectors.getXZ()-1;
+				sectors.getSectorRef(sectors.getXZ()-1, z) = oldpointer;
+				oldpointer->x = sectors.getXZ()-1;
 				
 				// reset sector completely
 				Seamstress::resetSectorColumn(oldpointer);
 				// update neighbor
-				Seamstress::updateSectorColumn(Sectors.getXZ()-2, z);
-				
-				if (thesun.getAngle().x > 0.0)
-				{
-					Seamstress::updateSectorColumn(Sectors.getXZ()-3, z);
-					Seamstress::updateSectorColumn(Sectors.getXZ()-4, z);
-				}
+				Seamstress::updateSectorColumn(sectors.getXZ()-2, z);
 				
 				// reset edge columns
 				for (y = 0; y < columns.getColumnsY(); y++)
-					columns(Sectors.getXZ()-1, y, z).reset(y);
+					columns(sectors.getXZ()-1, y, z).reset(y);
 				
 			} // sectors z
 			
@@ -214,7 +191,7 @@ namespace cppcraft
 		
 		if (player.Z <= halfworld - Seamless::OFFSET)
 		{
-			seamless_preconditions();
+			preconditions();
 			
 			mtx.sectorseam.lock();
 			
@@ -226,17 +203,17 @@ namespace cppcraft
 			world.increaseDelta(0, -1);
 			
 			// only 25% left on the negative side
-			for (x = 0; x < Sectors.getXZ(); x++)
+			for (x = 0; x < sectors.getXZ(); x++)
 			{
 				// recursively move the sector
-				Sector* oldpointer = Sectors.getSectorColumn(x, Sectors.getXZ()-1);
+				Sector* oldpointer = sectors.getSectorRef(x, sectors.getXZ()-1);
 				
-				for (z = Sectors.getXZ()-1; z >= 1; z--)
+				for (z = sectors.getXZ()-1; z >= 1; z--)
 				{
-					Sectors.move(x,z,  x,z-1);
+					sectors.move(x,z,  x,z-1);
 				}
 				// move old pointer to beginning of z axis
-				Sectors.getSectorColumn(x, 0) = oldpointer;
+				sectors.getSectorRef(x, 0) = oldpointer;
 				oldpointer->z = 0;
 				
 				// reset oldpointer column
@@ -258,7 +235,7 @@ namespace cppcraft
 		}
 		else if (player.Z >= halfworld + Seamless::OFFSET)
 		{
-			seamless_preconditions();
+			preconditions();
 			
 			mtx.sectorseam.lock();
 			
@@ -270,27 +247,27 @@ namespace cppcraft
 			world.increaseDelta(0, 1);
 			
 			// move sectors forwards +z (and rollback last line)
-			for (x = 0; x < Sectors.getXZ(); x++)
+			for (x = 0; x < sectors.getXZ(); x++)
 			{
-				Sector* oldpointer = Sectors.getSectorColumn(x, 0);
+				Sector* oldpointer = sectors.getSectorRef(x, 0);
 				
 				// recursively move sectors
-				for (z = 0; z < Sectors.getXZ()-1; z++)
+				for (z = 0; z < sectors.getXZ()-1; z++)
 				{
-					Sectors.move(x,z, x,z+1);
+					sectors.move(x,z, x,z+1);
 				}
 				// move sector to end of z axis
-				Sectors.getSectorColumn(x, Sectors.getXZ()-1) = oldpointer;
-				oldpointer->z = Sectors.getXZ()-1;
+				sectors.getSectorRef(x, sectors.getXZ()-1) = oldpointer;
+				oldpointer->z = sectors.getXZ()-1;
 				
 				// reset oldpointer column
 				Seamstress::resetSectorColumn(oldpointer);
 				// only need to update 1 row for Z
-				Seamstress::updateSectorColumn(x, Sectors.getXZ()-2);
+				Seamstress::updateSectorColumn(x, sectors.getXZ()-2);
 				
 				// reset edge columns
 				for (y = 0; y < columns.getColumnsY(); y++)
-					columns(x, y, Sectors.getXZ()-1).reset(y);
+					columns(x, y, sectors.getXZ()-1).reset(y);
 				
 			} // sectors x
 			

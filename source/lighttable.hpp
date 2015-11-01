@@ -69,7 +69,7 @@ namespace cppcraft
 		
 		// calculates lighting for the given position
 		// calculations are cached and re-used upon accessing the same position over again
-		vertex_color_t tableLight(Sector& sector, int x, int y, int z, int normal);
+		vertex_color_t tableLight(bordered_sector_t& sector, int x, int y, int z, int normal);
 		
 		bool gathered;
 	};
