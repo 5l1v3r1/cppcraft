@@ -7,6 +7,7 @@
 #include "flatland.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
+#include "precompq.hpp"
 #include "lighting.hpp"
 #include "sectors.hpp"
 #include "threadpool.hpp"
@@ -16,8 +17,10 @@
 // load compressor last
 #include "compressor.hpp"
 #include "generator/terragen.hpp"
+#include <algorithm>
 #include <cstring>
 #include <deque>
+#define DEBUG
 
 using namespace library;
 using namespace ThreadPool;
@@ -28,10 +31,27 @@ namespace cppcraft
 	unsigned int g_compres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 	
 	static std::deque<Sector*> propagationQueue;
-	static std::deque<Sector*> queue;
 	
+	// the queue of vectors that needs terrain (blocks)
+	// we will be using this comparison function to sort
+	// the sectors by distance from center
+	bool SectorGenerationOrder (Sector* s1, Sector* s2)
+	{
+		int center = sectors.getXZ() / 2;
+		int dx1 = s1->getX() - center;
+		int dz1 = s1->getZ() - center;
+		
+		int dx2 = s2->getX() - center;
+		int dz2 = s2->getZ() - center;
+		
+		return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
+	}
+	static std::vector<Sector*> queue;
+	// multi-threaded shits, mutex for the finished queue
+	// and the list of containers of finished jobs (gendata_t)
 	static std::mutex mtx_genq;
 	static std::deque<terragen::gendata_t*> finished;
+	static int running_jobs = 0;
 	
 	class GeneratorJob
 		: public TPool::TJob
@@ -75,27 +95,52 @@ namespace cppcraft
 	
 	void Generator::run()
 	{
+		// sort by distance from center (radius)
+		std::sort(queue.begin(), queue.end(), SectorGenerationOrder);
+		// queue from the top of the vector
 		while (!queue.empty())
 		{
-			Sector* sect = queue.front();
-			queue.pop_front();
+			// because its a vector internally, we pop from the back
+			Sector* sect = queue.back();
+			queue.pop_back();
+			
+			if (sect->generating())
+			{
+				printf("Skipping sector (%d, %d)\n", 
+					sect->getX(), sect->getZ());
+				continue;
+			}
+			
+			printf("Generating sector (%d, %d)\n", 
+				sect->getX(), sect->getZ());
 			
 			// schedule terrain generator for sector
 			sect->gen_flags |= Sector::GENERATING;
 			
+			// create immutable job data
 			terragen::gendata_t* gdata = 
 				new terragen::gendata_t(sect->getWX(), sect->getWZ());
 			
 			// execute the generator job in background, delete job after its done
 			AsyncPool::sched(new GeneratorJob, gdata, true);
-			
+			mtx_genq.lock();
+			running_jobs++;
+			if (running_jobs > 8)
+			{
+				mtx_genq.unlock();
+				break;
+			}
+			mtx_genq.unlock();
 		}
+		
+		// finished generator jobs
 		mtx_genq.lock();
 		while (!finished.empty())
 		{
 			// retrieve from queue
 			terragen::gendata_t* gdata = finished.front();
 			finished.pop_front();
+			mtx_genq.unlock();
 			
 			int x = gdata->wx - world.getWX();
 			int z = gdata->wz - world.getWZ();
@@ -112,9 +157,23 @@ namespace cppcraft
 				dest.flat().assign(gdata->flatl.unassign());
 				// toggle sector generated flag, as well as removing generating flag
 				dest.gen_flags = Sector::GENERATED;
+				printf("Sector was generated: (%d, %d) - scheduling precompq\n",
+					dest.getX(), dest.getZ());
+				// now that its been generated, let's meshmerize it
+				precompq.add(dest);
+			}
+			else
+			{
+				printf("INVALID sector was generated: (%d, %d)\n",
+					x, z);
 			}
 			
+			// delete the job!
 			delete gdata;
+			// allow more jobs
+			running_jobs--;
+			
+			mtx_genq.lock();
 		}
 		mtx_genq.unlock();
 	}

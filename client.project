@@ -387,7 +387,6 @@
     <File Name="source/sectors.cpp"/>
     <File Name="source/torchlight.cpp"/>
     <File Name="source/player_physics.hpp"/>
-    <File Name="source/worldbuilder.hpp"/>
     <File Name="source/worldmanager.hpp"/>
     <File Name="source/netplayers.cpp"/>
     <File Name="source/atmosphere.hpp"/>
@@ -416,7 +415,6 @@
     <File Name="source/spiders.cpp"/>
     <File Name="source/precomp_vsloped.cpp"/>
     <File Name="source/blockmodels_doors.cpp"/>
-    <File Name="source/worldbuilder.cpp"/>
     <File Name="source/blockmodels_cubes.cpp"/>
     <File Name="source/render_fs.hpp"/>
     <File Name="source/render_fsflare.cpp"/>
@@ -471,6 +469,18 @@
         <File Name="source/generator/biomegen/biomegen.cpp"/>
         <File Name="source/generator/biomegen/colortable.cpp"/>
         <File Name="source/generator/biomegen/colortable.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="terrain">
+        <File Name="source/generator/terrain/terrain.hpp"/>
+        <File Name="source/generator/terrain/terrain.cpp"/>
+        <File Name="source/generator/terrain/terrains.cpp"/>
+        <File Name="source/generator/terrain/terrains.hpp"/>
+        <File Name="source/generator/terrain/helpers.cpp"/>
+        <File Name="source/generator/terrain/helpers.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="processing">
+        <File Name="source/generator/processing/postproc.hpp"/>
+        <File Name="source/generator/processing/postproc.cpp"/>
       </VirtualDirectory>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>

@@ -10,7 +10,6 @@
 #include "sectors.hpp"
 #include "sun.hpp"
 #include "threading.hpp"
-#include "worldbuilder.hpp"
 #include <GL/glfw3.h>
 #include <cmath>
 #include <string>
@@ -182,7 +181,7 @@ namespace cppcraft
 				
 				thesun.setRadianAngle(3.14159 * 1/8);
 				//Sectors.updateAll();
-				worldbuilder.reset();
+				//worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F2) == Input::KEY_PRESSED)
 			{
@@ -190,7 +189,7 @@ namespace cppcraft
 				
 				thesun.setRadianAngle(3.14159 * 2/8);
 				//Sectors.updateAll();
-				worldbuilder.reset();
+				//worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F3) == Input::KEY_PRESSED)
 			{
@@ -198,7 +197,7 @@ namespace cppcraft
 				
 				thesun.setRadianAngle(3.14159 * 3/8);
 				//Sectors.updateAll();
-				worldbuilder.reset();
+				//worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F4) == Input::KEY_PRESSED)
 			{
@@ -206,7 +205,7 @@ namespace cppcraft
 				
 				thesun.setRadianAngle(-1);
 				//Sectors.updateAll();
-				worldbuilder.reset();
+				//worldbuilder.reset();
 			}
 			
 			if (input.getKey(GLFW_KEY_C) == Input::KEY_PRESSED)

@@ -361,9 +361,12 @@ namespace cppcraft
 				vec3 position(player.X, 0, player.Z);
 				position += vec3(toolbox::rndNorm(180), 0, toolbox::rndNorm(180));
 				
-				Flatland::flatland_t& fs = sectors.flatland_at(position.x, position.z);
+				Flatland::flatland_t* fs = 
+					sectors.flatland_at(position.x, position.z);
+				if (fs == nullptr) break;
+				
 				// use skylevel as particle base height
-				position.y = fs.skyLevel;
+				position.y = fs->skyLevel;
 				
 				if (position.y == RenderConst::WATER_LEVEL-1)
 				{
@@ -372,10 +375,10 @@ namespace cppcraft
 					
 					newParticle(position, PARTICLE_WATER);
 				}
-				else if (i == 0 || fs.terrain == Biomes::T_DESERT)
+				else if (i == 0 || fs->terrain == Biomes::T_DESERT)
 				{
 					// not waterlevel, use terrain-specific
-					autoCreateFromTerrain(fs.terrain, position);
+					autoCreateFromTerrain(fs->terrain, position);
 				}
 			}
 		}

@@ -12,7 +12,6 @@
 #include "soundman.hpp"
 #include "sun.hpp"
 #include "threading.hpp"
-#include "worldbuilder.hpp"
 #include "world.hpp"
 
 using namespace library;
@@ -107,7 +106,6 @@ namespace cppcraft
 				///----------------------------------///
 				/// ---------- GENERATOR ----------- ///
 				///----------------------------------///
-				// mandatory to run entire operation
 				Generator::run();
 				
 				double timeOut = localTime + MAX_TIMING_WAIT;
@@ -142,36 +140,6 @@ namespace cppcraft
 				//logger << "pcq time: " << t1 - t0 << Log::ENDL;
 				
 				teleportHandler();
-				
-				///----------------------------------///
-				/// -------- WORLD BUILDER --------- ///
-				///----------------------------------///
-				// precompq queue must be empty (aka ready for more stuff)
-				/*
-				if (precompq.ready())
-				{
-					//double t0 = timer.getTime();
-					//double t0 = _localtime;
-					
-					try
-					{
-						worldbuilder.run(timer, timeOut);
-					}
-					catch (std::string exc)
-					{
-						logger << Log::ERR << "Worldbuilder: " << exc << Log::ENDL;
-						break;
-					}
-					
-					//double t1 = timer.getTime() - t0;
-					//if (t1 > 0.020)
-					//{
-					//	logger << "Worldbuilder delta: " << t1 * 1000 << Log::ENDL;
-					//}
-					
-					//double t1 = timer.getTime();
-					//logger << "WB time: " << t1 - t0 << Log::ENDL;
-				}*/
 				
 				break;
 			} // world tick

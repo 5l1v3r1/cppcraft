@@ -15,21 +15,22 @@ namespace terragen
 		};
 		
 		// entry function
-		static void biomeGenerator(gendata_t* gdata);
+		static void run(gendata_t* gdata);
 		// helpers
 		static biome_t biomeGen(float gx, float gy);
 		static int toTerrain(int biome);
 		
 		// terrains
-		static const int T_ICECAP   = 0;
-		static const int T_SNOW	    = 1;
-		static const int T_AUTUMN   = 2;
-		static const int T_ISLANDS  = 3;
-		static const int T_GRASS    = 4;
-		static const int T_MARSH    = 5;
-		static const int T_JUNGLE   = 6;
-		static const int T_DESERT   = 7;
-		static const int T_TERRAINS = 8;
+		static const int T_CAVES    = 0;
+		static const int T_ICECAP   = 1;
+		static const int T_SNOW	    = 2;
+		static const int T_AUTUMN   = 3;
+		static const int T_ISLANDS  = 4;
+		static const int T_GRASS    = 5;
+		static const int T_MARSH    = 6;
+		static const int T_JUNGLE   = 7;
+		static const int T_DESERT   = 8;
+		static const int T_TERRAINS = 9;
 		
 		// special biomes
 		static const int T_MUSHROOMS = 100;

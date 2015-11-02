@@ -8,7 +8,6 @@
 #include "compiler_scheduler.hpp"
 #include "sectors.hpp"
 #include "threading.hpp"
-#include "worldbuilder.hpp"
 #include <GL/glfw3.h>
 
 using namespace library;
@@ -83,8 +82,6 @@ namespace cppcraft
 			mtx.compiler.unlock();
 		}
 		mtx.sectorseam.unlock();
-		// reset world builder
-		worldbuilder.reset();
 	}
 	
 }

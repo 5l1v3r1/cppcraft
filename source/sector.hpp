@@ -29,12 +29,16 @@ namespace cppcraft
 		{
 			sectorblock_t() {}
 			
+			Block& operator() (int x, int y, int z)
+			{
+				return b[x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y];
+			}
+			
 			Block b[BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y];
 			short blocks;
 			short lights;
 			unsigned short nothing_yet;
 			unsigned short checksum;
-			
 		};
 		struct sectordata_t
 		{
@@ -106,7 +110,7 @@ namespace cppcraft
 		// returns reference to a Block at (x, y, z)
 		inline Block& operator() (int x, int y, int z)
 		{
-			return blockpt->b[x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y];
+			return blockpt->operator()(x, y, z);
 		}
 		inline Block& operator[] (unsigned short index)
 		{

@@ -8,6 +8,7 @@
 #include "chat.hpp"
 #include "minimap.hpp"
 #include "renderman.hpp"
+#include "sectors.hpp"
 #include "shaderman.hpp"
 #include <cmath>
 #include <sstream>
@@ -120,12 +121,17 @@ namespace cppcraft
 			fps = fps + wspace;
 		}
 		
-		Block& plblock = Spiders::getBlock(player.X, player.Y, player.Z);
-		std::string debugText = 
-				"fps: " + fps + 
-				" skylight: " + std::to_string(plblock.getSkyLight()) + 
-				" blklight: " + std::to_string(plblock.getBlockLight());
+		//Block& plblock = Spiders::getBlock(player.X, player.Y, player.Z);
+		std::string debugText;
+		debugText = "fps: " + fps;
 		
+		Flatland::flatland_t* flat = sectors.flatland_at(player.X, player.Z);
+		if (flat)
+		{
+			debugText += 
+				" skylevel: "  + std::to_string(flat->skyLevel) + 
+				" grndlevel: " + std::to_string(flat->groundLevel);
+		}
 		font.print(vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		
 		/*

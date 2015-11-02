@@ -49,7 +49,6 @@ namespace terragen
 		{ 167,150,116 },  // chinese desert
 		{  31, 65, 13 }   // amazonas rf
 	};
-//#define COLINT(cc,c1,c2,f) { cc[0] = c1[0]+(c2[0]-c1[0])*f; cc[1] = c1[1]+(c2[1]-c1[1])*f; cc[2] = c1[2]+(c2[2]-c1[2])*f; }
 	
 	Biome::biome_t Biome::biomeGen(float gx, float gy)
 	{

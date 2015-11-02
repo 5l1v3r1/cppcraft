@@ -2,6 +2,7 @@
 #include "../sector.hpp"
 #include "../flatlands.hpp"
 #include "biomegen/biome.hpp"
+#include <library/math/vector.hpp>
 
 namespace terragen
 {
@@ -9,6 +10,7 @@ namespace terragen
 	using cppcraft::BLOCKS_Y;
 	using cppcraft::Flatland;
 	using cppcraft::Sector;
+	using cppcraft::Block;
 	
 	struct gendata_t
 	{
@@ -28,23 +30,42 @@ namespace terragen
 		
 		Biome::biome_t& getWeights(int x, int z)
 		{
-			return weights[x * BLOCKS_XZ + z];
+			return weights[x * (BLOCKS_XZ+1) + z];
 		}
 		void setWeights(int x, int z, Biome::biome_t& bi)
 		{
 			getWeights(x, z) = bi;
 		}
 		
+		library::vec2 getBaseCoords2D(int x, int z) const
+		{
+			return library::vec2(genx + x, genz + z) / library::vec2(BLOCKS_XZ);
+		}
+		library::vec3 getBaseCoords3D(int x, int y, int z) const
+		{
+			return library::vec3(genx + x, y, genz + z) 
+				/ library::vec3(BLOCKS_XZ, BLOCKS_Y-1, BLOCKS_XZ);
+		}
 		
-		// where the sector is located:
+		Block& getb(int x, int y, int z)
+		{
+			return sblock(x, y, z);
+		}
+		
+		/// === working set === ///
+		// where the sector we are generating terrain for is located
 		int wx, wz;
-		// same, but in blocks relative to the center of the world:
+		// same, but in blocks relative to the center of the world
 		int genx, genz;
+		// biome weights are 17x17 because of bilinear interpolation
+		Biome::biome_t weights[(BLOCKS_XZ+1) * (BLOCKS_XZ+1)];
+		/// === working set === ///
 		
+		/// === results === ///
+		// ALL final results produced from terragen is in sblock and flatl
 		Sector::sectorblock_t sblock; // the blocks
 		Flatland flatl;               // 2d data, colors etc.
-		// working set
-		Biome::biome_t weights[BLOCKS_XZ * BLOCKS_XZ];
+		/// === results === ///
 	};
 	
 	class Generator

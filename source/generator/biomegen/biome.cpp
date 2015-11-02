@@ -160,29 +160,25 @@ namespace terragen
 		return mixColor( cl[0], cl[1], wfrac );
 	}
 	
-	void Biome::biomeGenerator(gendata_t* gdata)
+	void Biome::run(gendata_t* gdata)
 	{
-		int genx = gdata->genx;
-		int genz = gdata->genz;
-		
-		// 2d data container
-		Flatland& flatland = gdata->flatl;
-		
-		vec3 p;
 		RGB biomecl[CL_MAX];
 		RGB cl_terrain(0), cl_inverted(0);
 		RGB zeroColor(0);
 		
-		for (int x = 0; x < BLOCKS_XZ; x++)
-		for (int z = 0; z < BLOCKS_XZ; z++)
+		for (int x = 0; x <= BLOCKS_XZ; x++)
+		for (int z = 0; z <= BLOCKS_XZ; z++)
 		{
-			vec2 p = vec2(genx + x, genz + z) / vec2(16.0f);
+			vec2 p = gdata->getBaseCoords2D(x, z);
+			
+			// skip terrain colors for the edges, where we only care about the terrain weights
+			bool skip_colors = (x == BLOCKS_XZ || z == BLOCKS_XZ);
 			
 			// scale the random values from [0, 16) (multiple of 4)
 			float random1 = 8.0f + snoise2(p.x*0.0011f, p.y*0.0011f) * 7.0f + snoise2(p.x*0.015f, p.y*0.015f) * 1.0f;
 			float random2 = 8.0f + snoise2(p.y*0.0021f, p.x*0.0021f) * 7.0f + snoise2(p.x*0.016f, p.y*0.016f) * 1.0f;
 			
-			// don't scale p.x and p.z!!!!!!!!!!!!
+			// don't scale p.x and p.z here!!!!!!!!!!!!
 			biome_t biome = biomeGen(p.x, p.y);
 			
 			// reset vertex colors all in one swoooop
@@ -207,6 +203,9 @@ namespace terragen
 					bigw = weight;
 					bigt = terrain;
 				}
+				
+				// skip colors for the edges, where we only care about the terrain weights
+				if (skip_colors) continue;
 				
 				// grass colors
 				switch (terrain)
@@ -253,14 +252,18 @@ namespace terragen
 			//cl_terrain = getGradientStone(random1, random2);
 			//biomecl[CL_STONE] = mixColor(&biomecl[CL_STONE], &cl_terrain, 0.5);
 			
-			// set vertex colors all in one swoooop
-			Flatland::flatland_t& fdata = gdata->flatl(x, z);
-			for (int i = 0; i < CL_MAX; i++)
+			// skip colors for the edges, where we only care about the terrain weights
+			if (skip_colors == false)
 			{
-				fdata.fcolor[i] = biomecl[i].toColor();
+				// set vertex colors all in one swoooop
+				Flatland::flatland_t& fdata = gdata->flatl(x, z);
+				for (int i = 0; i < CL_MAX; i++)
+				{
+					fdata.fcolor[i] = biomecl[i].toColor();
+				}
+				// set terrain-id to the strongest weight
+				fdata.terrain = bigt;
 			}
-			// set terrain-id to the strongest weight
-			fdata.terrain = bigt;
 			// remember weights for terrain generator stage
 			gdata->setWeights(x, z, biome);
 			

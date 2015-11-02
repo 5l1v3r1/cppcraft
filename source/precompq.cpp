@@ -9,7 +9,6 @@
 #include "precompiler.hpp"
 #include "sectors.hpp"
 #include "threadpool.hpp"
-#include "worldbuilder.hpp"
 #include <cassert>
 #include <mutex>
 //#define DEBUG
@@ -62,12 +61,18 @@ namespace cppcraft
 		
 		// create all the available jobs
 		int jobCount = config.get("world.jobs", 2);
+		logger << Log::INFO << "* PrecompQ: " << jobCount << " available jobs" << Log::ENDL;
+		//printf("*** PrecompQ: %d available jobs\n", jobCount);
+		
 		for (int i = 0; i < jobCount; i++)
 			available.push_back(new PrecompJob);
 	}
 	
 	void PrecompQ::add(Sector& sector)
 	{
+		// we don't care if the sector is currently
+		// being generated again, all we care about
+		// is that is has been generated at some point
 		assert(sector.generated() == true);
 		//assert(sector.meshgen != 0);
 		
@@ -85,6 +90,8 @@ namespace cppcraft
 		// either way, if we cancel or not, the sector will no longer be in the queue
 		
 		// create new Precomp
+		printf("Precompiler scheduling (%d, %d)\n", 
+			sector->getX(), sector->getZ());
 		int y0 = 0;
 		int y1 = BLOCKS_Y;
 		Precomp* precomp = new Precomp(sector, y0, y1);
@@ -99,6 +106,7 @@ namespace cppcraft
 		mtx_avail.unlock();
 		
 		// schedule job
+		// Note that @precomp is the void* parameter!
 		AsyncPool::sched(job, &precomp, false);
 	}
 	
@@ -119,9 +127,26 @@ namespace cppcraft
 		// check if there are any available, and thats it
 		while (!queue.empty() && has_available())
 		{
-			// since we are here, we have something waiting to have mesh regenerated
-			// and we have available slots to process the sector.. so let's go!
-			startJob(queue.front());
+			// we have available slots to process the sector.. so let's go!
+			// .. except we need to guarantee that the sector is surrounded
+			// by finished/generated sectors
+			Sector* sect = queue.front();
+			
+			int x0 = sect->getX()-1; x0 = (x0 >= 0) ? x0 : 0;
+			int x1 = sect->getX()+1; x1 = (x1 < sectors.getXZ()) ? x1 : sectors.getXZ()-1;
+			int z0 = sect->getZ()-1; z0 = (z0 >= 0) ? z0 : 0;
+			int z1 = sect->getZ()+1; z1 = (z1 < sectors.getXZ()) ? z1 : sectors.getXZ()-1;
+			
+			for (int x = x0; x <= x1; x++)
+			for (int z = z0; z <= z1; z++)
+			{
+				// if we find a non-generated sector, move on...
+				if (sectors(x, z).generated() == false)
+					continue;
+			}
+			
+			// finally, we can start the job
+			startJob(sect);
 			queue.pop_front();
 		}
 		

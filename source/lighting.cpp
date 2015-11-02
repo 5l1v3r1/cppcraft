@@ -109,7 +109,7 @@ namespace cppcraft
 		// but, only for rays that dont go straight down (or up)
 		if (dir != 3)
 		{
-			const int sky = sectors.flatland_at(x, z).skyLevel;
+			const int sky = sectors.flatland_at(x, z)->skyLevel;
 			if (y >= sky) return;
 		}
 		
@@ -164,13 +164,10 @@ namespace cppcraft
 	
   void LightingClass::atmosphericInit(Sector& sector)
   {
-    Flatland& flat = sectors(sector.getX(), sector.getZ()).flat();
+    Flatland& flat = sector.flat();
     
-    int sx = sector.getX() * Sector::BLOCKS_XZ;
-    int sz = sector.getZ() * Sector::BLOCKS_XZ;
-    
-    for (int x = 0; x < Sector::BLOCKS_XZ; x++)
-    for (int z = 0; z < Sector::BLOCKS_XZ; z++)
+    for (int x = 0; x < BLOCKS_XZ; x++)
+    for (int z = 0; z < BLOCKS_XZ; z++)
     {
       // get skylevel
       const int sky = flat(x, z).skyLevel;

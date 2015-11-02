@@ -11,7 +11,6 @@
 #include "soundman.hpp"
 #include "threadpool.hpp"
 #include "world.hpp"
-#include "worldbuilder.hpp"
 
 namespace cppcraft
 {
@@ -30,8 +29,6 @@ namespace cppcraft
 		precompq.init();
 		// initialize lighting
 		Lighting.init();
-		// initialize world builder
-		worldbuilder.init();
 		
 		// initialize particles
 		particleSystem.init();

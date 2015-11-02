@@ -392,7 +392,13 @@ namespace cppcraft
 		/// set player sector ///
 		plogic.sector = sectors.sectorAt(player.X, player.Z);
 		/// set player terrain id ///
-		plogic.terrain = sectors.flatland_at(player.X, player.Z).terrain;
+		{
+			Flatland::flatland_t* flat = sectors.flatland_at(player.X, player.Z);
+			if (flat != nullptr)
+				plogic.terrain = flat->terrain;
+			else
+				plogic.terrain = 5; // no value is better than any other here..
+		}
 		
 		// if the player is flying, set certain flags and just exit
 		if (player.Flying)

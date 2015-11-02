@@ -51,11 +51,10 @@ namespace cppcraft
 		
 	private:
 		flatland_t* fdata;
-		friend class Compressor;
 		
 	public:
 		// the (decompressed) file record size of a flatland-sector
-		static const int FLATLAND_SIZE = sizeof(fdata);
+		static const int FLATLAND_SIZE = BLOCKS_XZ * BLOCKS_XZ * sizeof(flatland_t);
 	};
 }
 

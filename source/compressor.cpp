@@ -66,8 +66,12 @@ namespace cppcraft
 		
 		lzo_bytep cpos = compressor.getData();
 		
+		// allocate flatland data
+		Flatland::flatland_t* fdata = new Flatland::flatland_t[BLOCKS_XZ * BLOCKS_XZ];
 		// copy over flatland struct
-		memcpy (sectors.flatland(x, z).fdata, cpos, Flatland::FLATLAND_SIZE);
+		memcpy(fdata, cpos, Flatland::FLATLAND_SIZE);
+		// assign it to the flatland container
+		sectors.flatland(x, z).assign(fdata);
 		
 		// move to first sectorblock
 		cpos += Flatland::FLATLAND_SIZE;

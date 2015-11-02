@@ -31,7 +31,7 @@ namespace cppcraft
 		// returns sector at position (x, z), or null
 		Sector* sectorAt(float x, float z);
 		// returns flatland at (x, z), or GOD HELP US ALL
-		Flatland::flatland_t& flatland_at(int x, int z);
+		Flatland::flatland_t* flatland_at(int x, int z);
 		
 		// the rectilinear distance from origin, used in sorting by viewdistance 
 		// for mesh generation and terrain generation priority list

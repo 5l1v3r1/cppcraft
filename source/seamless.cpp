@@ -18,7 +18,6 @@
 #include "sun.hpp"
 #include "threading.hpp"
 #include "world.hpp"
-#include "worldbuilder.hpp"
 
 namespace cppcraft
 {
@@ -31,18 +30,13 @@ namespace cppcraft
 	{
 		// only run seamless if the player actually moved, one way or another
 		// -=- COULD DO STRANGE STUFF -=-
-		bool running = true;
 		bool seam = false;
-		while(running)
+		while (true)
 		{
 			// transition world
-			running = Seamless::seamlessness();
-			// decrease worldbuilder radius
-			if (running)
-			{
-				worldbuilder.seamResponse();
-				seam = true;
-			}
+			bool running = Seamless::seamlessness();
+			seam |= running;
+			if (running == false) break;
 		}
 		return seam;
 	}

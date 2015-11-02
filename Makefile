@@ -3,14 +3,16 @@
 #######################
 
 # build options
-# -Ofast -mfpmath=both -march=native
+# -O3 -mfpmath=both -march=native
 # -ggdb3 -fstack-protector
-BUILDOPT = -ggdb3 -fstack-protector #-Ofast -ffast-math -march=native
+BUILDOPT = -ggdb3 -fstack-protector 
+#BUILDOPT = -O3 -ffast-math -march=native
 # output file
 OUTPUT   = ./Debug/cppcraft
 
 # code folder
-SOURCE = source source/generator source/generator/biomegen
+SOURCE  = source source/generator source/generator/biomegen 
+SOURCE += source/generator/terrain source/generator/processing
 
 # resource file
 ifeq ($(OS),Windows_NT)

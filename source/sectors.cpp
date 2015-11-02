@@ -9,10 +9,10 @@ namespace cppcraft
 	
 	Sector* Sectors::sectorAt(float x, float z)
 	{
-		if (x >= 0 && x < Sector::BLOCKS_XZ * getXZ() &&
-			z >= 0 && z < Sector::BLOCKS_XZ * getXZ())
+		if (x >= 0 && x < BLOCKS_XZ * getXZ() &&
+			z >= 0 && z < BLOCKS_XZ * getXZ())
 		{
-			return getSectorRef(x / Sector::BLOCKS_XZ, z / Sector::BLOCKS_XZ);
+			return getSectorRef(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		}
 		return nullptr;
 	}
@@ -73,18 +73,22 @@ namespace cppcraft
 		} // y, z, x
 	}
 	
-	Flatland::flatland_t& Sectors::flatland_at(int x, int z)
+	Flatland::flatland_t* Sectors::flatland_at(int x, int z)
 	{
 		// find flatland sector
 		int fx = (x >> Sector::BLOCKS_XZ_SH) & INT32_MAX;
 		fx %= getXZ();
 		int fz = (z >> Sector::BLOCKS_XZ_SH) & INT32_MAX;
 		fz %= getXZ();
+		// avoid returning garbage when its not loaded yet
+		if (getSector(fx, fz)->generated() == false)
+			return nullptr;
+		
 		// find internal position
 		int bx = x & (Sector::BLOCKS_XZ-1);
 		int bz = z & (Sector::BLOCKS_XZ-1);
 		// return data structure
-		return flatland(fx, fz)(bx, bz);
+		return &flatland(fx, fz)(bx, bz);
 	}
 	
 }
