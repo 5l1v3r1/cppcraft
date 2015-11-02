@@ -4,20 +4,23 @@
 #include <library/log.hpp>
 #include <library/timing/timer.hpp>
 #include "chunks.hpp"
+#include "flatland.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
 #include "lighting.hpp"
 #include "sectors.hpp"
+#include "threadpool.hpp"
 #include "torchlight.hpp"
 #include "world.hpp"
 
 // load compressor last
 #include "compressor.hpp"
+#include "generator/terragen.hpp"
 #include <cstring>
-#include <library/threading/TThreadPool.hpp>
 #include <deque>
 
 using namespace library;
+using namespace ThreadPool;
 
 namespace cppcraft
 {
@@ -26,6 +29,27 @@ namespace cppcraft
 	
 	static std::deque<Sector*> propagationQueue;
 	static std::deque<Sector*> queue;
+	
+	static std::mutex mtx_genq;
+	static std::deque<terragen::gendata_t*> finished;
+	
+	class GeneratorJob
+		: public TPool::TJob
+	{
+	public:
+		GeneratorJob() : TPool::TJob() {}
+		
+		void run(void* data)
+		{
+			terragen::gendata_t* gdata = (terragen::gendata_t*) data;
+			terragen::Generator::run(gdata);
+			
+			// re-add the data back to the finished queue
+			mtx_genq.lock();
+			finished.push_back(gdata);
+			mtx_genq.unlock();
+		}
+	};
 	
 	void Generator::init()
 	{
@@ -57,8 +81,42 @@ namespace cppcraft
 			queue.pop_front();
 			
 			// schedule terrain generator for sector
+			sect->gen_flags |= Sector::GENERATING;
+			
+			terragen::gendata_t* gdata = 
+				new terragen::gendata_t(sect->getWX(), sect->getWZ());
+			
+			// execute the generator job in background, delete job after its done
+			AsyncPool::sched(new GeneratorJob, gdata, true);
 			
 		}
+		mtx_genq.lock();
+		while (!finished.empty())
+		{
+			// retrieve from queue
+			terragen::gendata_t* gdata = finished.front();
+			finished.pop_front();
+			
+			int x = gdata->wx - world.getWX();
+			int z = gdata->wz - world.getWZ();
+			// check that the generated data is still 
+			// within our grid:
+			if (x >= 0 && x < sectors.getXZ() &&
+				z >= 0 && z < sectors.getXZ())
+			{
+				// resultant sector
+				Sector& dest = sectors(x, z);
+				// copy from terragen into sector
+				memcpy( &dest.getBlocks(),  &gdata->sblock,  sizeof(Sector::sectorblock_t) );
+				// also, swap out the flatland data
+				dest.flat().assign(gdata->flatl.unassign());
+				// toggle sector generated flag, as well as removing generating flag
+				dest.gen_flags = Sector::GENERATED;
+			}
+			
+			delete gdata;
+		}
+		mtx_genq.unlock();
 	}
 	
 	void Generator::loadSector(Sector& sector, std::ifstream& file, unsigned int PL)
@@ -84,7 +142,6 @@ namespace cppcraft
 	**/
 	bool Generator::generate(Sector& sector, Timer* timer, double timeOut)
 	{
-		
 		if (sector.generated())
 		{
 			logger << Log::WARN << "Generator::generate(): sector content already generated" << Log::ENDL;

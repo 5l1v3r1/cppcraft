@@ -464,6 +464,14 @@
     <VirtualDirectory Name="generator">
       <File Name="source/generator/terragen.cpp"/>
       <File Name="source/generator/terragen.hpp"/>
+      <File Name="source/generator/simplex3.h"/>
+      <VirtualDirectory Name="biomegen">
+        <File Name="source/generator/biomegen/biome.cpp"/>
+        <File Name="source/generator/biomegen/biome.hpp"/>
+        <File Name="source/generator/biomegen/biomegen.cpp"/>
+        <File Name="source/generator/biomegen/colortable.cpp"/>
+        <File Name="source/generator/biomegen/colortable.hpp"/>
+      </VirtualDirectory>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>

@@ -23,6 +23,11 @@ namespace cppcraft
 			
 		} flatland_t;
 		
+		Flatland()
+		{
+			this->fdata = nullptr;
+		}
+		
 		// returns a reference to flatland_t for the 2D location (x, z)
 		inline flatland_t& operator() (int x, int z)
 		{
@@ -33,7 +38,15 @@ namespace cppcraft
 		void assign(flatland_t* new_data)
 		{
 			assert(new_data != nullptr);
-			fdata = new_data;
+			delete fdata;     // delete old data
+			fdata = new_data; // assign new
+		}
+		// unassigns the current data, and returns it
+		flatland_t* unassign()
+		{
+			flatland_t* result = fdata;
+			fdata = nullptr;
+			return result;
 		}
 		
 	private:

@@ -15,7 +15,7 @@ using namespace library;
 
 namespace cppcraft
 {
-	void Torchlight::lightSectorUpdates(Sector& s, bool instant)
+	void Torchlight::lightSectorUpdates(Sector& s, uint8_t mask)
 	{
 		// create boundries
 		int x0 = (s.getX() - 1 < 0) ? 0 : s.getX() - 1;
@@ -34,7 +34,7 @@ namespace cppcraft
 			// set lights flag: unknown number of gatherable lights
 			if (ss.generated())
 			{
-				ss.updateMesh(Sector::MESHGEN_ALL);
+				ss.updateByMask(mask);
 			}
 		}
 		

@@ -64,9 +64,19 @@ namespace cppcraft
 		return sqrtf(dx*dx + dz*dz) - (BLOCKS_XZ / 2) * sqrtf(3.0);
 	}
 	
-	void Sector::updateMesh(int y)
+	void Sector::updateMeshesAt(int y)
 	{
 		this->meshgen |= y / 32;
+		precompq.add(*this);
+	}
+	void Sector::updateByMask(uint8_t mask)
+	{
+		this->meshgen |= mask;
+		precompq.add(*this);
+	}
+	void Sector::updateAllMeshes()
+	{
+		this->meshgen = 0xFF;
 		precompq.add(*this);
 	}
 	

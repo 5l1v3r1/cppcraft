@@ -9,8 +9,6 @@ namespace cppcraft
 	{
 		this->y0 = y0;
 		this->y1 = y1;
-		int x = sector.getX();
-		int z = sector.getZ();
 		this->wx = sector.getWX();
 		this->wz = sector.getWZ();
 		

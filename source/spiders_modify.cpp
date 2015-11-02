@@ -28,7 +28,7 @@ namespace cppcraft
 		// set bitfield directly
 		block.setBitfield(bitfield);
 		// make sure the mesh is updated
-		s->updateMesh(by);
+		s->updateMeshesAt(by);
 		
 		// write updated sector to disk
 		//chunks.addSector(*s);
@@ -61,6 +61,9 @@ namespace cppcraft
 		// set new ID, facing & special
 		block.setID(id);
 		block.setBitfield(bitfield);
+		
+		// update mesh
+		s->updateMeshesAt(by);
 		
 		if (id == _CHEST)
 		{
@@ -133,7 +136,7 @@ namespace cppcraft
 		//EXAMPLE:
 		//s->meshgen |= by / 32;
 		// however, we will just update the whole thing for now
-		s->updateMesh(Sector::MESHGEN_ALL);
+		s->updateMeshesAt(by);
 		
 		// write updated sector to disk
 		//chunks.addSector(*s);
@@ -190,7 +193,7 @@ namespace cppcraft
 		//chunks.addSector(*s);
 		
 		// update neighboring sectors (depending on edges)
-		updateSurroundings(*s, bx, by, bz, false);
+		//updateSurroundings(*s, bx, by, bz, false);
 		
 		return true;
 	}
@@ -200,7 +203,7 @@ namespace cppcraft
 		// if the sector in question has blocks already,
 		if (sector.generated())
 			// just regenerate his mesh
-			sector.updateMesh(Sector::MESHGEN_ALL);
+			sector.updateMeshesAt(y);
 	}
 	
 	void Spiders::updateSurroundings(Sector& sector, int bx, int by, int bz)

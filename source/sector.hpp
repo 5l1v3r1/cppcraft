@@ -21,6 +21,9 @@ namespace cppcraft
 		// all parts of sector needs to be rebuilt
 		static const int MESHGEN_ALL = 0xFF;
 		
+		static const int GENERATED  = 0x1;
+		static const int GENERATING = 0x2;
+		
 		#pragma pack(push, 2)
 		struct sectorblock_t
 		{
@@ -96,7 +99,9 @@ namespace cppcraft
 			return this->meshgen != 0;
 		}
 		// update relevant parts of this sectors mesh
-		void updateMesh(int mask);
+		void updateByMask(uint8_t mask);
+		void updateMeshesAt(int by);
+		void updateAllMeshes();
 		
 		// returns reference to a Block at (x, y, z)
 		inline Block& operator() (int x, int y, int z)
@@ -117,7 +122,7 @@ namespace cppcraft
 		// otherwise, GOD HELP US ALL
 		inline Flatland& flat()
 		{
-			return *_flatl;
+			return _flatl;
 		}
 		
 		// distance to another sector (in block units)
@@ -158,8 +163,8 @@ namespace cppcraft
 		sectorblock_t* blockpt;
 		// data section
 		sectordata_t* datasect;
-		// 2d data
-		Flatland*     _flatl;
+		// 2d data (just a container!)
+		Flatland _flatl;
 		
 		// 8 bits to signify which parts of sector needs update
 		// when an update is needed, 

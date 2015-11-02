@@ -73,7 +73,7 @@ namespace cppcraft
 		if (sector.generated())
 		{
 			// then, regenerate its mesh
-			sector.updateMesh(Sector::MESHGEN_ALL);
+			sector.updateAllMeshes();
 		}
 	} // updateSectorColumn
 	

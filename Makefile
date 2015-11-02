@@ -10,7 +10,7 @@ BUILDOPT = -ggdb3 -fstack-protector #-Ofast -ffast-math -march=native
 OUTPUT   = ./Debug/cppcraft
 
 # code folder
-SOURCE = source source/generator
+SOURCE = source source/generator source/generator/biomegen
 
 # resource file
 ifeq ($(OS),Windows_NT)

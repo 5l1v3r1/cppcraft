@@ -54,8 +54,7 @@ namespace cppcraft
 			
 			//! re-schedule all sectors to have the mesh regenerated
 			//! unless they are flagged as having all parts already scheduled
-			if (sect.meshgen != Sector::MESHGEN_ALL)
-				sect.updateMesh(Sector::MESHGEN_ALL);
+			sect.updateAllMeshes();
 			
 		} // y, z, x
 	}
