@@ -23,8 +23,8 @@ namespace cppcraft
 		torchlight.init();
 	}
 	
-	Precomp::Precomp(Sector* sector, int y0, int y1)
-		: sector(*sector, y0, y1)
+	Precomp::Precomp(Sector* sect, int y0, int y1)
+		: sector(*sect, y0, y1)
 	{
 		// this is a new job
 		this->status   = STATUS_NEW;

@@ -16,7 +16,7 @@ namespace terragen
 			int groundLevel = 0;
 			bool air = true;
 			
-			for (int y = BLOCKS_Y-1; y >= 0; y--)
+			for (int y = BLOCKS_Y-1; y > 0; y--)
 			{
 				Block& block = gdata->getb(x, y, z);
 				
@@ -38,8 +38,19 @@ namespace terragen
 				}
 				
 				block.setSkyLight((air) ? 15 : 0);
+				block.setBlockLight(0);
+				// validate some other properties, 
+				// just to be sure we aren't producing garbage
+				assert(block.getFacing() < 6);
+				assert(block.getExtra() == 0);
 				
 			} // y
+			
+			// guarantee that the bottom block is hard as ice
+			gdata->getb(x, 0, z) = Block(_ADMINIUM);
+			assert(gdata->getb(x, 0, z).getID() == _ADMINIUM);
+			assert(gdata->getb(x, 0, z).getFacing() == 0);
+			assert(gdata->getb(x, 0, z).getExtra() == 0);
 			
 			// set skylevel, groundlevel
 			gdata->flatl(x, z).groundLevel = groundLevel;

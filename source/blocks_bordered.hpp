@@ -25,7 +25,7 @@ namespace cppcraft
 		}
 		Flatland::flatland_t& fget (int bx, int bz)
 		{
-			return flats[(bx+1) * (BLOCKS_XZ+1) + (bz+1)];
+			return flats[bx * (BLOCKS_XZ+1) + bz];
 		}
 		
 		Block& operator() (int bx, int by, int bz)

@@ -18,7 +18,7 @@ namespace cppcraft
 	class Block
 	{
 	public:
-		typedef uint16_t block_t;
+		typedef cppcraft::block_t block_t;
 		typedef uint8_t  bfield_t;
 		typedef uint8_t  light_t;
 		
@@ -29,21 +29,18 @@ namespace cppcraft
 		{
 			this->id = id;
 			this->bitfield = 0;
-			this->light = 0;
 		}
 		// semi-complete constructor
 		Block(block_t id, bfield_t bitfield)
 		{
 			this->id = id;
 			this->bitfield = bitfield;
-			this->light = 0;
 		}
 		// complete whole constructor
 		Block(block_t id, bfield_t facing, bfield_t extra)
 		{
 			this->id = id;
 			this->bitfield = facing | (extra << 3);
-			this->light = 0;
 		}
 		
 		// sets/gets the block ID for this block
@@ -66,13 +63,13 @@ namespace cppcraft
 		}
 		bfield_t getFacing() const
 		{
-			return this->bitfield & 0x07;
+			return this->bitfield & 0x7;
 		}
 		// set/get special bits for this block
 		void setExtra(bfield_t extra)
 		{
 			// remove special part
-			this->bitfield &= 0x07;
+			this->bitfield &= 0x7;
 			// add new special part
 			this->bitfield |= (extra << 3);
 		}

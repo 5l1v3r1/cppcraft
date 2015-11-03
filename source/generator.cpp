@@ -106,13 +106,13 @@ namespace cppcraft
 			
 			if (sect->generating())
 			{
-				printf("Skipping sector (%d, %d)\n", 
-					sect->getX(), sect->getZ());
+				//printf("Skipping sector (%d, %d)\n", 
+				//	sect->getX(), sect->getZ());
 				continue;
 			}
 			
-			printf("Generating sector (%d, %d)\n", 
-				sect->getX(), sect->getZ());
+			//printf("Generating sector (%d, %d)\n", 
+			//	sect->getX(), sect->getZ());
 			
 			// schedule terrain generator for sector
 			sect->gen_flags |= Sector::GENERATING;

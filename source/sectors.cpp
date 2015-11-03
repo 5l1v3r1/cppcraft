@@ -1,6 +1,7 @@
 #include "sectors.hpp"
 
 #include "generator.hpp"
+#include <cassert>
 #include <stdint.h>
 
 namespace cppcraft
@@ -20,6 +21,9 @@ namespace cppcraft
 	// allocates and initializes all Sectors
 	void Sectors::init(int sectors_xz)
 	{
+		assert(sizeof(Block) == 4);
+		assert(sizeof(Sector::sectorblock_t::b) == BLOCKS_XZ*BLOCKS_XZ*BLOCKS_Y* sizeof(Block));
+		
 		// set number of sectors on X/Z axes
 		this->sectors_XZ = sectors_xz;
 		// allocate sector pointers

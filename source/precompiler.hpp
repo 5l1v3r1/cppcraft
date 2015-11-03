@@ -20,7 +20,7 @@ namespace cppcraft
 		static void init();
 		
 		/// this constructor MUST be called from main world thread
-		Precomp(Sector*, int y0, int y1);
+		Precomp(Sector* sector, int y0, int y1);
 		~Precomp();
 		
 		enum jobresult_t
@@ -45,9 +45,6 @@ namespace cppcraft
 		void cancel();
 		
 		jobresult_t status;
-		// the queue for when we are finished
-		std::deque<PrecompJob*>* done_queue;
-		
 		// our source sector (with additional data)
 		bordered_sector_t sector;
 		

@@ -2,6 +2,7 @@
 
 #include "sectors.hpp"
 #include <cstring>
+#include <csignal>
 
 namespace cppcraft
 {
@@ -21,7 +22,9 @@ namespace cppcraft
 		}
 		
 		// copy borders from neighbors
-		{ // (-X)
+		// (-X)
+		if (sector.getX() > 0)
+		{
 			Sector& nbor = sectors(sector.getX()-1, sector.getZ());
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
@@ -30,7 +33,9 @@ namespace cppcraft
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
-		{ // (+X)
+		// (+X)
+		if (sector.getX()+1 < sectors.getXZ())
+		{
 			Sector& nbor = sectors(sector.getX()+1, sector.getZ());
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
@@ -39,7 +44,9 @@ namespace cppcraft
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
-		{ // (-Z)
+		// (-Z)
+		if (sector.getZ() > 0)
+		{
 			Sector& nbor = sectors(sector.getX(), sector.getZ()-1);
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
@@ -48,7 +55,9 @@ namespace cppcraft
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
-		{ // (+Z)
+		// (+Z)
+		if (sector.getZ()+1 < sectors.getXZ())
+		{
 			Sector& nbor = sectors(sector.getX(), sector.getZ()+1);
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
@@ -68,19 +77,42 @@ namespace cppcraft
 			dst = &this->fget(x, 0);
 			memcpy(dst, src, BLOCKS_XZ * sizeof(Flatland::flatland_t));
 		}
-		for (int x = 0; x < BLOCKS_XZ; x++)
+		
+		// +x
+		if (sector.getX() < sectors.getXZ()-1)
 		{
-			// +x
-			src = &sectors(sector.getX()+1, sector.getZ()).flat()(0, x);
-			this->fget(BLOCKS_XZ, x) = *src;
-			// +z
-			src = &sectors(sector.getX(), sector.getZ()+1).flat()(x, 0);
-			this->fget(x, BLOCKS_XZ) = *src;
+			Sector& nbor = sectors(sector.getX()+1, sector.getZ());
+			if (nbor.generated() == false)
+				std::raise(SIGINT);
+			
+			for (int z = 0; z < BLOCKS_XZ; z++)
+			{
+				this->fget(BLOCKS_XZ, z) = nbor.flat()(0, z);
+			}
+		}
+		// +z
+		if (sector.getZ() < sectors.getXZ()-1)
+		{
+			Sector& nbor = sectors(sector.getX(), sector.getZ()+1);
+			if (nbor.generated() == false)
+				std::raise(SIGINT);
+			
+			for (int x = 0; x < BLOCKS_XZ; x++)
+			{
+				this->fget(x, BLOCKS_XZ) = nbor.flat()(x, 0);
+			}
 		}
 		// +xz
-		src = &sectors(sector.getX()+1, sector.getZ()+1).flat()(0, 0);
-		this->fget(BLOCKS_XZ, BLOCKS_XZ) = *src;
-		
+		if (sector.getX() < sectors.getXZ()-1 &&
+			sector.getZ() < sectors.getXZ()-1)
+		{
+			Sector& nbor = sectors(sector.getX()+1, sector.getZ()+1);
+			if (nbor.generated() == false)
+				std::raise(SIGINT);
+			
+			src = &sectors(sector.getX()+1, sector.getZ()+1).flat()(0, 0);
+			this->fget(BLOCKS_XZ, BLOCKS_XZ) = *src;
+		}
 	} // bordered_sectorblock_t()
 	
 }

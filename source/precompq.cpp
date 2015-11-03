@@ -10,6 +10,7 @@
 #include "sectors.hpp"
 #include "threadpool.hpp"
 #include <cassert>
+#include <csignal>
 #include <mutex>
 //#define DEBUG
 
@@ -42,7 +43,7 @@ namespace cppcraft
 			pt->ambientOcclusion(*precomp);
 			
 			/////////////////////////
-			CompilerScheduler::add(precomp);
+			//CompilerScheduler::add(precomp);
 			/////////////////////////
 			// re-use this expensive PrecompJob object
 			mtx_avail.lock();
@@ -79,41 +80,29 @@ namespace cppcraft
 		queue.push_back(&sector);
 	}
 	
-	void PrecompQ::startJob(Sector* sector)
+	// returns true if the sector is surrounded by sectors
+	// that are already properly generated, or on an edge
+	bool validateSector(Sector* sect)
 	{
-		// re-validate sector
-		// the sector may have changed since being added to meshgen
-		if (sector->generated() == false) return;
-		//if (sector->meshgen == 0) return;
+		int x0 = sect->getX()-1; x0 = (x0 >= 0) ? x0 : 0;
+		int x1 = sect->getX()+1; x1 = (x1 < sectors.getXZ()) ? x1 : sectors.getXZ()-1;
+		int z0 = sect->getZ()-1; z0 = (z0 >= 0) ? z0 : 0;
+		int z1 = sect->getZ()+1; z1 = (z1 < sectors.getXZ()) ? z1 : sectors.getXZ()-1;
 		
-		// NOTE:
-		// either way, if we cancel or not, the sector will no longer be in the queue
-		
-		// create new Precomp
-		printf("Precompiler scheduling (%d, %d)\n", 
-			sector->getX(), sector->getZ());
-		int y0 = 0;
-		int y1 = BLOCKS_Y;
-		Precomp* precomp = new Precomp(sector, y0, y1);
-		
-		// retrieve an available job
-		mtx_avail.lock();
-		assert(!available.empty());
-		
-		PrecompJob* job = available.front();
-		available.pop_front();
-		
-		mtx_avail.unlock();
-		
-		// schedule job
-		// Note that @precomp is the void* parameter!
-		AsyncPool::sched(job, &precomp, false);
+		for (int x = x0; x <= x1; x++)
+		for (int z = z0; z <= z1; z++)
+		{
+			// if we find a non-generated sector, move on...
+			if (sectors(x, z).generated() == false)
+				return false;
+		}
+		return true;
 	}
 	
 	bool PrecompQ::has_available() const
 	{
 		mtx_avail.lock();
-		bool result = available.empty();
+		bool result = !available.empty();
 		mtx_avail.unlock();
 		return result;
 	}
@@ -131,19 +120,11 @@ namespace cppcraft
 			// .. except we need to guarantee that the sector is surrounded
 			// by finished/generated sectors
 			Sector* sect = queue.front();
-			
-			int x0 = sect->getX()-1; x0 = (x0 >= 0) ? x0 : 0;
-			int x1 = sect->getX()+1; x1 = (x1 < sectors.getXZ()) ? x1 : sectors.getXZ()-1;
-			int z0 = sect->getZ()-1; z0 = (z0 >= 0) ? z0 : 0;
-			int z1 = sect->getZ()+1; z1 = (z1 < sectors.getXZ()) ? z1 : sectors.getXZ()-1;
-			
-			for (int x = x0; x <= x1; x++)
-			for (int z = z0; z <= z1; z++)
-			{
-				// if we find a non-generated sector, move on...
-				if (sectors(x, z).generated() == false)
-					continue;
-			}
+			// we don't want to start jobs we can't finish
+			// this is also bound to be true at some point, 
+			// unless everything completely stopped...
+			if (validateSector(sect) == false)
+				break;
 			
 			// finally, we can start the job
 			startJob(sect);
@@ -152,6 +133,29 @@ namespace cppcraft
 		
 		// always check if time is out
 		return (timer.getTime() > timeOut);
+	}
+	
+	void PrecompQ::startJob(Sector* sector)
+	{
+		// create new Precomp
+		printf("Precompiler scheduling (%d, %d) size: %lu\n", 
+			sector->getX(), sector->getZ(), sizeof(Precomp));
+		int y0 = 0;
+		int y1 = BLOCKS_Y;
+		Precomp* precomp = new Precomp(sector, y0, y1);
+		
+		// retrieve an available job
+		mtx_avail.lock();
+		assert(!available.empty());
+		
+		PrecompJob* job = available.front();
+		available.pop_front();
+		
+		mtx_avail.unlock();
+		
+		// schedule job
+		// Note that @precomp is the void* parameter!
+		AsyncPool::sched(job, &precomp, false);
 	}
 	
 	void PrecompQ::schedule(Sector& sector)

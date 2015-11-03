@@ -78,12 +78,12 @@ namespace cppcraft
 		pcg.sector = &pc.sector;
 		
 		// iterate all (for now)
-		int y0 = 0;
-		int y1 = BLOCKS_Y;
+		int y0 = pc.sector.y0;
+		int y1 = pc.sector.y1;
 		
 		for (int bx = 0;  bx < BLOCKS_XZ; bx++)
 		for (int bz = 0;  bz < BLOCKS_XZ; bz++)
-		for (int by = y0; bx < y1; by++)
+		for (int by = y0; by < y1; by++)
 		{
 			// get pointer to current block
 			Block& currentBlock = pc.sector(bx, by, bz);
@@ -95,10 +95,6 @@ namespace cppcraft
 				// the generated mesh is added to a shaderline determined by its block id
 				pcg.process_block(currentBlock, bx, by, bz);
 			}
-			else
-			{
-				printf("invalid id: %d\n", currentBlock.getID());
-			} // if (valid id)
 		}
 		
 		// count the number of vertices we've collected

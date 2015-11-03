@@ -5,6 +5,7 @@
 #include <library/math/vector.hpp>
 #include <library/noise/simplex1234.h>
 #include "terrains.hpp"
+#include <cassert>
 
 using namespace cppcraft;
 using namespace library;
@@ -223,8 +224,15 @@ namespace terragen
 						float beach = mix( w0, w1, frz );
 						// beachhead weights //
 						
-						data->sblock(x, y, z) = 
-						getBlock(p.y, beach, density, caves);
+						Block rest = getBlock(p.y, beach, density, caves);
+						data->sblock(x, y, z) = rest;
+						
+						assert(data->getb(x, y, z).getID() == rest.getID());
+						assert(data->getb(x, y, z).getBitfield() == rest.getBitfield());
+					}
+					else
+					{
+						new (&data->getb(x, y, z)) Block(_AIR);
 					}
 					
 				} // z
