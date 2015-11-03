@@ -123,8 +123,8 @@ namespace cppcraft
 				Seamstress::updateSectorColumn(1, z);
 				
 				// reset edge columns
-				for (y = 0; y < columns.getColumnsY(); y++)
-					columns(0, y, z).reset(y);
+				for (y = 0; y < columns.getHeight(); y++)
+					columns(0, y, z).reset();
 				
 			} // sectors z
 			
@@ -168,8 +168,8 @@ namespace cppcraft
 				Seamstress::updateSectorColumn(sectors.getXZ()-2, z);
 				
 				// reset edge columns
-				for (y = 0; y < columns.getColumnsY(); y++)
-					columns(sectors.getXZ()-1, y, z).reset(y);
+				for (y = 0; y < columns.getHeight(); y++)
+					columns(sectors.getXZ()-1, y, z).reset();
 				
 			} // sectors z
 			
@@ -216,8 +216,8 @@ namespace cppcraft
 				Seamstress::updateSectorColumn(x, 1);
 				
 				// reset edge columns
-				for (y = 0; y < columns.getColumnsY(); y++)
-					columns(x, y, 0).reset(y);
+				for (y = 0; y < columns.getHeight(); y++)
+					columns(x, y, 0).reset();
 				
 			} // sectors x
 			
@@ -260,8 +260,8 @@ namespace cppcraft
 				Seamstress::updateSectorColumn(x, sectors.getXZ()-2);
 				
 				// reset edge columns
-				for (y = 0; y < columns.getColumnsY(); y++)
-					columns(x, y, sectors.getXZ()-1).reset(y);
+				for (y = 0; y < columns.getHeight(); y++)
+					columns(x, y, sectors.getXZ()-1).reset();
 				
 			} // sectors x
 			

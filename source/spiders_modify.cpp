@@ -16,7 +16,7 @@ using namespace library;
 
 namespace cppcraft
 {
-	bool Spiders::updateBlock(int bx, int by, int bz, block_t bitfield, bool immediate)
+	bool Spiders::updateBlock(int bx, int by, int bz, block_t bitfield)
 	{
 		Sector* s = spiderwrap(bx, by, bz);
 		if (s == nullptr) return false;
@@ -36,7 +36,7 @@ namespace cppcraft
 		return true;
 	}
 	
-	bool Spiders::addblock(int bx, int by, int bz, block_t id, block_t bitfield, bool immediate)
+	bool Spiders::addblock(int bx, int by, int bz, block_t id, block_t bitfield)
 	{
 		// don't use addBlock() with _AIR
 		if (id == _AIR) return false;
@@ -82,7 +82,7 @@ namespace cppcraft
 			s->countLights();
 			// update nearby sectors due to change in light count
 			// also, the haslights flag will be RESET for all neighboring sectors to this
-			torchlight.lightSectorUpdates(*s, immediate);
+			torchlight.lightSectorUpdates(*s, by);
 		}
 		else
 		{
@@ -111,7 +111,7 @@ namespace cppcraft
 		return true;
 	}
 	
-	Block Spiders::removeBlock(int bx, int by, int bz, bool immediate)
+	Block Spiders::removeBlock(int bx, int by, int bz)
 	{
 		Sector* s = spiderwrap(bx, by, bz);
 		// if the given position is outside the local area, null will be returned
@@ -147,7 +147,7 @@ namespace cppcraft
 		if (isLight(block.getID()))
 		{
 			s->countLights();
-			torchlight.lightSectorUpdates(*s, immediate);
+			torchlight.lightSectorUpdates(*s, by);
 		}
 		
 		// return COPY of block

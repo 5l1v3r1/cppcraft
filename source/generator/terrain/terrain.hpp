@@ -9,7 +9,7 @@ namespace terragen
 	class Terrain
 	{
 	public:
-		static constexpr float WATERLEVEL = 0.25;
+		static const int WATERLEVEL = 64;
 		
 		static cppcraft::Block getBlock(float y, float in_beachhead, float density, float caves);
 		static void generateTerrain(gendata_t* gdata);

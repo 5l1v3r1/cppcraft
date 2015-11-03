@@ -36,9 +36,9 @@ namespace cppcraft
 		static block_t testAreaEx(double x, double y, double z);
 		
 		// updating & modifying world
-		static bool updateBlock(int bx, int by, int bz, block_t bitfield, bool immediate);
-		static bool addblock(int bx, int by, int bz, block_t id, block_t bitfield, bool immediate);
-		static Block removeBlock(int bx, int by, int bz, bool immediate);
+		static bool updateBlock(int bx, int by, int bz, block_t bitfield);
+		static bool addblock(int bx, int by, int bz, block_t id, block_t bitfield);
+		static Block removeBlock(int bx, int by, int bz);
 		static bool addsector(int bx, int by, int bz, Sector::sectorblock_t* sectorblock);
 		static bool addemptysector(int bx, int by, int bz);
 

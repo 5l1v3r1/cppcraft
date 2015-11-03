@@ -46,6 +46,11 @@ namespace terragen
 				
 			} // y
 			
+			//printf("groundLevel: %d\tskyLevel: %d\n",
+			//	groundLevel, skyLevel);
+			assert(groundLevel != 0);
+			assert(skyLevel != 0);
+			
 			// guarantee that the bottom block is hard as ice
 			gdata->getb(x, 0, z) = Block(_ADMINIUM);
 			assert(gdata->getb(x, 0, z).getID() == _ADMINIUM);

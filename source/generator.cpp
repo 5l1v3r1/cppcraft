@@ -149,6 +149,9 @@ namespace cppcraft
 			if (x >= 0 && x < sectors.getXZ() &&
 				z >= 0 && z < sectors.getXZ())
 			{
+				//printf("Sector was generated: (%d, %d)\n",
+				//	dest.getX(), dest.getZ());
+				
 				// resultant sector
 				Sector& dest = sectors(x, z);
 				// copy from terragen into sector
@@ -157,8 +160,6 @@ namespace cppcraft
 				dest.flat().assign(gdata->flatl.unassign());
 				// toggle sector generated flag, as well as removing generating flag
 				dest.gen_flags = Sector::GENERATED;
-				printf("Sector was generated: (%d, %d) - scheduling precompq\n",
-					dest.getX(), dest.getZ());
 				// now that its been generated, let's meshmerize it
 				precompq.add(dest);
 			}

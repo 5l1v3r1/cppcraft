@@ -69,17 +69,13 @@ namespace cppcraft
 			player.Y = teleport_xyz.y;
 			player.Z = teleport_xyz.z;
 			
-			mtx.compiler.lock();
+			// disable all terrain meshes
+			for (int x = 0; x < sectors.getXZ(); x++)
+			for (int z = 0; z < sectors.getXZ(); z++)
+			for (int y = 0; y < columns.getHeight(); y++)
 			{
-				// disable all terrain meshes
-				for (int x = 0; x < sectors.getXZ(); x++)
-				for (int z = 0; z < sectors.getXZ(); z++)
-				for (int y = 0; y < columns.getColumnsY(); y++)
-				{
-					columns(x, y, z).reset(y);
-				}
+				columns(x, y, z).reset();
 			}
-			mtx.compiler.unlock();
 		}
 		mtx.sectorseam.unlock();
 	}

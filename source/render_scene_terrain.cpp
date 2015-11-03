@@ -16,6 +16,7 @@
 #include "torchlight.hpp"
 #include "vertex_block.hpp"
 #include <cmath>
+#define DEBUG
 
 using namespace library;
 
@@ -256,8 +257,8 @@ namespace cppcraft
 			}
 		}
 		glBindVertexArray(cv->vao);
-		glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
-		//glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
+		//glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
+		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
 	}
 	
 	void renderColumnSet(int i, vec3& position, GLint loc_vtrans)
@@ -453,8 +454,8 @@ namespace cppcraft
 			glUniform3fv(loc_vtrans, 1, &position.x);
 		}
 		glBindVertexArray(cv->vao);
-		glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
-		//glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
+		//glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
+		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
 	} // renderReflectedColumn()
 	
 	void SceneRenderer::renderReflectedScene(Renderer& renderer, cppcraft::Camera& renderCam)
@@ -521,6 +522,15 @@ namespace cppcraft
 		GLint loc_vtrans, location;
 		vec3  position(-1);
 		
+		// check for errors
+		#ifdef DEBUG
+		if (OpenGL::checkError())
+		{
+			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ top. Line: " << __LINE__ << Log::ENDL;
+			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
+		}
+		#endif
+		
 		// bind underwater scene
 		textureman.bind(0, Textureman::T_UNDERWATERMAP);
 		textureman.bind(1, Textureman::T_UNDERWDEPTH);
@@ -549,7 +559,7 @@ namespace cppcraft
 		#ifdef DEBUG
 		if (OpenGL::checkError())
 		{
-			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
+			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ middle. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
 		}
 		#endif
@@ -624,10 +634,14 @@ namespace cppcraft
 			glCullFace(GL_BACK);
 		}
 		
+		// check for errors
+		#ifdef DEBUG
 		if (OpenGL::checkError())
 		{
-			throw std::string("SceneRenderer::renderSceneWater(): OpenGL error");
+			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ bottom. Line: " << __LINE__ << Log::ENDL;
+			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
 		}
+		#endif
 		
 	} // renderSceneWater()
 	

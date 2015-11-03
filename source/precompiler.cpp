@@ -27,6 +27,7 @@ namespace cppcraft
 		: sector(*sect, y0, y1)
 	{
 		// this is a new job
+		assert(y1 != 0);
 		this->status   = STATUS_NEW;
 		
 		this->datadump = nullptr;

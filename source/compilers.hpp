@@ -19,31 +19,8 @@ namespace cppcraft
 	class Compilers
 	{
 	public:
-		void initCompilers();
-		void compile();
-		
-		inline int colqCount() const
-		{
-			return colq.size();
-		}
-		inline void add(const Sector* sector)
-		{
-			// add to queue
-			colq.push_back( sector );
-		}
-		inline void clear()
-		{
-			colq.clear();
-		}
-		
-	private:
-		inline void remove(int i)
-		{
-			colq.erase(colq.begin() + i);
-		}
-		
-		// simple column queue
-		std::vector<const Sector*> colq;
+		static void init();
+		static void run();
 	};
 	extern Compilers compilers;
 }

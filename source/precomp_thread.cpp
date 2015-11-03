@@ -80,6 +80,7 @@ namespace cppcraft
 		// iterate all (for now)
 		int y0 = pc.sector.y0;
 		int y1 = pc.sector.y1;
+		assert(y1 != 0);
 		
 		for (int bx = 0;  bx < BLOCKS_XZ; bx++)
 		for (int bz = 0;  bz < BLOCKS_XZ; bz++)
@@ -106,14 +107,16 @@ namespace cppcraft
 		
 		if (cnt == 0)
 		{
+			printf("[!] No vertices (total) for (%d, %d)\n",
+				pc.sector.wx, pc.sector.wz);
 			// no vertices, we can exit early, but make sure to
 			// mark the sector as culled
-			pc.status = Precomp::STATUS_CULLED;
+			pc.datadump = nullptr;
+			pc.status   = Precomp::STATUS_CULLED;
 			return;
 		}
 		
 		// allocate exact number of vertices
-		delete[] pc.datadump;
 		pc.datadump = new vertex_t[cnt];
 		
 		// prepare for next stage

@@ -13,15 +13,14 @@ namespace cppcraft
 	typedef struct vbodata_t
 	{
 	public:
-		vertex_t* pcdata;
-		indice_t* indexdata;
-		
 		unsigned short bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
 		unsigned short vertices	   [RenderConst::MAX_UNIQUE_SHADERS];
 		
 		indice_t indices    [RenderConst::MAX_UNIQUE_SHADERS];
 		
 	} vbodata_t;
+	
+	class Precomp;
 	
 	class Column
 	{
@@ -33,16 +32,15 @@ namespace cppcraft
 		~Column();
 		
 		// used by: Seamless
-		void reset(int y);
+		void reset();
 		// used by: Compiler pipeline
-		void compile(int x, int y, int z);
+		void compile(int x, int y, int z, Precomp* pc);
 		
 		// opengl vbo data section
-		vbodata_t* vbodata;
+		vbodata_t vbodata;
 		
 		// flags
 		bool renderable; // is renderable
-		bool updated;    // needs update
 		bool hasdata;    // has uploaded gpu data
 		bool aboveWater; // is above the waterline (reflectable)
 		
@@ -52,15 +50,14 @@ namespace cppcraft
 		
 		library::vec3 pos; // rendering position
 		
-		int indices    [RenderConst::MAX_UNIQUE_SHADERS];
-		int indexoffset[RenderConst::MAX_UNIQUE_SHADERS];
+		//int indices    [RenderConst::MAX_UNIQUE_SHADERS];
+		//int indexoffset[RenderConst::MAX_UNIQUE_SHADERS];
+		
+		int bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
+		int vertices    [RenderConst::MAX_UNIQUE_SHADERS];
 		
 		unsigned int  occlusion[RenderConst::MAX_UNIQUE_SHADERS];
 		char          occluded [RenderConst::MAX_UNIQUE_SHADERS];
-		
-	private:
-		void deleteData(int y);
-		
 	};
 	
 	class Columns
@@ -70,31 +67,9 @@ namespace cppcraft
 		~Columns();
 		void init();
 		
-		inline int getColumnsY() const
+		inline int getHeight() const
 		{
 			return height;
-		}
-		inline int getSectorLevel(int y) const
-		{
-			return sectorLevels[y];
-		}
-		inline int getSizeInSectors(int y) const
-		{
-			return sectorSizes[y];
-		}
-		int fromSectorY(int y) const
-		{
-			for (int h = height-1; h >= 0; h--)
-				if (y >= getSectorLevel(h))
-					return h;
-			throw std::string("Invalid y value for Columns::fromSectorY(): " + std::to_string(y));
-		}
-		int internalSectorY(int y) const
-		{
-			for (int h = height-1; h >= 0; h--)
-				if (y >= getSectorLevel(h))
-					return y - getSectorLevel(h);
-			throw std::string("Invalid y value for Columns::internalSectorY(): " + std::to_string(y));
 		}
 		
 		// column index operator
@@ -108,9 +83,7 @@ namespace cppcraft
 		
 	private:
 		Column* columns; // array of all the columns
-		// arrays simplifying calculations
-		int* sectorLevels;
-		int* sectorSizes;
+		
 		// number of columns on Y-axis
 		int height;
 		// size of a single column in sectors

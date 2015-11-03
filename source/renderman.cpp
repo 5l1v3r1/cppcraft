@@ -85,7 +85,7 @@ namespace cppcraft
 		logger << Log::INFO << "* Preparing renderer" << Log::ENDL;
 		
 		// initialize compilers
-		compilers.initCompilers();
+		compilers.init();
 		
 		// initialize camera
 		camera.init(gamescr);
@@ -210,7 +210,7 @@ namespace cppcraft
 		#else
 			if (mtx.sectorseam.try_lock())
 			{
-				compilers.compile();
+				compilers.run();
 				mtx.sectorseam.unlock();
 			}
 		#endif

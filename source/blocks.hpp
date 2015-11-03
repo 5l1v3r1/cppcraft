@@ -14,7 +14,6 @@ namespace cppcraft
 	class Sector;
 	class bordered_sector_t;
 	
-	#pragma pack(push, 2)
 	class Block
 	{
 	public:
@@ -171,7 +170,6 @@ namespace cppcraft
 		bfield_t bitfield;
 		light_t  light;
 	};
-	#pragma pack(pop)
 	
 #define MAX_UNIQUE_IDS  1023
 

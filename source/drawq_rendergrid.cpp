@@ -102,11 +102,11 @@ namespace cppcraft
 		if (rg.ystp == 1)
 		{
 			y0 = 0; // start bottom, go up
-			y1 = columns.getColumnsY() - 1;
+			y1 = columns.getHeight() - 1;
 		}
 		else
 		{
-			y0 = columns.getColumnsY() - 1;
+			y0 = columns.getHeight() - 1;
 			y1 = 0; // start top, go down
 		}
 		
@@ -148,23 +148,21 @@ namespace cppcraft
 			{
 				if (fx*fx + fz*fz < max_gridrad)
 				{
-					static const float gs_half = Sector::BLOCKS_XZ * 0.5;
+					static const float gs_half = BLOCKS_XZ * 0.5;
 					
 					if (rg.frustum->column(
-							(x << Sector::BLOCKS_XZ_SH) + gs_half,
-							(z << Sector::BLOCKS_XZ_SH) + gs_half,
-							columns.getSectorLevel(y) << Sector::BLOCKS_Y_SH,
-							columns.getSizeInSectors(y) << Sector::BLOCKS_Y_SH, 
-							gs_half
+							(x * BLOCKS_XZ) + gs_half,
+							(z * BLOCKS_XZ) + gs_half,
+							0, BLOCKS_Y,  gs_half
 						))
 					{
 						// this column is likely visible, and so we add all its meshes to queue
-						cv.pos.x = x * Sector::BLOCKS_XZ;
-						cv.pos.z = z * Sector::BLOCKS_XZ;
+						cv.pos.x = x * BLOCKS_XZ;
+						cv.pos.z = z * BLOCKS_XZ;
 						
 						for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
 						{
-							if (cv.indices[i] != 0 && (this->above == false || cv.aboveWater == true))
+							if (cv.vertices[i] != 0)
 							{
 								// try to hide hidden at least one more frame
 								if (cv.occluded[i] == 4)

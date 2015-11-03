@@ -24,7 +24,6 @@ namespace cppcraft
 		static const int GENERATED  = 0x1;
 		static const int GENERATING = 0x2;
 		
-		#pragma pack(push, 2)
 		struct sectorblock_t
 		{
 			sectorblock_t() {}
@@ -59,7 +58,6 @@ namespace cppcraft
 		private:
 			std::map<uint16_t, void*> data;
 		};
-		#pragma pack(pop)
 		
 		Sector() {}
 		// creates a sector with location (x, y, z)

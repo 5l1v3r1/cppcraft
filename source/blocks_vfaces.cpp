@@ -24,11 +24,17 @@ namespace cppcraft
 			lbx |= 16; // true
 		
 		// bottom -y
+		if (by > 0)
 		if (visibilityCompBottom(bsb(bx, by-1, bz)))
 			lbx |= 8;
 		
 		// top +y
-		if (visibilityCompTop(bsb(bx, by+1, bz)))
+		if (by < BLOCKS_Y-1)
+		{
+			if (visibilityCompTop(bsb(bx, by+1, bz)))
+				lbx |= 4;
+		}
+		else
 			lbx |= 4;
 		
 		// front +z

@@ -52,7 +52,7 @@ namespace cppcraft
 			// collect into 6 bits
 			block_t bitfield = selectedBlock.getFacing() + (selectedBlock.getExtra() << 2);
 			
-			Spiders::updateBlock(ddx, ddy, ddz, bitfield, true);
+			Spiders::updateBlock(ddx, ddy, ddz, bitfield);
 			
 			//NetworkBlock nblock(ddx, ddy, ddz, selectedBlock, NetworkBlock::BSET);
 			//network.addBlock(Network::OUTGOING, nblock);
@@ -62,7 +62,7 @@ namespace cppcraft
 			if (selectedBlock.getExtra() & 1) // lower
 			{
 				// update upper also
-				Spiders::updateBlock(ddx, ddy+1, ddz, bitfield - door_ul_bit, true);
+				Spiders::updateBlock(ddx, ddy+1, ddz, bitfield - door_ul_bit);
 				
 				// send network update
 				//NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, bitfield - door_ul_bit), NetworkBlock::BSET);
@@ -72,7 +72,7 @@ namespace cppcraft
 			else
 			{
 				// update lower also
-				Spiders::updateBlock(ddx, ddy-1, ddz, bitfield + door_ul_bit, true);
+				Spiders::updateBlock(ddx, ddy-1, ddz, bitfield + door_ul_bit);
 				
 				// send network update
 				//NetworkBlock nblock(ddx, ddy-1, ddz, Block(id, bitfield + door_ul_bit), NetworkBlock::BSET);
@@ -203,9 +203,9 @@ namespace cppcraft
 					if (Block::blockPlacement(top.getID()))
 					{
 						// upper
-						Spiders::addblock(ddx, ddy + 1, ddz, id, facing, true);
+						Spiders::addblock(ddx, ddy + 1, ddz, id, facing);
 						// lower = special bit 0 set to 1
-						Spiders::addblock(ddx, ddy + 0, ddz, id, facing + (1 << 2), true);
+						Spiders::addblock(ddx, ddy + 0, ddz, id, facing + (1 << 2));
 						
 						// decrease count (directly)!
 						item.setCount(item.getCount() - 1);
@@ -228,7 +228,7 @@ namespace cppcraft
 					// bitfield value
 					block_t bfield = facing + (item.getSpecial() << 2);
 					// add block to world
-					bool placed = Spiders::addblock(ddx, ddy, ddz, id, bfield, true);
+					bool placed = Spiders::addblock(ddx, ddy, ddz, id, bfield);
 					
 					if (placed)
 					{
@@ -329,7 +329,7 @@ namespace cppcraft
 					if (selection.block->getExtra() & 1)
 					{
 						// we're at lower, remove upper
-						Spiders::removeBlock(ddx, ddy+1, ddz, true);
+						Spiders::removeBlock(ddx, ddy+1, ddz);
 						// send update to network
 						//NetworkBlock nblock(ddx, ddy+1, ddz, Block(), NetworkBlock::BREM);
 						//network.addBlock(Network::OUTGOING, nblock);
@@ -337,7 +337,7 @@ namespace cppcraft
 					else
 					{
 						// we're at upper, remove lower
-						Spiders::removeBlock(ddx, ddy-1, ddz, true);
+						Spiders::removeBlock(ddx, ddy-1, ddz);
 						// send update to network
 						//NetworkBlock nblock(ddx, ddy-1, ddz, Block(), NetworkBlock::BREM);
 						//network.addBlock(Network::OUTGOING, nblock);
@@ -345,7 +345,7 @@ namespace cppcraft
 				}
 				
 				// now, remove the block we wanted to remove to begin with
-				Block removed = Spiders::removeBlock(ddx, ddy, ddz, true);
+				Block removed = Spiders::removeBlock(ddx, ddy, ddz);
 				
 				if (removed.getID() != _AIR)
 				{

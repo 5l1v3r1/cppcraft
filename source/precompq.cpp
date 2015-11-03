@@ -43,7 +43,8 @@ namespace cppcraft
 			pt->ambientOcclusion(*precomp);
 			
 			/////////////////////////
-			//CompilerScheduler::add(precomp);
+			CompilerScheduler::add(precomp);
+			precomp = nullptr;
 			/////////////////////////
 			// re-use this expensive PrecompJob object
 			mtx_avail.lock();
@@ -95,6 +96,8 @@ namespace cppcraft
 			// if we find a non-generated sector, move on...
 			if (sectors(x, z).generated() == false)
 				return false;
+			// in the future the sector might need finished atmospherics
+			//if (sectors(x, z).atmospherics == false) return false;
 		}
 		return true;
 	}
@@ -155,7 +158,7 @@ namespace cppcraft
 		
 		// schedule job
 		// Note that @precomp is the void* parameter!
-		AsyncPool::sched(job, &precomp, false);
+		AsyncPool::sched(job, precomp, false);
 	}
 	
 	void PrecompQ::schedule(Sector& sector)

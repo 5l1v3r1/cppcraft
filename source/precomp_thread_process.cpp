@@ -375,6 +375,7 @@ namespace cppcraft
 				indic->z += vz;
 				indic += 1;
 			}
+			
 			// increase vertex count for current shaderline
 			this->vertices[shaderLine] += vertices;
 			
@@ -383,7 +384,9 @@ namespace cppcraft
 			
 			if (this->vertices[shaderLine] + 128 >= pipelineSize[shaderLine])
 			{
-				logger << shaderLine << ": Increasing size from " << pipelineSize[shaderLine] << " to " << pipelineSize[shaderLine] + 256 << Log::ENDL;
+				/// NOTE: obvious concurrency crash due to modifying same logger
+				//logger << shaderLine << ": Increasing size from " << pipelineSize[shaderLine] << " to " << pipelineSize[shaderLine] + 256 << Log::ENDL;
+				
 				// resize operation
 				vertex_t* old = this->databuffer[shaderLine];
 				// increase size

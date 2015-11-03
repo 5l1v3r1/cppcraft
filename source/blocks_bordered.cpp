@@ -17,7 +17,7 @@ namespace cppcraft
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		{
 			Block* src = &sector(x, 0, 0);
-			Block* dst = &this[0](x, 0, 0);
+			Block* dst = &get(x, 0, 0);
 			memcpy(dst, src, BLOCKS_XZ * BLOCKS_Y * sizeof(Block));
 		}
 		
@@ -29,7 +29,7 @@ namespace cppcraft
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
 				Block* src = &nbor(BLOCKS_XZ-1, 0, z);
-				Block* dst = &this[0](-1, 0, z);
+				Block* dst = &get(-1, 0, z);
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
@@ -40,7 +40,7 @@ namespace cppcraft
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
 				Block* src = &nbor(0, 0, z);
-				Block* dst = &this[0](BLOCKS_XZ, 0, z);
+				Block* dst = &get(BLOCKS_XZ, 0, z);
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
@@ -51,7 +51,7 @@ namespace cppcraft
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
 				Block* src = &nbor(x, 0, BLOCKS_XZ-1);
-				Block* dst = &this[0](x, 0, -1);
+				Block* dst = &get(x, 0, -1);
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}

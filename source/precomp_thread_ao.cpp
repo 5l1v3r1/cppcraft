@@ -34,6 +34,12 @@ namespace cppcraft
 			precomp.status = Precomp::STATUS_FAILED;
 			return;
 		}
+		if (cnt == 0)
+		{
+			logger << Log::ERR << "PrecompThread::ambientOcclusion(): 0 vertices total" << Log::ENDL;
+			precomp.status = Precomp::STATUS_FAILED;
+			return;
+		}
 		
 	#ifdef TIMING
 		timingMutex.lock();
@@ -72,7 +78,7 @@ namespace cppcraft
 			cnt += precomp.vertices[i];
 		}
 		
-		createIndices(precomp, cnt);
+		//createIndices(precomp, cnt);
 		
 	#ifdef TIMING
 		logger << Log::INFO << "Indexing time: " << timer.startNewRound() << Log::ENDL;
@@ -91,6 +97,8 @@ namespace cppcraft
 	}
 	inline unsigned char blockIsOccluder(bordered_sector_t& sector, int x, int y, int z)
 	{
+		if (y == -1) return 1; // mui importante, don't know where else to put it tho
+		
 		block_t id = sector(x, y, z).getID();
 		return (id > AIR_END && id < CROSS_START && id != _LANTERN && id != _VINES) & 1;
 	}

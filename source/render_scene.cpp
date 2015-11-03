@@ -454,6 +454,7 @@ namespace cppcraft
 		else
 		{
 			// just copy from one texture to another
+			// --> outputs T_FINALBUFFER
 			fogFBO.blitTo(finalFBO, renderBuffer.getWidth(), renderBuffer.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		}
 		

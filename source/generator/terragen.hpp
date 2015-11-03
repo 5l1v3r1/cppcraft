@@ -27,6 +27,10 @@ namespace terragen
 			// create new flatland data, since it isnt allocated by default :(
 			flatl.assign(new Flatland::flatland_t[BLOCKS_XZ*BLOCKS_XZ]);
 		}
+		~gendata_t()
+		{
+			delete flatl.unassign();
+		}
 		
 		Biome::biome_t& getWeights(int x, int z)
 		{
@@ -43,11 +47,11 @@ namespace terragen
 		}
 		library::vec3 getBaseCoords3D(int x, int y, int z) const
 		{
-			return library::vec3(genx + x, y, genz + z) 
-				/ library::vec3(BLOCKS_XZ, BLOCKS_Y-1, BLOCKS_XZ);
+			return library::vec3(genx + x, y / (float) (BLOCKS_Y-1), genz + z);
+				// library::vec3(BLOCKS_XZ, BLOCKS_Y-1, BLOCKS_XZ);
 		}
 		
-		Block& getb(int x, int y, int z)
+		inline Block& getb(int x, int y, int z)
 		{
 			return sblock(x, y, z);
 		}

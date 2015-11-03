@@ -25,6 +25,8 @@ namespace terragen
 		//if (caves < 0.0) return _STONE;
 		//return _AIR;
 		
+		const float WATERLEVEL = 0.25;
+		
 		float cavetresh = 0.0; // distance from air/dense barrier
 		if (density > -0.1 && density <= 0.0) cavetresh = 1.0 - density / -0.1;
 		
@@ -212,10 +214,10 @@ namespace terragen
 					float density = mix( w0, w1, frz );
 					// density weights //
 					
-					if (y <= WATERLEVEL+1 || density < 0.0f)
+					if (true) //y <= WATERLEVEL+1 || density < 0.0f)
 					{
 						// caves density (high precision) //
-						float caves = terrainFuncs.get(Biome::T_CAVES, p);
+						float caves = 0.0; terrainFuncs.get(Biome::T_CAVES, p);
 						// caves density //
 						
 						// beachhead weights //

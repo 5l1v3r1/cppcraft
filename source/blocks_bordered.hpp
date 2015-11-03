@@ -21,6 +21,9 @@ namespace cppcraft
 		// Block & biome retrieval functions
 		Block& get (int bx, int by, int bz)
 		{
+			assert(bx >= -1 && bx <= BLOCKS_XZ);
+			assert(bz >= -1 && bz <= BLOCKS_XZ);
+			assert(by >= 0 && by < BLOCKS_Y);
 			return blks[(bx+1) * (BLOCKS_XZ+2) * BLOCKS_Y + (bz+1) * BLOCKS_Y + by];
 		}
 		Flatland::flatland_t& fget (int bx, int bz)
