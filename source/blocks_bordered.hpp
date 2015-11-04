@@ -3,6 +3,7 @@
 
 #include "common.hpp"
 #include "sector.hpp"
+//#define DEBUG
 
 namespace cppcraft
 {
@@ -19,15 +20,21 @@ namespace cppcraft
 		Flatland::flatland_t flats[(BLOCKS_XZ+1) * (BLOCKS_XZ+1)];
 		
 		// Block & biome retrieval functions
-		Block& get (int bx, int by, int bz)
+		inline Block& get (int bx, int by, int bz)
 		{
+		#ifdef DEBUG
 			assert(bx >= -1 && bx <= BLOCKS_XZ);
 			assert(bz >= -1 && bz <= BLOCKS_XZ);
 			assert(by >= 0 && by < BLOCKS_Y);
+		#endif
 			return blks[(bx+1) * (BLOCKS_XZ+2) * BLOCKS_Y + (bz+1) * BLOCKS_Y + by];
 		}
-		Flatland::flatland_t& fget (int bx, int bz)
+		inline Flatland::flatland_t& fget (int bx, int bz)
 		{
+		#ifdef DEBUG
+			assert(bx >= 0 && bx <= BLOCKS_XZ);
+			assert(bz >= 0 && bz <= BLOCKS_XZ);
+		#endif
 			return flats[bx * (BLOCKS_XZ+1) + bz];
 		}
 		

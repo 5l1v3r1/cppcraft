@@ -158,4 +158,116 @@ namespace cppcraft
 	
   } // atmospheric flood
   
+  void LightingClass::torchlight(Sector& sector)
+  {
+    int sx = sector.getX() * BLOCKS_XZ;
+    int sz = sector.getZ() * BLOCKS_XZ;
+    
+    for (int x = 0; x < BLOCKS_XZ; x++)
+    for (int z = 0; z < BLOCKS_XZ; z++)
+	for (int y = 0; y <= sector.flat()(x, z).groundLevel; y++)
+    {
+		block_t id = sector(x, y, z).getID();
+		
+		if (isLight(id))
+		{
+			// set to max blocklight value
+			sector(x, y, z).setBlockLight(15);
+			// mask out impossible paths
+			int mask = 63;
+			if (x < BLOCKS_XZ-1)
+				if (isAir(sector(x+1, y, z).getID()) == false) mask &= ~1;
+			if (x > 0)
+				if (isAir(sector(x-1, y, z).getID()) == false) mask &= ~2;
+			
+			if (isAir(sector(x, y+1, z).getID()) == false) mask &= ~4;
+			if (isAir(sector(x, y-1, z).getID()) == false) mask &= ~8;
+			
+			if (z < BLOCKS_XZ-1)
+				if (isAir(sector(x, y, z+1).getID()) == false) mask &= ~16;
+			if (z > 0)
+				if (isAir(sector(x, y, z-1).getID()) == false) mask &= ~32;
+			
+			// propagate block light in all directions
+			void propagateBlocklight(int x, int y, int z, int dir, int level);
+			if (mask & 1)
+				propagateBlocklight(sx+x, y, sz+z, 0, 15); // +x
+			if (mask & 2)
+				propagateBlocklight(sx+x, y, sz+z, 1, 15); // -x
+			if (mask & 4)
+				propagateBlocklight(sx+x, y, sz+z, 2, 15); // +y
+			if (mask & 8)
+				propagateBlocklight(sx+x, y, sz+z, 3, 15); // -y
+			if (mask & 16)
+				propagateBlocklight(sx+x, y, sz+z, 4, 15); // +z
+			if (mask & 32)
+				propagateBlocklight(sx+x, y, sz+z, 5, 15); // -z
+		}
+    } // x, z, y
+	
+  } // atmospheric flood
+  
+  void propagateBlocklight(int x, int y, int z, int dir, int level)
+  {
+    while (level > 0)
+    {
+		// move in ray direction
+		switch (dir)
+		{
+		case 0: x++; break;
+		case 1: x--; break;
+		case 2: y++; break;
+		case 3: y--; break;
+		case 4: z++; break;
+		case 5: z--; break;
+		}
+		
+		// validate new position
+		if (x < 0 || y < 1 || z < 0 ||
+			x >= sectors.getXZ() * BLOCKS_XZ || 
+			z >= sectors.getXZ() * BLOCKS_XZ ||
+			y >= BLOCKS_Y)      break;
+		
+		// avoid setting light values for non-air
+		Block& blk2 = Spiders::getBlock(x, y, z);
+		level -= lightPenetrate(blk2.getID());
+		level = (level < 0) ? 0 : level;
+		
+		// avoid lowering light values for air
+		if (blk2.getBlockLight() >= level) break;
+		
+		// set new light level
+		blk2.setBlockLight(level);
+		assert(blk2.getBlockLight() == level);
+		
+		// once level reaches zero we are done, so early exit
+		if (level == 0) break;
+		
+		switch (dir)
+		{
+		case 0: // +x
+		case 1: // -x
+			propagateBlocklight(x, y, z, 2, level);
+			propagateBlocklight(x, y, z, 3, level);
+			propagateBlocklight(x, y, z, 4, level);
+			propagateBlocklight(x, y, z, 5, level);
+			break;
+		case 2: // +y
+		case 3: // -y
+			propagateBlocklight(x, y, z, 0, level);
+			propagateBlocklight(x, y, z, 1, level);
+			propagateBlocklight(x, y, z, 4, level);
+			propagateBlocklight(x, y, z, 5, level);
+			break;
+		case 4: // +z
+		case 5: // -z
+			propagateBlocklight(x, y, z, 0, level);
+			propagateBlocklight(x, y, z, 1, level);
+			propagateBlocklight(x, y, z, 2, level);
+			propagateBlocklight(x, y, z, 3, level);
+			break;
+		}
+    } // while (level)
+  }
+  
 } // namespace

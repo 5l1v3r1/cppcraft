@@ -95,7 +95,7 @@ namespace cppcraft
 		
 		inline light_t getSkyLight() const
 		{
-			return this->light & 0x0F;
+			return this->light & 0xF;
 		}
 		inline void setSkyLight(light_t level)
 		{
@@ -104,16 +104,16 @@ namespace cppcraft
 		}
 		inline light_t getBlockLight() const
 		{
-			return this->light >> 8;
+			return this->light >> 4;
 		}
 		inline void setBlockLight(light_t level)
 		{
-			this->light &= 0x0F;
-			this->light |= level << 8;
+			this->light &= 0xF;
+			this->light |= (level << 4);
 		}
 		inline void setLight(light_t sky, light_t block)
 		{
-			this->light = (sky & 0xF) | (block << 8);
+			this->light = (sky & 0xF) | (block << 4);
 		}
 		
 		// human readable name of a block

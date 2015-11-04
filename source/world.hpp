@@ -28,10 +28,9 @@ namespace cppcraft
 		typedef int wcoord_t;
 		
 		static const wcoord_t WORLD_SIZE     = 268435456;
-		static const wcoord_t WORLD_NODESIZE = 128;
 		static const wcoord_t WORLD_CENTER   = WORLD_SIZE / 2;
 		
-		static const wcoord_t WORLD_STARTING_X = WORLD_CENTER + WORLD_NODESIZE / 2;
+		static const wcoord_t WORLD_STARTING_X = WORLD_CENTER;
 		static const wcoord_t WORLD_STARTING_Z = WORLD_STARTING_X;
 		
 		typedef struct world_t

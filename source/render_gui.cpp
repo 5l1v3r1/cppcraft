@@ -44,7 +44,7 @@ namespace cppcraft
 		// initialize our font renderer
 		font.createTexture("bitmap/default/gui/font.png", 16);
 		font.createShader();
-		font.setClip(vec2(0.2, 0.0));
+		font.setClip(library::vec2(0.2, 0.0));
 		
 		// initialize inventories
 		initInventoryRenderer();
@@ -108,7 +108,7 @@ namespace cppcraft
 		font.setColor(vec4(0.8, 0.8, 1.0, 1.0));
 		font.setBackColor(vec4(0.0, 0.4));
 		
-		font.print(vec3(0.01, 0.01, 0.0), textScale, "cppcraft v0.1", false);
+		font.print(library::vec3(0.01, 0.01, 0.0), textScale, "cppcraft v0.1", false);
 		
 		std::string fps = std::to_string(renderer.FPS);
 		
@@ -121,7 +121,9 @@ namespace cppcraft
 			fps = fps + wspace;
 		}
 		
+		
 		//Block& plblock = Spiders::getBlock(player.X, player.Y, player.Z);
+		textScale *= vec2(1.5, 1.5);
 		std::string debugText;
 		debugText = "fps: " + fps;
 		

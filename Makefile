@@ -63,7 +63,7 @@ CCRES   = $(RESOURCES:.rc=.o)
 
 .PHONY: clean all debug fast
 
-debug: BUILDOPT = -ggdb3 -fstack-protector 
+debug: BUILDOPT = -ggdb3 -fstack-protector -DDEBUG
 debug: all
 
 fast: BUILDOPT = -O3 -ffast-math -march=native

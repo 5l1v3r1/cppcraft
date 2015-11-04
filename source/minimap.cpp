@@ -98,11 +98,6 @@ namespace cppcraft
 		minimapVAO.render(GL_QUADS);
 	}
 	
-	inline int fgetSkylevel(Flatland& fs, int x, int z)
-	{
-		return fs(x, z).skyLevel;
-	}
-	
 	Bitmap::rgba8_t fgetColor(Flatland& fs, int x, int z, int clid)
 	{
 		Bitmap::rgba8_t color = fs(x & (Sector::BLOCKS_XZ-1), z & (Sector::BLOCKS_XZ-1)).fcolor[clid];
@@ -290,17 +285,17 @@ namespace cppcraft
 		
 		// fetch sky levels
 		int skylevel[8];
-		skylevel[0] = fgetSkylevel(fs,  3,  3);
-		skylevel[1] = fgetSkylevel(fs,  4,  4);
+		skylevel[0] = fs(3,  3).skyLevel;
+		skylevel[1] = fs(4,  4).skyLevel;
 		
-		skylevel[2] = fgetSkylevel(fs,  3, 12);
-		skylevel[3] = fgetSkylevel(fs,  4, 11);
+		skylevel[2] = fs(3, 12).skyLevel;
+		skylevel[3] = fs(4, 11).skyLevel;
 		
-		skylevel[4] = fgetSkylevel(fs, 12,  3);
-		skylevel[5] = fgetSkylevel(fs, 11,  4);
+		skylevel[4] = fs(12,  3).skyLevel;
+		skylevel[5] = fs(11,  4).skyLevel;
 		
-		skylevel[6] = fgetSkylevel(fs, 12, 12);
-		skylevel[7] = fgetSkylevel(fs, 11, 11);
+		skylevel[6] = fs(12, 12).skyLevel;
+		skylevel[7] = fs(11, 11).skyLevel;
 		
 		// fetch blocks at skylevels
 		int bx = sector.getX() * Sector::BLOCKS_XZ;

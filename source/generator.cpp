@@ -134,6 +134,8 @@ namespace cppcraft
 				// toggle sector generated flag, as well as removing generating flag
 				dest.gen_flags    = Sector::GENERATED;
 				dest.atmospherics = false;
+				// add it to the minimap!!!
+				minimap.addSector(dest);
 				// now that its been generated, let's meshmerize it
 				precompq.add(dest);
 			}

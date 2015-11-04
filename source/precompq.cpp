@@ -14,6 +14,7 @@
 #include <csignal>
 #include <mutex>
 //#define DEBUG
+//#define TIMING
 
 using namespace library;
 
@@ -101,7 +102,14 @@ namespace cppcraft
 			// in the future the sector might need finished atmospherics
 			if (sectors(x, z).atmospherics == false)
 			{
+				#ifdef TIMING
+					Timer timer;
+				#endif
 				Lighting.atmosphericFlood(sectors(x, z));
+				#ifdef TIMING
+					printf("Time spent in that goddamn atm flood: %f\n",
+						timer.getTime());
+				#endif
 				return false;
 			}
 		}

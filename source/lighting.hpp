@@ -29,6 +29,7 @@ namespace cppcraft
 		
 		// floods an initialized column of sectors with skylight
 		static void atmosphericFlood(Sector& sector);
+		static void torchlight(Sector& sector);
 	};
 	extern LightingClass Lighting;
 }

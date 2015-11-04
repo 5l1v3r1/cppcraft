@@ -2,12 +2,16 @@
 #define NETPLAYER_HPP
 
 #include <library/math/vector.hpp>
-#include <liblattice/coordinates.h>
 #include "world.hpp"
 #include <string>
 
 namespace cppcraft
 {
+	struct w_coord
+	{
+		int x, y, z;
+	};
+	
 	class NetPlayer
 	{
 	public:

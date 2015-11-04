@@ -241,7 +241,7 @@ namespace cppcraft
 			////  interpolated biome colors, data from flatland  ////
 			/////////////////////////////////////////////////////////
 		#ifdef USE_BIOMEDATA
-			#define BIOME_CRC()  (bx * Sector::BLOCKS_XZ + bz)
+			#define BIOME_CRC()  (bx * BLOCKS_XZ + bz)
 			
 			if (colorIndex == -1)
 			{

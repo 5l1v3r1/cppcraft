@@ -122,10 +122,9 @@ namespace cppcraft
 			if (nbor.generated() == false)
 				std::raise(SIGINT);
 			
-			for (int z = 0; z < BLOCKS_XZ; z++)
-			{
-				this->fget(BLOCKS_XZ, z) = nbor.flat()(0, z);
-			}
+			src = &sector.flat()(0, 0);
+			dst = &this->fget(BLOCKS_XZ, 0);
+			memcpy(dst, src, BLOCKS_XZ * sizeof(Flatland::flatland_t));
 		}
 		// +z
 		if (sector.getZ() < sectors.getXZ()-1)

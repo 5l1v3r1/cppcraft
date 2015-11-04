@@ -24,12 +24,13 @@ namespace terragen
 			genx *= BLOCKS_XZ;
 			genz = wz - cppcraft::World::WORLD_CENTER;
 			genz *= BLOCKS_XZ;
+			
 			// create new flatland data, since it isnt allocated by default :(
 			flatl.assign(new Flatland::flatland_t[BLOCKS_XZ*BLOCKS_XZ]);
 		}
 		~gendata_t()
 		{
-			delete flatl.unassign();
+			delete[] flatl.unassign();
 		}
 		
 		Biome::biome_t& getWeights(int x, int z)
@@ -43,12 +44,11 @@ namespace terragen
 		
 		library::vec2 getBaseCoords2D(int x, int z) const
 		{
-			return library::vec2(genx + x, genz + z) / library::vec2(BLOCKS_XZ);
+			return library::vec2(genx + x, genz + z);
 		}
 		library::vec3 getBaseCoords3D(int x, int y, int z) const
 		{
 			return library::vec3(genx + x, y / (float) (BLOCKS_Y-1), genz + z);
-				// library::vec3(BLOCKS_XZ, BLOCKS_Y-1, BLOCKS_XZ);
 		}
 		
 		inline Block& getb(int x, int y, int z)

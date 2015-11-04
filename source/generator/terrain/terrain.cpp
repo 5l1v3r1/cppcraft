@@ -147,7 +147,7 @@ namespace terragen
 		terrainFuncs.init();
 		
 		// interpolation grid dimensions
-		#define ngrid 8
+		#define ngrid 4
 		
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
 		// noise (terrain density) values
@@ -165,8 +165,7 @@ namespace terragen
 			beachhead[x][z] = snoise2(p.x * 0.005f, p.y * 0.005f);
 		}
 		
-		// generating from top to bottom,
-		// not including y = 0
+		// generating from top to bottom, not including y == 0
 		for (int y = BLOCKS_Y-1; y > 0; y--)
 		{
 			for (int x = 0; x <= ngrid; x++)
@@ -214,7 +213,7 @@ namespace terragen
 					float density = mix( w0, w1, frz );
 					// density weights //
 					
-					if (true) //y <= WATERLEVEL+1 || density < 0.0f)
+					if (y <= WATERLEVEL || density < 0.0f)
 					{
 						// caves density (high precision) //
 						float caves = 0.0; terrainFuncs.get(Biome::T_CAVES, p);
@@ -226,11 +225,7 @@ namespace terragen
 						float beach = mix( w0, w1, frz );
 						// beachhead weights //
 						
-						Block rest = getBlock(p.y, beach, density, caves);
-						data->sblock(x, y, z) = rest;
-						
-						assert(data->getb(x, y, z).getID() == rest.getID());
-						assert(data->getb(x, y, z).getBitfield() == rest.getBitfield());
+						data->sblock(x, y, z) = getBlock(p.y, beach, density, caves);
 					}
 					else
 					{
