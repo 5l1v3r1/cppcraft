@@ -11,7 +11,7 @@ namespace library
 namespace cppcraft
 {
 	typedef unsigned short block_t;
-	typedef unsigned long long vertex_color_t;
+	typedef unsigned int vertex_color_t;
 	class Block;
 	class Sector;
 	

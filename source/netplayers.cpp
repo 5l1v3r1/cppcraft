@@ -12,7 +12,6 @@
 #include "sun.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
-#include "torchlight.hpp"
 #include "vertex_player.hpp"
 #include <cmath>
 
@@ -197,7 +196,7 @@ namespace cppcraft
 		shd.sendFloat("daylight", thesun.getRealtimeDaylight());
 		shd.sendFloat("frameCounter", frameCounter);
 		
-		shd.sendFloat("modulation", torchlight.getModulation(frameCounter));
+		//shd.sendFloat("modulation", torchlight.getModulation(frameCounter));
 		
 		// head mesh
 		if (vao.isGood() == false)

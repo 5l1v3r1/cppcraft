@@ -17,13 +17,8 @@ namespace cppcraft
 	// the sector reference is really only for the coordinates (x, cy, z)
 	void CompilerScheduler::add(Precomp* precomp)
 	{
-		//delete precomp;
-		//return;
-		
 		mtx_compiler.lock();
 		cjobs.push_back(precomp);
-		printf("Added compiler job for (%d, %d)\n", 
-			precomp->sector.wx, precomp->sector.wz);
 		mtx_compiler.unlock();
 	}
 	

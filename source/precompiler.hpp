@@ -36,14 +36,6 @@ namespace cppcraft
 			return status;
 		}
 		
-		//! transfer this finished job to renderer
-		void complete();
-		
-		// process finished early, due to nothing to do (eg. no blocks)
-		void early_finish();
-		// some requirement not fulfilled, cancel job and retry later
-		void cancel();
-		
 		jobresult_t status;
 		// our source sector (with additional data)
 		bordered_sector_t sector;
@@ -51,8 +43,8 @@ namespace cppcraft
 		// resulting mesh data
 		vertex_t* datadump;
 		// resulting index data
-		indice_t* indidump;
-		indice_t indices           [RenderConst::MAX_UNIQUE_SHADERS];
+		//indice_t* indidump;
+		//indice_t indices           [RenderConst::MAX_UNIQUE_SHADERS];
 		
 		unsigned short vertices    [RenderConst::MAX_UNIQUE_SHADERS];
 		unsigned short bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];

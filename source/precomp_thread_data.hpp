@@ -1,7 +1,6 @@
 #include "renderconst.hpp"
 
 #include "blocks.hpp"
-#include "lighttable.hpp"
 #include "vertex_block.hpp"
 
 namespace cppcraft
@@ -22,8 +21,8 @@ namespace cppcraft
 		// all the blocks
 		bordered_sector_t* sector;
 		
-		// lightdata scratch table
-		LightList ldata;
+		// resolve (x, y, z) to vertex lighting
+		uint16_t getLight(int x, int y, int z);
 		
 		// blocks counter, for exiting early when all blocks are processed
 		int blocks;
@@ -84,6 +83,8 @@ namespace cppcraft
 		int emitCross(block_t id, int bx, int by, int bz);
 		
 		// light raytracer & emission functions for each side of a cube
+		
+		uint16_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
 		
 		void applyFaceLighting_PZ(int bx, int by, int bz);
 		void applyFaceLighting_NZ(int bx, int by, int bz);

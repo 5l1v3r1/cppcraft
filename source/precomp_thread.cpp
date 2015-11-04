@@ -56,9 +56,6 @@ namespace cppcraft
 	{
 		PrecompThreadData& pcg = *this->ptd;
 		
-		// reset light list
-		pcg.ldata.gathered = false;
-		
 		// last blockid, starting with _AIR
 		pcg.lastid = _AIR;
 		

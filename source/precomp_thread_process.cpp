@@ -5,7 +5,6 @@
 #include "blockmodels.hpp"
 #include "precomp_thread_data.hpp"
 #include "renderconst.hpp"
-#include "torchlight.hpp"
 #include <cstring>
 
 using namespace library;
@@ -214,20 +213,6 @@ namespace cppcraft
 					// get new pointer
 					indic = databuffer[shaderLine];
 					
-					// gather lighting ONCE if not yet gathered
-					if (ldata.gathered == false)
-					{
-						// shortcut to light list
-						//LightList& list = ldata;
-						// clear light scratch table
-						//list.table.clear();
-						
-						// gather light data
-						//torchlight.lightGatherer(*sector, list);
-						ldata.gathered = true;
-						
-					} // initialize light list
-					
 				} // determine vertice index position
 				
 				// determine color index
@@ -404,5 +389,15 @@ namespace cppcraft
 		} // if (facing)
 		
 	} // precompile_block()
+	
+	uint16_t PrecompThreadData::getLight(int x, int y, int z)
+	{
+		Block& block = sector->get(x, y, z);
+		
+		uint16_t r = (block.getSkyLight()   * 17);
+		uint16_t g = (block.getBlockLight() * 17);
+		
+		return r + (g << 8);
+	}
 	
 }

@@ -2,13 +2,14 @@
 
 #include <library/log.hpp>
 #include <library/timing/timer.hpp>
-#include "columns.hpp"
 #include "compiler_scheduler.hpp"
 #include "gameconf.hpp"
+#include "lighting.hpp"
 #include "precomp_thread.hpp"
 #include "precompiler.hpp"
 #include "sectors.hpp"
 #include "threadpool.hpp"
+#include <algorithm>
 #include <cassert>
 #include <csignal>
 #include <mutex>
@@ -44,12 +45,13 @@ namespace cppcraft
 			
 			/////////////////////////
 			CompilerScheduler::add(precomp);
-			precomp = nullptr;
 			/////////////////////////
 			// re-use this expensive PrecompJob object
 			mtx_avail.lock();
 			available.push_back(this);
 			mtx_avail.unlock();
+			//////////////////////////
+			AsyncPool::release();
 		}
 	private:
 		PrecompThread* pt;
@@ -97,12 +99,24 @@ namespace cppcraft
 			if (sectors(x, z).generated() == false)
 				return false;
 			// in the future the sector might need finished atmospherics
-			//if (sectors(x, z).atmospherics == false) return false;
+			if (sectors(x, z).atmospherics == false)
+			{
+				Lighting.atmosphericFlood(sectors(x, z));
+				return false;
+			}
 		}
 		return true;
 	}
 	
-	bool PrecompQ::has_available() const
+	bool BorderedOrder(Sector* s1, Sector* s2)
+	{
+		bool a = validateSector(s1);
+		bool b = validateSector(s2);
+		
+		return (a && !b);
+	}
+	
+	bool PrecompQ::job_available() const
 	{
 		mtx_avail.lock();
 		bool result = !available.empty();
@@ -112,12 +126,17 @@ namespace cppcraft
 	
 	bool PrecompQ::run(Timer& timer, double timeOut)
 	{
-		/// ------------ PRECOMPILER ------------ ///
+		if (needs_sorting)
+		{
+			// sort by distance from center (radius)
+			std::sort(queue.begin(), queue.end(), BorderedOrder);
+			needs_sorting = false;
+		}
 		
 		// since we are the only ones that can take stuff
 		// from the available queue, we should be good to just
 		// check if there are any available, and thats it
-		while (!queue.empty() && has_available())
+		while (!queue.empty() && job_available() && AsyncPool::available())
 		{
 			// we have available slots to process the sector.. so let's go!
 			// .. except we need to guarantee that the sector is surrounded
@@ -141,8 +160,8 @@ namespace cppcraft
 	void PrecompQ::startJob(Sector* sector)
 	{
 		// create new Precomp
-		printf("Precompiler scheduling (%d, %d) size: %lu\n", 
-			sector->getX(), sector->getZ(), sizeof(Precomp));
+		//printf("Precompiler scheduling (%d, %d) size: %lu\n", 
+		//	sector->getX(), sector->getZ(), sizeof(Precomp));
 		int y0 = 0;
 		int y1 = BLOCKS_Y;
 		Precomp* precomp = new Precomp(sector, y0, y1);
@@ -164,12 +183,6 @@ namespace cppcraft
 	void PrecompQ::schedule(Sector& sector)
 	{
 		this->queue.push_back(&sector);
-	}
-	
-	void PrecompQ::add_finished(Precomp& pc)
-	{
-		// not sure what to do here, atm.
-		// maybe just delete it
-		delete &pc;
+		needs_sorting = true;
 	}
 }

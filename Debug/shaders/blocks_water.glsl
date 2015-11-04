@@ -14,14 +14,11 @@ uniform float frameCounter;
 
 in vec4 in_vertex;
 in vec4 in_normal;
-in vec3 in_texture;
+in vec4 in_texture;
 in vec4 in_biome;
-in vec4 in_color;
-in vec4 in_color2;
 
 out vec4 waterColor;
-out vec4 lightdata;
-out vec4 torchlight;
+out vec3 lightdata;
 
 out vec3 v_pos;
 flat out vec3 v_normal;
@@ -50,9 +47,10 @@ void main(void)
 	waves.xy = w_vertex.xz * vec2(0.20, 0.04) + timer * vec2(0.2, 0.0);
 	waves.zw = w_vertex.xz * vec2(0.08, 0.02) + timer * vec2(0.2, 0.0);
 	
+	int light = int(in_texture.w);
+	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, in_normal.w);
+	
 	waterColor  = in_biome;
-	lightdata   = in_color;
-	torchlight  = in_color2;
 }
 
 #endif
@@ -74,8 +72,7 @@ uniform float modulation;
 uniform vec3  v_ldir;
 
 in vec4 waterColor;
-in vec4 lightdata;
-in vec4 torchlight;
+in vec3 lightdata;
 
 in vec3 v_pos;
 flat in vec3 v_normal;

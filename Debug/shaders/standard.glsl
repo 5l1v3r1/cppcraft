@@ -11,16 +11,13 @@ uniform vec3  lightVector;
 uniform float daylight;
 
 in vec3 in_vertex;
-in vec3 in_normal;
+in vec4 in_normal;
 in vec4 in_texture;
 in vec4 in_biome;
-in vec4 in_color;
-in vec4 in_color2;
 
 out vec3 texCoord;
 out vec4 biomeColor;
-out vec4 lightdata;
-out vec4 torchlight;
+out vec3 lightdata;
 flat out float worldLight;
 
 flat out float reflection;
@@ -48,17 +45,18 @@ void main(void)
 	{
 		reflection = 1.0;
 		v_pos     = -position.xyz;
-		v_reflect = reflect(v_pos * mat3(matview), in_normal);
+		v_reflect = reflect(v_pos * mat3(matview), in_normal.xyz);
 	}
 	
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
+	
+	int light = int(in_texture.w);
+	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, in_normal.w);
 	
 	// dotlight
 	#include "worldlight.glsl"
 	
 	biomeColor = in_biome;
-	lightdata  = in_color;
-	torchlight = in_color2;
 }
 
 #endif
@@ -76,8 +74,7 @@ uniform float modulation;
 
 in vec3 texCoord;
 in vec4 biomeColor;
-in vec4 lightdata;
-in vec4 torchlight;
+in vec3 lightdata;
 flat in float worldLight;
 
 flat in float reflection;

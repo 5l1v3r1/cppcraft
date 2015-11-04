@@ -315,14 +315,12 @@
     <File Name="source/camera.hpp"/>
     <File Name="source/sectors.hpp"/>
     <File Name="source/items.hpp"/>
-    <File Name="source/torchlight_gatherer.cpp"/>
     <File Name="source/sector.cpp"/>
     <File Name="source/precomp_vlantern.cpp"/>
     <File Name="source/menuitem.hpp"/>
     <File Name="source/items.cpp"/>
     <File Name="source/render_fs.cpp"/>
     <File Name="source/player_inputs.cpp"/>
-    <File Name="source/torchlight_calc.cpp"/>
     <File Name="source/player_logic.cpp"/>
     <File Name="source/worldmanager_init.cpp"/>
     <File Name="source/vertex_player.hpp"/>
@@ -381,7 +379,6 @@
     <File Name="source/player_actions.cpp"/>
     <File Name="source/precomp_vcrosses.cpp"/>
     <File Name="source/player_physics.cpp"/>
-    <File Name="source/lighttable.hpp"/>
     <File Name="source/atmosphere.cpp"/>
     <File Name="source/shaderman.hpp"/>
     <File Name="source/render_scene.cpp"/>
@@ -393,7 +390,6 @@
     <File Name="source/spiders_modify.cpp"/>
     <File Name="source/precomp_thread.cpp"/>
     <File Name="source/sectors.cpp"/>
-    <File Name="source/torchlight.cpp"/>
     <File Name="source/player_physics.hpp"/>
     <File Name="source/worldmanager.hpp"/>
     <File Name="source/netplayers.cpp"/>
@@ -407,9 +403,7 @@
     <File Name="source/seamless.cpp"/>
     <File Name="source/main.cpp"/>
     <File Name="source/blockmodels_poles.cpp"/>
-    <File Name="source/lighttable.cpp"/>
     <File Name="source/minimap.cpp"/>
-    <File Name="source/torchlight.hpp"/>
     <File Name="source/compilers.cpp"/>
     <File Name="source/renderman.cpp"/>
     <File Name="source/render_gui.cpp"/>
@@ -490,6 +484,7 @@
         <File Name="source/generator/processing/postproc.hpp"/>
         <File Name="source/generator/processing/postproc.cpp"/>
       </VirtualDirectory>
+      <File Name="source/generator/random.hpp"/>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>

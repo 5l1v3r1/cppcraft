@@ -13,7 +13,6 @@
 #include "sun.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
-#include "torchlight.hpp"
 #include <cmath>
 
 namespace cppcraft

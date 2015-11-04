@@ -62,9 +62,46 @@ namespace cppcraft
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
 				Block* src = &nbor(x, 0, 0);
-				Block* dst = &this[0](x, 0, BLOCKS_XZ);
+				Block* dst = &get(x, 0, BLOCKS_XZ);
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
+		}
+		// (-XZ)
+		if (sector.getX() > 0 && sector.getZ() > 0)
+		{
+			Sector& nbor = sectors(sector.getX()-1, sector.getZ()-1);
+			
+			Block* src = &nbor(BLOCKS_XZ-1, 0, BLOCKS_XZ-1);
+			Block* dst = &get(-1, 0, -1);
+			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
+		}
+		// (+XZ)
+		if (sector.getX() < sectors.getXZ()-1
+		 && sector.getZ() < sectors.getXZ()-1)
+		{
+			Sector& nbor = sectors(sector.getX()+1, sector.getZ()+1);
+			
+			Block* src = &nbor(0, 0, 0);
+			Block* dst = &get(BLOCKS_XZ, 0, BLOCKS_XZ);
+			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
+		}
+		// (+X-Z)
+		if (sector.getX() < sectors.getXZ()-1 && sector.getZ() > 0)
+		{
+			Sector& nbor = sectors(sector.getX()+1, sector.getZ()-1);
+			
+			Block* src = &nbor(0, 0, BLOCKS_XZ-1);
+			Block* dst = &get(BLOCKS_XZ, 0, -1);
+			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
+		}
+		// (-X+Z)
+		if (sector.getX() > 0 && sector.getZ() < sectors.getXZ()-1)
+		{
+			Sector& nbor = sectors(sector.getX()-1, sector.getZ()+1);
+			
+			Block* src = &nbor(BLOCKS_XZ-1, 0, 0);
+			Block* dst = &get(-1, 0, BLOCKS_XZ);
+			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 		}
 		
 		/// flatland data ///

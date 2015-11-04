@@ -12,6 +12,7 @@ namespace cppcraft
 	void PrecompThread::createIndices(Precomp& precomp, int totalVertices)
 	{
 		// create some index bullshit
+		/*
 		delete[] precomp.indidump;
 		precomp.indidump = new indice_t[(totalVertices / 4) * 6];
 		
@@ -166,7 +167,7 @@ namespace cppcraft
 		}
 		// remove old vertex array
 		delete[] source;
-		
+		*/
 	} // createIndices()
 	
 }

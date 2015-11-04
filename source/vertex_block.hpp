@@ -18,21 +18,19 @@ namespace cppcraft
 		GLshort z;
 		unsigned short face;
 		
-		GLshort u; // 8
-		GLshort v;
-		GLshort w;
-		GLshort padding2;
-		
 		GLbyte nx; // 16
 		GLbyte ny;
 		GLbyte nz;
-		GLbyte padding3;
+		GLbyte ao; // ambient occlusion 1-channel
+		
+		GLshort u; // 8
+		GLshort v;
+		GLshort w;
+		GLshort c; // 2-channeled color (skylight, blocklight)
 		
 		GLuint biome; // 20
 		
-		unsigned long long c; // 24
-		
-	};  // 32
+	};  // 24
 	#pragma pack(pop)
 	
 	#pragma pack(push, 4)
@@ -48,9 +46,9 @@ namespace cppcraft
 		GLbyte nz;
 		GLbyte p1;
 		
-		unsigned long long c; // 12
+		unsigned c; // 12
 		
-	};  // 20
+	};  // 16
 	#pragma pack(pop)
 	
 	typedef GLushort indice_t;

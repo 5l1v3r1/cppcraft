@@ -8,7 +8,6 @@
 #define LIGHTING_HPP
 
 #include "blocks.hpp"
-#include "lighttable.hpp"
 
 namespace cppcraft
 {
@@ -26,10 +25,8 @@ namespace cppcraft
 		
 		void init();
 		
-		vertex_color_t lightCheck(LightList& list, Sector& sector, int bx, int by, int bz, int normal);
-    
-		// initializes a column of sectors with skylight
-		static void atmosphericInit (Sector& sector);
+		uint16_t lightCheck(Sector& sector, int bx, int by, int bz);
+		
 		// floods an initialized column of sectors with skylight
 		static void atmosphericFlood(Sector& sector);
 	};

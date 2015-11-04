@@ -103,22 +103,7 @@ namespace cppcraft
 				///----------------------------------///
 				if (Seamless::run()) break;
 				
-				///----------------------------------///
-				/// ---------- GENERATOR ----------- ///
-				///----------------------------------///
-				Generator::run();
-				
 				double timeOut = localTime + MAX_TIMING_WAIT;
-				
-				// check for timeout
-				if (timer.getTime() > timeOut) break;
-				
-				// update shadows if sun has travelled far
-				// but not when connected to a network
-				//if (network.isConnected() == false)
-				//{
-				//	thesun.travelCheck();
-				//}
 				
 				///----------------------------------///
 				/// --------- PRECOMPILER ---------- ///
@@ -130,6 +115,9 @@ namespace cppcraft
 				// start precompiling sectors
 				if (precompq.run(timer, timeOut)) break;
 				
+				// check for timeout
+				if (timer.getTime() > timeOut) break;
+				
 				//double t1 = timer.getTime() - t0;
 				//if (t1 > 0.020)
 				//{
@@ -138,6 +126,18 @@ namespace cppcraft
 				
 				//double t1 = timer.getTime();
 				//logger << "pcq time: " << t1 - t0 << Log::ENDL;
+				
+				///----------------------------------///
+				/// ---------- GENERATOR ----------- ///
+				///----------------------------------///
+				Generator::run();
+				
+				// update shadows if sun has travelled far
+				// but not when connected to a network
+				//if (network.isConnected() == false)
+				//{
+				//	thesun.travelCheck();
+				//}
 				
 				teleportHandler();
 				

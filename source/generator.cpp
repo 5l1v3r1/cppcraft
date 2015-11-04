@@ -4,14 +4,12 @@
 #include <library/log.hpp>
 #include <library/timing/timer.hpp>
 #include "chunks.hpp"
-#include "flatland.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
 #include "lighting.hpp"
 #include "sectors.hpp"
 #include "threadpool.hpp"
-#include "torchlight.hpp"
 #include "world.hpp"
 
 // load compressor last
@@ -30,28 +28,11 @@ namespace cppcraft
 	unsigned int g_fres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 	unsigned int g_compres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 	
-	static std::deque<Sector*> propagationQueue;
-	
-	// the queue of vectors that needs terrain (blocks)
-	// we will be using this comparison function to sort
-	// the sectors by distance from center
-	bool SectorGenerationOrder (Sector* s1, Sector* s2)
-	{
-		int center = sectors.getXZ() / 2;
-		int dx1 = s1->getX() - center;
-		int dz1 = s1->getZ() - center;
-		
-		int dx2 = s2->getX() - center;
-		int dz2 = s2->getZ() - center;
-		
-		return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
-	}
 	static std::vector<Sector*> queue;
 	// multi-threaded shits, mutex for the finished queue
 	// and the list of containers of finished jobs (gendata_t)
 	static std::mutex mtx_genq;
 	static std::deque<terragen::gendata_t*> finished;
-	static int running_jobs = 0;
 	
 	class GeneratorJob
 		: public TPool::TJob
@@ -96,9 +77,9 @@ namespace cppcraft
 	void Generator::run()
 	{
 		// sort by distance from center (radius)
-		std::sort(queue.begin(), queue.end(), SectorGenerationOrder);
+		std::sort(queue.begin(), queue.end(), GenerationOrder);
 		// queue from the top of the vector
-		while (!queue.empty())
+		while (!queue.empty() && AsyncPool::available())
 		{
 			// because its a vector internally, we pop from the back
 			Sector* sect = queue.back();
@@ -123,14 +104,6 @@ namespace cppcraft
 			
 			// execute the generator job in background, delete job after its done
 			AsyncPool::sched(new GeneratorJob, gdata, true);
-			mtx_genq.lock();
-			running_jobs++;
-			if (running_jobs > 8)
-			{
-				mtx_genq.unlock();
-				break;
-			}
-			mtx_genq.unlock();
 		}
 		
 		// finished generator jobs
@@ -159,7 +132,8 @@ namespace cppcraft
 				// also, swap out the flatland data
 				dest.flat().assign(gdata->flatl.unassign());
 				// toggle sector generated flag, as well as removing generating flag
-				dest.gen_flags = Sector::GENERATED;
+				dest.gen_flags    = Sector::GENERATED;
+				dest.atmospherics = false;
 				// now that its been generated, let's meshmerize it
 				precompq.add(dest);
 			}
@@ -171,8 +145,8 @@ namespace cppcraft
 			
 			// delete the job!
 			delete gdata;
-			// allow more jobs
-			running_jobs--;
+			// allow more jobs in the async pool
+			AsyncPool::release();
 			
 			mtx_genq.lock();
 		}
@@ -276,7 +250,6 @@ namespace cppcraft
 						// read entire compressed column
 						// compressed column also contains the flatland(x, z) for this area
 						Compressor::load(cf, g_compres[dx][dz], x, z);
-						Lighting.atmosphericInit(sector);
 						
 						// update minimap (colors)
 						minimap.addSector(sector);
@@ -306,16 +279,6 @@ namespace cppcraft
 				
 			} // z
 		} // x
-		
-		// propagate light (covers all cases, because it's AFTER loading)
-		// NOTE: if there is an early exit, this can go wrong!
-		while (propagationQueue.empty() == false)
-		{
-			Sector* lsector = propagationQueue.front();
-			propagationQueue.pop_front();
-			
-			torchlight.lightSectorUpdates(*lsector, false);
-		}
 		
 		if (minimapUpdated)
 			minimap.setUpdated();

@@ -29,7 +29,6 @@ namespace cppcraft
 		static const float COLUMN_DEPRESSION;
 		
 		Column();
-		~Column();
 		
 		// used by: Seamless
 		void reset();

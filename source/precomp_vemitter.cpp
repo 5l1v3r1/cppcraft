@@ -1,6 +1,7 @@
 #include "precomp_thread_data.hpp"
 
 #include "blockmodels.hpp"
+#include "blocks_bordered.hpp"
 
 namespace cppcraft
 {
@@ -397,52 +398,82 @@ namespace cppcraft
 	//	6: 1,0,1
 	//	7: 1,1,1
 	
+	uint16_t PrecompThreadData::smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4)
+	{
+		if (y1 < 0) y1 = 0;
+		if (y2 < 0) y2 = 0;
+		if (y3 < 0) y3 = 0;
+		if (y4 < 0) y4 = 0;
+		
+		Block* v[4];
+		v[0] = &sector->get(x1, y1, z1);
+		v[1] = &sector->get(x2, y2, z2);
+		v[2] = &sector->get(x3, y3, z3);
+		v[3] = &sector->get(x4, y4, z4);
+		
+		int totalS = 0;
+		int totalB = 0;
+		
+		for (int i = 0; i < 4; i++)
+		{
+			if (totalS < v[i]->getSkyLight())
+				totalS = v[i]->getSkyLight();
+			
+			if (totalB < v[i]->getBlockLight())
+				totalB = v[i]->getBlockLight();
+		}
+		uint16_t r = (totalS * 17);
+		uint16_t g = (totalB * 17);
+		return r + (g << 8);
+	}
+	
+	
 	void PrecompThreadData::applyFaceLighting_PZ(int bx, int by, int bz)
 	{
-		indic->c   = ldata.tableLight(*sector, bx  , by,   bz, 0); //, 3, 0
-		indic[1].c = ldata.tableLight(*sector, bx+1, by,   bz, 0); //, 6, 0
-		indic[2].c = ldata.tableLight(*sector, bx+1, by+1, bz, 0); //, 7, 0
-		indic[3].c = ldata.tableLight(*sector, bx  , by+1, bz, 0); //, 4, 0
+		indic->c   = smoothLight(bx  , by,   bz,  bx-1,by,bz,  bx-1,by-1,bz,  bx,by-1,bz);
+		indic[1].c = smoothLight(bx+1, by,   bz,  bx, by, bz,  bx,by-1,bz,   bx+1,by-1,bz);
+		indic[2].c = smoothLight(bx+1, by+1, bz,  bx,by+1,bz,  bx,by,bz,   bx+1,by,bz);
+		indic[3].c = smoothLight(bx  , by+1, bz,  bx-1,by+1,bz,  bx-1,by,bz,  bx,by,bz);
 	}
 	
 	void PrecompThreadData::applyFaceLighting_NZ(int bx, int by, int bz)
 	{
-		indic->c   = ldata.tableLight(*sector, bx  , by,   bz, 1); //, 0, 1
-		indic[1].c = ldata.tableLight(*sector, bx  , by+1, bz, 1); //, 2, 1
-		indic[2].c = ldata.tableLight(*sector, bx+1, by+1, bz, 1); //, 5, 1
-		indic[3].c = ldata.tableLight(*sector, bx+1, by,   bz, 1); //, 1, 1
+		indic->c   = smoothLight(bx  , by  , bz,   bx-1, by  ,bz,  bx, by-1, bz,  bx-1, by-1, bz);
+		indic[1].c = smoothLight(bx  , by+1, bz,   bx-1, by+1,bz,  bx, by  , bz,  bx-1, by  , bz);
+		indic[2].c = smoothLight(bx+1, by+1, bz,   bx,  by+1, bz,  bx+1, by, bz,  bx, by  ,   bz);
+		indic[3].c = smoothLight(bx+1, by  , bz,   bx,  by,   bz,  bx+1,by-1,bz,  bx, by-1,   bz);
 	}
 	
 	void PrecompThreadData::applyFaceLighting_PY(int bx, int by, int bz)
 	{
-		indic->c   = ldata.tableLight(*sector, bx  , by, bz  , 2); //, 2, 2
-		indic[1].c = ldata.tableLight(*sector, bx  , by, bz+1, 2); //, 4, 2
-		indic[2].c = ldata.tableLight(*sector, bx+1, by, bz+1, 2); //, 7, 2
-		indic[3].c = ldata.tableLight(*sector, bx+1, by, bz  , 2); //, 5, 2
+		indic->c   = smoothLight(bx, by, bz,  bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
+		indic[1].c = smoothLight(bx, by, bz+1,  bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
+		indic[2].c = smoothLight(bx+1, by, bz+1,  bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
+		indic[3].c = smoothLight(bx+1, by, bz,  bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
 	}
 	
 	void PrecompThreadData::applyFaceLighting_NY(int bx, int by, int bz)
 	{
-		indic->c   = ldata.tableLight(*sector, bx  , by, bz  , 3); //, 0, 3
-		indic[1].c = ldata.tableLight(*sector, bx+1, by, bz  , 3); //, 1, 3
-		indic[2].c = ldata.tableLight(*sector, bx+1, by, bz+1, 3); //, 6, 3
-		indic[3].c = ldata.tableLight(*sector, bx  , by, bz+1, 3); //, 3, 3
+		indic->c   = smoothLight(bx  , by, bz  , bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
+		indic[1].c = smoothLight(bx+1, by, bz  , bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
+		indic[2].c = smoothLight(bx+1, by, bz+1, bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
+		indic[3].c = smoothLight(bx  , by, bz+1, bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
 	}
 	
 	void PrecompThreadData::applyFaceLighting_PX(int bx, int by, int bz)
 	{
-		indic->c   = ldata.tableLight(*sector, bx, by,   bz  , 4); //, 1, 4
-		indic[1].c = ldata.tableLight(*sector, bx, by+1, bz  , 4); //, 5, 4
-		indic[2].c = ldata.tableLight(*sector, bx, by+1, bz+1, 4); //, 7, 4
-		indic[3].c = ldata.tableLight(*sector, bx, by,   bz+1, 4); //, 6, 4
+		indic->c   = smoothLight(bx, by,   bz  ,   bx,by,bz-1,   bx,by-1,bz-1,   bx,by-1,bz);
+		indic[1].c = smoothLight(bx, by+1, bz  ,   bx,by+1,bz-1, bx,by,bz-1,     bx,by,bz);
+		indic[2].c = smoothLight(bx, by+1, bz+1,   bx,by+1,bz,   bx,by,bz,       bx,by,bz+1);
+		indic[3].c = smoothLight(bx, by,   bz+1,   bx,by,bz,     bx,by-1,bz,     bx,by-1,bz+1);
 	}
 	
 	void PrecompThreadData::applyFaceLighting_NX(int bx, int by, int bz)
 	{
-		indic->c   = ldata.tableLight(*sector, bx, by,   bz  , 5); //, 0, 5
-		indic[1].c = ldata.tableLight(*sector, bx, by,   bz+1, 5); //, 3, 5
-		indic[2].c = ldata.tableLight(*sector, bx, by+1, bz+1, 5); //, 4, 5
-		indic[3].c = ldata.tableLight(*sector, bx, by+1, bz  , 5); //, 2, 5
+		indic->c   = smoothLight(bx, by,   bz  , bx,by,bz-1,   bx,by-1,bz-1,   bx,by-1,bz);
+		indic[1].c = smoothLight(bx, by,   bz+1, bx,by,bz,     bx,by-1,bz,     bx,by-1,bz+1);
+		indic[2].c = smoothLight(bx, by+1, bz+1, bx,by+1,bz,   bx,by,bz,       bx,by,bz+1);
+		indic[3].c = smoothLight(bx, by+1, bz  , bx,by+1,bz-1, bx,by,bz-1,     bx,by,bz);
 	}
 	
 	void PrecompThreadData::applyFaceLightingAll(int bx, int by, int bz)

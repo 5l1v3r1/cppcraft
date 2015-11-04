@@ -106,13 +106,13 @@ namespace cppcraft
 	void PrecompThread::ambientOcclusionGradients(bordered_sector_t& sector, vertex_t* datadump, int vertexCount)
 	{
 		static unsigned char shadowRamp[] = 
-			{ 255, 255 - 72, 255 - 90, 255 - 130 };
+			{ 127, 127 - 40, 127 - 50, 127 - 65 };
 		
 		// calculate face counts for each integral vertex position
 		vertex_t* vt; // first vertex
 		vertex_t* vt_max = datadump + vertexCount;
 		// the channel used for AO in a vertex
-		#define vertexAO(vt)  ((unsigned char*)&((vt)->c))[2]
+		#define vertexAO(vt)  (vt)->ao
 		
 		unsigned char vside1, vside2, vcorner;
 		

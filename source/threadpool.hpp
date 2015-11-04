@@ -13,5 +13,12 @@ namespace cppcraft
 		
 		//! \brief Stops the threadpool
 		static void stop();
+		
+		//! \brief releases a job
+		static void release();
+		
+		//! \brief returns true if there are free slots
+		static bool available();
+		
 	};
 }

@@ -39,6 +39,8 @@ namespace cppcraft
 			columns[i].aboveWater = 
 				(y * BLOCKS_Y >= RenderConst::WATER_LEVEL);
 		}
+		
+		assert(sizeof(vertex_t) == 24);
 	}
 	Columns::Columns()
 	{
@@ -60,10 +62,6 @@ namespace cppcraft
 		// set initial flags
 		this->renderable = false;
 		this->hasdata = false;
-	}
-	Column::~Column()
-	{
-		//
 	}
 	
 	void Column::reset()
@@ -96,7 +94,7 @@ namespace cppcraft
 		for (int n = 0; n < RenderConst::MAX_UNIQUE_SHADERS; n++)
 		{
 			vertices += pc->vertices[n];
-			indices  += pc->indices[n];
+			//indices  += pc->indices[n];
 			
 			//this->indices[n]     = pc->indices[n];
 			//this->indexoffset[n] = indices;
@@ -105,15 +103,6 @@ namespace cppcraft
 			
 			//indices += pc->indices[n];
 		}
-		
-		// check for errors
-		#ifdef DEBUG
-		if (OpenGL::checkError())
-		{
-			logger << Log::ERR << "Column::upload(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
-			throw std::string("Column::upload(): OpenGL state error");
-		}
-		#endif
 		
 		// bind vao
 		glBindVertexArray(this->vao);
@@ -127,31 +116,22 @@ namespace cppcraft
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices * sizeof(indice_t), pc->indidump, GL_STATIC_DRAW);
 		
-		// check for errors
-		#ifdef DEBUG
-		if (OpenGL::checkError())
-		{
-			logger << Log::ERR << "Column::upload(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
-			throw std::string("Column::upload(): OpenGL state error");
-		}
-		#endif
-		
 		if (updateAttribs)
 		{
 		// attribute pointers
 		const vertex_t* vrt = nullptr;
 		glVertexAttribPointer(0, 3, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), &vrt->x); // vertex
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_BYTE,		  GL_TRUE,  sizeof(vertex_t), &vrt->nx); // normal
+		glVertexAttribPointer(1, 4, GL_BYTE,		  GL_TRUE,  sizeof(vertex_t), &vrt->nx); // normal
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(2, 4, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), &vrt->u); // texture
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->biome); // biome color
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->c);  // shadow and brightness
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), (char*) (&vrt->c) + 4); // torchlight color
-		glEnableVertexAttribArray(5);
+		//glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->c);  // shadow and brightness
+		//glEnableVertexAttribArray(4);
+		//glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), (char*) (&vrt->c) + 4); // torchlight color
+		//glEnableVertexAttribArray(5);
 		}
 		
 		// check for errors

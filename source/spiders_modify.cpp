@@ -7,7 +7,6 @@
 #include "generator.hpp"
 #include "precompq.hpp"
 #include "sectors.hpp"
-#include "torchlight.hpp"
 #include <assert.h>
 
 using namespace library;
@@ -76,19 +75,8 @@ namespace cppcraft
 		// write updated sector to disk
 		//chunks.addSector(*s);
 		
-		if (isLight(id))
-		{
-			// recount lights for sector (can't be bothered to manage this manually)
-			s->countLights();
-			// update nearby sectors due to change in light count
-			// also, the haslights flag will be RESET for all neighboring sectors to this
-			torchlight.lightSectorUpdates(*s, by);
-		}
-		else
-		{
-			// update nearby sectors only if we are at certain edges
-			updateSurroundings(*s, bx, by, bz);
-		}
+		// update nearby sectors only if we are at certain edges
+		updateSurroundings(*s, bx, by, bz);
 		
 		if (isFluid(id))
 		{
@@ -144,12 +132,6 @@ namespace cppcraft
 		// update neighboring sectors (depending on edges)
 		updateSurroundings(*s, bx, by, bz);
 		
-		if (isLight(block.getID()))
-		{
-			s->countLights();
-			torchlight.lightSectorUpdates(*s, by);
-		}
-		
 		// return COPY of block
 		return block;
 	}
@@ -173,12 +155,6 @@ namespace cppcraft
 		
         // update neighboring sectors (depending on edges)
         updateSurroundings(*s, bx, by, bz);
-		
-        if (s->lightCount() > 0)
-			torchlight.lightSectorUpdates(*s, false);
-		
-		// update shadows on nearby sectors by following sun trajectory
-		//skylightReachDown(*s);
 		
 		return true;
 	}

@@ -111,6 +111,10 @@ namespace cppcraft
 			this->light &= 0x0F;
 			this->light |= level << 8;
 		}
+		inline void setLight(light_t sky, light_t block)
+		{
+			this->light = (sky & 0xF) | (block << 8);
+		}
 		
 		// human readable name of a block
 		std::string getName() const;

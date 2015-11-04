@@ -7,7 +7,7 @@ namespace cppcraft
 {
 	int PrecompThreadData::emitLantern(block_t id, int bx, int by, int bz)
 	{
-		vertex_color_t color = ldata.tableLight(*sector, bx, by+1, bz, 2);
+		uint16_t color = getLight(bx, by+1, bz);
 		
 		int verts_top = blockmodels.lanterns.copyTo(0, indic);
 		int verts_bot = blockmodels.lanterns.copyTo(1, indic + verts_top);

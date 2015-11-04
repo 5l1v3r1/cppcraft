@@ -4,7 +4,6 @@
 #define AMBIENT_OCCLUSION_GRADIENTS
 
 #include "blocks.hpp"
-#include "lighttable.hpp"
 #include "precompiler.hpp"
 #include "renderconst.hpp"
 #include "vertex_block.hpp"

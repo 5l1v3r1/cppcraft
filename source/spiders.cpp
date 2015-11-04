@@ -5,7 +5,6 @@
 #include "player.hpp"
 #include "player_physics.hpp"
 #include "sectors.hpp"
-#include "torchlight.hpp"
 
 namespace cppcraft
 {
@@ -130,12 +129,10 @@ namespace cppcraft
 		return _AIR;
 	}
 	
-	LightList lightNowList;
-	
 	vertex_color_t Spiders::getLightNow(double x, double y, double z)
 	{
 		if (y <= 0) return 0; // mega-dark
-		if (y >= BLOCKS_Y) return 255 << 8;
+		if (y >= BLOCKS_Y) return 255;
 		
 		int ix = x, iy = y, iz = z;
 		Sector* sector = Spiders::spiderwrap(ix, iy, iz);
@@ -143,13 +140,8 @@ namespace cppcraft
 		// but whatever, we exit when out of bounds
 		if (sector == nullptr) return 0;
 		
-		// clear lights
-		lightNowList.lights.clear();
-		// gather torchlights for sector
-		torchlight.lightGatherer(*sector, lightNowList);
-		
 		// return calculated shadows & lighting
-		return Lighting.lightCheck(lightNowList, *sector, ix, iy, iz, 2);
+		return Lighting.lightCheck(*sector, ix, iy, iz);
 	}
 	
 }

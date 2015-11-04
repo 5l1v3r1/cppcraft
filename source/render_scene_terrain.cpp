@@ -13,7 +13,6 @@
 #include "shaderman.hpp"
 #include "sun.hpp"
 #include "textureman.hpp"
-#include "torchlight.hpp"
 #include "vertex_block.hpp"
 #include <cmath>
 #define DEBUG
@@ -337,7 +336,7 @@ namespace cppcraft
 		shd.sendFloat("daylight",    thesun.getRealtimeDaylight());
 		shd.sendFloat("frameCounter", frameCounter);
 		
-		shd.sendFloat("modulation", torchlight.getModulation(frameCounter));
+		shd.sendFloat("modulation", 1.0f); //torchlight.getModulation(frameCounter));
 		
 		// translation uniform location
 		loc_vtrans = shd.getUniform("vtrans");

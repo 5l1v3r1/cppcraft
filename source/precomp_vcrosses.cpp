@@ -16,12 +16,12 @@ namespace cppcraft
 		int vertices = blockmodels.crosses.copyTo(0, indic);
 		
 		// huge boring list of cross-lighting
-		indic[0].c = ldata.tableLight(*sector, bx  , by, bz  , 2);
-		indic[1].c = ldata.tableLight(*sector, bx+1, by, bz+1, 2);
+		indic[0].c = getLight(bx  , by, bz  );
+		indic[1].c = getLight(bx+1, by, bz+1);
 		indic[2].c = indic[1].c;
 		indic[3].c = indic[0].c;
-		indic[4].c = ldata.tableLight(*sector, bx+1, by, bz  , 2);
-		indic[5].c = ldata.tableLight(*sector, bx  , by, bz+1, 2);
+		indic[4].c = getLight(bx+1, by, bz  );
+		indic[5].c = getLight(bx  , by, bz+1);
 		indic[6].c = indic[5].c;
 		indic[7].c = indic[4].c;
 		

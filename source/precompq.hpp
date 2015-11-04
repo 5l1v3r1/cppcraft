@@ -29,17 +29,15 @@ namespace cppcraft
 		//! \brief schedules a sector for mesh generation
 		void schedule(Sector& sector);
 		
-		//! 
-		void add_finished(Precomp&);
-		
 	private:
 		// starting a job is actually a little complicated
 		void startJob(Sector* sector);
 		
-		bool has_available() const;
+		bool job_available() const;
 		
 		// queue of sectors waiting for mesh generation
 		std::deque<Sector*> queue;
+		bool needs_sorting;
 	};
 	extern PrecompQ precompq;
 }

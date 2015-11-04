@@ -15,7 +15,6 @@
 #include "sun.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
-#include "torchlight.hpp"
 #include "voxelmodels.hpp"
 #include <cmath>
 
@@ -205,7 +204,7 @@ namespace cppcraft
 		// convert shadow & torchlight color to 4-vectors
 		vec4 shadow = library::colorToVector(plogic.shadowColor);
 		vec4 torch = library::colorToVector(plogic.torchColor);
-		float modulation = torchlight.getModulation(frameCounter);
+		float modulation = 1.0f; //torchlight.getModulation(frameCounter);
 		
 		renderHandItem(shadow, torch, modulation);
 		
