@@ -74,6 +74,9 @@ namespace cppcraft
 		sounds[SND_SPLASH]     = Sound("sound/liquid/splash1.ogg");
 		sounds[SND_SPLASH_BIG] = Sound("sound/liquid/splash2.ogg");
 		
+		sounds[SND_CLICK_START]     = Sound("sound/click_start.mp3");
+		sounds[SND_CLICK_END]     = Sound("sound/click_end.mp3");
+		
 		sounds[SND_WATER]   = Sound("sound/liquid/water.ogg");
 		sounds[SND_LAVA]    = Sound("sound/liquid/lava.ogg");
 		sounds[SND_LAVAPOP] = Sound("sound/liquid/lavapop.ogg");

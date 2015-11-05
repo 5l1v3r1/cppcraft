@@ -27,6 +27,9 @@ namespace cppcraft
 			SND_LAVA,
 			SND_LAVAPOP,
 			
+			SND_CLICK_START,
+			SND_CLICK_END,
+			
 			NAMED_SOUNDS
 		} named_sound_t;
 		

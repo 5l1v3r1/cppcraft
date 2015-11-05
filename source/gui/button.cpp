@@ -2,6 +2,7 @@
 
 #include <library/opengl/opengl.hpp>
 #include <library/bitmap/colortools.hpp>
+#include "../soundman.hpp"
 #include "bordered_frame.hpp"
 #include "window.hpp"
 
@@ -22,11 +23,19 @@ namespace gui
 	{
 		// event handlers
 		if (event == 0 && pressed && this->action_func != nullptr)
+		{
+			cppcraft::soundman.playSound(cppcraft::Soundman::SND_CLICK_END);
 			this->action_func(this, event, pos);
+		}
 		if (active && (event < 0) && this->leave_func != nullptr)
 			this->leave_func(this, event, pos);
 		if (event == 0 && this->hover_func != nullptr)
 			this->hover_func(this, event, pos);
+		
+		if (!pressed && (event > 0) && ready_pressed)
+		{
+			cppcraft::soundman.playSound(cppcraft::Soundman::SND_CLICK_START);
+		}
 		
 		// new states:
 		pressed = (event > 0) && (ready_pressed || pressed);
