@@ -143,11 +143,8 @@ namespace terragen
 	// the main generator!
 	void Terrain::generateTerrain(gendata_t* data)
 	{
-		// make sure the terrain function list is populated
-		terrainFuncs.init();
-		
 		// interpolation grid dimensions
-		#define ngrid 4
+		#define ngrid 8
 		
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
 		// noise (terrain density) values

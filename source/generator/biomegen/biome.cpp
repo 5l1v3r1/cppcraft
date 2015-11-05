@@ -170,7 +170,7 @@ namespace terragen
 		for (int z = 0; z <= BLOCKS_XZ; z++)
 		{
 			vec2 p = gdata->getBaseCoords2D(x, z);
-			p /= 16.0;
+			p /= 64.0;
 			
 			// skip terrain colors for the edges, where we only care about the terrain weights
 			bool skip_colors = (x == BLOCKS_XZ || z == BLOCKS_XZ);
@@ -181,6 +181,8 @@ namespace terragen
 			
 			// don't scale p.x and p.z here!!!!!!!!!!!!
 			biome_t biome = biomeGen(p.x, p.y);
+			// remember weights for terrain generator stage
+			gdata->setWeights(x, z, biome);
 			
 			// reset vertex colors all in one swoooop
 			for (int i = 0; i < CL_MAX; i++)
@@ -265,8 +267,6 @@ namespace terragen
 				// set terrain-id to the strongest weight
 				fdata.terrain = bigt;
 			}
-			// remember weights for terrain generator stage
-			gdata->setWeights(x, z, biome);
 			
 		} // x, z
 		

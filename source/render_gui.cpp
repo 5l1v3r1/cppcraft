@@ -23,15 +23,6 @@ using namespace library;
 namespace cppcraft
 {
 	GUIRenderer rendergui;
-	// the GUIs orthographic projection matrix
-	mat4 ortho;
-	// A wild Font appears!
-	SimpleFont font;
-	
-	library::SimpleFont& GUIRenderer::getFont()
-	{
-		return font;
-	}
 	
 	void GUIRenderer::init(Renderer& renderer)
 	{
@@ -39,7 +30,7 @@ namespace cppcraft
 		height = 1.0 / renderer.getScreen().getAspect();
 		
 		// orthographic projection
-		ortho = orthoMatrix(width, height, 0, 2);
+		ortho = ortho2dMatrix(width, height, 0, 2);
 		
 		// initialize our font renderer
 		font.createTexture("bitmap/default/gui/font.png", 16);
@@ -67,6 +58,23 @@ namespace cppcraft
 		return source.substr(0, length);
 	}
 	
+	std::string terrainToString(int id)
+	{
+		switch (id)
+		{
+		case 0: return "Caves";
+		case 1: return "Icecap";
+		case 2: return "Snow";
+		case 3: return "Autumn";
+		case 4: return "Islands";
+		case 5: return "Grasslands";
+		case 6: return "Marsh";
+		case 7: return "Jungle";
+		case 8: return "Desert";
+		default: return "Unknown terrain";
+		}
+	}
+	
 	void GUIRenderer::render(Renderer& renderer)
 	{
 		// clear depth buffer
@@ -77,7 +85,7 @@ namespace cppcraft
 		glDepthMask(GL_FALSE);
 		
 		/// player hand ///
-		renderPlayerhand(renderer.frametick);
+		renderPlayerhand(renderer.getCounter());
 		
 		glEnable(GL_BLEND);
 		glDisable(GL_CULL_FACE);
@@ -89,12 +97,12 @@ namespace cppcraft
 		renderCrosshair(ortho);
 		
 		/// quickbar ///
-		renderQuickbar(ortho, renderer.frametick);
+		renderQuickbar(renderer);
 		
 		glDisable(GL_BLEND);
 		
 		/// quickbar items ///
-		renderQuickbarItems(ortho, renderer.frametick);
+		renderQuickbarItems(ortho, renderer.getCounter());
 		
 		/// chatbox ///
 		glEnable(GL_BLEND);
@@ -110,7 +118,7 @@ namespace cppcraft
 		
 		font.print(library::vec3(0.01, 0.01, 0.0), textScale, "cppcraft v0.1", false);
 		
-		std::string fps = std::to_string(renderer.FPS);
+		std::string fps = std::to_string(renderer.getFPS());
 		
 		if (fps.size() > 4)
 			fps = str_front(fps, 4);
@@ -131,8 +139,8 @@ namespace cppcraft
 		if (flat)
 		{
 			debugText += 
-				" skylevel: "  + std::to_string(flat->skyLevel) + 
-				" grndlevel: " + std::to_string(flat->groundLevel);
+				" terrain: " + terrainToString(flat->terrain) + "(" + std::to_string(flat->terrain) + 
+				") skylvl: " + std::to_string(flat->skyLevel);
 		}
 		font.print(vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		

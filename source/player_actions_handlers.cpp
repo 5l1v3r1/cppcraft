@@ -28,7 +28,7 @@ namespace cppcraft
 {
 	
 	// activates the block in the world selected by the player, if applicable
-	void PlayerActions::activate(InventoryItem& item)
+	void PlayerActions::activate(Item& item)
 	{
 		// with no selection in the world, we can't activate anything
 		if (plogic.hasSelection() == false) return;
@@ -92,7 +92,7 @@ namespace cppcraft
 	}
 	
 	// performs any item action that the item being passed to the function can perform
-	void PlayerActions::itemAction(InventoryItem& item)
+	void PlayerActions::itemAction(Item& item)
 	{
 		if (item.getID() == IT_PORTALGUN || item.getID() == IT_CREATORGUN)
 		{
@@ -109,7 +109,7 @@ namespace cppcraft
 	
 	// builds using the players selected (held) item and try to place it
 	// at the correct position relative to the players selected block (in the world)
-	void PlayerActions::build(InventoryItem& item)
+	void PlayerActions::build(Item& item)
 	{
 		// add a block to the opposite of the selected face
 		playerselect_t& selection = plogic.selection;
@@ -283,7 +283,7 @@ namespace cppcraft
 		/////////////////////////////////////
 		/// item currently held by player ///
 		/////////////////////////////////////
-		InventoryItem& helditem = menu.getHeldItem();
+		Item& helditem = menu.getHeldItem();
 		
 		if (action == playeraction_t::PA_Addblock)
 		{
@@ -497,7 +497,7 @@ namespace cppcraft
 		} // selection hitboxing
 	}
 	
-	void PlayerActions::handleMining(double frametime, const InventoryItem& helditem)
+	void PlayerActions::handleMining(double frametime, const Item& helditem)
 	{
 		if (frametime > actionTimer + MINE_SPEED)
 		{

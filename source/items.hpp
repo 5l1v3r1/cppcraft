@@ -7,11 +7,11 @@
  * 
 **/
 
+#include "blocks.hpp"
 #include <string>
 
 namespace cppcraft
 {
-	class Block;
 	const int MAX_UNIQUE_ITEMS = 256;
 	
 	#define IT_NONE         0
@@ -67,26 +67,26 @@ namespace cppcraft
 		
 	} itemtype_t;
 	
-	class InventoryItem
+	class Item
 	{
 	private:
 		item_t id;              // identifies this item in combination with type, if id is 0 the item is always (no item)
 		unsigned short count;   // if count is 0 this item is (no item), otherwise id will be read
-		unsigned char special;  // special property of an item, often the same as block special property
-		unsigned char type;     // type of inventory item, such as block, item or even particle
+		unsigned char special;  // special property of an item, and the same as block special property
+		unsigned char type;     // type of inventory item, such as block, item or particle
 		unsigned char health;   // the health of the item, which when reaches 0 destroys the item
 		
 	public:
 		static const int MAX_STACK = 64;
 		
-		InventoryItem()
-		{
-			id = IT_NONE;
-			type = ITT_BLOCK;
-			count = special = health = 0;
-		}
-		InventoryItem(item_t itemID, unsigned short icount);
-		InventoryItem(item_t itemID, itemtype_t itype, unsigned short icount);
+		Item() : id(0), count(0) {}
+		Item(item_t ID, unsigned short icount)
+			: id(ID), count(icount), type(ITT_BLOCK) {}
+		Item(item_t ID, unsigned short icount, itemtype_t itype)
+			: id(ID), count(icount), special(0), type(itype), health(0) {}
+		
+		Item(Block& block, unsigned short icount)
+			: id(block.getID()), count(icount), special(block.getBitfield()), type(ITT_BLOCK) {}
 		
 		inline void setID(item_t id)
 		{
@@ -165,7 +165,7 @@ namespace cppcraft
 		
 		void init();
 		
-		int getMiningTime(const Block& block, const InventoryItem& item) const;
+		int getMiningTime(const Block& block, const Item& item) const;
 		
 		std::string getName(item_t id);
 		int tileByID(item_t id);

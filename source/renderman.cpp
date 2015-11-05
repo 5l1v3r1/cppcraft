@@ -192,28 +192,12 @@ namespace cppcraft
 			else framesCounter++;
 			
 			// compiling columns
-		#ifdef DEBUG
-			try
-			{
-				if (mtx.sectorseam.try_lock())
-				{
-					compilers.compile();
-					mtx.sectorseam.unlock();
-				}
-			}
-			catch (std::string errorstring)
-			{
-				logger << Log::ERR << errorstring << Log::ENDL;
-				logger << Log::ERR << "Error during compilation stage, exiting..." << Log::ENDL;
-				break;
-			}
-		#else
 			if (mtx.sectorseam.try_lock())
 			{
 				compilers.run();
 				mtx.sectorseam.unlock();
 			}
-		#endif
+			
 			// rendering function
 		#ifdef DEBUG
 			try

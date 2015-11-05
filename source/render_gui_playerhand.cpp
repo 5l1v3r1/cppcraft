@@ -251,7 +251,7 @@ namespace cppcraft
 	void PlayerHand::renderHandItem(vec4& shadow, vec4& torch, float modulation)
 	{
 		// render held item
-		InventoryItem& helditem = menu.getHeldItem();
+		Item& helditem = menu.getHeldItem();
 		// no item, no render
 		if (helditem.isAlive() == false) return;
 		

@@ -400,10 +400,8 @@ namespace cppcraft
 	
 	uint16_t PrecompThreadData::smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4)
 	{
-		if (y1 < 0) y1 = 0;
-		if (y2 < 0) y2 = 0;
-		if (y3 < 0) y3 = 0;
-		if (y4 < 0) y4 = 0;
+		// TOOD: calculate the actual light values...
+		y1 &= 255; y2 &= 255; y3 &= 255; y4 &= 255;
 		
 		Block* v[4];
 		v[0] = &sector->get(x1, y1, z1);

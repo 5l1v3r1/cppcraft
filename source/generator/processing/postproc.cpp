@@ -238,8 +238,11 @@ namespace terragen
 			
 			//printf("groundLevel: %d\tskyLevel: %d\n",
 			//	groundLevel, skyLevel);
-			assert(groundLevel != 0);
-			assert(skyLevel != 0);
+			
+			if (groundLevel == 0)
+				groundLevel = 1;
+			if (skyLevel == 256)
+				skyLevel = 255;
 			
 			// guarantee that the bottom block is hard as ice
 			gdata->getb(x, 0, z) = Block(_ADMINIUM);

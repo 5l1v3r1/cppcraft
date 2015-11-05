@@ -98,6 +98,7 @@ namespace cppcraft
 	inline unsigned char blockIsOccluder(bordered_sector_t& sector, int x, int y, int z)
 	{
 		if (y == -1) return 1; // mui importante, don't know where else to put it tho
+		if (y == 256) return 0;
 		
 		block_t id = sector(x, y, z).getID();
 		return (id > AIR_END && id < CROSS_START && id != _LANTERN && id != _VINES) & 1;
@@ -106,7 +107,7 @@ namespace cppcraft
 	void PrecompThread::ambientOcclusionGradients(bordered_sector_t& sector, vertex_t* datadump, int vertexCount)
 	{
 		static unsigned char shadowRamp[] = 
-			{ 127, 127 - 40, 127 - 50, 127 - 65 };
+			{ 127, 127 - 32, 127 - 40, 127 - 56 };
 		
 		// calculate face counts for each integral vertex position
 		vertex_t* vt; // first vertex

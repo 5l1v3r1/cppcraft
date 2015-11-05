@@ -11,7 +11,7 @@ namespace library
 
 namespace cppcraft
 {
-	class InventoryItem;
+	class Item;
 	
 	class GUIInventory
 	{
@@ -28,7 +28,7 @@ namespace cppcraft
 		};
 		
 		void clear();
-		int  emit(InventoryItem& itm, float x, float y, float size);
+		int  emit(Item& itm, float x, float y, float size);
 		void upload();
 		void render(library::mat4& ortho);
 		
@@ -38,9 +38,9 @@ namespace cppcraft
 		std::vector<inventory_t> blockTiles;
 		std::vector<inventory_t> itemTiles;
 		
-		int emitQuad(InventoryItem& itm, float x, float y, float size);
-		int emitTallQuad(InventoryItem& itm, float x, float y, float size);
-		int emitBlock(InventoryItem& itm, float x, float y, float size);
+		int emitQuad(Item& itm, float x, float y, float size);
+		int emitTallQuad(Item& itm, float x, float y, float size);
+		int emitBlock(Item& itm, float x, float y, float size);
 	};
 }
 

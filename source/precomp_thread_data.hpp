@@ -21,9 +21,6 @@ namespace cppcraft
 		// all the blocks
 		bordered_sector_t* sector;
 		
-		// resolve (x, y, z) to vertex lighting
-		uint16_t getLight(int x, int y, int z);
-		
 		// blocks counter, for exiting early when all blocks are processed
 		int blocks;
 		// vertex data pointer
@@ -84,6 +81,8 @@ namespace cppcraft
 		
 		// light raytracer & emission functions for each side of a cube
 		
+		// resolve (x, y, z) to vertex lighting
+		uint16_t getLight(int x, int y, int z);
 		uint16_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
 		
 		void applyFaceLighting_PZ(int bx, int by, int bz);

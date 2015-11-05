@@ -35,10 +35,7 @@ namespace cppcraft
 			T_COMPASS,
 			T_BARMETER,
 			
-			T_QUICKBAR,
-			T_INVENTORY,
-			T_WORKBENCH,
-			T_CHEST,
+			T_GUI,
 			
 			T_SKYBOX,
 			T_CLOUDS,

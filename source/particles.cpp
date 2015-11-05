@@ -439,7 +439,6 @@ namespace cppcraft
 				newParticle(pos, PARTICLE_SAND);
 			}
 		}
-		else logger << "Unknown terrain: " << terrain << " in Particles::autoCreateFromTerrain()" << Log::ENDL;
 		
 	} // auto-create from terrain
 	

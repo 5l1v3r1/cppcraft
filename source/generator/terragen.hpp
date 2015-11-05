@@ -75,6 +75,7 @@ namespace terragen
 	class Generator
 	{
 	public:
+		static void init();
 		static void run(gendata_t* data);
 	};
 }

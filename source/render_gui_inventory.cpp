@@ -102,7 +102,7 @@ namespace cppcraft
 			
 			for (int x = 0; x < inventory.getWidth(); x++)
 			{
-				InventoryItem& itm = inventory(x, menu.quickbarY);
+				Item& itm = inventory(x, menu.quickbarY);
 				quickbarItems.emit(itm, posx + x * stride, posy, size);
 			}
 			quickbarItems.upload();
@@ -117,7 +117,7 @@ namespace cppcraft
 			
 			for (int x = 0; x < inventory.getWidth(); x++)
 			{
-				InventoryItem& itm = inventory(x, menu.quickbarY);
+				Item& itm = inventory(x, menu.quickbarY);
 				if (itm.getCount() > 1 && itm.getID() != 0)
 				{
 					printloc.size     = vsize;
@@ -150,7 +150,7 @@ namespace cppcraft
 		this->itemTiles.clear();
 	}
 	
-	int GUIInventory::emit(InventoryItem& itm, float x, float y, float size)
+	int GUIInventory::emit(Item& itm, float x, float y, float size)
 	{
 		if (itm.isItem())
 		{
@@ -175,7 +175,7 @@ namespace cppcraft
 		return 0;
 	}
 	
-	int GUIInventory::emitQuad(InventoryItem& itm, float x, float y, float size)
+	int GUIInventory::emitQuad(Item& itm, float x, float y, float size)
 	{
 		// face value is "as if" front
 		float tile = itm.getTextureTileID();
@@ -193,7 +193,7 @@ namespace cppcraft
 			x,        y,        0,   0, 1, tile,   BGRA8(255, 255, 255, 128) );
 		return 4;
 	}
-	int GUIInventory::emitTallQuad(InventoryItem& itm, float x, float y, float size)
+	int GUIInventory::emitTallQuad(Item& itm, float x, float y, float size)
 	{
 		// face value is "as if" front
 		float tileTop = Block::cubeFaceById(itm.getID(), 0, 2);
@@ -224,7 +224,7 @@ namespace cppcraft
 		
 		return 8;
 	}
-	int GUIInventory::emitBlock(InventoryItem& itm, float x, float y, float size)
+	int GUIInventory::emitBlock(Item& itm, float x, float y, float size)
 	{
 		vec3 offset = vec3(x, y, -1) + vec3(size, size, 0) * 0.6;
 		

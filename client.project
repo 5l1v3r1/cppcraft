@@ -488,6 +488,23 @@
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>
+    <VirtualDirectory Name="gui">
+      <File Name="source/gui/window.hpp"/>
+      <File Name="source/gui/control.hpp"/>
+      <File Name="source/gui/rect.hpp"/>
+      <File Name="source/gui/window.cpp"/>
+      <File Name="source/gui/vertex.hpp"/>
+      <File Name="source/gui/bordered_frame.hpp"/>
+      <File Name="source/gui/gui.hpp"/>
+      <File Name="source/gui/bordered_frame.cpp"/>
+      <File Name="source/gui/button.hpp"/>
+      <File Name="source/gui/button.cpp"/>
+      <File Name="source/gui/checkbox.hpp"/>
+      <File Name="source/gui/checkbox.cpp"/>
+      <File Name="source/gui/progress.hpp"/>
+      <File Name="source/gui/progress.cpp"/>
+      <File Name="source/gui/itemslot.hpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

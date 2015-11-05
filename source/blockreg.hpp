@@ -15,6 +15,9 @@ namespace cppcraft
 		// fully opaque blocks are common, and cover all their sides
 		bool opaque;
 		
+		// function for generating vertex color for block
+		//std::function<uint32_t(int x, int y, int z, terrain_t& weights)> getVertexColor;
+		
 	};
 	
 	class BlockDB
@@ -25,7 +28,7 @@ namespace cppcraft
 		
 		// vector of registered blocks
 		// the ID of a block is its index into this vector
-		std::vector<BlockData>     blocks;
+		std::vector<BlockData> blocks;
 	};
 	BlockDB blockRegistry;
 }

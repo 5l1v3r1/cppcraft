@@ -5,6 +5,8 @@
 #include <library/math/toolbox.hpp>
 #include "../biomegen/biome.hpp"
 #include "helpers.hpp"
+#include <cassert>
+#include <csignal>
 
 using namespace library;
 
@@ -155,23 +157,27 @@ namespace terragen
 		}*/
 		
 		return n1;
-		
 	}
-
+	
 	float getnoise_autumn(vec3 p)
 	{
-		float n0 = sfreq2d(p, 0.0025); // continental
-		float n1 = sfreq2d(p, 0.0015); // land level
+		// land level
+		float n1 = p.y - 0.25 + sfreq2d(p, 0.01) * 0.1;
 		
-		n1 = p.y - 0.25 + n0 * 0.1 + n1 * 0.1;
+		float mid = 1.0 - abs(0.25 - p.y) / 0.25;
+		mid = (mid < 0.0) ? 0.0 : mid;
+		mid *= mid * mid * mid;
+		assert(mid >= 0.0 && mid <= 1.0);
 		
+		p.y *= 400.0;
+		n1 += powf(sfreq(p, 0.008), 2.0) * 0.02 + 0.01 * sfreq(p, 0.001);
 		return n1;
 	}
-
+	
 	float getnoise_islands(vec3 p)
 	{
-		p.x *= 0.003;
-		p.z *= 0.003;
+		p.x *= 0.005;
+		p.z *= 0.005;
 		
 		float n0 = sfreq2d(p, 0.25); // continental
 		
@@ -221,15 +227,14 @@ namespace terragen
 		const float C_STRENGTH = 0.04;
 		
 		// add cracks after scaling bottom / top
-		if (n1 < 0.0 && n1 > -C_DEPTH) {
-			
+		if (n1 < 0.0 && n1 > -C_DEPTH)
+		{
 			vec3 npos2 = p * noise_rel2;
 			npos2.y *= 0.5;
 			
 			float cracks = std::abs(landscape) * C_STRENGTH;
 			
 			n1 += ramp(1.0 - n1 / -C_DEPTH, C_SHARP) * (0.5 + COSN_isl2 * 0.5) * cracks;
-			
 		}
 		return n1;
 	}

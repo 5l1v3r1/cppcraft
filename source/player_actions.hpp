@@ -3,7 +3,7 @@
 
 namespace cppcraft
 {
-	class InventoryItem;
+	class Item;
 	
 	class PlayerActions
 	{
@@ -39,14 +39,14 @@ namespace cppcraft
 		
 		/// all action related ///
 		void handleActions(double frametime);
-		void handleMining(double frametime, const InventoryItem& helditem);
+		void handleMining(double frametime, const Item& helditem);
 		// activate a block in the world
-		void activate(InventoryItem& item);
+		void activate(Item& item);
 		// perform an action with an item
-		void itemAction(InventoryItem& item);
+		void itemAction(Item& item);
 		// place a block
-		void build(InventoryItem& item);
-		void swingTool(const InventoryItem& item);
+		void build(Item& item);
+		void swingTool(const Item& item);
 		// placing blocks shite
 		bool playerBlockPlaceTest();
 		

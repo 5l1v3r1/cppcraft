@@ -11,25 +11,7 @@ namespace cppcraft
 {
 	ItemsClass items;
 	
-	InventoryItem::InventoryItem(item_t itemID, unsigned short icount)
-	{
-		id      = itemID;
-		count   = icount;
-		type    = ITT_BLOCK;
-		special = 0;
-		health  = 0;
-	}
-	
-	InventoryItem::InventoryItem(item_t itemID, itemtype_t itype, unsigned short icount)
-	{
-		id      = itemID;
-		type    = itype;
-		count   = icount;
-		special = 0;
-		health  = 0;
-	}
-	
-	std::string InventoryItem::getName() const
+	std::string Item::getName() const
 	{
 		// regular blocks (as items)
 		if (this->getType() == ITT_BLOCK)
@@ -38,7 +20,7 @@ namespace cppcraft
 		return items.getName(this->getID());
 	}
 	
-	int InventoryItem::getTextureTileID() const
+	int Item::getTextureTileID() const
 	{
 		// regular blocks (as items)
 		if (this->getType() == ITT_BLOCK) return Block::cubeFaceById(this->getID(), 0, 0);
@@ -196,7 +178,7 @@ namespace cppcraft
 		
 	} // ItemsClass::getName()
 	
-	int ItemsClass::getMiningTime(const Block& block, const InventoryItem& helditem) const
+	int ItemsClass::getMiningTime(const Block& block, const Item& helditem) const
 	{
 		item_t ttt = IT_NONE;
 		block_t id = block.getID();

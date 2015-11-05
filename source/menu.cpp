@@ -20,25 +20,25 @@ namespace cppcraft
 		inventory.create(9, 5);
 		
 		// create default inventory
-		inventory(0, quickbarY) = InventoryItem(IT_DIAMPICK, ITT_ITEM, 1);
+		inventory(0, quickbarY) = Item(IT_DIAMPICK, 1, ITT_ITEM);
 		
-		inventory(1, quickbarY) = InventoryItem(_STONE, ITT_BLOCK, 9999);
-		inventory(2, quickbarY) = InventoryItem(_PLANK, ITT_BLOCK, 9999);
+		inventory(1, quickbarY) = Item(_STONE, 9999, ITT_BLOCK);
+		inventory(2, quickbarY) = Item(_PLANK, 9999, ITT_BLOCK);
 		
-		inventory(3, quickbarY) = InventoryItem(_WOODSTAIR, ITT_BLOCK, 999);
-		inventory(4, quickbarY) = InventoryItem(_WOODPOLE, ITT_BLOCK, 999);
+		inventory(3, quickbarY) = Item(_WOODSTAIR, 999, ITT_BLOCK);
+		inventory(4, quickbarY) = Item(_WOODPOLE, 999, ITT_BLOCK);
 		
-		inventory(5, quickbarY) = InventoryItem(_WOODDOOR, ITT_BLOCK, 8);
-		inventory(6, quickbarY) = InventoryItem(_LADDER, ITT_BLOCK, 999);
+		inventory(5, quickbarY) = Item(_WOODDOOR, 8, ITT_BLOCK);
+		inventory(6, quickbarY) = Item(_LADDER, 999, ITT_BLOCK);
 		
-		inventory(7, quickbarY) = InventoryItem(_TORCH, ITT_BLOCK, 255);
-		inventory(8, quickbarY) = InventoryItem(_LANTERN, ITT_BLOCK, 255);
+		inventory(7, quickbarY) = Item(_TORCH, 255, ITT_BLOCK);
+		inventory(8, quickbarY) = Item(_LANTERN, 255, ITT_BLOCK);
 		
 		inventory.setChanged(true);
 		
 	}
 	
-	InventoryItem& MenuClass::getHeldItem()
+	Item& MenuClass::getHeldItem()
 	{
 		return inventory(quickbarX, quickbarY);
 	}
@@ -52,14 +52,14 @@ namespace cppcraft
 	{
 		this->width = w;
 		this->height = h;
-		this->items = new InventoryItem[w * h]();
+		this->items = new Item[w * h]();
 	}
 	Inventory::~Inventory()
 	{
 		delete[] this->items;
 	}
 	
-	InventoryItem& Inventory::operator() (int x, int y)
+	Item& Inventory::operator() (int x, int y)
 	{
 		return items[width * y + x];
 	}

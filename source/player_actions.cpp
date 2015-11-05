@@ -86,7 +86,7 @@ namespace cppcraft
 		cooldownTime = _actiontime;
 	}
 	
-	void PlayerActions::swingTool(const InventoryItem& item)
+	void PlayerActions::swingTool(const Item& item)
 	{
 		action = playeraction_t::PA_Swingtool;
 		actionTimer = 8;

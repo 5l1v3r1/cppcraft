@@ -4,6 +4,7 @@
 #include "items.hpp"
 #include "lighting.hpp"
 #include "menu.hpp"
+#include "generator/terragen.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
@@ -29,6 +30,9 @@ namespace cppcraft
 		precompq.init();
 		// initialize lighting
 		Lighting.init();
+		
+		/// our esteemed generator ///
+		terragen::Generator::init();
 		
 		// initialize particles
 		particleSystem.init();

@@ -1,11 +1,8 @@
 #ifndef RENDER_GUI_HPP
 #define RENDER_GUI_HPP
 
-namespace library
-{
-	class mat4;
-	class SimpleFont;
-}
+#include <library/math/matrix.hpp>
+#include <library/opengl/oglfont.hpp>
 
 namespace cppcraft
 {
@@ -24,19 +21,31 @@ namespace cppcraft
 		void init(Renderer& renderer);
 		void render(Renderer& renderer);
 		
-		library::SimpleFont& getFont();
+		library::SimpleFont& getFont()
+		{
+			return font;
+		}
+		const library::mat4& getOrtho() const
+		{
+			return ortho;
+		}
 		
 	private:
 		float width;
 		float height;
+		// the GUIs orthographic projection matrix
+		library::mat4 ortho;
+		// A wild Font appears!
+		library::SimpleFont font;
 		
 		void initInventoryRenderer();
 		
 		void renderPlayerhand(double frameCounter);
 		void renderMinimap(library::mat4& ortho);
 		void renderCrosshair(library::mat4& ortho);
-		void renderQuickbar(library::mat4& ortho, double frameCounter);
+		void renderQuickbar(Renderer& renderer);
 		void renderQuickbarItems(library::mat4& ortho, double frameCounter);
+		void renderMenuSystem(library::mat4& ortho, double frameCounter);
 	};
 	extern GUIRenderer rendergui;
 }

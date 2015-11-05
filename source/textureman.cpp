@@ -259,11 +259,11 @@ namespace cppcraft
 		else throw std::string("Missing source file: Compass texture");
 		if (ogl.checkError()) throw std::string("Compass texture error");
 		
-		// quickbar
-		if (bmp.load(config.get("textures.quickbar", "bitmap/default/gui/quickbar.png"), Bitmap::PNG))
+		// GUI composite texture
+		if (bmp.load(config.get("textures.gui", "bitmap/default/gui/gui.1.png"), Bitmap::PNG))
 		{
-			textures[T_QUICKBAR] = Texture(GL_TEXTURE_2D);
-			textures[T_QUICKBAR].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+			textures[T_GUI] = Texture(GL_TEXTURE_2D);
+			textures[T_GUI].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
 		}
 		else throw std::string("Missing source file: Quickbar texture");
 		if (ogl.checkError()) throw std::string("Quickbar texture error");

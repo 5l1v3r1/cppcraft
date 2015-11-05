@@ -21,6 +21,15 @@ namespace cppcraft
 		// <-- until game ends
 		library::WindowClass& getScreen() { return gamescr; }
 		
+		double getCounter() const
+		{
+			return frametick;
+		}
+		double getFPS() const
+		{
+			return FPS;
+		}
+		
 	private:
 		// OpenGL window
 		library::WindowClass gamescr;
@@ -41,7 +50,6 @@ namespace cppcraft
 		SceneRenderer* sceneRenderer;
 		
 		friend class SceneRenderer;
-		friend class GUIRenderer;
 		friend class Chatbox;
 	};
 	

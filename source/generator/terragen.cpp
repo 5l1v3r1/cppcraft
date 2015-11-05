@@ -1,11 +1,18 @@
 #include "terragen.hpp"
 
 #include "terrain/terrain.hpp"
+#include "terrain/terrains.hpp"
 #include "processing/postproc.hpp"
 #include <stdio.h>
 
 namespace terragen
 {
+	void Generator::init()
+	{
+		// make sure the terrain function list is populated
+		terrainFuncs.init();
+	}
+	
 	void Generator::run(gendata_t* data)
 	{
 		//printf("Generating terrain metadata for (%d, %d)\n",

@@ -33,7 +33,7 @@ namespace cppcraft
 		int quickbarX; // (x) quickbar current column
 		int quickbarY; // (y) quickbar current row
 		
-		InventoryItem& getHeldItem();
+		Item& getHeldItem();
 		
 		void init();
 	};
@@ -46,7 +46,7 @@ namespace cppcraft
 		Inventory(int w, int h);
 		~Inventory();
 		
-		InventoryItem& operator() (int x, int y);
+		Item& operator() (int x, int y);
 		
 		void create(int w, int h);
 		
@@ -66,7 +66,7 @@ namespace cppcraft
 		bool changed;
 		bool opened;
 		int width, height;
-		InventoryItem* items;
+		Item* items;
 	};
 	extern Inventory inventory;
 	
