@@ -213,7 +213,7 @@ namespace terragen
 					if (y <= WATERLEVEL || density < 0.0f)
 					{
 						// caves density (high precision) //
-						float caves = 0.0; terrainFuncs.get(Biome::T_CAVES, p);
+						float caves = terrainFuncs.get(Biome::T_CAVES, p);
 						// caves density //
 						
 						// beachhead weights //

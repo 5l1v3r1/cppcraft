@@ -21,6 +21,7 @@ namespace cppcraft
 	
 	void GUIRenderer::renderQuickbar(Renderer& renderer)
 	{
+		return;
 		input.grabMouse(false);
 		input.showMouse(true);
 		

@@ -56,7 +56,7 @@ namespace terragen
 	
 	float getnoise_caves(vec3 p)
 	{
-		vec3 npos = p * vec3(0.004, 2.5, 0.004);
+		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 		
 		float n1 = snoise3(npos.x, npos.y, npos.z);
 		
