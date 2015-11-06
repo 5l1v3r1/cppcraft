@@ -93,6 +93,11 @@ namespace cppcraft
 		return facing;
 	}
 	
+	bool PlayerClass::fullySubmerged() const
+	{
+		return plogic.FullySubmerged;
+	}
+	
 	void PlayerClass::handlePlayerTicks()
 	{
 		// acceleration & movement inputs

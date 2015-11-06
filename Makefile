@@ -8,7 +8,7 @@ OUTPUT   = ./Debug/cppcraft
 # code folder
 SOURCE  = source source/generator source/generator/biomegen 
 SOURCE += source/generator/terrain source/generator/processing
-SOURCE += source/gui
+SOURCE += source/gui source/sound
 
 # resource file
 ifeq ($(OS),Windows_NT)
@@ -23,7 +23,7 @@ CC = g++ $(BUILDOPT) -std=c++11
 CCFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
 # linker flags
 LFLAGS  = -static-libgcc -static-libstdc++ -Llib \
-	-llibrary -lbass -llzo2 -lGLEW -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
+	-llibrary -lbass -llzo2 -l:libGLEW.a -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
 ifeq ($(OS),Windows_NT)
 	LFLAGS  = -Llib -static -llibrary -lpthread -lbassdll -lglfw3 -lgdi32 -lglew32s -lopengl32 -llzo2 -lws2_32
 endif

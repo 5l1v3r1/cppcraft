@@ -49,6 +49,8 @@ namespace cppcraft
 		// then finally, we finish by running this once
 		void handleActions(double frametime);
 		
+		bool fullySubmerged() const;
+		
 		// handles player rotation by following the input rotation vector
 		void handleRotation();
 		// returns the player look vector

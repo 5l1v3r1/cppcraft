@@ -131,7 +131,7 @@ namespace cppcraft
 			}
 			else if (plogic.freefall)
 			{
-				float dy = toolbox::clamp(-0.4, 0.4, -player.pay);
+				float dy = clamp(-0.4, 0.4, -player.pay);
 				if (plogic.Submerged != PlayerLogic::PS_None) dy = 0.0;
 				
 				hand.y += dy + sin(period * 1.0) * 0.1;

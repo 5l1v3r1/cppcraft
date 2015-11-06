@@ -1,24 +1,24 @@
 #include "soundman.hpp"
 
 #include <library/log.hpp>
-#include <library/sound/stream_channel.hpp>
 #include "biome.hpp"
 #include "blocks.hpp"
-#include "sectors.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
-#include "player_logic.hpp"
+#include "sectors.hpp"
+#include "sound/channel.hpp"
 #include <sstream>
 
 using namespace library;
+using namespace sound;
 
 namespace cppcraft
 {
 	Soundman soundman;
 	// our always-on never-ending, amazing and intolerable background music
-	StreamChannel musicPlayer;
-	StreamChannel ambiencePlayer;
-	StreamChannel underwaterPlayer;
+	Channel musicPlayer;
+	Channel ambiencePlayer;
+	Channel underwaterPlayer;
 	
 	void Soundman::init()
 	{
@@ -29,27 +29,27 @@ namespace cppcraft
 		// load music & ambience
 		musicPlaylist();
 		
-		Sound::setMasterVolume(0.3);
-		musicPlayer    = StreamChannel(0.0005, 0.2);
-		ambiencePlayer = StreamChannel(0.001,  0.75);
-		underwaterPlayer = StreamChannel(0.01, 0.5);
+		sound::Sound::setMasterVolume(0.3);
+		musicPlayer    = sound::Channel(0.0005, 0.2);
+		ambiencePlayer = sound::Channel(0.001,  0.75);
+		underwaterPlayer = sound::Channel(0.01, 0.5);
 		
 		logger << Log::INFO << "* Sound system initialized" << Log::ENDL;
 	}
 	
-	void Soundman::playSound(named_sound_t s, vec3 v)
+	void Soundman::playSound(const std::string& name, vec3 v)
 	{
-		this->sounds[s].play( v );
+		this->sounds[name].play( v );
 	}
-	void Soundman::playSound(named_sound_t s)
+	void Soundman::playSound(const std::string& name)
 	{
-		this->sounds[s].play();
+		this->sounds[name].play();
 	}
 	
-	void Soundman::loadMaterialSound(material_sound_t sindex, std::string basename)
+	void Soundman::loadMaterialSound(const std::string& basename)
 	{
-		// base index
-		int index = (int)sindex * SOUNDS_PER_MAT;
+		const int SOUNDS_PER_MAT = 4;
+		
 		// load sounds
 		for (int i = 0; i < SOUNDS_PER_MAT; i++)
 		{
@@ -57,61 +57,59 @@ namespace cppcraft
 			std::stringstream ss;
 			ss << "sound/materials/" << basename << (i + 1) << ".ogg";
 			
-			matsounds[index + i] = Sound(ss.str(), MAX_SAMPLES);
+			sounds[ basename + std::to_string(i) ] = Sound(ss.str());
 		}
 	}
 	
 	void Soundman::soundPlaylist()
 	{
-		const int MEDIUM_SAMPLES = 2;
+		sounds["door_open"]  = Sound("sound/interaction/door_open.ogg");
+		sounds["door_close"] = Sound("sound/interaction/door_close.ogg");
 		
-		sounds[SND_DOOR_OPEN]  = Sound("sound/interaction/door_open.ogg", MEDIUM_SAMPLES);
-		sounds[SND_DOOR_CLOSE] = Sound("sound/interaction/door_close.ogg", MEDIUM_SAMPLES);
+		sounds["pickup"] = Sound("sound/interaction/pickup.ogg");
+		sounds["place"]  = Sound("sound/interaction/place.ogg");
 		
-		sounds[SND_PICKUP] = Sound("sound/interaction/pickup.ogg", MEDIUM_SAMPLES);
-		sounds[SND_PLACE]  = Sound("sound/interaction/place.ogg", MEDIUM_SAMPLES);
+		sounds["splash"]     = Sound("sound/liquid/splash1.ogg");
+		sounds["splash_big"] = Sound("sound/liquid/splash2.ogg");
 		
-		sounds[SND_SPLASH]     = Sound("sound/liquid/splash1.ogg");
-		sounds[SND_SPLASH_BIG] = Sound("sound/liquid/splash2.ogg");
+		sounds["click_start"]     = Sound("sound/click_start.mp3");
+		sounds["click_end"]     = Sound("sound/click_end.mp3");
 		
-		sounds[SND_CLICK_START]     = Sound("sound/click_start.mp3");
-		sounds[SND_CLICK_END]     = Sound("sound/click_end.mp3");
+		sounds["water"]   = Sound("sound/liquid/water.ogg");
+		sounds["lava"]    = Sound("sound/liquid/lava.ogg");
+		sounds["lavapop"] = Sound("sound/liquid/lavapop.ogg");
 		
-		sounds[SND_WATER]   = Sound("sound/liquid/water.ogg");
-		sounds[SND_LAVA]    = Sound("sound/liquid/lava.ogg");
-		sounds[SND_LAVAPOP] = Sound("sound/liquid/lavapop.ogg");
-		
-		loadMaterialSound(MS_CLOTH, "cloth");
-		loadMaterialSound(MS_GLASS, "glass");
-		loadMaterialSound(MS_GRASS, "grass");
-		loadMaterialSound(MS_GRAVEL,"gravel");
-		loadMaterialSound(MS_SAND,  "sand");
-		loadMaterialSound(MS_SNOW,  "snow");
-		loadMaterialSound(MS_STONE, "stone");
-		loadMaterialSound(MS_WOOD,  "wood");
+		loadMaterialSound("cloth");
+		loadMaterialSound("glass");
+		loadMaterialSound("grass");
+		loadMaterialSound("gravel");
+		loadMaterialSound("sand");
+		loadMaterialSound("snow");
+		loadMaterialSound("stone");
+		loadMaterialSound("wood");
 		
 	}
 	
 	void Soundman::musicPlaylist()
 	{
 		// background music streams
-		music[MUSIC_AUTUMN].load("music/ANW1402_09_Exodus.mp3");
-		music[MUSIC_DESERT].load("music/ANW1401_03_Call-to-Beroea.mp3");
-		music[MUSIC_FOREST].load("music/ANW1332_07_Intimate-Moment.mp3");
-		music[MUSIC_ISLANDS].load("music/ANW1247_05_Ancient-Times.mp3");
-		music[MUSIC_JUNGLE].load("music/ANW1501_06_Denouement.mp3");
-		music[MUSIC_WINTER].load("music/ANW1332_04_Farewell-My-Dear.mp3");
+		streams["autumn"].load("music/ANW1402_09_Exodus.mp3");
+		streams["desert"].load("music/ANW1401_03_Call-to-Beroea.mp3");
+		streams["forest"].load("music/ANW1332_07_Intimate-Moment.mp3");
+		streams["islands"].load("music/ANW1247_05_Ancient-Times.mp3");
+		streams["jungle"].load("music/ANW1501_06_Denouement.mp3");
+		streams["winter"].load("music/ANW1332_04_Farewell-My-Dear.mp3");
 		
 		// ambience streams
-		ambience[MA_AUTUMN].load("music/ambience/autumn.mp3");
-		ambience[MA_DESERT].load("music/ambience/desert.mp3");
-		ambience[MA_FOREST].load("music/ambience/forest.mp3");
-		ambience[MA_ISLANDS].load("music/ambience/islands.mp3");
-		ambience[MA_JUNGLE].load("music/ambience/jungle.mp3");
-		ambience[MA_WINTER].load("music/ambience/winter.mp3");
+		streams["amb_autumn"].load("music/ambience/autumn.mp3");
+		streams["amb_desert"].load("music/ambience/desert.mp3");
+		streams["amb_forest"].load("music/ambience/forest.mp3");
+		streams["amb_islands"].load("music/ambience/islands.mp3");
+		streams["amb_jungle"].load("music/ambience/jungle.mp3");
+		streams["amb_winter"].load("music/ambience/winter.mp3");
 		
-		ambience[MA_UNDERWATER].load("music/ambience/underwater.mp3");
-		ambience[MA_CAVES].load("music/ambience/cave.mp3");
+		streams["amb_water"].load("music/ambience/underwater.mp3");
+		streams["amb_caves"].load("music/ambience/cave.mp3");
 	}
 	
 	// returns the id of a random song in the playlist
@@ -139,25 +137,25 @@ namespace cppcraft
 				switch (terrain)
 				{
 				case Biomes::T_AUTUMN:
-					musicPlayer.play(music[MUSIC_AUTUMN]);
+					musicPlayer.play(streams["autumn"]);
 					break;
 				case Biomes::T_DESERT:
-					musicPlayer.play(music[MUSIC_DESERT]);
+					musicPlayer.play(streams["desert"]);
 					break;
 				case Biomes::T_MUSHROOMS:
 				case Biomes::T_GRASS:
-					musicPlayer.play(music[MUSIC_FOREST]);
+					musicPlayer.play(streams["forest"]);
 					break;
 				case Biomes::T_ISLANDS:
-					musicPlayer.play(music[MUSIC_ISLANDS]);
+					musicPlayer.play(streams["islands"]);
 					break;
 				case Biomes::T_MARSH:
 				case Biomes::T_JUNGLE:
-					musicPlayer.play(music[MUSIC_JUNGLE]);
+					musicPlayer.play(streams["jungle"]);
 					break;
 				case Biomes::T_ICECAP:
 				case Biomes::T_SNOW:
-					musicPlayer.play(music[MUSIC_WINTER]);
+					musicPlayer.play(streams["winter"]);
 					break;
 				default:
 					musicPlayer.stop();
@@ -170,10 +168,10 @@ namespace cppcraft
 		if (gameconf.ambience)
 		{
 			// ambience stream
-			if (plogic.FullySubmerged) // submerged priority over caves
+			if (player.fullySubmerged()) // submerged priority over caves
 			{
 				ambiencePlayer.fullStop();
-				underwaterPlayer.play(ambience[MA_UNDERWATER]);
+				underwaterPlayer.play(streams["amb_water"]);
 			}
 			else
 			{
@@ -181,7 +179,7 @@ namespace cppcraft
 				
 				if (inCaves)
 				{
-					ambiencePlayer.play(ambience[MA_CAVES]);
+					ambiencePlayer.play(streams["amb_caves"]);
 				}
 				else
 				{
@@ -189,25 +187,25 @@ namespace cppcraft
 					switch (terrain)
 					{
 					case Biomes::T_AUTUMN:
-						ambiencePlayer.play(ambience[MA_AUTUMN]);
+						ambiencePlayer.play(streams["amb_autumn"]);
 						break;
 					case Biomes::T_DESERT:
-						ambiencePlayer.play(ambience[MA_DESERT]);
+						ambiencePlayer.play(streams["amb_desert"]);
 						break;
 					case Biomes::T_MUSHROOMS:
 					case Biomes::T_GRASS:
-						ambiencePlayer.play(ambience[MA_FOREST]);
+						ambiencePlayer.play(streams["amb_forest"]);
 						break;
 					case Biomes::T_ISLANDS:
-						ambiencePlayer.play(ambience[MA_ISLANDS]);
+						ambiencePlayer.play(streams["amb_islands"]);
 						break;
 					case Biomes::T_MARSH:
 					case Biomes::T_JUNGLE:
-						ambiencePlayer.play(ambience[MA_JUNGLE]);
+						ambiencePlayer.play(streams["amb_jungle"]);
 						break;
 					case Biomes::T_ICECAP:
 					case Biomes::T_SNOW:
-						ambiencePlayer.play(ambience[MA_WINTER]);
+						ambiencePlayer.play(streams["amb_winter"]);
 						break;
 					default:
 						ambiencePlayer.stop();
@@ -221,35 +219,35 @@ namespace cppcraft
 		}
 	}
 	
-	int Soundman::blockToMaterial(int id) const
+	std::string Soundman::blockToMaterial(int id)
 	{
 		if (isStone(id))
 		{
-			return MS_STONE;
+			return "stone";
 		}
 		else if (isSnow(id))
 		{
-			return MS_SNOW;
+			return "snow";
 		}
 		else if (isDirt(id))
 		{
-			return MS_GRASS;
+			return "grass";
 		}
 		else if (isGravel(id))
 		{
-			return MS_GRAVEL;
+			return "gravel";
 		}
 		else if (isSand(id))
 		{
-			return MS_SAND;
+			return "sand";
 		}
 		else if (id == _GLASS)
 		{
-			return MS_GLASS;
+			return "glass";
 		}
 		else if (isWood(id))
 		{
-			return MS_WOOD;
+			return "wood";
 		}
 		
 		// specific ids
@@ -257,10 +255,10 @@ namespace cppcraft
 		{
 		case _ICECUBE:
 		case _LOWICE:
-			return MS_STONE;
+			return "stone";
 			
 		case _LOWSNOW:
-			return MS_SNOW;
+			return "snow";
 			
 		case _WOODSTAIR:
 		case _WOODDOOR:
@@ -268,7 +266,7 @@ namespace cppcraft
 		case _WOODFENCE:
 		case _TORCH:
 		case _LADDER:
-			return MS_WOOD;
+			return "wood";
 			
 		case _STONESTAIR:
 		case _STONEDOOR:
@@ -276,28 +274,22 @@ namespace cppcraft
 		case _BRICKSTAIR:
 		case _BRICKWALL:
 		case _BRICKWALL2:
-			return MS_STONE;
+			return "stone";
 			
 		}
 		
-		return MS_CLOTH;
+		return "cloth";
 	}
 	
 	void Soundman::playMaterial(int id, int num)
 	{
-		int sound = blockToMaterial(id);
-		if (sound != -1)
-		{
-			this->matsounds[sound * SOUNDS_PER_MAT + num].play();
-		}
+		std::string sound = blockToMaterial(id);
+		this->sounds[sound + std::to_string(num)].play();
 	}
 	void Soundman::playMaterial(int id, int num, vec3 v)
 	{
-		int sound = blockToMaterial(id);
-		if (sound != -1)
-		{
-			this->matsounds[sound * SOUNDS_PER_MAT + num].play(v);
-		}
+		std::string sound = blockToMaterial(id);
+		this->sounds[sound + std::to_string(num)].play(v);
 	}
 	
 }

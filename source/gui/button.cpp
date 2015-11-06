@@ -24,7 +24,7 @@ namespace gui
 		// event handlers
 		if (event == 0 && pressed && this->action_func != nullptr)
 		{
-			cppcraft::soundman.playSound(cppcraft::Soundman::SND_CLICK_END);
+			cppcraft::soundman.playSound("click_end");
 			this->action_func(this, event, pos);
 		}
 		if (active && (event < 0) && this->leave_func != nullptr)
@@ -34,7 +34,7 @@ namespace gui
 		
 		if (!pressed && (event > 0) && ready_pressed)
 		{
-			cppcraft::soundman.playSound(cppcraft::Soundman::SND_CLICK_START);
+			cppcraft::soundman.playSound("click_start");
 		}
 		
 		// new states:

@@ -242,36 +242,36 @@ namespace cppcraft
 		if (plogic.Ladderized || plogic.Slowfall)
 		{
 			// half-decent momentum change
-			player.pax = toolbox::mix(player.pax, dx, 0.125);
-			player.paz = toolbox::mix(player.paz, dz, 0.125);
+			player.pax = mix(player.pax, dx, 0.125);
+			player.paz = mix(player.paz, dz, 0.125);
 		}
 		else if (plogic.freefall == true || player.Flying == true)
 		{
 			if (plogic.Submerged)
 			{
 				// swimming power
-				player.pax = toolbox::mix(player.pax, dx, 0.0125);
-				player.paz = toolbox::mix(player.paz, dz, 0.0125);
+				player.pax = mix(player.pax, dx, 0.0125);
+				player.paz = mix(player.paz, dz, 0.0125);
 			}
 			else if (player.Flying)
 			{
 				// flying momentum
-				player.pax = toolbox::mix(player.pax, dx, 0.03);
-				player.paz = toolbox::mix(player.paz, dz, 0.03);
+				player.pax = mix(player.pax, dx, 0.03);
+				player.paz = mix(player.paz, dz, 0.03);
 			}
 	#ifdef USE_JETPACK
 			else if (plogic.jetpacking)
 			{
 				// jetpack power
-				player.pax = toolbox::mix(player.pax, dx, 0.02);
-				player.paz = toolbox::mix(player.paz, dz, 0.02);
+				player.pax = mix(player.pax, dx, 0.02);
+				player.paz = mix(player.paz, dz, 0.02);
 			}
 	#endif		
 			else
 			{
 				// air momentum change, REALLY low
-				player.pax = toolbox::mix(player.pax, dx, 0.011);
-				player.paz = toolbox::mix(player.paz, dz, 0.011);
+				player.pax = mix(player.pax, dx, 0.011);
+				player.paz = mix(player.paz, dz, 0.011);
 			}
 		}
 		else
@@ -283,14 +283,14 @@ namespace cppcraft
 			{
 			case _LOWICE:
 				// weakest momentum change
-				player.pax = toolbox::mix(player.pax, dx, 0.01);
-				player.paz = toolbox::mix(player.paz, dz, 0.01);
+				player.pax = mix(player.pax, dx, 0.01);
+				player.paz = mix(player.paz, dz, 0.01);
 				break;
 				
 			default:
 				// all other blocks, including air
-				player.pax = toolbox::mix(player.pax, dx, 0.125);
-				player.paz = toolbox::mix(player.paz, dz, 0.125);
+				player.pax = mix(player.pax, dx, 0.125);
+				player.paz = mix(player.paz, dz, 0.125);
 			}
 			
 		}

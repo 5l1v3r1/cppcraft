@@ -479,11 +479,11 @@ namespace cppcraft
 					//#ifdef USE_SOUND
 						if (player.pay <= -PlayerPhysics::splash_big_fall)
 						{
-							soundman.playSound(Soundman::SND_SPLASH_BIG); // big splash
+							soundman.playSound("splash_big"); // big splash
 						}
 						else if (player.pay <= -PlayerPhysics::splash_min_fall)
 						{
-							soundman.playSound(Soundman::SND_SPLASH); // small splash
+							soundman.playSound("splash"); // small splash
 						}
 					//#endif
 				}
@@ -541,7 +541,7 @@ namespace cppcraft
 			
 			if (Block::fluidToAir(block->getID()) != _AIR)
 			{
-				int sound = toolbox::rnd(4);
+				int sound = rnd(4);
 				soundman.playMaterial(block->getID(), sound);
 			}
 			

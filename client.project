@@ -505,6 +505,17 @@
       <File Name="source/gui/progress.cpp"/>
       <File Name="source/gui/itemslot.hpp"/>
     </VirtualDirectory>
+    <VirtualDirectory Name="sound">
+      <File Name="source/sound/sound.hpp"/>
+      <File Name="source/sound/stream.hpp"/>
+      <File Name="source/sound/channel.hpp"/>
+      <File Name="source/sound/channel.cpp"/>
+      <File Name="source/sound/sound.cpp"/>
+      <File Name="source/sound/soundsystem.hpp"/>
+      <File Name="source/sound/soundsystem.cpp"/>
+      <File Name="source/sound/stream.cpp"/>
+      <File Name="source/sound/handle.hpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

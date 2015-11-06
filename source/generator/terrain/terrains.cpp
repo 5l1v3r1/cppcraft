@@ -463,7 +463,7 @@ namespace terragen
 		if (x > EDGE)
 		{
 			float linear = (x - EDGE) / (1.0 - EDGE);
-			linear = toolbox::hermite(linear);
+			linear = hermite(linear);
 			
 			// ramp up the value
 			float power = std::pow(linear, 0.25 - linear * 0.15);

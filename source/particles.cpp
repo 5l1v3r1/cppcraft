@@ -157,10 +157,10 @@ namespace cppcraft
 					break;
 					
 				case PARTICLE_FOREST:
-					if (toolbox::rndNorm(16) > 11)
+					if (rndNorm(16) > 11)
 					{
 						const float speed = 0.005f;
-						p.acc = vec3(toolbox::rndNorm(speed), toolbox::rndNorm(speed), toolbox::rndNorm(speed));
+						p.acc = vec3(rndNorm(speed), rndNorm(speed), rndNorm(speed));
 					}
 					
 					pv->u = 32;
@@ -231,7 +231,7 @@ namespace cppcraft
 		p.wx = world.getWX();
 		p.wz = world.getWZ();
 		
-		#define prandv(variance)  (toolbox::rndNorm(variance))
+		#define prandv(variance)  (rndNorm(variance))
 		
 		const float var_generic = 0.01f;
 		const float smoke_variance = 0.01f;
@@ -342,7 +342,7 @@ namespace cppcraft
 			for (int i = 0; i < 2; i++)
 			{
 				vec3 position(player.X, player.Y, player.Z);
-				position += vec3(toolbox::rndNorm(16.f), toolbox::rndNorm(8.f), toolbox::rndNorm(16.f));
+				position += vec3(rndNorm(16.f), rndNorm(8.f), rndNorm(16.f));
 				
 				if (plogic.FullySubmerged == plogic.PS_Water)
 				{
@@ -359,7 +359,7 @@ namespace cppcraft
 			for (int i = 0; i < 2; i++)
 			{
 				vec3 position(player.X, 0, player.Z);
-				position += vec3(toolbox::rndNorm(180), 0, toolbox::rndNorm(180));
+				position += vec3(rndNorm(180), 0, rndNorm(180));
 				
 				Flatland::flatland_t* fs = 
 					sectors.flatland_at(position.x, position.z);
@@ -371,7 +371,7 @@ namespace cppcraft
 				if (position.y == RenderConst::WATER_LEVEL-1)
 				{
 					// skylevel = waterlevel
-					position.y += 4 + toolbox::rndNorm(4);
+					position.y += 4 + rndNorm(4);
 					
 					newParticle(position, PARTICLE_WATER);
 				}
@@ -393,23 +393,23 @@ namespace cppcraft
 			
 			for (int i = 0; i < 3; i++)
 			{
-				position += vec3(toolbox::rndNorm(5), 14 + toolbox::rndNorm(8), toolbox::rndNorm(5));
+				position += vec3(rndNorm(5), 14 + rndNorm(8), rndNorm(5));
 				newParticle(position, PARTICLE_SNOW);
 			}
 		}
 		else if (terrain == Biomes::T_AUTUMN)
 		{
 			// autumn, subtropic forest
-			position.y += 14 + toolbox::rndNorm(8);
+			position.y += 14 + rndNorm(8);
 			
 			newParticle(position, PARTICLE_LEAF_B);
 		}
 		else if (terrain == Biomes::T_GRASS || terrain == Biomes::T_ISLANDS)
 		{
 			// grass & islands
-			position.y += 12 + toolbox::rndNorm(8);
+			position.y += 12 + rndNorm(8);
 			
-			if (toolbox::rnd(2) == 0)
+			if (rnd(2) == 0)
 				newParticle(position, PARTICLE_LEAF);
 			else
 				newParticle(position, PARTICLE_DANDELION);
@@ -417,14 +417,14 @@ namespace cppcraft
 		else if (terrain == Biomes::T_MARSH)
 		{
 			// marsh lands
-			position.y += 12 + toolbox::rndNorm(8);
+			position.y += 12 + rndNorm(8);
 			
 			newParticle(position, PARTICLE_MARSH);
 		}
 		else if (terrain == Biomes::T_JUNGLE)
 		{
 			// jungle forest
-			position.y += 20 + toolbox::rndNorm(16);
+			position.y += 20 + rndNorm(16);
 			
 			newParticle(position, PARTICLE_FOREST);
 		}
@@ -434,7 +434,7 @@ namespace cppcraft
 			for (int i = 0; i < 16; i++)
 			{
 				vec3 pos = position;
-				pos += vec3(toolbox::rndNorm(15), 10 + toolbox::rndNorm(5), toolbox::rndNorm(15));
+				pos += vec3(rndNorm(15), 10 + rndNorm(5), rndNorm(15));
 				
 				newParticle(pos, PARTICLE_SAND);
 			}
