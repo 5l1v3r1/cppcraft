@@ -63,12 +63,10 @@ namespace cppcraft
 	{
 		Sector& sector = sectors(x, z);
 		
-		// if this sector is beyond needing generation
+		// if the sector was generated, we will regenerate mesh
 		if (sector.generated())
-		{
-			// then, regenerate its mesh
 			sector.updateAllMeshes();
-		}
+		
 	} // updateSectorColumn
 	
 	// things that must be done prior to moving the world

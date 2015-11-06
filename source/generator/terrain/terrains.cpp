@@ -4,12 +4,13 @@
 #include <library/noise/simplex1234.h>
 #include <library/math/toolbox.hpp>
 #include "../biomegen/biome.hpp"
-#include "../sse_simplex3.h"
 #include "helpers.hpp"
 #include <cassert>
 #include <csignal>
 
-using namespace library;
+#include <glm/gtc/noise.hpp>
+
+using namespace glm;
 
 namespace terragen
 {
@@ -42,8 +43,8 @@ namespace terragen
 	
 	///////////////////////////////////////////////////
 	///////////////////////////////////////////////////
-	#define sfreq(v, n) sse_simplex3(v.x * n, v.y * n, v.z * n)
-	#define sfreq2d(v, n) snoise2(v.x * n, v.z * n)
+	#define sfreq(v, n) glm::simplex(glm::vec3(v))
+	#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * (float)n)
 	
 	float lower_grass(vec3 p);
 	
@@ -59,19 +60,19 @@ namespace terragen
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 		
-		float n1 = sse_simplex3(npos.x, npos.y, npos.z);
+		float n1 = glm::simplex(npos);
 		
 		const float CAVE_TRESHOLD = 0.11f;
 		const float EDGE = CAVE_TRESHOLD * 0.2f;
 		
 		if (n1 > -CAVE_TRESHOLD && n1 < CAVE_TRESHOLD)
 		{
-			npos = p * vec3(0.02, 6.0, 0.02);
+			npos = p * vec3(0.01, 6.0, 0.01);
 			
 			// cross noise
-			float n2 = sse_simplex3(npos.x, npos.y, npos.z);
-			float n3 = sse_simplex3(npos.x, npos.y + 3.5, npos.z);
-			float n4 = sse_simplex3(npos.x * 0.2, npos.y + 7.0, npos.z * 0.2);
+			float n2 = glm::simplex(npos);
+			float n3 = glm::simplex(npos + vec3(0.0, 3.5, 0.0));
+			float n4 = glm::simplex(npos + vec3(0.2, 7.0, 0.2));
 			
 			// caves increase in density as we go lower
 			float DEPTH_DENSITY = 0.08 + (1.0 - p.y * p.y) * 0.2;
@@ -100,16 +101,16 @@ namespace terragen
 		p.z *= 0.005;
 		float n1 = sfreq2d(p, 0.5);
 		float n2 = sfreq2d(p, 0.15);
-		vec3 npos = p / 4.0; // the relationship between n1 and npos is 4 / 0.5
+		vec3 npos = p / 4.0f; // the relationship between n1 and npos is 4 / 0.5
 		
 		const float COSN_CURVE = 0.5; // sharper waves at higher value, crested waves at values < 1.0
 		const float COSN_FAT   = 0.0;
 		float COSN_CUTS  = 0.5 - p.y * 0.5;
 		
-		#define COSN_icecap1 cosnoise(npos, n1, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		#define COSN_icecap2 cosnoise(npos, n2, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		//#define COSN_icecap1 cosnoise(npos, n1, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		//#define COSN_icecap2 cosnoise(npos, n2, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
 		
-		return p.y - 0.3 + COSN_icecap1 * 0.05 + COSN_icecap2 * 0.1;
+		return p.y - 0.3 + n1 * 0.05 + n2 * 0.1;
 	}
 
 	float getnoise_snow(vec3 p)
@@ -125,15 +126,15 @@ namespace terragen
 		float c1 = sfreq2d(p, 0.5);
 		float c2 = sfreq2d(p, 0.25);
 		
-		vec3 npos = p / 4.0; // the relationship between n1 and npos is 4 / 3
+		vec3 npos = p / 4.0f; // the relationship between n1 and npos is 4 / 3
 		
 		const float COSN_CURVE = 0.5; // sharper waves at higher value, crested waves at values < 1.0
 		const float COSN_FAT   = 0.0;
 		float COSN_CUTS  = 0.5 - p.y * 0.5;
 		
-		#define COSN cosnoise(npos, n1, 0.5, p.y * 2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		//#define COSN cosnoise(npos, n1, 0.5, p.y * 2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
 		
-		n1 = (p.y - 0.25) * p.y - n3 * n3 * 0.25 + n4 * 0.1 + COSN * 0.15;
+		n1 = (p.y - 0.25) * p.y - n3 * n3 * 0.25 + n4 * 0.1; //COSN * 0.15;
 		//n1 = COSN;
 		// reduce height by contintental noise
 		n1 += c1 * 0.2 + c2 * 0.1;
@@ -183,7 +184,7 @@ namespace terragen
 		float n0 = sfreq2d(p, 0.25); // continental
 		
 		float landy = (0.5 + 0.5 * n0) * 2.0;
-		float n1 = sse_simplex3(p.x, p.y * landy, p.z);   // island ring
+		float n1 = glm::simplex(p + vec3(0.0, landy, 0.0));   // island ring
 		float n2 = sfreq(p, 8.0);   // carve
 		float landscape = sfreq2d(p, 0.5);
 		
@@ -201,8 +202,10 @@ namespace terragen
 		float landx = 0.05; // + fabs(landscape - n0) * cliffscale;
 		float landz = 0.05; // + fabs(n0 - landscape) * cliffscale;
 		
-		#define COSN_isl1 cosnoise(npos,  n1, landx, landz, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		#define COSN_isl2 cosnoise(npos2, n2,  0.1,  2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		//#define COSN_isl1 cosnoise(npos,  n1, landx, landz, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		//#define COSN_isl2 cosnoise(npos2, n2,  0.1,  2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		#define COSN_isl1 0.0
+		#define COSN_isl2 0.0
 		
 		// lower height + compr noise    + continental
 		n1 = p.y * p.y + COSN_isl1 * 0.25 + std::abs(n0) * 0.15 + 0.05;
@@ -235,7 +238,7 @@ namespace terragen
 			
 			float cracks = std::abs(landscape) * C_STRENGTH;
 			
-			n1 += ramp(1.0 - n1 / -C_DEPTH, C_SHARP) * (0.5 + COSN_isl2 * 0.5) * cracks;
+			n1 += ramp(1.0 - n1 / -C_DEPTH, C_SHARP) * (0.5f + COSN_isl2 * 0.5f) * cracks;
 		}
 		return n1;
 	}
@@ -248,15 +251,15 @@ namespace terragen
 
 	float lower_grass(vec3 p)
 	{
-		double gx = p.x * 0.25;
-		double gy = p.z * 0.25;
-		double sel = nmix2(snoise2(gx, gy)) + nmix2(snoise2(gx*2.1, gy*2.1))* 0.5
-				+    nmix2(snoise2(gx*4.2, gy*4.2))* 0.25 + nmix2(snoise2(gx*8, gy*8))* 0.125
-				+	 nmix2(snoise2(gx*16, gy*16))* 0.125*0.5;
-
-		double s = tanh(sel*1.5-0.4) * 0.5 + 0.5;
+		glm::vec2 G(p.x, p.z); G *= 0.25f;
 		
-		double ghei = (snoise2(gx*0.4, gy*0.4)+1)*0.5;
+		float sel = nmix2(glm::simplex(G)) + nmix2(glm::simplex(G*2.1f)) * 0.5f
+				+    nmix2(glm::simplex(G*4.2f))* 0.25f + nmix2(glm::simplex(G*8.f))* 0.125f
+				+	 nmix2(glm::simplex(G*16.f))* 0.125f * 0.5f;
+
+		double s = tanh(sel*1.5f-0.4f) * 0.5f + 0.5f;
+		
+		double ghei = (glm::simplex(G*0.4f)+1.0f)*0.5f;
 		s = p.y - (0.1 + s*ghei*ghei * 2.5);
 		
 		/*
@@ -317,13 +320,15 @@ namespace terragen
 		float stretch = 1.0 / 12.0;
 		float width = 1.5f;
 		
-		float lnoise = snoise2(p.x*0.75, p.z*0.7);
+		float lnoise = glm::simplex(glm::vec2(p.x*0.75, p.z*0.7));
 		
 		// 0.3 is land base-height, 0.4 is higher up, 0.2 is underwater
 		float land = 0.32 + lnoise * 0.05;
 		
-		land += snoise2(p.x, p.z) * 0.03 + snoise2(p.x*2.7, p.z*2.8) * 0.02 + snoise2(p.x*5.8, p.z*5.6) * (p.y * 0.05);
-		float noi  = snoise2(p.y*4, p.z*4)* 0.16 + snoise2(p.y*8, p.z*8)* 0.08 + snoise2(p.y*16, p.z*16)* 0.04 + snoise2(p.y*32, p.z*32)* 0.02;
+		vec2 P(p.x, p.z);
+		land += simplex(P) * 0.03f + simplex(P*vec2(2.7f, 2.8f)) * 0.02f + simplex(P*vec2(5.8f, 5.6f)) * (p.y * 0.05f);
+		float noi = simplex(P*vec2(4.f, 4.f))* 0.16f + simplex(P*vec2(8.f, 8.f))* 0.08f + 
+					simplex(P*vec2(16.f, 16.f))* 0.04f + simplex(P*vec2(32.f, 32.f))* 0.02f;
 		
 		float cosa = cos(lnoise * 0.05);
 		float sina = sin(lnoise * 0.05);
@@ -336,7 +341,7 @@ namespace terragen
 		
 		// vary cliff terrain with lower_grass terrain (that also has mountains)
 		const float GMIX = 0.5;
-		float gmix = snoise2(p.x*0.66, p.z*0.66) * 0.5 + 0.5;
+		float gmix = simplex(P * vec2(0.66f, 0.66f)) * 0.5 + 0.5;
 		
 		if (gmix > GMIX)
 		{
@@ -418,13 +423,14 @@ namespace terragen
 		const float COSN_FAT   = 0.0; // ( (1.0 - p.y) ^ 2.0 ) * 0.25
 		const float COSN_CUTS  = 0.0; // Abs(n2)
 		
-		#define COSN_jun  cosnoise(npos,  n1, 0.5, 0.5, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		#define COSN_jun2 cosnoise(npos2, n2, 1.0, 1.0, 3.0, COSN_FAT, COSN_CUTS)
+		//#define COSN_jun  cosnoise(npos,  n1, 0.5, 0.5, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		//#define COSN_jun2 cosnoise(npos2, n2, 1.0, 1.0, 3.0, COSN_FAT, COSN_CUTS)
+		#define COSN_jun2 0
 		
 		float ramping = (n1 + 1.0) * 0.5;
 		
 		//  compressed
-		n1 = p.y - (fabs(n1-COSN_jun) * 0.75 + ramp(inv_y, 2.0) * 0.25);
+		//n1 = p.y - (fabs(n1-COSN_jun) * 0.75 + ramp(inv_y, 2.0) * 0.25);
 		
 		n1 += std::abs(landscape1 * 0.2) - std::abs(landscape2 * 0.2);
 		
@@ -449,7 +455,7 @@ namespace terragen
 		p.x *= 0.003;
 		p.z *= 0.003;
 		
-		float s = barchans(p.x + snoise1(p.z*0.4)*1.0, p.z + snoise2(p.z*0.2, p.x*0.2)*0.3);
+		float s = barchans(p.x + snoise1(p.z*0.4)*1.0f, p.z + snoise2(p.z*0.2f, p.x*0.2f)*0.3f);
 		float n = snoise2(p.x*0.05, p.z*0.05);
 		s = 0.3 + n * 0.3 + s * (0.6 + n*0.4) * 0.3;
 		
@@ -464,7 +470,7 @@ namespace terragen
 		if (x > EDGE)
 		{
 			float linear = (x - EDGE) / (1.0 - EDGE);
-			linear = hermite(linear);
+			linear = library::hermite(linear);
 			
 			// ramp up the value
 			float power = std::pow(linear, 0.25 - linear * 0.15);

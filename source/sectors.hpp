@@ -2,6 +2,7 @@
 #define SECTORS_HPP
 
 #include "sector.hpp"
+#include <functional>
 
 namespace cppcraft
 {
@@ -40,6 +41,10 @@ namespace cppcraft
 			// simple rectilinear distance (aka manhattan distance)
 			return std::abs(sector.getX() - sectors_XZ / 2) + std::abs(sector.getZ() - sectors_XZ / 2);
 		}
+		
+		//! \brief execute lambda on a 3x3 centered around @sector
+		//! the result @bool is only true when all results are true
+		bool on3x3(const Sector& sector, std::function<bool(Sector&)> lambda);
 		
 		// updates all sectors, for eg. when sun-position changed
 		void updateAll();

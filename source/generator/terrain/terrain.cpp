@@ -3,13 +3,11 @@
 #include "../../common.hpp"
 #include "../terragen.hpp"
 #include <library/math/toolbox.hpp>
-#include <library/math/vector.hpp>
-#include <library/noise/simplex1234.h>
 #include "terrains.hpp"
 #include <cassert>
+#include <glm/gtc/noise.hpp>
 
 using namespace cppcraft;
-using namespace library;
 
 namespace terragen
 {
@@ -145,7 +143,7 @@ namespace terragen
 	void Terrain::generateTerrain(gendata_t* data)
 	{
 		// interpolation grid dimensions
-		#define ngrid 2
+		#define ngrid 4
 		
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
 		// noise (terrain density) values
@@ -157,10 +155,10 @@ namespace terragen
 		for (int x = 0; x <= ngrid; x++)
 		for (int z = 0; z <= ngrid; z++)
 		{
-			vec2 p = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
+			glm::vec2 p = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
 			
 			// beach height/level variance
-			beachhead[x][z] = snoise2(p.x * 0.005f, p.y * 0.005f);
+			beachhead[x][z] = glm::simplex(p * 0.005f);
 		}
 		
 		// generating from top to bottom, not including y == 0
@@ -169,7 +167,7 @@ namespace terragen
 			for (int x = 0; x <= ngrid; x++)
 			for (int z = 0; z <= ngrid; z++)
 			{
-				vec3 p = data->getBaseCoords3D(x * grid_pfac, y, z * grid_pfac);
+				glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, y, z * grid_pfac);
 				
 				Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 				noisearray[x][z] = 0.0;
@@ -196,15 +194,15 @@ namespace terragen
 			{
 				fx = x / (float)BLOCKS_XZ * ngrid;
 				int bx = (int)fx; // start x
-				frx = fx - bx; frx = hermite(frx);
+				frx = fx - bx; frx = library::hermite(frx);
 				
 				for (int z = 0; z < BLOCKS_XZ; z++)
 				{
-					vec3 p = data->getBaseCoords3D(x, y, z);
+					glm::vec3 p = data->getBaseCoords3D(x, y, z);
 					
 					fz = z / (float)BLOCKS_XZ * ngrid;
 					int bz = (int)fz;  // integral
-					frz = fz - bz; frz = hermite(frz);
+					frz = fz - bz; frz = library::hermite(frz);
 					
 					//printf("pos: %f, %f\n", fx, fz);
 					//assert (z < BLOCKS_XZ-1);
@@ -218,7 +216,7 @@ namespace terragen
 					if (y <= WATERLEVEL || density < 0.0f)
 					{
 						// caves density (high precision) //
-						float caves = 0.0f; //terrainFuncs.get(Biome::T_CAVES, p);
+						float caves = terrainFuncs.get(Biome::T_CAVES, p);
 						// caves density //
 						
 						// beachhead weights //

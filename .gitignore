@@ -1,6 +1,4 @@
 # Compiled Object files
-*.slo
-*.lo
 *.o
 *.d
 
@@ -9,8 +7,6 @@
 *.dylib
 
 # Compiled Static libraries
-*.lai
-*.la
 *.a
 
 # compressed chunks
@@ -27,7 +23,7 @@
 *.exe
 *.log
 Debug/cppcraft
-Debug/Worlds/test/world.data
+Debug/Worlds/*
 
 # Archives
 *.rar

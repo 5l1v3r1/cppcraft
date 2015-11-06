@@ -1,13 +1,9 @@
 #include "biome.hpp"
 
-#include <library/math/vector.hpp>
-#include <library/noise/simplex1234.h>
-
 #include "../terragen.hpp"
+#include <glm/gtc/noise.hpp>
 // colors for 2D gradients
 #include "colortable.hpp"
-
-using namespace library;
 
 namespace terragen
 {
@@ -169,15 +165,15 @@ namespace terragen
 		for (int x = 0; x <= BLOCKS_XZ; x++)
 		for (int z = 0; z <= BLOCKS_XZ; z++)
 		{
-			vec2 p = gdata->getBaseCoords2D(x, z);
+			glm::vec2 p = gdata->getBaseCoords2D(x, z);
 			//p /= 64.0;
 			
 			// skip terrain colors for the edges, where we only care about the terrain weights
 			bool skip_colors = (x == BLOCKS_XZ || z == BLOCKS_XZ);
 			
 			// scale the random values from [0, 16) (multiple of 4)
-			float random1 = 8.0f + snoise2(p.x*0.0011f, p.y*0.0011f) * 7.0f + snoise2(p.x*0.015f, p.y*0.015f) * 1.0f;
-			float random2 = 8.0f + snoise2(p.y*0.0021f, p.x*0.0021f) * 7.0f + snoise2(p.x*0.016f, p.y*0.016f) * 1.0f;
+			float random1 = 8.0f + glm::simplex(p*0.0011f) * 7.0f + glm::simplex(p*0.015f) * 1.0f;
+			float random2 = 8.0f + glm::simplex(p*0.0021f) * 7.0f + glm::simplex(p*0.016f) * 1.0f;
 			
 			// don't scale p.x and p.z here!!!!!!!!!!!!
 			biome_t biome = biomeGen(p.x, p.y);

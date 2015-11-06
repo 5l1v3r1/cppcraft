@@ -1,15 +1,12 @@
 #pragma once
 
 #define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
+#include <glm/vec3.hpp>
 
-namespace library
-{
-	class vec3;
-}
 
 namespace terragen
 {
-	extern void  pillars(const library::vec3& p, float frequency, float& noise);
+	extern void  pillars(const glm::vec3& p, float frequency, float& noise);
 	extern float barchans(double x, double y);
 	
 	inline double noise1u(int x)

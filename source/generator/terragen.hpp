@@ -3,7 +3,8 @@
 #include "../flatlands.hpp"
 #include "biomegen/biome.hpp"
 #include "genobject.hpp"
-#include <library/math/vector.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <vector>
 
 namespace terragen
@@ -44,13 +45,13 @@ namespace terragen
 			getWeights(x, z) = bi;
 		}
 		
-		library::vec2 getBaseCoords2D(int x, int z) const
+		glm::vec2 getBaseCoords2D(int x, int z) const
 		{
-			return library::vec2(genx + x, genz + z);
+			return glm::vec2(genx + x, genz + z);
 		}
-		library::vec3 getBaseCoords3D(int x, int y, int z) const
+		glm::vec3 getBaseCoords3D(int x, int y, int z) const
 		{
-			return library::vec3(genx + x, y / (float) (BLOCKS_Y-1), genz + z);
+			return glm::vec3(genx + x, y / (float) (BLOCKS_Y-1), genz + z);
 		}
 		
 		inline Block& getb(int x, int y, int z)

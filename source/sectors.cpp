@@ -95,4 +95,21 @@ namespace cppcraft
 		return &flatland(fx, fz)(bx, bz);
 	}
 	
+	bool Sectors::on3x3(const Sector& sect, std::function<bool(Sector&)> func)
+	{
+		bool result = false;
+		int x0 = sect.getX()-1; x0 = (x0 >= 0) ? x0 : 0;
+		int x1 = sect.getX()+1; x1 = (x1 < getXZ()) ? x1 : getXZ()-1;
+		int z0 = sect.getZ()-1; z0 = (z0 >= 0) ? z0 : 0;
+		int z1 = sect.getZ()+1; z1 = (z1 < getXZ()) ? z1 : getXZ()-1;
+		
+		for (int x = x0; x <= x1; x++)
+		for (int z = z0; z <= z1; z++)
+		{
+			if ( func(*getSector(x, z)) == false )
+				return false;
+		}
+		return true;
+	}
+	
 }

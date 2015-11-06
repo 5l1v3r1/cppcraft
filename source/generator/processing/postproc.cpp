@@ -2,10 +2,9 @@
 
 #include "../terragen.hpp"
 #include "../random.hpp"
-#include <library/noise/simplex1234.h>
+#include <glm/gtc/noise.hpp>
 
 using namespace cppcraft;
-using namespace library;
 
 namespace cppcraft
 {
@@ -66,9 +65,9 @@ namespace terragen
 			bool air = true;
 			
 			// gravel / stone areas
-			vec2 p = gdata->getBaseCoords2D(x, z);
-			float groundtype = snoise2(p.x * 0.001, p.y * 0.001) * 0.6 + 
-							   snoise2(p.x * 0.02,  p.y * 0.02)  * 0.4;
+			glm::vec2 p = gdata->getBaseCoords2D(x, z);
+			float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
+							   glm::simplex(p * 0.02f)  * 0.4;
 			
 			int terrain = gdata->flatl(x, z).terrain;
 			
@@ -164,7 +163,7 @@ namespace terragen
 						if (rand < 0.28)
 						{
 							// note: this is an inverse of the otreeHuge noise
-							if (snoise2(p.x * 0.005, p.y * 0.005) > 0.25)
+							if (glm::simplex(p * 0.005f) > 0.25)
 							{
 								if (rand > 0.075)
 									gdata->getb(x, y+1, z) = getCrossExt(c_grass, 2);

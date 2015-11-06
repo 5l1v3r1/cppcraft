@@ -484,8 +484,6 @@
       <VirtualDirectory Name="objects">
         <File Name="source/generator/objects/basic_tree.cpp"/>
       </VirtualDirectory>
-      <File Name="source/generator/sse_simplex3.h"/>
-      <File Name="source/generator/sse_simplex3.cpp"/>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>

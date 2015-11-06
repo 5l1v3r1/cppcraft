@@ -142,11 +142,8 @@ namespace cppcraft
 		
 		if (updateShadows)
 		{
-			// get player shadows & torchlight
-			// a VERY costly operation, needs to be avoided at all costs
-			vertex_color_t vcolor = Spiders::getLightNow(X, Y, Z);
-			plogic.shadowColor = vcolor & 0xFFFFFFFF;
-			plogic.torchColor  = vcolor >> 32;
+			// get player skylight & torchlight
+			plogic.shadowColor = Spiders::getLightNow(X, Y, Z);
 		}
 		
 		// handle player selection, actions and building

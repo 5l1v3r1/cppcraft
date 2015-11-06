@@ -86,42 +86,13 @@ namespace cppcraft
 	
 	// returns true if the sector is surrounded by sectors
 	// that are already properly generated, or on an edge
-	bool validateSector(Sector* sect)
+	inline bool validateSector(Sector* sect)
 	{
-		int x0 = sect->getX()-1; x0 = (x0 >= 0) ? x0 : 0;
-		int x1 = sect->getX()+1; x1 = (x1 < sectors.getXZ()) ? x1 : sectors.getXZ()-1;
-		int z0 = sect->getZ()-1; z0 = (z0 >= 0) ? z0 : 0;
-		int z1 = sect->getZ()+1; z1 = (z1 < sectors.getXZ()) ? z1 : sectors.getXZ()-1;
-		
-		for (int x = x0; x <= x1; x++)
-		for (int z = z0; z <= z1; z++)
+		return sectors.on3x3(*sect,
+		[] (Sector& sect)
 		{
-			// if we find a non-generated sector, move on...
-			if (sectors(x, z).generated() == false)
-				return false;
-			// in the future the sector might need finished atmospherics
-			if (sectors(x, z).atmospherics == false)
-			{
-				#ifdef TIMING
-					Timer timer;
-				#endif
-				Lighting.atmosphericFlood(sectors(x, z));
-				#ifdef TIMING
-					printf("Time spent in that goddamn atm flood: %f\n",
-						timer.getTime());
-				#endif
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	bool BorderedOrder(Sector* s1, Sector* s2)
-	{
-		bool a = validateSector(s1);
-		bool b = validateSector(s2);
-		
-		return (a && !b);
+			return sect.generated();
+		});
 	}
 	
 	bool PrecompQ::job_available() const
@@ -150,6 +121,40 @@ namespace cppcraft
 			// unless everything completely stopped...
 			if ((*it)->meshgen != 0 && validateSector(*it))
 			{
+				// make sure we have proper light
+				bool atmos = sectors.on3x3(**it,
+				[] (Sector& sect)
+				{
+					// in the future the sector might need finished atmospherics
+					// we will be ignoring the border sectors, out of sight - out of mind
+					if (sect.getX() != 0 && sect.getZ() != 0
+					 && sect.getX() < sectors.getXZ()-1 && sect.getZ() < sectors.getXZ()-1)
+					if (sect.atmospherics == false)
+					{
+						#ifdef TIMING
+							Timer timer;
+						#endif
+						Lighting.atmosphericFlood(sect);
+						#ifdef TIMING
+							printf("Time spent in that goddamn atm flood: %f\n",
+								timer.getTime());
+						#endif
+						// after having flooded skylight for just one,
+						// we need to guarantee that the neighbors are updated
+						sectors.on3x3(sect,
+						[] (Sector& sect)
+						{
+							if (sect.generated() && sect.meshgen == 0)
+								precompq.add(sect);
+							return true;
+						});
+						return false;
+					}
+					return true;
+				});
+				if (atmos == false)
+					break;
+				
 				// check again that there are available slots
 				if (!job_available() || !AsyncPool::available())
 					break;

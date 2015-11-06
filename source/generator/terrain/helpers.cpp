@@ -1,12 +1,9 @@
 #include "helpers.hpp"
 
-#include <library/math/vector.hpp>
-#include <library/noise/simplex1234.h>
+#include <glm/gtc/noise.hpp>
+#include <glm/vec3.hpp>
 
-#define sfreq(v, n) snoise3(v.x * n, v.y * n, v.z * n)
-#define sfreq2d(v, n) snoise2(v.x * n, v.z * n)
-
-using namespace library;
+using namespace glm;
 
 namespace terragen
 {
@@ -15,13 +12,13 @@ namespace terragen
 		// variable radius
 		float pillarRadiusCurve = 1.0 - pow(1.0 - p.y, 0.5);
 		float pillarEdge = 0.75 + pillarRadiusCurve * 0.1;
-		float pillarNoise = frequency + sfreq2d(p, 3.3) * 0.1;
+		float pillarNoise = frequency + glm::simplex(p * 3.3f) * 0.1;
 		
 		// pillar islands
 		if (pillarNoise > pillarEdge)
 		{
 			float pillarRadius = 1.0 - (1.0 - pillarNoise) / (1.0 - pillarEdge);
-			float heightVariance = sfreq2d(p, 0.7);
+			float heightVariance = glm::simplex(p * 0.7f);
 			
 			// raise the pillar
 			float radHeight = 0.75 + pillarRadius * 0.25;
