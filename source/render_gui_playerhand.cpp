@@ -8,7 +8,7 @@
 #include <library/math/vector.hpp>
 #include "blockmodels.hpp"
 #include "camera.hpp"
-#include "menu.hpp"
+#include "gui/menu.hpp"
 #include "player.hpp"
 #include "player_actions.hpp"
 #include "player_logic.hpp"
@@ -251,7 +251,7 @@ namespace cppcraft
 	void PlayerHand::renderHandItem(vec4& shadow, vec4& torch, float modulation)
 	{
 		// render held item
-		Item& helditem = menu.getHeldItem();
+		Item& helditem = gui::menu.getHeldItem();
 		// no item, no render
 		if (helditem.isAlive() == false) return;
 		

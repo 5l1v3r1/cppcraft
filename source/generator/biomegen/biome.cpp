@@ -170,7 +170,7 @@ namespace terragen
 		for (int z = 0; z <= BLOCKS_XZ; z++)
 		{
 			vec2 p = gdata->getBaseCoords2D(x, z);
-			p /= 64.0;
+			//p /= 64.0;
 			
 			// skip terrain colors for the edges, where we only care about the terrain weights
 			bool skip_colors = (x == BLOCKS_XZ || z == BLOCKS_XZ);

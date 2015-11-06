@@ -326,7 +326,6 @@
     <File Name="source/vertex_player.hpp"/>
     <File Name="source/precomp_vemitter.cpp"/>
     <File Name="source/render_gui.hpp"/>
-    <File Name="source/menu.cpp"/>
     <File Name="source/sector_data.hpp"/>
     <File Name="source/blocks.cpp"/>
     <File Name="source/render_gui_crosshair.cpp"/>
@@ -383,7 +382,6 @@
     <File Name="source/shaderman.hpp"/>
     <File Name="source/render_scene.cpp"/>
     <File Name="source/textureman.hpp"/>
-    <File Name="source/menu.hpp"/>
     <File Name="source/lighting.hpp"/>
     <File Name="source/renderman.hpp"/>
     <File Name="source/precompiler.cpp"/>
@@ -394,7 +392,6 @@
     <File Name="source/worldmanager.hpp"/>
     <File Name="source/netplayers.cpp"/>
     <File Name="source/atmosphere.hpp"/>
-    <File Name="source/render_gui_quickbar.cpp"/>
     <File Name="source/render_scene.hpp"/>
     <File Name="source/drawq.hpp"/>
     <File Name="source/player_actions_handlers.cpp"/>
@@ -428,7 +425,6 @@
     <File Name="source/columns.hpp"/>
     <File Name="source/gameconf.cpp"/>
     <File Name="source/lighting.cpp"/>
-    <File Name="source/render_gui_inventory.hpp"/>
     <File Name="source/particles_render.cpp"/>
     <File Name="source/camera.cpp"/>
     <File Name="source/player_actions.hpp"/>
@@ -509,6 +505,12 @@
       <File Name="source/gui/progress.hpp"/>
       <File Name="source/gui/progress.cpp"/>
       <File Name="source/gui/itemslot.hpp"/>
+      <File Name="source/gui/menu.hpp"/>
+      <File Name="source/gui/menu.cpp"/>
+      <File Name="source/gui/inventory.hpp"/>
+      <File Name="source/gui/inventory.cpp"/>
+      <File Name="source/gui/item_renderer.hpp"/>
+      <File Name="source/gui/item_renderer.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="sound">
       <File Name="source/sound/sound.hpp"/>
@@ -521,6 +523,7 @@
       <File Name="source/sound/stream.cpp"/>
       <File Name="source/sound/handle.hpp"/>
     </VirtualDirectory>
+    <File Name="source/render_gui_interfaces.cpp"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

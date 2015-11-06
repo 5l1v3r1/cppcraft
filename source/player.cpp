@@ -4,7 +4,7 @@
 #include <library/math/vector.hpp>
 #include "camera.hpp"
 #include "chat.hpp"
-#include "menu.hpp"
+#include "gui/menu.hpp"
 #include "player_actions.hpp"
 #include "player_inputs.hpp"
 #include "player_logic.hpp"
@@ -62,7 +62,7 @@ namespace cppcraft
 	}
 	bool PlayerClass::busyControls() const
 	{
-		return chatbox.isOpen() || inventory.isOpen();
+		return chatbox.isOpen() || gui::menu.guiOpen();
 	}
 	
 	library::vec3 PlayerClass::getLookVector() const

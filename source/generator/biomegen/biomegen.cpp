@@ -54,13 +54,14 @@ namespace terragen
 	{
 		biome_t biome;
 		/// code-snippet below used to generate only a single type of terrain
-		
+		/*
 		int biomeValue = 6;
 		biome.b[0] = biome.b[1] = biome.b[2] = biome.b[3] = biomeValue;
 		biome.w[0] = 1.0;
 		biome.w[1] = biome.w[2] = biome.w[3] = 0.0;
 		return biome;
-		
+		*/
+		gx *= 0.001; gy *= 0.001;
 	  
 		const float climateBias = 0.9; // <1.0 more warm, >1.0 more cold
 		const float edge = 0.75;

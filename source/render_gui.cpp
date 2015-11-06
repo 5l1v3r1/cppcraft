@@ -37,11 +37,11 @@ namespace cppcraft
 		font.createShader();
 		font.setClip(library::vec2(0.2, 0.0));
 		
-		// initialize inventories
-		initInventoryRenderer();
-		
 		// initialize minimap
 		minimap.init();
+		
+		// our esteemed graphical interfaces
+		initInterfaces(renderer);
 		
 		// initialize chatbox & chat-transformation station
 		chatbox.init(width, height);
@@ -96,13 +96,10 @@ namespace cppcraft
 		/// crosshair ///
 		renderCrosshair(ortho);
 		
-		/// quickbar ///
-		renderQuickbar(renderer);
+		/// render graphical interfaces ///
+		renderInterfaces(renderer);
 		
 		glDisable(GL_BLEND);
-		
-		/// quickbar items ///
-		renderQuickbarItems(ortho, renderer.getCounter());
 		
 		/// chatbox ///
 		glEnable(GL_BLEND);
@@ -111,7 +108,9 @@ namespace cppcraft
 		
 		chatbox.render(font, ortho, textScale, renderer);
 		
+		//////////////////
 		/// debug text ///
+		//////////////////
 		font.bind(0);
 		font.setColor(vec4(0.8, 0.8, 1.0, 1.0));
 		font.setBackColor(vec4(0.0, 0.4));
@@ -150,6 +149,7 @@ namespace cppcraft
 		font.print(vec3(0.01, 0.03, 0.0), textScale, ss.str(), false);
 		*/
 		glDisable(GL_BLEND);
+		//////////////////
 	}
 	
 	

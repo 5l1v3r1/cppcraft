@@ -20,6 +20,7 @@ namespace cppcraft
 		
 		void init(Renderer& renderer);
 		void render(Renderer& renderer);
+		void initInterfaces(Renderer& renderer);
 		
 		library::SimpleFont& getFont()
 		{
@@ -38,13 +39,10 @@ namespace cppcraft
 		// A wild Font appears!
 		library::SimpleFont font;
 		
-		void initInventoryRenderer();
-		
 		void renderPlayerhand(double frameCounter);
 		void renderMinimap(library::mat4& ortho);
 		void renderCrosshair(library::mat4& ortho);
-		void renderQuickbar(Renderer& renderer);
-		void renderQuickbarItems(library::mat4& ortho, double frameCounter);
+		void renderInterfaces(Renderer& renderer);
 		void renderMenuSystem(library::mat4& ortho, double frameCounter);
 	};
 	extern GUIRenderer rendergui;

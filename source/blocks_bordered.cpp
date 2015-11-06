@@ -122,9 +122,10 @@ namespace cppcraft
 			if (nbor.generated() == false)
 				std::raise(SIGINT);
 			
-			src = &sector.flat()(0, 0);
-			dst = &this->fget(BLOCKS_XZ, 0);
-			memcpy(dst, src, BLOCKS_XZ * sizeof(Flatland::flatland_t));
+			for (int z = 0; z < BLOCKS_XZ; z++)
+			{
+				this->fget(BLOCKS_XZ, z) = nbor.flat()(0, z);
+			}
 		}
 		// +z
 		if (sector.getZ() < sectors.getXZ()-1)
@@ -137,6 +138,7 @@ namespace cppcraft
 			{
 				this->fget(x, BLOCKS_XZ) = nbor.flat()(x, 0);
 			}
+			
 		}
 		// +xz
 		if (sector.getX() < sectors.getXZ()-1 &&
@@ -146,8 +148,7 @@ namespace cppcraft
 			if (nbor.generated() == false)
 				std::raise(SIGINT);
 			
-			src = &sectors(sector.getX()+1, sector.getZ()+1).flat()(0, 0);
-			this->fget(BLOCKS_XZ, BLOCKS_XZ) = *src;
+			this->fget(BLOCKS_XZ, BLOCKS_XZ) = nbor.flat()(0, 0);
 		}
 	} // bordered_sectorblock_t()
 	

@@ -39,14 +39,8 @@ namespace cppcraft
   
   inline int lightPenetrate(block_t id)
   {
-    if (id == _AIR)
+    if (isAir(id) || id >= CROSS_START)
       return 1;
-    
-    if (isFluid(id))
-      return 2;
-    
-    if (id >= ALPHA_BARRIER)
-      return 4;
     
     return 16;
   }

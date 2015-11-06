@@ -3,7 +3,7 @@
 #include "chunks.hpp"
 #include "items.hpp"
 #include "lighting.hpp"
-#include "menu.hpp"
+#include "gui/menu.hpp"
 #include "generator/terragen.hpp"
 #include "particles.hpp"
 #include "player.hpp"
@@ -38,7 +38,7 @@ namespace cppcraft
 		particleSystem.init();
 		
 		// menu & items
-		menu.init();
+		gui::menu.init();
 		
 		// initialize sound
 		soundman.init();

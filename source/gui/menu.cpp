@@ -1,17 +1,20 @@
 #include "menu.hpp"
 
-#include "blocks.hpp"
-#include "items.hpp"
+#include "inventory.hpp"
+#include "../blocks.hpp"
+#include "../items.hpp"
 
-namespace cppcraft
+using namespace cppcraft;
+
+namespace gui
 {
-	MenuClass menu;
+	Menu menu;
 	Inventory inventory;
 	
-	void MenuClass::init()
+	void Menu::init()
 	{
 		// initialize items
-		items.init();
+		cppcraft::items.init();
 		
 		// quickbar: lowest row on inventory
 		this->quickbarX = 0;
@@ -38,30 +41,9 @@ namespace cppcraft
 		
 	}
 	
-	Item& MenuClass::getHeldItem()
+	Item& Menu::getHeldItem()
 	{
 		return inventory(quickbarX, quickbarY);
-	}
-	
-	Inventory::Inventory(int w, int h)
-		: Inventory()
-	{
-		create(w, h);
-	}
-	void Inventory::create(int w, int h)
-	{
-		this->width = w;
-		this->height = h;
-		this->items = new Item[w * h]();
-	}
-	Inventory::~Inventory()
-	{
-		delete[] this->items;
-	}
-	
-	Item& Inventory::operator() (int x, int y)
-	{
-		return items[width * y + x];
 	}
 	
 }

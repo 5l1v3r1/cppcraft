@@ -60,8 +60,10 @@ namespace gui
 		// pos is relative to inside this control
 		virtual void mouseEvent(int event, library::vec2 pos) = 0;
 		
-		virtual void render(const Window&, const library::vec2& tile, double frameCounter) = 0;
-		virtual void renderText(const Window&, library::SimpleFont& font, double frameCounter) = 0;
+		virtual void render(const Window&, const library::vec2& tile, double frameCounter)
+		{ (void) tile; (void) frameCounter; }
+		virtual void renderText(const Window&, library::SimpleFont& font, double frameCounter)
+		{ (void) font; (void) frameCounter; }
 		
 	protected:
 		action_func_t action_func;

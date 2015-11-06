@@ -11,16 +11,13 @@ uniform float frameCounter;
 uniform int texrange;
 
 in vec3 in_vertex;
-in vec3 in_normal;
+in vec4 in_normal;
 in vec4 in_texture;
 in vec4 in_biome;
-in vec4 in_color;
-in vec4 in_color2;
 
 out vec3 texCoord;
 out vec4 biomeColor;
-out vec4 lightdata;
-out vec4 torchlight;
+out vec3 lightdata;
 flat out vec3 out_normal;
 flat out vec3 v_normals;
 
@@ -67,10 +64,11 @@ void main(void)
 	gl_Position = matproj * position;
 	v_normals = mat3(matview) * in_normal.xyz;
 	
+	int light = int(in_texture.w);
+	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, 1.0);
+	
 	biomeColor = in_biome;
-	lightdata  = in_color;
-	torchlight = in_color2;
-	out_normal = in_normal;
+	out_normal = in_normal.xyz;
 }
 #endif
 
@@ -88,8 +86,7 @@ uniform int   texrange;
 
 in vec3 texCoord;
 in vec4 biomeColor;
-in vec4 lightdata;
-in vec4 torchlight;
+in vec3 lightdata;
 in vec3 biomeCoords;
 flat in vec3 out_normal;
 flat in vec3 v_normals;

@@ -1,7 +1,6 @@
 #include "precomp_thread_data.hpp"
 
 #include "blockmodels.hpp"
-#include "lighting.hpp"
 
 namespace cppcraft
 {
@@ -16,12 +15,12 @@ namespace cppcraft
 		int vertices = blockmodels.crosses.copyTo(0, indic);
 		
 		// huge boring list of cross-lighting
-		indic[0].c = getLight(bx  , by, bz  );
-		indic[1].c = getLight(bx+1, by, bz+1);
+		indic[0].c = smoothLight(bx, by, bz,  bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
+		indic[1].c = smoothLight(bx+1, by, bz+1,  bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
 		indic[2].c = indic[1].c;
 		indic[3].c = indic[0].c;
-		indic[4].c = getLight(bx+1, by, bz  );
-		indic[5].c = getLight(bx  , by, bz+1);
+		indic[4].c = smoothLight(bx+1, by, bz,  bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
+		indic[5].c = smoothLight(bx, by, bz+1,  bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
 		indic[6].c = indic[5].c;
 		indic[7].c = indic[4].c;
 		

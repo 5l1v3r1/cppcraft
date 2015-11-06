@@ -65,6 +65,7 @@ namespace gui
 		
 		void render(library::SimpleFont& font, const library::mat4& ortho, double frameCounter);
 		
+		void open();
 		void close();
 		
 	private:

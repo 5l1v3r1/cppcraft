@@ -4,7 +4,7 @@
 #include <library/opengl/input.hpp>
 #include "chat.hpp"
 #include "gameconf.hpp"
-#include "menu.hpp"
+#include "gui/menu.hpp"
 #include "player_inputs.hpp"
 #include "player_logic.hpp"
 #include "sectors.hpp"
@@ -251,7 +251,7 @@ namespace cppcraft
 				if (lock_quickbar_scroll == false)
 				{
 					// next quickbar item
-					menu.quickbarX = (menu.quickbarX + 1) % inventory.getWidth();
+					//gui::menu.quickbarX = (gui::menu.quickbarX + 1) % inventory.getWidth();
 					lock_quickbar_scroll = true;
 				}
 			}
@@ -260,10 +260,12 @@ namespace cppcraft
 				if (lock_quickbar_scroll == false)
 				{
 					// previous quickbar item
-					if (menu.quickbarX)
-						menu.quickbarX -= 1;
+					/*
+					if (gui::menu.quickbarX)
+						gui::menu.quickbarX -= 1;
 					else
-						menu.quickbarX = inventory.getWidth()-1;
+						gui::menu.quickbarX = inventory.getWidth()-1;
+					*/
 					lock_quickbar_scroll = true;
 				}
 			}
@@ -275,7 +277,7 @@ namespace cppcraft
 			for (int i = 1; i < 10; i++)
 			if (input.getKey(GLFW_KEY_0 + i))
 			{
-				menu.quickbarX = (i - 1) % inventory.getWidth();
+				//gui::menu.quickbarX = (i - 1) % inventory.getWidth();
 			}
 			
 		} // busyControls

@@ -2,13 +2,19 @@
 
 #include <library/opengl/opengl.hpp>
 #include <library/bitmap/colortools.hpp>
+#include <library/opengl/input.hpp>
 #include "../textureman.hpp"
 #include "../shaderman.hpp"
 #include "bordered_frame.hpp"
+#include "menu.hpp"
 #include <cassert>
 
 using namespace library;
 using namespace cppcraft;
+namespace cppcraft
+{
+	extern library::Input input;
+}
 
 namespace gui
 {
@@ -68,5 +74,18 @@ namespace gui
 		for (Control* c : controls)
 			c->renderText(*this, font, frameCounter);
 		
+	}
+	
+	void Window::open()
+	{
+		input.grabMouse(false);
+		input.showMouse(true);
+		menu.wnd = this;
+	}
+	void Window::close()
+	{
+		input.grabMouse(true);
+		input.showMouse(false);
+		menu.wnd = nullptr;
 	}
 }

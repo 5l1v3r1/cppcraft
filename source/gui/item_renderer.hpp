@@ -1,32 +1,35 @@
-#ifndef RENDER_GUI_INVENTORY
-#define RENDER_GUI_INVENTORY
+#ifndef GUI_ITEM_RENDERER
+#define GUI_ITEM_RENDERER
 
 #include <library/opengl/vao.hpp>
+#include "../items.hpp"
 #include <vector>
 
 namespace library
 {
+	class SimpleFont;
 	class mat4;
 }
 
-namespace cppcraft
+namespace gui
 {
-	class Item;
+	using cppcraft::Item;
 	
-	class GUIInventory
+	class ItemRenderer
 	{
 	public:
-		struct inventory_t
+		struct ivertex_t
 		{
 			float x, y, z;
 			float u, v, w;
 			unsigned int color;
 			
-			inventory_t() {}
-			inventory_t (float X, float Y, float Z, float U, float V, float W, unsigned int C) :
+			ivertex_t() {}
+			ivertex_t (float X, float Y, float Z, float U, float V, float W, unsigned int C) :
 				x(X), y(Y), z(Z), u(U), v(V), w(W), color(C) {}
 		};
 		
+		void init(library::SimpleFont& font);
 		void clear();
 		int  emit(Item& itm, float x, float y, float size);
 		void upload();
@@ -35,8 +38,8 @@ namespace cppcraft
 	private:
 		library::VAO vao;
 		
-		std::vector<inventory_t> blockTiles;
-		std::vector<inventory_t> itemTiles;
+		std::vector<ivertex_t> blockTiles;
+		std::vector<ivertex_t> itemTiles;
 		
 		int emitQuad(Item& itm, float x, float y, float size);
 		int emitTallQuad(Item& itm, float x, float y, float size);

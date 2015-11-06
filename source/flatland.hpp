@@ -31,7 +31,7 @@ namespace cppcraft
 		// returns a reference to flatland_t for the 2D location (x, z)
 		inline flatland_t& operator() (int x, int z)
 		{
-			return this->fdata[z * BLOCKS_XZ + x];
+			return this->fdata[x * BLOCKS_XZ + z];
 		}
 		
 		// assigns new data from some source, eg. a terrain generator

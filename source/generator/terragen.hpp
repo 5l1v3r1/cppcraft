@@ -22,9 +22,9 @@ namespace terragen
 			this->wx = wx;
 			this->wz = wz;
 			// position we use to generate with:
-			genx = wx - cppcraft::World::WORLD_CENTER;
+			genx = (wx - cppcraft::World::WORLD_CENTER);
 			genx *= BLOCKS_XZ;
-			genz = wz - cppcraft::World::WORLD_CENTER;
+			genz = (wz - cppcraft::World::WORLD_CENTER);
 			genz *= BLOCKS_XZ;
 			
 			// create new flatland data, since it isnt allocated by default :(

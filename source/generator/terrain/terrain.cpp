@@ -2,6 +2,7 @@
 
 #include "../../common.hpp"
 #include "../terragen.hpp"
+#include <library/math/toolbox.hpp>
 #include <library/math/vector.hpp>
 #include <library/noise/simplex1234.h>
 #include "terrains.hpp"
@@ -144,7 +145,7 @@ namespace terragen
 	void Terrain::generateTerrain(gendata_t* data)
 	{
 		// interpolation grid dimensions
-		#define ngrid 8
+		#define ngrid 2
 		
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
 		// noise (terrain density) values
@@ -170,7 +171,7 @@ namespace terragen
 			{
 				vec3 p = data->getBaseCoords3D(x * grid_pfac, y, z * grid_pfac);
 				
-				Biome::biome_t& biome = data->getWeights(x, z);
+				Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 				noisearray[x][z] = 0.0;
 				
 				for (int i = 0; i < 4; i++)
@@ -187,22 +188,26 @@ namespace terragen
 			
 			// set generic blocks using getTerrainSimple()
 			// interpolate using linear bore-a-thon
-			float frx, frz; // internal fractionals
+			float fx, fz;   // position in grid[]
+			float frx, frz; // fractionals
 			float w0, w1;   // interpolation weights
 			
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
-				float fx = x / (float)BLOCKS_XZ * ngrid;
+				fx = x / (float)BLOCKS_XZ * ngrid;
 				int bx = (int)fx; // start x
-				frx = fx - bx;
+				frx = fx - bx; frx = hermite(frx);
 				
 				for (int z = 0; z < BLOCKS_XZ; z++)
 				{
 					vec3 p = data->getBaseCoords3D(x, y, z);
 					
-					float fz = z / (float)BLOCKS_XZ * ngrid;
+					fz = z / (float)BLOCKS_XZ * ngrid;
 					int bz = (int)fz;  // integral
-					frz = fz - bz; // fractional
+					frz = fz - bz; frz = hermite(frz);
+					
+					//printf("pos: %f, %f\n", fx, fz);
+					//assert (z < BLOCKS_XZ-1);
 					
 					// density weights //
 					w0 = mix( noisearray[bx][bz  ], noisearray[bx+1][bz  ], frx );

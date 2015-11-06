@@ -3,7 +3,7 @@
 #include <library/log.hpp>
 #include <library/math/vector.hpp>
 #include "items.hpp"
-#include "menu.hpp"
+#include "gui/menu.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
@@ -207,9 +207,9 @@ namespace cppcraft
 						// lower = special bit 0 set to 1
 						Spiders::addblock(ddx, ddy + 0, ddz, id, facing + (1 << 2));
 						
-						// decrease count (directly)!
-						item.setCount(item.getCount() - 1);
-						inventory.setChanged(true);
+						// decrease count (directly)?!?
+						//item.setCount(item.getCount() - 1);
+						//inventory.setChanged(true);
 						
 						// play placement sound
 						soundman.playMaterial(id, Soundman::sound_place);
@@ -234,8 +234,8 @@ namespace cppcraft
 					{
 						/// block was placed (PA_AddBlock --> build()) ///
 						
-						item.setCount(item.getCount() - 1); //decrease count (directly)!
-						inventory.setChanged(true);
+						//item.setCount(item.getCount() - 1); //decrease count (directly)!
+						//inventory.setChanged(true);
 						
 						// play placement sound
 						soundman.playMaterial(id, Soundman::sound_place);
@@ -283,7 +283,7 @@ namespace cppcraft
 		/////////////////////////////////////
 		/// item currently held by player ///
 		/////////////////////////////////////
-		Item& helditem = menu.getHeldItem();
+		Item& helditem = gui::menu.getHeldItem();
 		
 		if (action == playeraction_t::PA_Addblock)
 		{
