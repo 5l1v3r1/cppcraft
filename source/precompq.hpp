@@ -1,7 +1,7 @@
 #ifndef PRECOMPQ_HPP
 #define PRECOMPQ_HPP
 
-#include <deque>
+#include <list>
 
 namespace library
 {
@@ -36,7 +36,7 @@ namespace cppcraft
 		bool job_available() const;
 		
 		// queue of sectors waiting for mesh generation
-		std::deque<Sector*> queue;
+		std::list<Sector*> queue;
 		bool needs_sorting;
 	};
 	extern PrecompQ precompq;

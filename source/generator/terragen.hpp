@@ -2,7 +2,9 @@
 #include "../sector.hpp"
 #include "../flatlands.hpp"
 #include "biomegen/biome.hpp"
+#include "genobject.hpp"
 #include <library/math/vector.hpp>
+#include <vector>
 
 namespace terragen
 {
@@ -69,6 +71,7 @@ namespace terragen
 		// ALL final results produced from terragen is in sblock and flatl
 		Sector::sectorblock_t sblock; // the blocks
 		Flatland flatl;               // 2d data, colors etc.
+		std::vector<GenObject> objects;
 		/// === results === ///
 	};
 	

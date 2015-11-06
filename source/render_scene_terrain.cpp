@@ -15,7 +15,6 @@
 #include "textureman.hpp"
 #include "vertex_block.hpp"
 #include <cmath>
-#define DEBUG
 
 using namespace library;
 

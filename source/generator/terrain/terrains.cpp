@@ -4,6 +4,7 @@
 #include <library/noise/simplex1234.h>
 #include <library/math/toolbox.hpp>
 #include "../biomegen/biome.hpp"
+#include "../sse_simplex3.h"
 #include "helpers.hpp"
 #include <cassert>
 #include <csignal>
@@ -41,7 +42,7 @@ namespace terragen
 	
 	///////////////////////////////////////////////////
 	///////////////////////////////////////////////////
-	#define sfreq(v, n) snoise3(v.x * n, v.y * n, v.z * n)
+	#define sfreq(v, n) sse_simplex3(v.x * n, v.y * n, v.z * n)
 	#define sfreq2d(v, n) snoise2(v.x * n, v.z * n)
 	
 	float lower_grass(vec3 p);
@@ -58,7 +59,7 @@ namespace terragen
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 		
-		float n1 = snoise3(npos.x, npos.y, npos.z);
+		float n1 = sse_simplex3(npos.x, npos.y, npos.z);
 		
 		const float CAVE_TRESHOLD = 0.11f;
 		const float EDGE = CAVE_TRESHOLD * 0.2f;
@@ -68,9 +69,9 @@ namespace terragen
 			npos = p * vec3(0.02, 6.0, 0.02);
 			
 			// cross noise
-			float n2 = snoise3(npos.x, npos.y, npos.z);
-			float n3 = snoise3(npos.x, npos.y + 3.5, npos.z);
-			float n4 = snoise3(npos.x * 0.2, npos.y + 7.0, npos.z * 0.2);
+			float n2 = sse_simplex3(npos.x, npos.y, npos.z);
+			float n3 = sse_simplex3(npos.x, npos.y + 3.5, npos.z);
+			float n4 = sse_simplex3(npos.x * 0.2, npos.y + 7.0, npos.z * 0.2);
 			
 			// caves increase in density as we go lower
 			float DEPTH_DENSITY = 0.08 + (1.0 - p.y * p.y) * 0.2;
@@ -176,13 +177,13 @@ namespace terragen
 	
 	float getnoise_islands(vec3 p)
 	{
-		p.x *= 0.005;
-		p.z *= 0.005;
+		p.x *= 0.008;
+		p.z *= 0.008;
 		
 		float n0 = sfreq2d(p, 0.25); // continental
 		
 		float landy = (0.5 + 0.5 * n0) * 2.0;
-		float n1 = snoise3(p.x, p.y * landy, p.z);   // island ring
+		float n1 = sse_simplex3(p.x, p.y * landy, p.z);   // island ring
 		float n2 = sfreq(p, 8.0);   // carve
 		float landscape = sfreq2d(p, 0.5);
 		
@@ -262,9 +263,9 @@ namespace terragen
 		float px = p.x * 0.5;
 		float py = p.y * 0.25;
 		float pz = p.z * 0.5;
-		double dsn4 = (snoise3(px*1.54, py*1.53, pz*1.55)) + 
-					fabs(snoise3(px*3.14, py*3.14, pz*3.35)) * 0.7 + 
-					fabs(snoise3(px*6.74, py*6.94, pz*6.35))* 0.35 + s * s * 3.0;
+		double dsn4 = (sse_simplex3(px*1.54, py*1.53, pz*1.55)) + 
+					fabs(sse_simplex3(px*3.14, py*3.14, pz*3.35)) * 0.7 + 
+					fabs(sse_simplex3(px*6.74, py*6.94, pz*6.35))* 0.35 + s * s * 3.0;
 		
 		double t = (dsn4 - 0.10);
 		s += t * (1.0 - p.y);

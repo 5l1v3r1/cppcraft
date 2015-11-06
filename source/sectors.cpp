@@ -76,19 +76,7 @@ namespace cppcraft
 			
 		} // y, z, x
 	}
-	
-	bool GenerationOrder(Sector* s1, Sector* s2)
-	{
-		int center = sectors.getXZ() / 2;
-		int dx1 = s1->getX() - center;
-		int dz1 = s1->getZ() - center;
 		
-		int dx2 = s2->getX() - center;
-		int dz2 = s2->getZ() - center;
-		
-		return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
-	}
-	
 	Flatland::flatland_t* Sectors::flatland_at(int x, int z)
 	{
 		// find flatland sector

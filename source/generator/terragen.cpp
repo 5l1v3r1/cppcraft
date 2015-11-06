@@ -3,7 +3,9 @@
 #include "terrain/terrain.hpp"
 #include "terrain/terrains.hpp"
 #include "processing/postproc.hpp"
+#include "sse_simplex3.h"
 #include <stdio.h>
+#include <cassert>
 
 namespace terragen
 {
@@ -11,6 +13,8 @@ namespace terragen
 	{
 		// make sure the terrain function list is populated
 		terrainFuncs.init();
+		// initialize SSE simplex3
+		permsetup(&noiseContext);
 	}
 	
 	void Generator::run(gendata_t* data)

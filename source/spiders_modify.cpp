@@ -116,16 +116,9 @@ namespace cppcraft
 		
 		// set the block to _AIR
 		s[0](bx, by, bz).setID(_AIR);
-		// we removed a non-air block, so decrease block counter
-		assert(s->getBlocks().blocks != 0);
-		s->getBlocks().blocks -= 1;
 		
-		// so, at this point we should update the sector mesh
-		//EXAMPLE:
-		//s->meshgen |= by / 32;
-		// however, we will just update the whole thing for now
+		// update the mesh, so we can see the change!
 		s->updateMeshesAt(by);
-		
 		// write updated sector to disk
 		//chunks.addSector(*s);
 		

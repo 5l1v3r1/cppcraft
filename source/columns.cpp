@@ -89,7 +89,7 @@ namespace cppcraft
 		}
 		
 		int vertices = 0;
-		int indices = 0;
+		//int indices = 0;
 		
 		for (int n = 0; n < RenderConst::MAX_UNIQUE_SHADERS; n++)
 		{

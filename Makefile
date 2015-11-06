@@ -18,7 +18,7 @@ endif
 ##############################################################
 
 # compiler
-CC = g++ $(BUILDOPT) -std=c++11
+CC = g++ $(BUILDOPT) -std=gnu++11 -mstackrealign
 # compiler flags
 CCFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
 # linker flags

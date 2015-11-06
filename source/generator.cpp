@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <cstring>
 #include <deque>
-#define DEBUG
 
 using namespace library;
 using namespace ThreadPool;
@@ -55,8 +54,8 @@ namespace cppcraft
 	void Generator::init()
 	{
 		// load all block data in view
-		for (int z = 0; z < sectors.getXZ(); z++)
 		for (int x = 0; x < sectors.getXZ(); x++)
+		for (int z = 0; z < sectors.getXZ(); z++)
 		{
 			// during loading, some additional sectors
 			// may have been loaded through files so, we
@@ -74,10 +73,26 @@ namespace cppcraft
 		queue.push_back(&sector);
 	}
 	
+	// the queue of vectors that needs terrain (blocks)
+	// we will be using this comparison function to sort
+	// the sectors by distance from center
+	bool GenerationOrder(Sector* s1, Sector* s2)
+	{
+		int center = sectors.getXZ() / 2;
+		int dx1 = s1->getX() - center;
+		int dz1 = s1->getZ() - center;
+		
+		int dx2 = s2->getX() - center;
+		int dz2 = s2->getZ() - center;
+		
+		return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
+	}
+	
 	void Generator::run()
 	{
 		// sort by distance from center (radius)
 		std::sort(queue.begin(), queue.end(), GenerationOrder);
+		
 		// queue from the top of the vector
 		while (!queue.empty() && AsyncPool::available())
 		{

@@ -77,12 +77,6 @@ namespace cppcraft
 		friend class Spiders;
 	};
 	extern Sectors sectors;
-	
-	// the queue of vectors that needs terrain (blocks)
-	// we will be using this comparison function to sort
-	// the sectors by distance from center
-	bool GenerationOrder (Sector* s1, Sector* s2);
-	
 }
 
 #endif

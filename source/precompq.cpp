@@ -13,7 +13,6 @@
 #include <cassert>
 #include <csignal>
 #include <mutex>
-//#define DEBUG
 //#define TIMING
 
 using namespace library;
@@ -81,6 +80,7 @@ namespace cppcraft
 		assert(sector.generated() == true);
 		//assert(sector.meshgen != 0);
 		
+		sector.meshgen |= 1;
 		queue.push_back(&sector);
 	}
 	
@@ -132,33 +132,33 @@ namespace cppcraft
 		return result;
 	}
 	
+	extern bool GenerationOrder(Sector* s1, Sector* s2);
+	
 	bool PrecompQ::run(Timer& timer, double timeOut)
 	{
 		if (needs_sorting)
-		{
-			// sort by distance from center (radius)
-			std::sort(queue.begin(), queue.end(), BorderedOrder);
-			needs_sorting = false;
-		}
+		queue.sort(GenerationOrder);
 		
 		// since we are the only ones that can take stuff
 		// from the available queue, we should be good to just
 		// check if there are any available, and thats it
-		while (!queue.empty() && job_available() && AsyncPool::available())
+		if (job_available() && AsyncPool::available())
+		for (auto it = queue.begin(); it != queue.end();)
 		{
-			// we have available slots to process the sector.. so let's go!
-			// .. except we need to guarantee that the sector is surrounded
-			// by finished/generated sectors
-			Sector* sect = queue.front();
 			// we don't want to start jobs we can't finish
 			// this is also bound to be true at some point, 
 			// unless everything completely stopped...
-			if (validateSector(sect) == false)
-				break;
-			
-			// finally, we can start the job
-			startJob(sect);
-			queue.pop_front();
+			if ((*it)->meshgen != 0 && validateSector(*it))
+			{
+				// check again that there are available slots
+				if (!job_available() || !AsyncPool::available())
+					break;
+				
+				// finally, we can start the job
+				startJob(*it);
+				queue.erase(it++);
+			}
+			else ++it;
 		}
 		
 		// always check if time is out
@@ -173,6 +173,7 @@ namespace cppcraft
 		int y0 = 0;
 		int y1 = BLOCKS_Y;
 		Precomp* precomp = new Precomp(sector, y0, y1);
+		sector->meshgen = 0;
 		
 		// retrieve an available job
 		mtx_avail.lock();

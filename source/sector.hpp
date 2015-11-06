@@ -177,6 +177,7 @@ namespace cppcraft
 		friend class Sectors;
 		friend class Generator;
 		friend class Seamstress;
+		friend class PrecompQ;
 	public:
 		// grid position
 		short x, z;
