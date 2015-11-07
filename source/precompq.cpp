@@ -139,15 +139,6 @@ namespace cppcraft
 							printf("Time spent in that goddamn atm flood: %f\n",
 								timer.getTime());
 						#endif
-						// after having flooded skylight for just one,
-						// we need to guarantee that the neighbors are updated
-						sectors.on3x3(sect,
-						[] (Sector& sect)
-						{
-							if (sect.generated() && sect.meshgen == 0)
-								precompq.add(sect);
-							return true;
-						});
 						return false;
 					}
 					return true;
