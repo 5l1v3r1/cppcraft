@@ -3,7 +3,7 @@
 #include "renderconst.hpp"
 #include <library/math/vector.hpp>
 
-using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
@@ -15,7 +15,7 @@ namespace cppcraft
 			1.0, 0.0, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  1.0, 1.0, 0.0
 		};
 		
-		const vec3 norm = vec3(0, 1.0, 0).normalized() * 127;
+		const vec3 norm = vec3(0, 1.0, 0) * 127.0f;
 		
 		char cross_normals[6] =
 		{

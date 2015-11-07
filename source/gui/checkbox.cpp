@@ -18,7 +18,7 @@ namespace gui
 		this->checked = false;
 	}
 	
-	void Checkbox::mouseEvent(int event, library::vec2 pos)
+	void Checkbox::mouseEvent(int event, glm::vec2 pos)
 	{
 		// check event
 		if (pressed && event == 0)
@@ -40,7 +40,7 @@ namespace gui
 		this->active = (event >= 0);
 	}
 	
-	void Checkbox::render(const Window& parent, const vec2& tile, double frameCounter)
+	void Checkbox::render(const Window& parent, const glm::vec2& tile, double frameCounter)
 	{
 		(void) frameCounter;
 		if (this->changed)
@@ -51,20 +51,20 @@ namespace gui
 			const int index = (pressed) ? 13 : 10;
 			const int tileSizePixels = 32;
 			
-			vec2 size = rect.size / vec2(1, 1);
+			glm::vec2 size = rect.size / glm::vec2(1, 1);
 			uint32_t noWhite = BGRA8(255, 255, 255, 0);
 			
 			Rect frame = this->rect;
 			frame.pos += parent.getRect().pos;
 			
-			vec2 tileSize = tile * tileSizePixels;
-			vec2 tileBase(index * tileSize.x, 3 * tileSize.y);
+			glm::vec2 tileSize = tile * (float) tileSizePixels;
+			glm::vec2 tileBase(index * tileSize.x, 3.0f * tileSize.y);
 			
 			BorderedFrames::generate(data, frame, size, tileBase, tileSize, noWhite);
 			
 			quad(data,
-				vec4(frame.pos, frame.size),
-				vec4(vec2(14 + ((checked) ? 0 : 1), 8) * tileSize, tileSize),
+				glm::vec4(frame.pos, frame.size),
+				glm::vec4(glm::vec2(14 + ((checked) ? 0 : 1), 8) * tileSize, tileSize),
 				noWhite, noWhite, noWhite, noWhite);
 			
 			vao.begin(sizeof(gui_vertex_t), data.size(), data.data(), GL_DYNAMIC_DRAW_ARB);
@@ -80,19 +80,19 @@ namespace gui
 	{
 		if (this->text.empty()) return;
 		
-		vec2 size = rect.size * vec2(3.5 / this->text.size(), 0.6);
+		glm::vec2 size = rect.size * glm::vec2(3.5f / this->text.size(), 0.6f);
 		
-		vec2 loc(parent.getRect().pos + rect.pos);
+		glm::vec2 loc(parent.getRect().pos + rect.pos);
 		loc.x += rect.size.x * 1.25;
 		loc.y += rect.size.y / 2 - size.y / 2;
 		
 		
-		font.setBackColor(vec4(0.0));
+		font.setBackColor(glm::vec4(0.0f));
 		float xxx = sinf(frameCounter*0.1) * 0.4;
 		if (active)
-			font.setColor(vec4(0.0, 0.0, 0.4 + xxx, 1.0));
+			font.setColor(glm::vec4(0.0f, 0.0f, 0.4f + xxx, 1.0f));
 		else
-			font.setColor(vec4(0.0, 0.0, 0.2, 1.0));
-		font.print(vec3(loc.x, loc.y, 0.0), size, this->text, false);
+			font.setColor(glm::vec4(0.0f, 0.0f, 0.2f, 1.0f));
+		font.print(glm::vec3(loc.x, loc.y, 0.0), size, this->text, false);
 	}
 }

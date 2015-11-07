@@ -4,34 +4,36 @@
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/vao.hpp>
 #include <library/opengl/window.hpp>
-#include <library/math/matrix.hpp>
 #include "camera.hpp"
 #include "player.hpp"
 #include "render_sky.hpp"
 #include "sun.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
+#include <glm/vec2.hpp>
+#include <library/math/matrix.hpp>
 
 using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
 	extern VAO screenVAO;
-	mat4 lensMatrix;
+	glm::mat4 lensMatrix;
 	
 	void FSRenderer::initFlare()
 	{
-		lensMatrix = mat4().bias() * camera.getProjection();
+		lensMatrix = biasMatrix() * camera.getProjection();
 		glGenFramebuffers(1, &flareFBO);
 	}
 	
-	vec2 FSRenderer::getSunVector(const mat4& matsun)
+	glm::vec2 FSRenderer::getSunVector(const glm::mat4& matsun)
 	{
 		// create sun coordinate 2-vector
 		vec4 sunproj = lensMatrix * matsun * vec4(0.0, 0.0, 0.0, 1.0);
 		sunproj.x /= sunproj.w;
 		sunproj.y /= sunproj.w;
-		return sunproj.xy();
+		return vec2(sunproj);
 	}
 	
 	void FSRenderer::renderLensflare(WindowClass& gamescr)
@@ -47,11 +49,11 @@ namespace cppcraft
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		// render sun-to-be-flare to buffer 0
-		mat4 matsun = skyrenderer.renderSunProj();
-		vec2 sunproj = getSunVector(matsun);
+		glm::mat4 matsun = skyrenderer.renderSunProj();
+		glm::vec2 sunproj = getSunVector(matsun);
 		
 		// check that the sun is in fact in the camera
-		if (thesun.getRealtimeAngle().dot(player.getLookVector()) < 0.5)
+		if (dot(thesun.getRealtimeAngle(), player.getLookVector()) < 0.5)
 		{
 			// NOTE: We need to exit here, so that the flare buffer is cleared properly
 			// go back to main framebuffer & restore viewport

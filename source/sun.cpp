@@ -1,21 +1,24 @@
 #include "sun.hpp"
 
 #include <library/log.hpp>
-#include <library/math/matrix.hpp>
 #include <library/timing/timer.hpp>
 #include "camera.hpp"
 #include "sectors.hpp"
+#include <glm/geometric.hpp>
+#include <glm/gtx/transform.hpp>
+#include <library/math/matrix.hpp>
 #include <cmath>
 
 using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
-	const double PI = 4 * atan(1);
-	const double PI2 = PI * 2;
+	const float PI = 4 * atan(1);
+	const float PI2 = PI * 2;
 	const float SunClass::SUN_DEF_ANGLE = PI / 4.0;
 	SunClass thesun;
-	Timer    suntimer;
+	library::Timer suntimer;
 	
 	void SunClass::init(float angle)
 	{
@@ -43,9 +46,9 @@ namespace cppcraft
 		float direction = (this->angle.x >= 0) ? 1.0 : -1.0;
 		
 		half1 = vec3(this->angle.x + direction * 0.08, this->angle.y, 0.0);
-		half1.normalize();
+		half1 = normalize(half1);
 		half2 = vec3(this->angle.x + direction * 0.12, this->angle.y, 0.0);
-		half2.normalize();
+		half2 = normalize(half2);
 	}
 	inline float SunClass::getStepValue()
 	{
@@ -58,7 +61,7 @@ namespace cppcraft
 		float rad = radianAngle + getStepValue();
 		vec3 angle = vec3(cos(rad), sin(rad), 0.0);
 		// interpolate with realtime angle
-		vec3 newAngle = getRealtimeAngle().mix(angle, timestep);
+		vec3 newAngle = mix(getRealtimeAngle(), angle, timestep);
 		// extract angle
 		realRadian = atan2(newAngle.y, newAngle.x);
 		// create new realtime angle
@@ -132,17 +135,17 @@ namespace cppcraft
 		this->step = PI2 / seconds;
 	}
 	
-	void SunClass::setRealtimeSunView(const library::mat4& matrot)
+	void SunClass::setRealtimeSunView(const glm::mat4& matrot)
 	{
-		this->realViewAngle = matrot * realAngle;
+		this->realViewAngle = vec3(matrot * vec4(realAngle, 1.0));
 	}
 	
-	mat4 SunClass::getSunMatrix() const
+	glm::mat4 SunClass::getSunMatrix() const
 	{
-		mat4 mattemp = rotationMatrix(0.0, -PI / 2, 0.0);
-		mat4 matsun = rotationMatrix(thesun.getRealtimeRadianAngle(), 0.0, 0.0);
+		glm::mat4 mattemp = rotationMatrix(0.0f, -PI / 2.0f, 0.0f);
+		glm::mat4 matsun = rotationMatrix(thesun.getRealtimeRadianAngle(), 0.0, 0.0);
 		mattemp *= matsun;
-		mattemp.translate(0.0, 0.0, -thesun.renderDist);
+		mattemp *= glm::translate(vec3(0.f, 0.f, -thesun.renderDist));
 		
 		return camera.getRotationMatrix() * mattemp;
 	}

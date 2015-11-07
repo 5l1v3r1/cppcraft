@@ -1,7 +1,6 @@
 #include "player.hpp"
 
 #include <library/log.hpp>
-#include <library/math/vector.hpp>
 #include "camera.hpp"
 #include "chat.hpp"
 #include "gui/menu.hpp"
@@ -15,7 +14,7 @@
 #include "threading.hpp"
 #include <cmath>
 
-using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
@@ -35,7 +34,8 @@ namespace cppcraft
 		plogic.Slowfall = false;
 		plogic.Ladderized = false;
 		//plogic.jetpacking = false;
-		player.Flying = false;
+		
+		this->Flying = false;
 		
 		// initialize block selection system
 		plogic.selection = playerselect_t();
@@ -45,15 +45,15 @@ namespace cppcraft
 		
 		// misc
 		plogic.terrain = 0;
-		plogic.shadowColor = 255 + (255 << 24);
+		plogic.light   = 0;
 		
 		// acceleration
-		player.pax = player.pay = player.paz = 0.0;
+		this->accel = vec3(0.0f);
 		// rotation
-		player.xrotrad = player.yrotrad = 0.0;
+		this->rot = vec2(0.0f);
 		
 		player.snapStage = 0;
-		player.snapX = player.snapY = player.snapZ = 0;
+		player.snap_pos = vec3(0.0f);
 	}
 	
 	int PlayerClass::getTerrain() const
@@ -65,18 +65,18 @@ namespace cppcraft
 		return chatbox.isOpen() || gui::menu.guiOpen();
 	}
 	
-	library::vec3 PlayerClass::getLookVector() const
+	glm::vec3 PlayerClass::getLookVector() const
 	{
-		float dx =  sinf(player.yrotrad) * cosf(player.xrotrad);
-		float dy = 		                -sinf(player.xrotrad);
-		float dz = -cosf(player.yrotrad) * cosf(player.xrotrad);
+		float dx =  sinf(player.rot.y) * cosf(player.rot.x);
+		float dy = 		                -sinf(player.rot.x);
+		float dz = -cosf(player.rot.y) * cosf(player.rot.x);
 		
-		return vec3(dx, dy, dz);
+		return glm::vec3(dx, dy, dz);
 	}
 	
 	block_t PlayerClass::getBlockFacing() const
 	{
-		vec2 sightXZ( sinf(player.yrotrad), -cosf(player.yrotrad) );
+		vec2 sightXZ( sinf(player.rot.y), -cosf(player.rot.y) );
 		
 		block_t facing = 0;
 		
@@ -112,25 +112,14 @@ namespace cppcraft
 	
 	void PlayerClass::handleActions(double frametime)
 	{
-		bool updateShadows = false;
-		
 		// if the player has moved from his snapshot, we need to synch with renderer
 		mtx.playermove.lock();
 		{
 			// check if the player moved enough to signal to networking to update movement
 			// update networking if position changed by a reasonable amount
 			const double net_change = 0.01;
-			player.changedPosition = (fabs(snapX - X) > net_change || fabs(snapY - Y) > net_change || fabs(snapZ - Z) > net_change);
-			
-			// this needs to be a "better" test, ie. if someone added lights nearby
-			if ((int)snapX != (int)X || (int)snapY != (int)Y || (int)snapZ != (int)Z)
-			{
-				updateShadows = true;
-			}
-			
-			snapX = X;
-			snapY = Y;
-			snapZ = Z;
+			player.changedPosition = distance(snap_pos, pos) > net_change;
+			snap_pos = pos;
 			
 			// true if the player is moving (on purpose)
 			// used to modulate player camera giving the effect of movement
@@ -140,11 +129,9 @@ namespace cppcraft
 		}
 		mtx.playermove.unlock();
 		
-		if (updateShadows)
-		{
-			// get player skylight & torchlight
-			plogic.shadowColor = Spiders::getLightNow(X, Y, Z);
-		}
+		// get player skylight & torchlight
+		// NOTE: we are using snap_pos for this, since its closest to the render position
+		plogic.light = Spiders::getLightNow(snap_pos.x, snap_pos.y, snap_pos.z);
 		
 		// handle player selection, actions and building
 		paction.handle(frametime);
@@ -161,27 +148,15 @@ namespace cppcraft
 		}
 		
 		// measure closeness
-		float dx = fabsf(player.xrotrad - input.getRotation().x);
-		float dy = fabsf(player.yrotrad - input.getRotation().y);
+		float dx = fabsf(player.rot.x - input.getRotation().x);
+		float dy = fabsf(player.rot.y - input.getRotation().y);
 		
 		// rotate if too far apart (NOTE: possible bug with calculating angle distance)
 		player.changedRotation = (dx > 0.0001 || dy > 0.0001);
 		if (player.changedRotation)
 		{
-			// get old look vector
-			vec3 look1 = lookVector(vec2(player.xrotrad, player.yrotrad));
-			// .. and current look vector
-			vec3 look2 = lookVector(input.getRotation());
-			
-			// interpolate
-			vec3 newLook = look1.mix(look2, 0.50);
-			newLook.normalize();
-			
-			// back to pitch/yaw radians
-			vec2 newRot = newLook.toPitchYaw();
-			player.xrotrad = newRot.x; // pitch
-			player.yrotrad = newRot.y; // yaw
-			
+			// set new rotation, and update camera
+			player.rot = input.getRotation();
 			camera.recalc  = true; // rebuild visibility set
 			camera.rotated = true; // resend all rotation matrices
 		}

@@ -47,10 +47,10 @@ namespace cppcraft
 		} ambience_streams_t;
 		
 		// single sounds
-		void playSound(const std::string&, library::vec3 distance);
+		void playSound(const std::string&, glm::vec3 distance);
 		void playSound(const std::string&);
 		// material sounds, sets of SOUNDS_PER_MAT (4)
-		void playMaterial(int id, int num, library::vec3 distance);
+		void playMaterial(int id, int num, glm::vec3 distance);
 		void playMaterial(int id, int num);
 		
 		void handleSounds(int terrain);

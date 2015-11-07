@@ -1,7 +1,7 @@
 #ifndef LIBRARY_INPUT_HPP
 #define LIBRARY_INPUT_HPP
 
-#include <library/math/vector.hpp>
+#include <glm/vec2.hpp>
 #include <string>
 #include <vector>
 
@@ -54,11 +54,11 @@ namespace library
 		// mouse visibility
 		void showMouse(bool show);
 		// mouse position
-		inline const vec2& getMousePos() const
+		inline const glm::vec2& getMousePos() const
 		{
 			return mousePos;
 		}
-		inline const vec2& getMouseLastPos() const
+		inline const glm::vec2& getMouseLastPos() const
 		{
 			return lastMousePos;
 		}
@@ -66,15 +66,15 @@ namespace library
 		key_t getMouse(int) const;
 		void  holdMouse(int);
 		// rotation functions
-		inline const vec2& getRotation() const noexcept
+		inline const glm::vec2& getRotation() const noexcept
 		{
 			return this->rotation;
 		}
-		void setRotation(const vec2& newRotation)
+		void setRotation(const glm::vec2& newRotation)
 		{
 			this->rotation = newRotation;
 		}
-		void addRotation(const vec2& degrees);
+		void addRotation(const glm::vec2& degrees);
 		
 		// returns mousewheel status _AND_ resets it internally
 		int getWheel(); // 0 = no change, down < 0, up > 0
@@ -94,12 +94,12 @@ namespace library
 		WindowClass* gamescr;
 		double speed;
 		double sensitivity;
-		vec2   mousePos;
-		vec2   lastMousePos;
+		glm::vec2 mousePos;
+		glm::vec2 lastMousePos;
 		bool   mousegrab;
 		
 		// pitch & yaw
-		vec2 rotation;
+		glm::vec2 rotation;
 		
 		// keyboard keys
 		input_t keys[MAX_KEYS];

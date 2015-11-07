@@ -5,7 +5,6 @@
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/vao.hpp>
 #include <library/math/toolbox.hpp>
-#include <library/math/vector.hpp>
 #include "blockmodels.hpp"
 #include "camera.hpp"
 #include "gui/menu.hpp"
@@ -17,6 +16,11 @@
 #include "textureman.hpp"
 #include "voxelmodels.hpp"
 #include <cmath>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtx/transform.hpp>
+#include <library/math/matrix.hpp>
 
 using namespace library;
 
@@ -28,9 +32,9 @@ namespace cppcraft
 	{
 		VAO vao;
 		VAO cubeVAO;
-		vec3 lastHand;
-		double lastTime;
-		int lastMode;
+		glm::vec3 lastHand;
+		double    lastTime;
+		int       lastMode;
 		
 		struct phand_vertex_t
 		{
@@ -57,13 +61,13 @@ namespace cppcraft
 		};
 		
 		// hand scale matrix
-		mat4 handScale;
+		glm::mat4 handScale;
 		
 	public:
 		PlayerHand();
 		void render(double frameCounter);
 		void renderItem();
-		void renderHandItem(vec4& shadow, vec4& torch, float modulation);
+		void renderHandItem(const glm::vec2& light, float modulation);
 	};
 	PlayerHand playerHand;
 	
@@ -76,7 +80,7 @@ namespace cppcraft
 	{
 		lastMode = -1;
 		lastTime = 0.0;
-		handScale = mat4(0.4, 0.3, 2.0);
+		handScale = glm::scale(glm::vec3(0.4f, 0.3f, 2.0f));
 	}
 	
 	void PlayerHand::render(double frameCounter)
@@ -85,7 +89,7 @@ namespace cppcraft
 		
 		// manipulate hand
 		double period = (frameCounter - lastTime) * 0.25 / PI;
-		vec3 hand(0.85, -0.75, -1.50);
+		glm::vec3 hand(0.85, -0.75, -1.50);
 		int mode = 0;
 		
 		if (paction.getAction() == PlayerActions::PA_Mineblock)
@@ -131,7 +135,7 @@ namespace cppcraft
 			}
 			else if (plogic.freefall)
 			{
-				float dy = clamp(-0.4, 0.4, -player.pay);
+				float dy = clamp(-0.4f, 0.4f, -player.accel.y);
 				if (plogic.Submerged != PlayerLogic::PS_None) dy = 0.0;
 				
 				hand.y += dy + sin(period * 1.0) * 0.1;
@@ -180,7 +184,7 @@ namespace cppcraft
 		
 		if (lastMode == -1 || lastMode == mode)
 		{
-			lastHand = hand.mix(lastHand, 0.5);
+			lastHand = mix(hand, lastHand, 0.5f);
 			
 			if (lastMode == -1)
 			{
@@ -191,7 +195,7 @@ namespace cppcraft
 		else
 		{
 			// interpolate slowly to move the hand to the new position
-			lastHand = hand.mix(lastHand, DEFAULT_INTERPOLATION);
+			lastHand = mix(hand, lastHand, DEFAULT_INTERPOLATION);
 			// only set new mode once we get close enough to the new position
 			if (fabsf(hand.y - lastHand.y) < 0.01 &&
 				fabsf(hand.z - lastHand.z) < 0.01)
@@ -202,11 +206,10 @@ namespace cppcraft
 		}
 		
 		// convert shadow & torchlight color to 4-vectors
-		vec4 shadow = library::colorToVector(plogic.shadowColor);
-		vec4 torch = library::colorToVector(plogic.torchColor);
+		glm::vec2 light = plogic.getLight();
 		float modulation = 1.0f; //torchlight.getModulation(frameCounter);
 		
-		renderHandItem(shadow, torch, modulation);
+		renderHandItem(light, modulation);
 		
 		// render player hand
 		Shader& shd = shaderman[Shaderman::PLAYERHAND];
@@ -215,8 +218,7 @@ namespace cppcraft
 		shd.sendVec3("lightVector", thesun.getRealtimeAngle());
 		shd.sendFloat("daylight", thesun.getRealtimeDaylight());
 		// player shadow & torchlight color
-		shd.sendVec4("lightdata", shadow);
-		shd.sendVec4("torchlight", torch);
+		shd.sendVec2("lightdata", light);
 		// torchlight modulation
 		shd.sendFloat("modulation", modulation);
 		
@@ -227,7 +229,7 @@ namespace cppcraft
 		}
 		
 		// view translation-matrix
-		mat4 matview = mat4(vec3(lastHand.x, lastHand.y, lastHand.z));
+		glm::mat4 matview = glm::translate(glm::vec3(lastHand.x, lastHand.y, lastHand.z));
 		
 		shd.sendMatrix("matview", matview * handScale);
 		
@@ -248,7 +250,7 @@ namespace cppcraft
 		vao.render(GL_QUADS);
 	}
 	
-	void PlayerHand::renderHandItem(vec4& shadow, vec4& torch, float modulation)
+	void PlayerHand::renderHandItem(const glm::vec2& light, float modulation)
 	{
 		// render held item
 		Item& helditem = gui::menu.getHeldItem();
@@ -265,30 +267,29 @@ namespace cppcraft
 			Shader& shd = shaderman[Shaderman::VOXEL];
 			shd.bind();
 			// player shadow & torchlight color
-			shd.sendVec4("lightdata", shadow);
-			shd.sendVec4("torchlight", torch);
+			shd.sendVec2("lightdata", light);
 			// torchlight modulation
 			shd.sendFloat("modulation", modulation);
 			// view matrix
-			mat4 matview(1.0);
-			mat4 matrot;
+			glm::mat4 matview = glm::scale(glm::vec3(1.0f));
+			glm::mat4 matrot;
 			if (helditem.isToolItem())
 			{
-				matview.translate(lastHand.x, lastHand.y - 0.1, lastHand.z + 0.1);
-				matrot = rotationMatrix(0, PI / 2, PI/4);
+				matview *= glm::translate(glm::vec3(lastHand.x, lastHand.y - 0.1f, lastHand.z + 0.1f));
+				matrot = rotationMatrix(0.0f, PI / 2, PI/4);
 			}
 			else
 			{
 				if (isVoxelBlock && isDoor(helditem.getID()))
 				{
 					// doors are really tall
-					matview.translate(lastHand.x + 0.1, lastHand.y - 0.8, lastHand.z + 0.25);
+					matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y - 0.8f, lastHand.z + 0.25f));
 				}
 				else
 				{
-					matview.translate(lastHand.x + 0.1, lastHand.y, lastHand.z + 0.25);
+					matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y, lastHand.z + 0.25f));
 				}
-				matrot = rotationMatrix(0, PI / 2, 0);
+				matrot = rotationMatrix(0.0f, PI / 2.0f, 0.0f);
 			}
 			
 			matview *= matrot;
@@ -322,8 +323,7 @@ namespace cppcraft
 			shd.sendVec3("lightVector", thesun.getRealtimeAngle());
 			shd.sendFloat("daylight", thesun.getRealtimeDaylight());
 			// player shadow & torchlight color
-			shd.sendVec4("lightdata", shadow);
-			shd.sendVec4("torchlight", torch);
+			shd.sendVec2("lightdata", light);
 			// torchlight modulation
 			shd.sendFloat("modulation", modulation);
 			
@@ -334,7 +334,7 @@ namespace cppcraft
 			}
 			
 			// view matrix
-			mat4 matview;
+			glm::mat4 matview;
 			
 			// update vertex data
 			block_t id = helditem.getID();
@@ -354,8 +354,8 @@ namespace cppcraft
 					vertices[i].w = Block::cubeFaceById(helditem.getID(), (i / 24) * 2, 0);
 				
 				// translation & scaling
-				matview = mat4(0.5);
-				matview.translate(lastHand.x - 0.35, lastHand.y, lastHand.z - 0.6);
+				matview = glm::scale(glm::vec3(0.5f));
+				matview *= glm::translate(glm::vec3(lastHand.x - 0.35f, lastHand.y, lastHand.z - 0.6f));
 			}
 			else
 			{
@@ -371,9 +371,9 @@ namespace cppcraft
 					vertices[i].w = Block::cubeFaceById(helditem.getID(), i / 4, 3);
 				
 				// translation & scaling
-				matview.identity();
-				matview.translate(lastHand.x - 0.15, lastHand.y - 0.1, lastHand.z - 0.6);
-				matview *= mat4(0.6);
+				matview = glm::mat4(1.0f);
+				matview *= glm::translate(glm::vec3(lastHand.x - 0.15, lastHand.y - 0.1, lastHand.z - 0.6));
+				matview *= glm::mat4(0.6f);
 			}
 			
 			if (count)

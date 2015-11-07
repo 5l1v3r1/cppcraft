@@ -4,11 +4,11 @@
 #include <library/opengl/vao.hpp>
 #include "../items.hpp"
 #include <vector>
+#include <glm/mat4x4.hpp>
 
 namespace library
 {
 	class SimpleFont;
-	class mat4;
 }
 
 namespace gui
@@ -33,7 +33,7 @@ namespace gui
 		void clear();
 		int  emit(Item& itm, float x, float y, float size);
 		void upload();
-		void render(library::mat4& ortho);
+		void render(glm::mat4& ortho);
 		
 	private:
 		library::VAO vao;

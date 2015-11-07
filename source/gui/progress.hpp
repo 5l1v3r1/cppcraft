@@ -24,8 +24,8 @@ namespace gui
 			return this->max;
 		}
 		
-		virtual void mouseEvent(int event, library::vec2 pos);
-		virtual void render(const Window&, const library::vec2& tile, double frameCounter);
+		virtual void mouseEvent(int event, glm::vec2 pos);
+		virtual void render(const Window&, const glm::vec2& tile, double frameCounter);
 		virtual void renderText(const Window&, library::SimpleFont& font, double frameCounter);
 		
 	private:

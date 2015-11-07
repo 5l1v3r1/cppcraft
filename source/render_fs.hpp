@@ -1,13 +1,13 @@
 #ifndef SCREENSPACE_HPP
 #define SCREENSPACE_HPP
 
+#include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
+
 namespace library
 {
 	class WindowClass;
 	class Texture;
-	class vec2;
-	class vec3;
-	class mat4;
 }
 
 namespace cppcraft
@@ -23,7 +23,7 @@ namespace cppcraft
 		
 		void render(library::WindowClass& gamescr, double frameCounter, char underwater);
 		
-		library::vec2 getSunVector(const library::mat4& matsun);
+		glm::vec2 getSunVector(const glm::mat4& matsun);
 		
 	private:
 		void renderLensflare(library::WindowClass& gamescr);

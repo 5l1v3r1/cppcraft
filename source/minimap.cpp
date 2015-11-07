@@ -37,7 +37,7 @@ namespace cppcraft
 		bitmap = new Bitmap(sectors.getXZ() * 2, sectors.getXZ() * 2, 32);
 		// create texture
 		texture = new Texture(GL_TEXTURE_2D);
-		texture->create(*bitmap, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+		texture->create(*bitmap, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
 		
 		typedef struct
 		{
@@ -81,7 +81,7 @@ namespace cppcraft
 		minimapMutex.unlock();
 	}
 	
-	void Minimap::render(mat4& mvp)
+	void Minimap::render(glm::mat4& mvp)
 	{
 		Shader& shd = shaderman[Shaderman::MINIMAP];
 		
@@ -89,7 +89,7 @@ namespace cppcraft
 		shd.sendMatrix("matprojview", mvp);
 		
 		// position intra-block offset
-		vec2 offset(0.5 + this->ofsX / bitmap->getWidth(), 0.5 + this->ofsY / bitmap->getHeight());
+		glm::vec2 offset(0.5 + this->ofsX / bitmap->getWidth(), 0.5 + this->ofsY / bitmap->getHeight());
 		shd.sendVec2("offset", offset);
 		
 		// bind minimap texture
@@ -100,11 +100,12 @@ namespace cppcraft
 	
 	Bitmap::rgba8_t fgetColor(Flatland& fs, int x, int z, int clid)
 	{
-		Bitmap::rgba8_t color = fs(x & (Sector::BLOCKS_XZ-1), z & (Sector::BLOCKS_XZ-1)).fcolor[clid];
+		Bitmap::rgba8_t color = fs(x, z).fcolor[clid];
+		/*
 		unsigned char* p = (unsigned char*) &color;
 		unsigned char red = p[0];
 		p[0] = p[2];
-		p[2] = red;
+		p[2] = red;*/
 		return color;
 	}
 	
@@ -147,12 +148,15 @@ namespace cppcraft
 		return c;
 	}
 	
-	int getDepth(int x, int y, int z)
+	static int getDepth(int x, int y, int z)
 	{
+		Sector* sect = Spiders::spiderwrap(x, y, z);
+		if (sect == nullptr) return 0;
+		
 		int depth = 0;
-		while (true)
+		while (y > 0)
 		{
-			const Block& b = Spiders::getBlock(x, --y, z);
+			const Block& b = (*sect)(x, --y, z);
 			
 			if (b.getID() != _WATER) return depth;
 			depth++;
@@ -160,12 +164,12 @@ namespace cppcraft
 		return depth;
 	}
 	
-	Bitmap::rgba8_t getBlockColor(Flatland& fs, int x, int y, int z)
+	Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int y, int z)
 	{
 		if (y == 0) return BGRA8(48, 48, 48, 255);
 		
 		// get the block
-		const Block& b = Spiders::getBlock(x, y, z);
+		const Block& b = sector(x, y, z);
 		// the final color
 		Bitmap::rgba8_t c;
 		
@@ -200,12 +204,12 @@ namespace cppcraft
 				c = BGRA8(97, 57, 14, 255); // soil
 			else
 			{
-				c = fgetColor(fs, x, z, Biomes::CL_GRASS);
+				c = fgetColor(sector.flat(), x, z, Biomes::CL_GRASS);
 			}
 		}
 		else if (isCross(b.getID()))
 		{
-			c = fgetColor(fs, x, z, Biomes::CL_GRASS);
+			c = fgetColor(sector.flat(), x, z, Biomes::CL_GRASS);
 		}
 		/*else if (b.getID() == _LEAF_NEEDLE)
 		{
@@ -213,7 +217,7 @@ namespace cppcraft
 		}*/
 		else if (isLeaf(b.getID()))
 		{
-			c = fgetColor(fs, x, z, Biomes::CL_TREES);
+			c = fgetColor(sector.flat(), x, z, Biomes::CL_TREES);
 		}
 		else if (isSand(b.getID()))
 		{
@@ -281,7 +285,7 @@ namespace cppcraft
 	{
 		// read certain blocks from sector, and determine pixel value
 		// set pixel value in the correct 2x2 position on pixel table
-		Flatland& fs = sectors(sector.getX(), sector.getZ()).flat();
+		Flatland& fs = sector.flat();
 		
 		// fetch sky levels
 		int skylevel[8];
@@ -297,28 +301,24 @@ namespace cppcraft
 		skylevel[6] = fs(12, 12).skyLevel;
 		skylevel[7] = fs(11, 11).skyLevel;
 		
-		// fetch blocks at skylevels
-		int bx = sector.getX() * Sector::BLOCKS_XZ;
-		int bz = sector.getZ() * Sector::BLOCKS_XZ;
-		
 		// determine colors for skylevel blocks
 		Bitmap::rgba8_t colors[4];
 		
-		colors[0] = getBlockColor(fs, bx+ 3, skylevel[0], bz+ 3);
+		colors[0] = getBlockColor(sector,  3, skylevel[0],  3);
 		colors[0] = mixColor(colors[0],
-					getBlockColor(fs, bx+ 4, skylevel[1], bz+ 4), 0.5);
+					getBlockColor(sector,  4, skylevel[1],  4), 0.5);
 		
-		colors[1] = getBlockColor(fs, bx+ 3, skylevel[2], bz+12);
+		colors[1] = getBlockColor(sector,  3, skylevel[2], 12);
 		colors[1] = mixColor(colors[1],
-					getBlockColor(fs, bx+ 4, skylevel[3], bz+11), 0.5);
+					getBlockColor(sector,  4, skylevel[3], 11), 0.5);
 		
-		colors[2] = getBlockColor(fs, bx+12, skylevel[4], bz+ 3);
+		colors[2] = getBlockColor(sector, 12, skylevel[4],  3);
 		colors[2] = mixColor(colors[2],
-					getBlockColor(fs, bx+11, skylevel[5], bz+ 4), 0.5);
+					getBlockColor(sector, 11, skylevel[5],  4), 0.5);
 		
-		colors[3] = getBlockColor(fs, bx+12, skylevel[6], bz+12);
+		colors[3] = getBlockColor(sector, 12, skylevel[6], 12);
 		colors[3] = mixColor(colors[3],
-					getBlockColor(fs, bx+11, skylevel[7], bz+11), 0.5);
+					getBlockColor(sector, 11, skylevel[7], 11), 0.5);
 		
 		// set final color @ pixel (px, pz)
 		int px = bitmap->getWidth()  / 2 - sectors.getXZ() + 2 * sector.getX();

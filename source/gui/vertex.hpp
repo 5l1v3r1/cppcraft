@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <library/math/vector.hpp>
+#include <glm/vec4.hpp>
 
 namespace gui
 {
@@ -14,8 +14,8 @@ namespace gui
 	
 	inline void quad(
 		std::vector<gui_vertex_t>& data,
-		const library::vec4& pos,
-		const library::vec4& tex,
+		const glm::vec4& pos,
+		const glm::vec4& tex,
 		uint32_t 	Cxy,
 		uint32_t 	Cx2y,
 		uint32_t 	Cx2y2,

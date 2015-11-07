@@ -2,11 +2,11 @@
 
 #include <library/opengl/vao.hpp>
 #include <library/opengl/oglfont.hpp>
-#include <library/math/matrix.hpp>
-#include <library/math/vector.hpp>
 #include "button.hpp"
 #include "checkbox.hpp"
 #include "progress.hpp"
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <vector>
 
 namespace gui
@@ -15,7 +15,7 @@ namespace gui
 	{
 	public:
 		Window() : frame(0,0,0,0) {}
-		Window(const library::vec2& pos, const library::vec2& size);
+		Window(const glm::vec2& pos, const glm::vec2& size);
 		~Window();
 		
 		const Rect& getRect() const
@@ -24,13 +24,13 @@ namespace gui
 		}
 		
 		// returns true if @m is inside the window rect
-		bool inside(library::vec2& m) const
+		bool inside(glm::vec2& m) const
 		{
 			return frame.inside(m);
 		}
 		
 		//
-		void mouseEvent(int event, library::vec2 pos)
+		void mouseEvent(int event, glm::vec2 pos)
 		{
 			// make pos relative to controls
 			pos -= frame.pos;
@@ -63,7 +63,7 @@ namespace gui
 			return controls.empty();
 		}
 		
-		void render(library::SimpleFont& font, const library::mat4& ortho, double frameCounter);
+		void render(library::SimpleFont& font, const glm::mat4& ortho, double frameCounter);
 		
 		void open();
 		void close();

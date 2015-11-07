@@ -1,17 +1,16 @@
 #include "render_gui.hpp"
 
-#include <library/math/vector.hpp>
 #include "renderman.hpp"
 #include "player_inputs.hpp"
 #include "gui/menu.hpp"
 #include "gui/window.hpp"
+#include <glm/vec2.hpp>
 #include <cmath>
 
-using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
-	VAO quickbarVAO;
 	gui::Window window;
 	
 	void GUIRenderer::initInterfaces(Renderer& renderer)

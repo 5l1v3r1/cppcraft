@@ -3,11 +3,7 @@
  * 
  * 
 **/
-
-namespace library
-{
-	class vec3;
-}
+#include <glm/vec3.hpp>
 
 namespace cppcraft
 {
@@ -32,9 +28,9 @@ namespace cppcraft
 		double lastTime;
 		
 		// snapshots
-		double iplayerX, iplayerY, iplayerZ;
+		glm::vec3 snapPlayerPos;
 		// used when rendering
-		double playerX, playerY, playerZ;
+		glm::vec3 playerPos;
 		int playerSectorX, playerSectorZ;
 		int snapWX, snapWZ;
 		bool playerMoved;
@@ -50,7 +46,7 @@ namespace cppcraft
 		// juggernauts
 		void initTerrain();
 		void recalculateFrustum();
-		void recalculateFrustum(Camera& camera, DrawQueue& drawq, const library::vec3& look);
+		void recalculateFrustum(Camera& camera, DrawQueue& drawq, const glm::vec3& look);
 		void compressRenderingQueue();
 		// main scene rendering function
 		void renderScene(Renderer& renderer, cppcraft::Camera& camera);

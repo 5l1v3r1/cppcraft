@@ -16,9 +16,9 @@ namespace cppcraft
 {
 	bool teleport_teleport = false;
 	World::world_t teleport_wcoords;
-	vec3 teleport_xyz;
+	glm::vec3 teleport_xyz;
 	
-	void WorldManager::teleport(const World::world_t& coords, const library::vec3& position)
+	void WorldManager::teleport(const World::world_t& coords, const glm::vec3& position)
 	{
 		// center local grid on world coordinate location
 		teleport_wcoords.x = coords.x - sectors.getXZ() / 2;
@@ -41,7 +41,7 @@ namespace cppcraft
 			teleport_wcoords.x = World::WORLD_CENTER + 64;
 			teleport_wcoords.z = World::WORLD_CENTER + 64;
 			
-			teleport_xyz = vec3(player.X, player.Y, player.Z);
+			teleport_xyz = player.pos;
 			teleport_teleport = true;
 		}
 		
@@ -65,9 +65,7 @@ namespace cppcraft
 			
 			// move player to:
 			// center grid, center sector, center block
-			player.X = teleport_xyz.x;
-			player.Y = teleport_xyz.y;
-			player.Z = teleport_xyz.z;
+			player.pos = teleport_xyz;
 			
 			// disable all terrain meshes
 			for (int x = 0; x < sectors.getXZ(); x++)

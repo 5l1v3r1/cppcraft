@@ -35,7 +35,7 @@ namespace cppcraft
 		playerSelection.render();
 	}
 	
-	block_t PlayerLogic::determineSelectionFacing(Block& block, vec3& ray, vec3& fracs, float stepSize)
+	block_t PlayerLogic::determineSelectionFacing(Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize)
 	{
 		block_t id = block.getID();
 		
@@ -60,7 +60,7 @@ namespace cppcraft
 		{
 			// determine best-guess facing value for cube & halfblock
 			
-			vec3::vector_t minv = fracs.x;
+			float minv = fracs.x;
 			if (minv > fracs.y) minv = fracs.y;
 			if (minv > fracs.z) minv = fracs.z;
 			
@@ -80,7 +80,7 @@ namespace cppcraft
 					return 1; // backside of cube
 			}
 			
-			vec3::vector_t maxv = fracs.x;
+			float maxv = fracs.x;
 			if (maxv < fracs.y) maxv = fracs.y;
 			if (maxv < fracs.z) maxv = fracs.z;
 			
@@ -225,7 +225,7 @@ namespace cppcraft
 		
 		shd->sendMatrix("matmvp", camera.getMVP());
 		// position in space
-		shd->sendVec3("vtrans", vec3(vx, vy, vz));
+		shd->sendVec3("vtrans", glm::vec3(vx, vy, vz));
 		
 		// render quad(s)
 		vao.render(GL_QUADS);

@@ -1,7 +1,7 @@
 #ifndef RENDERSKY_HPP
 #define RENDERSKY_HPP
 
-#include <library/math/matrix.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace cppcraft
 {
@@ -19,7 +19,7 @@ namespace cppcraft
 		void render(Camera& camera, float cloudLevel, double time, int mode);
 		void renderClouds(float dy, Camera& camera, double frameCounter);
 		
-		library::mat4 renderSunProj();
+		glm::mat4 renderSunProj();
 		
 	};
 	extern SkyRenderer skyrenderer;

@@ -6,9 +6,11 @@
 #include "player_inputs.hpp"
 #include "renderman.hpp"
 #include "shaderman.hpp"
+#include <glm/gtx/transform.hpp>
 #include <sstream>
 
 using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
@@ -110,22 +112,22 @@ namespace cppcraft
 		vec3 pos(spos);
 		
 		// print time
-		font.setColor(vec4(0.5, getAlpha()));
+		font.setColor(glm::vec4(0.5f, 0.5f, 0.5f, getAlpha()));
 		font.print(pos, scale, time + " <", false);
 		
 		// print source
 		pos.x += scale.x * (time.size() + 2);
-		font.setColor(vec4(1.0, getAlpha()));
+		font.setColor(glm::vec4(1.0f, 1.0f, 1.0f, getAlpha()));
 		font.print(pos, scale, source, false);
 		
 		// finish grayed out text
 		pos.x += scale.x * source.size();
-		font.setColor(vec4(0.5, getAlpha()));
+		font.setColor(glm::vec4(0.5f, 0.5f, 0.5f, getAlpha()));
 		font.print(pos, scale, "> ", false);
 		
 		// print message
 		pos.x += scale.x * 2;
-		font.setColor(vec4(1.0, getAlpha()));
+		font.setColor(glm::vec4(1.0f, 1.0f, 1.0f, getAlpha()));
 		font.print(pos, scale, text, false);
 	}
 	void Chatbox::renderInfoMessage(SimpleFont& font, const vec3& spos, const vec2& scale, const std::string& time, const std::string& from, const std::string& text)
@@ -133,43 +135,43 @@ namespace cppcraft
 		vec3 pos(spos);
 		
 		// print time
-		font.setColor(vec4(0.5, getAlpha()));
+		font.setColor(glm::vec4(0.5f, 0.5f, 0.5f, getAlpha()));
 		font.print(pos, scale, time + " ", false);
 		
 		// print from
 		pos.x += scale.x * (time.size() + 1);
-		font.setColor(vec4(0.0, 0.0, 1.0, getAlpha()));
+		font.setColor(glm::vec4(0.0f, 0.0f, 1.0f, getAlpha()));
 		font.print(pos, scale, from, false);
 		
 		// print message
 		pos.x += scale.x * from.size();
-		font.setColor(vec4(1.0, getAlpha()));
+		font.setColor(glm::vec4(1.0f, 1.0f, 1.0f, getAlpha()));
 		font.print(pos, scale, " " + text, false);
 	}
 	void Chatbox::renderMessage(SimpleFont& font, const vec3& spos, const vec2& scale, const std::string& time, const std::string& text)
 	{
 		// print time
-		font.setColor(vec4(0.7, getAlpha()));
+		font.setColor(glm::vec4(0.7f, 0.7f, 0.7f, getAlpha()));
 		font.print(spos, scale, time + " ", false);
 		
 		// print message
 		vec3 pos(spos);
 		
 		pos.x += scale.x * (time.size() + 1);
-		font.setColor(vec4(1.0, getAlpha()));
+		font.setColor(glm::vec4(1.0f, 1.0f, 1.0f, getAlpha()));
 		font.print(pos, scale, text, false);
 	}
-	void Chatbox::bindFont(SimpleFont& font, const mat4& ortho)
+	void Chatbox::bindFont(SimpleFont& font, const glm::mat4& ortho)
 	{
 		// render chatbox font/text
 		font.bind(0);
 		font.sendMatrix(ortho);
-		font.setBackColor(0.0);
-		font.setColor(vec4(1.0, getAlpha()));
+		font.setBackColor(glm::vec4(0.0f));
+		font.setColor(glm::vec4(1.0f, 1.0f, 1.0f, getAlpha()));
 	}
 	
 	// chatbox main rendering function
-	void Chatbox::render(SimpleFont& font, const mat4& ortho, const vec2& textScale, Renderer& renderer)
+	void Chatbox::render(SimpleFont& font, const glm::mat4& ortho, const glm::vec2& textScale, Renderer& renderer)
 	{
 		float alpha = getAlpha();
 		// a hidden box is hidden   -- albert einstein
@@ -207,11 +209,11 @@ namespace cppcraft
 		// chatbox background
 		Shader& shd = shaderman[Shaderman::GUI_COLOR];
 		shd.bind();
-		shd.sendVec4("multcolor", vec4(1.0, alpha));
+		shd.sendVec4("multcolor", glm::vec4(1.0f, 1.0f, 1.0f, alpha));
 		
-		mat4 matbox = ortho;
-		matbox.translate_xy(cbPos.x, cbPos.y - (bgsize-1) * textScale.y);
-		matbox.scale(longest * textScale.x, bgsize * textScale.y, 1.0);
+		glm::mat4 matbox = ortho;
+		matbox *= glm::translate(glm::vec3(cbPos.x, cbPos.y - (bgsize-1) * textScale.y, 0.0f));
+		matbox *= glm::scale(glm::vec3(longest * textScale.x, bgsize * textScale.y, 1.0f));
 		shd.sendMatrix("mvp", matbox);
 		
 		cbvao.render(GL_QUADS);
@@ -226,8 +228,8 @@ namespace cppcraft
 			size_t msglen = now.size() + 2 + nickname.size() + 2 + ctext.size();
 			
 			matbox = ortho;
-			matbox.translate_xy(cbPos.x, cbPos.y + textScale.y + 0.005);
-			matbox.scale(msglen * textScale.x, textScale.y, 1.0);
+			matbox *= glm::translate(glm::vec3(cbPos.x, cbPos.y + textScale.y + 0.005f, 0.0f));
+			matbox *= glm::scale(glm::vec3(msglen * textScale.x, textScale.y, 1.0f));
 			shd.sendMatrix("mvp", matbox);
 			
 			cbvao.render(GL_QUADS);

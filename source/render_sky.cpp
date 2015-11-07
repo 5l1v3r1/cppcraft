@@ -1,6 +1,5 @@
 #include "render_sky.hpp"
 
-#include <library/math/matrix.hpp>
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/vao.hpp>
 #include "atmosphere.hpp"
@@ -11,6 +10,10 @@
 #include "shaderman.hpp"
 #include "sun.hpp"
 #include "textureman.hpp"
+#include <library/math/matrix.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtx/transform.hpp>
 #include <cmath>
 
 using namespace library;
@@ -96,12 +99,12 @@ namespace cppcraft
 		satteliteVAO.render(GL_QUADS);
 	}
 	
-	mat4 SkyRenderer::renderSunProj()
+	glm::mat4 SkyRenderer::renderSunProj()
 	{
 		Shader& sunshader = shaderman[Shaderman::SUNPROJ];
 		sunshader.bind();
 		
-		mat4 matsun = thesun.getSunMatrix();
+		glm::mat4 matsun = thesun.getSunMatrix();
 		
 		// view matrix
 		sunshader.sendMatrix("matview", matsun);
@@ -125,9 +128,9 @@ namespace cppcraft
 		Shader& moon = shaderman[Shaderman::MOON];
 		moon.bind();
 		
-		mat4 matmoon = rotationMatrix(0.0, -PI / 2, 0.0);
+		glm::mat4 matmoon = rotationMatrix(0.0, -PI / 2, 0.0);
 		matmoon *= rotationMatrix(thesun.getRealtimeRadianAngle() + PI, 0.0, 0.0);
-		matmoon.translate(0.0, 0.0, -2.0);
+		matmoon *= glm::translate(glm::vec3(0.0, 0.0, -2.0));
 		
 		matmoon = camera.getRotationMatrix() * matmoon;
 		

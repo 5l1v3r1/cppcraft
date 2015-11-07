@@ -9,8 +9,9 @@
 #include "sound/channel.hpp"
 #include <sstream>
 
-using namespace library;
+using namespace glm;
 using namespace sound;
+using namespace library;
 
 namespace cppcraft
 {
@@ -117,13 +118,14 @@ namespace cppcraft
 	{
 		// if player is under the terrain, somehow change
 		// ambience & music to cave themes
-		Flatland::flatland_t* flat = sectors.flatland_at(player.X, player.Z);
+		Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);
 		int groundLevel = 0;
 		if (flat != nullptr) groundLevel = flat->groundLevel;
 		
 		const int CAVE_DEPTH = 6;
 		
-		bool inCaves = (player.Y < groundLevel - CAVE_DEPTH && player.Y < 64);
+		bool inCaves = (player.pos.y < groundLevel - CAVE_DEPTH 
+					 && player.pos.y < 64);
 		
 		if (gameconf.music)
 		{

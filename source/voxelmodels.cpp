@@ -73,8 +73,8 @@ namespace cppcraft
 		// copy tile to temporary buffer
 		memcpy(tmp.data(), bmp.data() + tileID * tileSize * tileSize, tileSize * tileSize * 4);
 		
-		vec3 offset(0.0, 0.0, 0.0);
-		vec3 scale(1.0 / tileSize, 1.0 / tileSize, VOXELMODELS_ZSCALE);
+		glm::vec3 offset(0.0, 0.0, 0.0);
+		glm::vec3 scale(1.0 / tileSize, 1.0 / tileSize, VOXELMODELS_ZSCALE);
 		XModel xmod;
 		
 		// create model from bitmap
@@ -98,8 +98,8 @@ namespace cppcraft
 		memcpy (tmp.data() + 0,    bmp.data() + tile_bot * size, size * 4);
 		memcpy (tmp.data() + size, bmp.data() + tile_top * size, size * 4);
 		
-		vec3 offset(0.0, 0.0, 0.0);
-		vec3 scale (1.0 / tileSize, 1.0 / tileSize, VOXELMODELS_ZSCALE);
+		glm::vec3 offset(0.0, 0.0, 0.0);
+		glm::vec3 scale (1.0 / tileSize, 1.0 / tileSize, VOXELMODELS_ZSCALE);
 		XModel xmod;
 		
 		// create model from bitmap

@@ -181,8 +181,8 @@ namespace cppcraft
 		
 		// player movement vectors
 		plogic.Motion = 0;
-		double dx = 0.0;
-		double dz = 0.0;
+		float dx = 0.0;
+		float dz = 0.0;
 		
 		if (player.busyControls() == false)
 		{
@@ -192,44 +192,44 @@ namespace cppcraft
 			{
 				float vz = tresholdValue(keyconf.jaxis[keyconf.joy_axis_sidestep]);
 				
-				dx += cos(player.yrotrad) * vz;
-				dz += sin(player.yrotrad) * vz;
+				dx += cosf(player.rot.y) * vz;
+				dz += sinf(player.rot.y) * vz;
 			}
 			// forward/backward
 			if (std::abs(keyconf.jaxis[keyconf.joy_axis_forward]) > keyconf.joy_deadzone)
 			{
 				float vz = tresholdValue(keyconf.jaxis[keyconf.joy_axis_forward]);
 				
-				dx -= sin(player.yrotrad) * vz;
-				dz += cos(player.yrotrad) * vz;
+				dx -= sinf(player.rot.y) * vz;
+				dz += cosf(player.rot.y) * vz;
 				plogic.Motion = (vz < 0.0) ? 1 : 2;
 			}
 			
 			/// KEYBOARD MOVEMENT
 			if (input.getKey(keyconf.k_left))   // left
 			{
-				dx -= cos(player.yrotrad);
-				dz -= sin(player.yrotrad);
+				dx -= cosf(player.rot.y);
+				dz -= sinf(player.rot.y);
 			}
 			if (input.getKey(keyconf.k_right))  // right
 			{
-				dx += cos(player.yrotrad);
-				dz += sin(player.yrotrad);
+				dx += cosf(player.rot.y);
+				dz += sinf(player.rot.y);
 			}
 			if (input.getKey(keyconf.k_forward)) // forward
 			{
-				dx += sin(player.yrotrad);
-				dz -= cos(player.yrotrad);
+				dx += sinf(player.rot.y);
+				dz -= cosf(player.rot.y);
 				plogic.Motion = 1;
 			}
 			if (input.getKey(keyconf.k_backward)) // backward
 			{
-				dx -= sin(player.yrotrad);
-				dz += cos(player.yrotrad);
+				dx -= sinf(player.rot.y);
+				dz += cosf(player.rot.y);
 				plogic.Motion = 2;
 			}
 			
-			double length = std::sqrt(dx*dx + dz*dz);
+			float length = std::sqrt(dx*dx + dz*dz);
 			if (length > 0.000001)
 			{
 				dx *= this->curspeed / length;
@@ -242,36 +242,36 @@ namespace cppcraft
 		if (plogic.Ladderized || plogic.Slowfall)
 		{
 			// half-decent momentum change
-			player.pax = mix(player.pax, dx, 0.125);
-			player.paz = mix(player.paz, dz, 0.125);
+			player.accel.x = mix(player.accel.x, dx, 0.125);
+			player.accel.z = mix(player.accel.z, dz, 0.125);
 		}
 		else if (plogic.freefall == true || player.Flying == true)
 		{
 			if (plogic.Submerged)
 			{
 				// swimming power
-				player.pax = mix(player.pax, dx, 0.0125);
-				player.paz = mix(player.paz, dz, 0.0125);
+				player.accel.x = mix(player.accel.x, dx, 0.0125);
+				player.accel.z = mix(player.accel.z, dz, 0.0125);
 			}
 			else if (player.Flying)
 			{
 				// flying momentum
-				player.pax = mix(player.pax, dx, 0.03);
-				player.paz = mix(player.paz, dz, 0.03);
+				player.accel.x = mix(player.accel.x, dx, 0.03);
+				player.accel.z = mix(player.accel.z, dz, 0.03);
 			}
 	#ifdef USE_JETPACK
 			else if (plogic.jetpacking)
 			{
 				// jetpack power
-				player.pax = mix(player.pax, dx, 0.02);
-				player.paz = mix(player.paz, dz, 0.02);
+				player.accel.x = mix(player.accel.x, dx, 0.02);
+				player.accel.z = mix(player.accel.z, dz, 0.02);
 			}
 	#endif		
 			else
 			{
 				// air momentum change, REALLY low
-				player.pax = mix(player.pax, dx, 0.011);
-				player.paz = mix(player.paz, dz, 0.011);
+				player.accel.x = mix(player.accel.x, dx, 0.011);
+				player.accel.z = mix(player.accel.z, dz, 0.011);
 			}
 		}
 		else
@@ -283,14 +283,14 @@ namespace cppcraft
 			{
 			case _LOWICE:
 				// weakest momentum change
-				player.pax = mix(player.pax, dx, 0.01);
-				player.paz = mix(player.paz, dz, 0.01);
+				player.accel.x = mix(player.accel.x, dx, 0.01);
+				player.accel.z = mix(player.accel.z, dz, 0.01);
 				break;
 				
 			default:
 				// all other blocks, including air
-				player.pax = mix(player.pax, dx, 0.125);
-				player.paz = mix(player.paz, dz, 0.125);
+				player.accel.x = mix(player.accel.x, dx, 0.125);
+				player.accel.z = mix(player.accel.z, dz, 0.125);
 			}
 			
 		}

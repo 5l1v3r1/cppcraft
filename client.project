@@ -522,6 +522,7 @@
       <File Name="source/sound/handle.hpp"/>
     </VirtualDirectory>
     <File Name="source/render_gui_interfaces.cpp"/>
+    <VirtualDirectory Name="math"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

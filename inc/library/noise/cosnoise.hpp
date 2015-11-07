@@ -12,7 +12,7 @@
 namespace library
 {
 
-extern double cosnoise(vec3& v, double density, double scale_xz, double scale_y, 
+extern double cosnoise(glm::vec3& v, double density, double scale_xz, double scale_y, 
 						double curve, double fatness, double cuts);
 
 

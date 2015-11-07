@@ -24,7 +24,7 @@ namespace sound
 		void load(std::string filename, int samples);
 		void setVolume(float vol);
 		
-		void play(library::vec3);
+		void play(const glm::vec3&);
 		void play();
 		
 		static void setMasterVolume(float vol);

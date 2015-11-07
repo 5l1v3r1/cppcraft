@@ -2,9 +2,9 @@
 
 #include <library/opengl/vao.hpp>
 #include <library/opengl/oglfont.hpp>
-#include <library/math/matrix.hpp>
-#include <library/math/vector.hpp>
 #include "rect.hpp"
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <functional>
 
 namespace gui
@@ -14,7 +14,7 @@ namespace gui
 	class Control
 	{
 	public:
-		typedef std::function<void(Control*, int ev, library::vec2 pos)> action_func_t;
+		typedef std::function<void(Control*, int ev, glm::vec2 pos)> action_func_t;
 		
 		Control(Rect rrect)
 			: rect(rrect)
@@ -22,7 +22,7 @@ namespace gui
 		virtual ~Control() {}
 		
 		// returns true if @m is inside the window rect
-		bool inside(library::vec2& m) const
+		bool inside(glm::vec2& m) const
 		{
 			return rect.inside(m);
 		}
@@ -58,9 +58,9 @@ namespace gui
 		}
 		
 		// pos is relative to inside this control
-		virtual void mouseEvent(int event, library::vec2 pos) = 0;
+		virtual void mouseEvent(int event, glm::vec2 pos) = 0;
 		
-		virtual void render(const Window&, const library::vec2& tile, double frameCounter)
+		virtual void render(const Window&, const glm::vec2& tile, double frameCounter)
 		{ (void) tile; (void) frameCounter; }
 		virtual void renderText(const Window&, library::SimpleFont& font, double frameCounter)
 		{ (void) font; (void) frameCounter; }

@@ -1,6 +1,8 @@
 #ifndef CAMERA_FRUSTUM_HPP
 #define CAMERA_FRUSTUM_HPP
 
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 #include <library/opengl/camera.hpp>
 
 namespace cppcraft
@@ -13,9 +15,9 @@ namespace cppcraft
 		// the viewing frustum
 		library::Frustum frustum;
 		// camera matrices
-		library::mat4 matproj_long; // PL
+		glm::mat4 matproj_long; // PL
 		// in-sector offset (from seamless transition)
-		library::vec3 worldOffset;
+		glm::vec3 worldOffset;
 		
 	public:
 		bool recalc;   // recalculate viewing frustum
@@ -27,12 +29,12 @@ namespace cppcraft
 		void init(library::WindowClass& wnd);
 		
 		int getGridsize() const { return this->gridsize; }
-		const library::mat4& getProjectionLong() const
+		const glm::mat4& getProjectionLong() const
 		{
 			return matproj_long;
 		}
 		
-		inline const library::vec3& getWorldOffset() const
+		inline const glm::vec3& getWorldOffset() const
 		{
 			return this->worldOffset;
 		}

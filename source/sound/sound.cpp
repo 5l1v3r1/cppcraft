@@ -4,6 +4,7 @@
 #include <library/math/toolbox.hpp>
 #include "handle.hpp"
 #include "soundsystem.hpp"
+#include <glm/geometric.hpp>
 
 using namespace library;
 
@@ -64,10 +65,10 @@ namespace sound
 	}
 	
 	// play stereo sound based on positional offset vector
-	void Sound::play(vec3 v)
+	void Sound::play(const glm::vec3& v)
 	{
 		float L = v.length(); // distance from origin
-		v.normalize();
+		normalize(v);
 		float pan = v.x * min(1.0, L / MAX_PAN_DIST);
 		float vol = clamp(0.0, 1.0, L / MAX_VOL_DIST);
 		

@@ -61,9 +61,9 @@ namespace cppcraft
 	void WorldManager::initPlayer()
 	{
 		// center grid, center sector, center block
-		player.X = ((float)sectors.getXZ() / 2.0 - 0.5) * Sector::BLOCKS_XZ + 0.5;
-		player.Z = player.X;
-		player.Y = Sector::BLOCKS_Y * 0.75;
+		player.pos.x = ((float)sectors.getXZ() / 2.0 - 0.5) * Sector::BLOCKS_XZ + 0.5;
+		player.pos.z = player.pos.x;
+		player.pos.y = Sector::BLOCKS_Y * 0.75;
 		// load world data (if any)
 		world.load();
 	}

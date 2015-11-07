@@ -10,6 +10,8 @@
 #include "shaderman.hpp"
 #include "renderman.hpp"
 #include "textureman.hpp"
+#include <glm/mat4x4.hpp>
+#include <glm/gtx/transform.hpp>
 #include <cmath>
 
 using namespace library;
@@ -69,8 +71,8 @@ namespace cppcraft
 		textureman.bind(0, Textureman::T_SKYBOX);
 		
 		// create view matrix
-		mat4 matview = camera.getRotationMatrix();
-		matview.translate(0.0, -innerRadius, 0.0);
+		glm::mat4 matview = camera.getRotationMatrix();
+		matview *= glm::translate(glm::vec3(0.0f, -innerRadius, 0.0f));
 		
 		matview = camera.getProjection() * matview;
 		shd.sendMatrix("matmvp", matview);
@@ -81,8 +83,8 @@ namespace cppcraft
 		
 		matview = camera.getRotationMatrix();
 		// multiply with negative-Y scaling matrix
-		matview *= mat4(1.0, -1.0, 1.0);
-		matview.translate(0.0, -innerRadius, 0.0);
+		matview *= glm::scale(glm::vec3(1.0f, -1.0f, 1.0f));
+		matview *= glm::translate(glm::vec3(0.0f, -innerRadius, 0.0f));
 		matview = camera.getProjection() * matview;
 		
 		shd.sendMatrix("matmvp", matview);

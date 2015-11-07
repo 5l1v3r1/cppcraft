@@ -1,10 +1,10 @@
 #ifndef PARTICLES_HPP
 #define PARTICLES_HPP
 
-#include <library/math/vector.hpp>
+#include <glm/vec3.hpp>
 #include <deque>
 
-using namespace library;
+using namespace glm;
 
 #define PARTICLE_SMOKE     0
 #define PARTICLE_SMOKE_R   1
@@ -39,13 +39,13 @@ namespace cppcraft
 		short tileID;
 		
 		int wx, wz;
-		vec3 position;
+		glm::vec3 position;
 		unsigned int color;
 		unsigned short TTL;
 		unsigned short fadeTTL;
 		
-		vec3 acc;
-		vec3 spd;
+		glm::vec3 acc;
+		glm::vec3 spd;
 	};
 	
 	class Particles
@@ -75,8 +75,8 @@ namespace cppcraft
 		// it's pretty much updated every damn time
 		bool updated;
 		
-		int newParticle(vec3 position, short id, int num);
-		int newParticle(vec3 position, short id);
+		int newParticle(glm::vec3 position, short id, int num);
+		int newParticle(glm::vec3 position, short id);
 		
 	private:
 		int snapRenderCount;
@@ -87,7 +87,7 @@ namespace cppcraft
 		int renderCount;
 		int currentWX, currentWZ;
 		
-		void autoCreateFromTerrain(int terrain, vec3& position);
+		void autoCreateFromTerrain(int terrain, glm::vec3& position);
 		
 		// returns a new particle ID from queue, or -1
 		int newParticleID();

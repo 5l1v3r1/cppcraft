@@ -9,10 +9,10 @@ using namespace library;
 
 namespace cppcraft
 {
-	static const double PI = 4 * atan(1);
-	static const double PI2 = PI * 2;
+	static const float PI = 4 * atan(1);
+	static const float PI2 = PI * 2;
 	
-	NetPlayer::NetPlayer(NetPlayer::userid_t uid, const std::string& name, int model, unsigned int color, w_coord& wc, const vec3& pos)
+	NetPlayer::NetPlayer(NetPlayer::userid_t uid, const std::string& name, int model, unsigned int color, w_coord& wc, const glm::vec3& pos)
 	{
 		this->userID = uid;
 		this->name   = name;
@@ -53,7 +53,7 @@ namespace cppcraft
 		render = true;
 	}
 	
-	void NetPlayer::moveTo(w_coord& wc, const vec3& pos)
+	void NetPlayer::moveTo(w_coord& wc, const glm::vec3& pos)
 	{
 		this->wc_to = wc;
 		this->bc_to = pos;
@@ -65,12 +65,12 @@ namespace cppcraft
 	}
 	void NetPlayer::setRotation(int rx, int ry)
 	{
-		this->rotation = vec2(rx, ry) / 4096 * PI2;
+		this->rotation = glm::vec2(rx, ry) / 4096.0f * PI2;
 	}
 	
-	vec3 NetPlayer::getPosition(int wx, int wy, int wz)
+	glm::vec3 NetPlayer::getPosition(int wx, int wy, int wz)
 	{
-		vec3 position;
+		glm::vec3 position;
 		position.x = (this->wc_from.x - wx) * Sector::BLOCKS_XZ + bc_from.x;
 		position.y = (this->wc_from.y - wy) * Sector::BLOCKS_Y  + bc_from.y;
 		position.z = (this->wc_from.z - wz) * Sector::BLOCKS_XZ + bc_from.z;

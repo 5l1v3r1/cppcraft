@@ -38,7 +38,8 @@
  * doesn't have to update the uniform in the shader program each frame.
 **/
 
-#include "../math/vector.hpp"
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 #include "shader.hpp"
 #include "vao.hpp"
 #include <string>
@@ -46,7 +47,6 @@
 
 namespace library
 {
-	class mat4;
 	class Texture;
 	
 	class SimpleFont
@@ -59,8 +59,8 @@ namespace library
 		};
 		struct print_data_t
 		{
-			vec3 location;
-			vec2 size;
+			glm::vec3 location;
+			glm::vec2 size;
 			std::string text;
 		};
 		
@@ -69,15 +69,12 @@ namespace library
 		
 		void bind(GLenum unit);
 		// print and render a single line of text
-		void print(const vec3& location, const vec2& size, std::string text, bool YaxisUp);
+		void print(const glm::vec3& location, const glm::vec2& size, std::string text, bool YaxisUp);
 		
 		// generate & upload many lines of text
 		void serialUpload(std::vector<print_data_t>& data, bool YaxisUp);
 		// render with the current uploaded text
 		void render();
-		
-		// returns 2D size of string in pixels
-		vec2 measure(std::string text) const;
 		
 		// size in pixels
 		inline int getFontSize() const
@@ -85,17 +82,17 @@ namespace library
 			return this->tilesize;
 		}
 		
-		void setClip(const vec2& clip);
+		void setClip(const glm::vec2& clip);
 		
-		inline void sendMatrix(const mat4& matrix)
+		inline void sendMatrix(const glm::mat4& matrix)
 		{
 			shader->sendMatrix("mvp", matrix);
 		}
-		inline void setBackColor(const vec4& color)
+		inline void setBackColor(const glm::vec4& color)
 		{
 			shader->sendVec4("bgcolor", color);
 		}
-		inline void setColor(const vec4& color)
+		inline void setColor(const glm::vec4& color)
 		{
 			shader->sendVec4("fcolor", color);
 		}
@@ -119,13 +116,17 @@ namespace library
 		
 	private:
 		void resizeVertexArray(int verts);
-		void emitTextBlock(font_vertex_t*& fvx, const vec3& loc, const vec2& size, std::string& text, const std::vector<float>& wind);
+		void emitTextBlock(font_vertex_t*& fvx, 
+							const glm::vec3& loc, 
+							const glm::vec2& size, 
+							std::string& text, 
+							const std::vector<float>& wind);
 		void upload(int verts);
 		
 		// texture tile size
 		int tilesize;
 		// clip offsets (left/right, top/bottom)
-		library::vec2 clip;
+		glm::vec2 clip;
 		std::vector<float> font_windings_up;
 		std::vector<float> font_windings_down;
 		

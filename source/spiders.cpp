@@ -72,31 +72,31 @@ namespace cppcraft
 		return air_block;
 	}
 	
-	Block& Spiders::getBlock(double x, double y, double z, double size)
+	Block& Spiders::getBlock(float x, float y, float z, float size)
 	{
 		// make damn sure!
-		if (y < 0.0) return air_block;
+		if (y < 0.0f) return air_block;
 		if (y >= BLOCKS_Y) return air_block;
 		
-		int    by = int(y);  // integral
-		double fy = y - by;  // fractional
+		int   by = int(y);  // integral
+		float fy = y - by;  // fractional
 		
-		double dx, dz;
+		float dx, dz;
 		for (dz = z-size; dz <= z+size; dz += size)
 		for (dx = x-size; dx <= x+size; dx += size)
 		{
 			Block& b = getBlock(int(dx), by, int(dz));
 			if (b.getID())
 			{
-				double fx = dx - int(dx);
-				double fz = dz - int(dz);
+				float fx = dx - int(dx);
+				float fz = dz - int(dz);
 				if (Block::blockHitbox3D(b, fx, fy, fz)) return b;
 			}
 		}
 		return air_block;
 	}
 	
-	block_t Spiders::testArea(double x, double y, double z)
+	block_t Spiders::testArea(float x, float y, float z)
 	{
 		return getBlock(x, y, z, PlayerPhysics::PLAYER_SIZE).getID();
 	}
@@ -129,9 +129,9 @@ namespace cppcraft
 		return _AIR;
 	}
 	
-	vertex_color_t Spiders::getLightNow(double x, double y, double z)
+	vertex_color_t Spiders::getLightNow(float x, float y, float z)
 	{
-		if (y <= 0) return 0; // mega-dark
+		if (y <= 0.0f) return 0; // mega-dark
 		if (y >= BLOCKS_Y) return 255;
 		
 		int ix = x, iy = y, iz = z;

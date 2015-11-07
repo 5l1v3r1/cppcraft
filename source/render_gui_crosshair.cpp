@@ -1,8 +1,8 @@
 #include "render_gui.hpp"
 
-#include <library/math/matrix.hpp>
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/vao.hpp>
+#include <glm/mat4x4.hpp>
 #include "shaderman.hpp"
 #include "textureman.hpp"
 #include <cmath>
@@ -19,7 +19,7 @@ namespace cppcraft
 	};
 	GUICrosshair crosshair;
 	
-	void GUIRenderer::renderCrosshair(mat4& ortho)
+	void GUIRenderer::renderCrosshair(glm::mat4& ortho)
 	{
 		Shader& shd = shaderman[Shaderman::GUI];
 		shd.bind();

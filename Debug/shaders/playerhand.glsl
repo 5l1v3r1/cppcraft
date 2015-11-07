@@ -36,8 +36,7 @@ void main()
 uniform sampler2DArray texture;
 
 uniform float daylight;
-uniform vec4  lightdata;
-uniform vec4  torchlight;
+uniform vec2  lightdata;
 uniform float modulation;
 
 in vec3 texCoord;
@@ -47,24 +46,16 @@ out vec4 color;
 void main(void)
 {
 	/// shadows & torchlight ///
-	float brightness = lightdata.y * modulation;
-	// increase brightness if player holds an emissive item
-	//#include "playerlight.glsl"
-	
+	float brightness = lightdata.y;
 	// shadow is smallest between shadow-value and daylight level
 	float shadow = min(1.0, min(daylight, lightdata.x) + brightness);
-	
-	// scaled shadow color
-	vec3 shadowColor = vec3(-0.2, 0.0, 0.2) * shadow;
 	
 	color = texture2DArray(texture, texCoord);
 	#include "degamma.glsl"
 	
-	color.rgb *= worldLight; // min(1.0, worldLight + 0.35 * brightness)
+	color.rgb *= worldLight;
 	// mix in shadows
-	color.rgb = mix(shadowColor, color.rgb, shadow);
-	// mix in torchlight
-	color.rgb = mix(color.rgb, torchlight.rgb, torchlight.a * modulation);
+	color.rgb *= shadow;
 	
 	#include "finalcolor.glsl"
 }

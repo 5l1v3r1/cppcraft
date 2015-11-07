@@ -18,7 +18,7 @@ namespace gui
 		this->active  = false;
 	}
 	
-	void Progress::mouseEvent(int event, library::vec2 pos)
+	void Progress::mouseEvent(int event, glm::vec2 pos)
 	{
 		// hover & leave events
 		if (event == 0 && this->hover_func)
@@ -30,7 +30,7 @@ namespace gui
 		this->active = (event >= 0);
 	}
 	
-	void Progress::render(const Window& parent, const vec2& tile, double frameCounter)
+	void Progress::render(const Window& parent, const glm::vec2& tile, double frameCounter)
 	{
 		(void) frameCounter;
 		if (this->changed)
@@ -40,33 +40,33 @@ namespace gui
 			
 			const int tileSizePixels = 32;
 			
-			vec2 size = rect.size / vec2(3, 1);
+			glm::vec2 size = rect.size / glm::vec2(3.0f, 1.0f);
 			uint32_t noWhite = BGRA8(255, 255, 255, 0);
 			
 			Rect frame = this->rect;
 			frame.pos += parent.getRect().pos;
 			
-			vec2 tileSize = tile * tileSizePixels;
-			vec2 tileBase(10 * tileSize.x, 9 * tileSize.y);
+			glm::vec2 tileSize = tile * (float) tileSizePixels;
+			glm::vec2 tileBase(10.0f * tileSize.x, 9.0f * tileSize.y);
 			
 			int wholeX = frame.size.x / size.x;
 			
 			quad(data,
-				vec4(frame.pos, size),
-				vec4(tileBase, tileSize),
+				glm::vec4(frame.pos, size),
+				glm::vec4(tileBase, tileSize),
 				noWhite, noWhite, noWhite, noWhite);
 			
 			for (int x = 1; x < wholeX; x++)
 			{
 				quad(data,
-					vec4(frame.pos + vec2(x * size.x, 0), size),
-					vec4(tileBase + tileSize * vec2(1, 0), tileSize),
+					glm::vec4(frame.pos + glm::vec2(x * size.x, 0), size),
+					glm::vec4(tileBase + tileSize * glm::vec2(1, 0), tileSize),
 					noWhite, noWhite, noWhite, noWhite);
 			}
 			
 			quad(data,
-				vec4(frame.pos + vec2(wholeX * size.x, 0), size),
-				vec4(tileBase + tileSize * vec2(2, 0), tileSize),
+				glm::vec4(frame.pos + glm::vec2(wholeX * size.x, 0), size),
+				glm::vec4(tileBase + tileSize * glm::vec2(2, 0), tileSize),
 				noWhite, noWhite, noWhite, noWhite);
 			
 			//BorderedFrames::generate(data, frame, size, tileBase, tileSize, noWhite);

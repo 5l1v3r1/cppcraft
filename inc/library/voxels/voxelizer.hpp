@@ -1,10 +1,11 @@
 #ifndef VOXELIZER_HPP
 #define VOXELIZER_HPP
 
+#include <library/math/vector.hpp>
+
 namespace library
 {
 	class Bitmap;
-	class vec3;
 	
 	class XModel
 	{
@@ -26,7 +27,7 @@ namespace library
 		xvertex_t* data();
 		int        vertices();
 		
-		void extrude(const Bitmap& fromImage, const vec3& offset, const vec3& scale);
+		void extrude(const Bitmap& fromImage, const glm::vec3& offset, const glm::vec3& scale);
 		
 		static void initVoxelizer();
 		
@@ -35,7 +36,7 @@ namespace library
 		static xvertex_t* xv_dump;
 		
 		short cull2D(const Bitmap& img, int x, int y);
-		void putv2D(const vec3& offset, const vec3& scale, int x, int y, int fid, int vid, xcolor_t vcolor);
+		void putv2D(const glm::vec3& offset, const glm::vec3& scale, int x, int y, int fid, int vid, xcolor_t vcolor);
 		
 		xvertex_t* vdata;
 		int verts;

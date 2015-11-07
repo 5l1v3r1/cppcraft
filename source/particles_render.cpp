@@ -1,7 +1,7 @@
 #include "particles.hpp"
 
-#include "library/log.hpp"
-#include "library/opengl/opengl.hpp"
+#include <library/log.hpp>
+#include <library/opengl/opengl.hpp>
 #include "camera.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
@@ -9,6 +9,7 @@
 #include "sector.hpp"
 #include "sun.hpp"
 #include "world.hpp"
+#include <glm/gtx/transform.hpp>
 
 using namespace library;
 
@@ -81,8 +82,8 @@ namespace cppcraft
 			float tx = (this->snapWX - snapWX) * Sector::BLOCKS_XZ;
 			float tz = (this->snapWZ - snapWZ) * Sector::BLOCKS_XZ;
 			
-			mat4 matview = camera.getViewMatrix();
-			matview.translate_xz(tx, tz);
+			glm::mat4 matview = camera.getViewMatrix();
+			matview *= glm::translate(glm::vec3(tx, tz, 0.0f));
 			
 			// send view matrix
 			shd.sendMatrix("matview", matview);

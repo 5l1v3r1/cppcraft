@@ -2,7 +2,6 @@
 
 #include <library/log.hpp>
 #include <library/config.hpp>
-#include <library/math/matrix.hpp>
 #include <library/opengl/window.hpp>
 #include "camera.hpp"
 #include "gameconf.hpp"
@@ -11,6 +10,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 
 using namespace library;
 
@@ -84,8 +85,8 @@ namespace cppcraft
 		logger << Log::INFO << "* Loading & processing shaders" << Log::ENDL;
 		
 		// "constant" data
-		vec3 vecScreen(gamescr.getWidth(), gamescr.getHeight(), gamescr.getAspect());
-		vec3 vecSuperScreen(gamescr.getWidth() * gameconf.supersampling, gamescr.getHeight() * gameconf.supersampling, gamescr.getAspect());
+		glm::vec3 vecScreen(gamescr.getWidth(), gamescr.getHeight(), gamescr.getAspect());
+		glm::vec3 vecSuperScreen(gamescr.getWidth() * gameconf.supersampling, gamescr.getHeight() * gameconf.supersampling, gamescr.getAspect());
 		
 		// load and initialize all shaders
 		std::vector<std::string> linkstage;
@@ -187,7 +188,7 @@ namespace cppcraft
 		shaders[PARTICLE] = Shader("shaders/particles.glsl", tokenizer, linkstage);
 		shaders[PARTICLE].sendInteger("texture", 0);
 		shaders[PARTICLE].sendMatrix("matproj", camera.getProjection());
-		shaders[PARTICLE].sendVec2("screensize", vecScreen.xy());
+		shaders[PARTICLE].sendVec2("screensize", glm::vec2(vecScreen));
 		
 		// atmospherics shader
 		linkstage.clear();
@@ -228,18 +229,18 @@ namespace cppcraft
 		// near plane half size
 		shaders[FSTERRAINFOG].sendVec2("nearPlaneHalfSize", camera.getNearPlaneHalfSize());
 		// screen size
-		shaders[FSTERRAINFOG].sendVec2("screenSize", vecScreen.xy());
+		shaders[FSTERRAINFOG].sendVec2("screenSize", glm::vec2(vecScreen));
 		
 		// screenspace terrain shader
 		shaders[FSTERRAIN] = Shader("shaders/fsterrain.glsl", tokenizer, linkstage);
 		shaders[FSTERRAIN].sendInteger("terrain",     0);
-		shaders[FSTERRAIN].sendVec2("offset", vec2(1.0) / vecScreen.xy());
+		shaders[FSTERRAIN].sendVec2("offset", glm::vec2(1.0f) / glm::vec2(vecScreen));
 		
 		// supersampling (downsampler) shader
 		shaders[SUPERSAMPLING] = Shader("shaders/supersample.glsl", tokenizer, linkstage);
 		shaders[SUPERSAMPLING].sendInteger("colorbuffer", 0);
 		shaders[SUPERSAMPLING].sendInteger("samples",     gameconf.supersampling);
-		shaders[SUPERSAMPLING].sendVec2("offsets",        vec2(1.0) / vecSuperScreen.xy());
+		shaders[SUPERSAMPLING].sendVec2("offsets",        glm::vec2(1.0f) / glm::vec2(vecSuperScreen));
 		
 		// lensflare
 		shaders[LENSFLARE] = Shader("shaders/lensflare.glsl", tokenizer, linkstage);
@@ -251,7 +252,7 @@ namespace cppcraft
 		shaders[LENSFLARE].sendFloat("Dispersal", 0.2);
 		shaders[LENSFLARE].sendFloat("HaloWidth", 0.5);
 		shaders[LENSFLARE].sendFloat("Intensity", 2.5);
-		shaders[LENSFLARE].sendVec3("Distortion", vec3(0.95, 0.97, 1.0));
+		shaders[LENSFLARE].sendVec3("Distortion", glm::vec3(0.95f, 0.97f, 1.0f));
 		
 		// blur shaders
 		shaders[BLUR] = Shader("shaders/blur.glsl", nullptr, linkstage);

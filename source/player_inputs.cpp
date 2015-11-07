@@ -54,7 +54,7 @@ namespace cppcraft
 		
 		// initialize input systems
 		input.init(gameScreen, true, true);
-		input.setRotation(vec2(player.xrotrad, player.yrotrad));
+		input.setRotation(player.rot);
 		input.grabMouse(true);  // enable fps-like mouse
 		input.mouseOptions(mspd, msens); // mouse speed & sensitivity
 		input.showMouse(false); // hide mouse
@@ -212,7 +212,7 @@ namespace cppcraft
 			{
 				input.hold(GLFW_KEY_C);
 				
-				Sector* sector = sectors.sectorAt(player.X, player.Z);
+				Sector* sector = sectors.sectorAt(player.pos.x, player.pos.z);
 				if (sector)
 				{
 					logger << Log::INFO << "Sector (" << sector->getX() << ", " << sector->getZ() << "): " << (int) sector->generated() << Log::ENDL;

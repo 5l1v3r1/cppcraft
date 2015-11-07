@@ -1,23 +1,23 @@
 #include "spiders.hpp"
 
-#include "library/math/vector.hpp"
 #include "player.hpp"
 #include "sector.hpp"
 #include "world.hpp"
+#include <glm/vec3.hpp>
 #include <cmath>
 
 using namespace library;
 
 namespace cppcraft
 {
-	vec3 Spiders::distanceToWorldXZ(int wx, int wz)
+	glm::vec3 Spiders::distanceToWorldXZ(int wx, int wz)
 	{
 		// integral player position
-		int plx = player.X;
-		int plz = player.Z;
+		int plx = player.pos.x;
+		int plz = player.pos.z;
 		// fractional values (internal to a block position)
-		double pfracX = player.X - plx;
-		double pfracZ = player.Z - plz;
+		double pfracX = player.pos.x - plx;
+		double pfracZ = player.pos.z - plz;
 		
 		// current world position (in absolute sectors)
 		int currentWX = world.getWX() + (plx >> 4);
@@ -33,9 +33,9 @@ namespace cppcraft
 		
 		// normalize
 		double L = sqrt( dwx*dwx + dwz*dwz );
-		if (L == 0.0) return vec3( 0.0, 0.0, -1.0 );
+		if (L == 0.0) return glm::vec3( 0.0, 0.0, -1.0 );
 		
-		return vec3( dwx / L, 0.0, dwz / L );
+		return glm::vec3( dwx / L, 0.0, dwz / L );
 	}
 	
 }

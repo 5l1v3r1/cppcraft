@@ -13,9 +13,14 @@
 #include "shaderman.hpp"
 #include "textureman.hpp"
 #include "vertex_player.hpp"
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtx/transform.hpp>
+#include <library/math/matrix.hpp>
 #include <cmath>
 
 using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
@@ -68,16 +73,16 @@ namespace cppcraft
 				int wtz = (p.wc_to.z - wz) << Sector::BLOCKS_XZ_SH;
 				
 				// calculate local positions
-				vec3 wfvec = vec3(wfx, wfy, wfz) + p.bc_from;
-				vec3 wtvec = vec3(wtx, wty, wtz) + p.bc_to;
+				glm::vec3 wfvec = glm::vec3(wfx, wfy, wfz) + p.bc_from;
+				glm::vec3 wtvec = glm::vec3(wtx, wty, wtz) + p.bc_to;
 				
 				// interpolate based on dtime
 				const float interpolator = 0.05 * dtime;
-				vec3 newpos = wfvec * (1.0 - interpolator) + wtvec * interpolator;
+				glm::vec3 newpos = wfvec * (1.0f - interpolator) + wtvec * interpolator;
 				
 				/// recalculate new from position ///
 				// split into fractional and integrals
-				vec3 fracs = newpos.frac();
+				glm::vec3 fracs = fract(newpos);
 				int bx = newpos.x;
 				int by = newpos.y;
 				int bz = newpos.z;
@@ -90,7 +95,7 @@ namespace cppcraft
 				p.bc_from.y = (by & (Sector::BLOCKS_Y-1))  + fracs.y;
 				p.bc_from.z = (bz & (Sector::BLOCKS_XZ-1)) + fracs.z;
 				
-				p.gxyz = vec3(
+				p.gxyz = glm::vec3(
 					((p.wc_from.x - wx) << Sector::BLOCKS_XZ_SH) + p.bc_from.x,
 					((p.wc_from.y)      << Sector::BLOCKS_Y_SH)  + p.bc_from.y,
 					((p.wc_from.z - wz) << Sector::BLOCKS_XZ_SH) + p.bc_from.z
@@ -117,7 +122,7 @@ namespace cppcraft
 		wc.z = world.getWZ() + sectors.getXZ() / 2 - 1;
 		wc.y = 0;
 		
-		vec3 pos(-6, 2.45, 9);
+		glm::vec3 pos(-6.0f, 2.45f, 9.0f);
 		
 		NetPlayer nplayer(1234, "Test", 1, 255, wc, pos);
 		
@@ -231,16 +236,18 @@ namespace cppcraft
 			/// now rendering player model ///
 			shd.sendFloat("skinmodel", np.model);
 			
-			mat4 matview = camera.getViewMatrix();
-			matview.translate(np.gxyz);
+			glm::mat4 matview = camera.getViewMatrix();
+			matview *= glm::translate(np.gxyz);
 			
 			float headrot = PI - np.rotation.y;
 			while (headrot < 0) headrot += PI2;
 			
 			/// render head ///
-			mat4 matv = matview;
-			matv.rotateZYX(0.0, headrot, 0.0);
-			matv.rotateZYX(np.rotation.x, 0.0, 0.0);
+			glm::mat4 matv = matview;
+			matv *= glm::rotate(headrot, glm::vec3(0.0f, 1.0f, 0.0f));
+			//matv.rotateZYX(0.0, headrot, 0.0);
+			matv *= glm::rotate(np.rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+			//matv.rotateZYX(np.rotation.x, 0.0, 0.0);
 			shd.sendMatrix("matview", matv);
 			
 			/*mat4 matrot = rotationMatrix(0.0, headrot, 0.0);
@@ -262,46 +269,46 @@ namespace cppcraft
 			
 			/// render chest ///
 			matv = matview;
-			matv.translate_xy(0, -0.72);
-			matv.rotateZYX(0.0, np.bodyrot, 0.0);
+			matv *= glm::translate(glm::vec3(0.0f, -0.72f, 0.0f));
+			matv *= rotationMatrix(0.0f, np.bodyrot, 0.0f);
 			shd.sendMatrix("matview", matv);
 			
 			vao.render(GL_QUADS, 24, 24);
 			
 			/// render hands ///
 			matv = matview;
-			matv.rotateZYX(0.0, np.bodyrot, 0.0);
-			matv.translate_xy(-0.25, -0.27);
+			matv *= rotationMatrix(0.0f, np.bodyrot, 0.0f);
+			matv *= glm::translate(glm::vec3(-0.25f, -0.27f, 0.0f));
 			if (np.moving)
-				matv.rotateZYX(sin(frameCounter * 0.1), 0.0, 0.0);
+				matv *= rotationMatrix(sin(frameCounter * 0.1), 0.0f, 0.0f);
 			shd.sendMatrix("matview", matv);
 			
 			vao.render(GL_QUADS, 48, 24);
 			
 			matv = matview;
-			matv.rotateZYX(0.0, np.bodyrot, 0.0);
-			matv.translate_xy(+0.25, -0.27);
+			matv *= rotationMatrix(0.0f, np.bodyrot, 0.0f);
+			matv *= glm::translate(glm::vec3(0.25f, -0.27f, 0.0f));
 			if (np.moving)
-				matv.rotateZYX(sin(-frameCounter * 0.1), 0.0, 0.0);
+				matv *= rotationMatrix(sin(-frameCounter * 0.1), 0.0f, 0.0f);
 			shd.sendMatrix("matview", matv);
 			
 			vao.render(GL_QUADS, 48, 24);
 			
 			/// render legs ///
 			matv = matview;
-			matv.rotateZYX(0.0, np.bodyrot, 0.0);
-			matv.translate_xy(-0.11, -0.75);
+			matv *= rotationMatrix(0.0f, np.bodyrot, 0.0f);
+			matv *= glm::translate(glm::vec3(-0.11f, -0.75f, 0.0f));
 			if (np.moving)
-				matv.rotateZYX(-sin(frameCounter * 0.1), 0.0, 0.0);
+				matv *= rotationMatrix(-sin(frameCounter * 0.1), 0.0, 0.0f);
 			shd.sendMatrix("matview", matv);
 			
 			vao.render(GL_QUADS, 72, 24);
 			
 			matv = matview;
-			matv.rotateZYX(0.0, np.bodyrot, 0.0);
-			matv.translate_xy(+0.11, -0.75);
+			matv *= rotationMatrix(0.0f, np.bodyrot, 0.0f);
+			matv *= glm::translate(glm::vec3(0.11f, -0.75f, 0.0f));
 			if (np.moving)
-				matv.rotateZYX(sin(frameCounter * 0.1), 0.0, 0.0);
+				matv *= rotationMatrix(sin(frameCounter * 0.1), 0.0f, 0.0f);
 			shd.sendMatrix("matview", matv);
 			
 			vao.render(GL_QUADS, 72, 24);
@@ -314,7 +321,7 @@ namespace cppcraft
 		SimpleFont& font = rendergui.getFont();
 		
 		font.bind(0);
-		font.setBackColor(vec4(0.2, 0.3));
+		font.setBackColor(glm::vec4(0.2f, 0.2f, 0.2f, 0.3f));
 		
 		// render each player
 		for (size_t i = 0; i < players.size(); i++)
@@ -326,16 +333,16 @@ namespace cppcraft
 			// FIXME: send matview as camera followed by matmodel for use in both position & dotlight
 			
 			// rotation & translation
-			mat4 matview = camera.getViewMatrix();
-			matview.translate(np.gxyz);
-			matview.translate_xy(0, 0.25);
+			glm::mat4 matview = camera.getViewMatrix();
+			matview *= glm::translate(np.gxyz);
+			matview *= glm::translate(glm::vec3(0.0f, 0.25f, 0.0f));
 			//matview.rotateZYX(0.0, np.bodyrot, PI);
-			matview.rotateZYX(0.0, PI2 - player.yrotrad, 0.0);
+			matview *= rotationMatrix(0.0, PI2 - player.rot.y, 0.0);
 			
 			font.sendMatrix(camera.getProjection() * matview);
 			
 			// player color
-			vec4 color = colorToVector(np.color);
+			glm::vec4 color = colorToVector(np.color);
 			color.w = 1.0; // someone always fucks up alpha somewhere
 			font.setColor(color);
 			

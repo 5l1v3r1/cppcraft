@@ -1,7 +1,9 @@
 #ifndef PLAYER_LOGIC_HPP
 #define PLAYER_LOGIC_HPP
 
-#include <library/math/vector.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <stdio.h>
 
 namespace cppcraft
 {
@@ -23,7 +25,7 @@ namespace cppcraft
 		// selected block
 		Block*  block;
 		// grid position
-		library::vec3 pos;
+		glm::vec3 pos;
 		// selection direction
 		unsigned short facing;
 		// additional info
@@ -48,8 +50,7 @@ namespace cppcraft
 		movestate_t movestate;
 		
 		// players current shadow/color
-		unsigned int shadowColor;
-		unsigned int torchColor;
+		uint16_t light;
 		// current terrain type
 		int terrain;
 		
@@ -98,7 +99,12 @@ namespace cppcraft
 		// walking / etc. sounds
 		void playerSounds();
 		
-		unsigned short determineSelectionFacing(Block& block, library::vec3& ray, library::vec3& fracs, float stepSize);
+		glm::vec2 getLight() const
+		{
+			return glm::vec2(light & 255, light >> 8) / 255.0f;
+		}
+		
+		unsigned short determineSelectionFacing(Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize);
 	};
 	extern PlayerLogic plogic;
 }

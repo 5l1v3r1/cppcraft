@@ -7,6 +7,9 @@
 #include "shaderman.hpp"
 #include "sun.hpp"
 #include "textureman.hpp"
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtx/transform.hpp>
 #include <cmath>
 
 using namespace library;
@@ -93,8 +96,8 @@ namespace cppcraft
 		shd.sendVec3 ("v_ldir",       thesun.getRealtimeViewAngle());
 		shd.sendFloat("daylight",     thesun.getRealtimeDaylight());
 		
-		mat4 matclouds = camera.getRotationMatrix();
-		matclouds.translate_xy(0.0, dy);
+		glm::mat4 matclouds = camera.getRotationMatrix();
+		matclouds *= glm::translate(glm::vec3(0.0, dy, 0.0));
 		
 		// view matrix
 		shd.sendMatrix("matview", matclouds);

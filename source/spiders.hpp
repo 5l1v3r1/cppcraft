@@ -2,6 +2,7 @@
 #define SPIDERS_HPP
 
 #include "sector.hpp"
+#include <glm/vec3.hpp>
 
 namespace library
 {
@@ -11,7 +12,7 @@ namespace library
 namespace cppcraft
 {
 	typedef unsigned short block_t;
-	typedef unsigned int vertex_color_t;
+	typedef uint16_t vertex_color_t;
 	class Block;
 	class Sector;
 	
@@ -23,7 +24,7 @@ namespace cppcraft
 		static Block& getBlock(int x, int y, int z);
 		static Block& getBlock(Sector&, int x, int y, int z);
 		static Block& getBlockNoGen(Sector&, int x, int y, int z);
-		static Block& getBlock(double x, double y, double z, double size_xz);
+		static Block& getBlock(float x, float y, float z, float size_xz);
 		
 		// converts a position (x, y, z) to an explicit in-system position
 		// returns false if the position would become out of bounds (after conversion)
@@ -32,7 +33,7 @@ namespace cppcraft
 		// returns false if the position would become out of bounds (after conversion)
 		static Sector* spiderwrap(Sector& s, int& bx, int& by, int& bz);
 		
-		static block_t testArea(double x, double y, double z);
+		static block_t testArea(float x, float y, float z);
 		static block_t testAreaEx(double x, double y, double z);
 		
 		// updating & modifying world
@@ -43,13 +44,13 @@ namespace cppcraft
 		static bool addemptysector(int bx, int by, int bz);
 
 		// world distance calculations
-		static library::vec3 distanceToWorldXZ(int wx, int wz);
+		static glm::vec3 distanceToWorldXZ(int wx, int wz);
 		
 		// updating neighbors
 		static void updateSurroundings(Sector&, int bx, int by, int bz);
 		
 		// realtime complex lighting calculation
-		static vertex_color_t getLightNow(double x, double y, double z);
+		static vertex_color_t getLightNow(float x, float y, float z);
 	};
 	extern Block air_block;
 }

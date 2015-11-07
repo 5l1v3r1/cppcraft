@@ -1,11 +1,12 @@
 #ifndef MINIMAP_HPP
 #define MINIMAP_HPP
 
+#include <glm/mat4x4.hpp>
+
 namespace library
 {
 	class Bitmap;
 	class Texture;
-	class mat4;
 }
 
 namespace cppcraft
@@ -18,7 +19,7 @@ namespace cppcraft
 		Minimap();
 		void init();
 		void update(double px, double pz);
-		void render(library::mat4& mvp);
+		void render(glm::mat4& mvp);
 		
 		void addSector(Sector& s);
 		void roll(int x, int z);
@@ -31,7 +32,6 @@ namespace cppcraft
 		
 		bool needs_update;
 		float ofsX, ofsY;
-		
 	};
 	extern Minimap minimap;
 }

@@ -2,7 +2,7 @@
 #define COLORTOOLS_HPP
 
 #include <library/math/toolbox.hpp>
-#include <library/math/vector.hpp>
+#include <glm/vec4.hpp>
 #include <cstdint>
 
 namespace library
@@ -42,8 +42,8 @@ namespace library
 		static Color getGradientColor(float v, Color* array, int size);
 	};
 	
-	vec4 colorToVector(rgba8_t color);
-	rgba8_t vectorToColor(const vec4& vector);
+	glm::vec4 colorToVector(rgba8_t color);
+	rgba8_t vectorToColor(const glm::vec4& vector);
 }
 
 #endif

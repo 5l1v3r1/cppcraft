@@ -1,6 +1,5 @@
 #include "render_gui.hpp"
 
-#include <library/math/matrix.hpp>
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/window.hpp>
 #include <library/opengl/oglfont.hpp>
@@ -12,6 +11,8 @@
 #include "shaderman.hpp"
 #include <cmath>
 #include <sstream>
+#include <glm/vec3.hpp>
+#include <library/math/matrix.hpp>
 
 #include "drawq.hpp"
 
@@ -30,12 +31,12 @@ namespace cppcraft
 		height = 1.0 / renderer.getScreen().getAspect();
 		
 		// orthographic projection
-		ortho = ortho2dMatrix(width, height, 0, 2);
+		ortho = ortho2dMatrix(width, height, 0.0f, 2.0f);
 		
 		// initialize our font renderer
 		font.createTexture("bitmap/default/gui/font.png", 16);
 		font.createShader();
-		font.setClip(library::vec2(0.2, 0.0));
+		font.setClip(glm::vec2(0.2f, 0.0f));
 		
 		// initialize minimap
 		minimap.init();
@@ -104,7 +105,7 @@ namespace cppcraft
 		/// chatbox ///
 		glEnable(GL_BLEND);
 		
-		vec2 textScale(0.01 * 0.6, 0.01);
+		glm::vec2 textScale(0.01 * 0.6, 0.01);
 		
 		chatbox.render(font, ortho, textScale, renderer);
 		
@@ -112,10 +113,10 @@ namespace cppcraft
 		/// debug text ///
 		//////////////////
 		font.bind(0);
-		font.setColor(vec4(0.8, 0.8, 1.0, 1.0));
-		font.setBackColor(vec4(0.0, 0.4));
+		font.setColor(glm::vec4(0.8, 0.8, 1.0, 1.0));
+		font.setBackColor(glm::vec4(0.0, 0.0, 0.0, 0.4));
 		
-		font.print(library::vec3(0.01, 0.01, 0.0), textScale, "cppcraft v0.1", false);
+		font.print(glm::vec3(0.01, 0.01, 0.0), textScale, "cppcraft v0.1", false);
 		
 		std::string fps = std::to_string(renderer.getFPS());
 		
@@ -130,18 +131,18 @@ namespace cppcraft
 		
 		
 		//Block& plblock = Spiders::getBlock(player.X, player.Y, player.Z);
-		textScale *= vec2(1.5, 1.5);
+		textScale *= glm::vec2(1.5, 1.5);
 		std::string debugText;
 		debugText = "fps: " + fps;
 		
-		Flatland::flatland_t* flat = sectors.flatland_at(player.X, player.Z);
+		Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);
 		if (flat)
 		{
 			debugText += 
 				" terrain: " + terrainToString(flat->terrain) + "(" + std::to_string(flat->terrain) + 
 				") skylvl: " + std::to_string(flat->skyLevel);
 		}
-		font.print(vec3(0.01, 0.02, 0.0), textScale, debugText, false);
+		font.print(glm::vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		
 		/*
 		ss.str("");

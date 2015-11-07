@@ -2,8 +2,9 @@
 
 #include <library/math/vector.hpp>
 #include "renderconst.hpp"
+#include <glm/geometric.hpp>
 
-using namespace library;
+using namespace glm;
 
 namespace cppcraft
 {
@@ -54,10 +55,10 @@ namespace cppcraft
 			{0, 127, 0}, { 0, -128,  0}, // top   bottom
 			{127, 0, 0}, {-128,  0,  0}  // right left
 		};
-		vec3 top_front = vec3( 0.0, 1.0,  1.0).normalized() * 127.0;
-		vec3 top_back  = vec3( 0.0, 1.0, -1.0).normalized() * 127.0;
-		vec3 top_right = vec3( 1.0, 1.0,  0.0).normalized() * 127.0;
-		vec3 top_left  = vec3(-1.0, 1.0,  0.0).normalized() * 127.0;
+		vec3 top_front = glm::normalize(vec3( 0.0, 1.0,  1.0)) * 127.0f;
+		vec3 top_back  = glm::normalize(vec3( 0.0, 1.0, -1.0)) * 127.0f;
+		vec3 top_right = glm::normalize(vec3( 1.0, 1.0,  0.0)) * 127.0f;
+		vec3 top_left  = glm::normalize(vec3(-1.0, 1.0,  0.0)) * 127.0f;
 		
 		float top_normals[6][3] =
 		{

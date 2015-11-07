@@ -3,7 +3,8 @@
 
 #define DBG_FLYING
 
-#include <library/math/vector.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "blocks.hpp"
 
 namespace library
@@ -20,15 +21,15 @@ namespace cppcraft
 	{
 	public:
 		// position
-		double X, Y, Z;
-		double snapX, snapY, snapZ;
+		glm::vec3 pos;
+		glm::vec3 snap_pos;
 		int    snapStage;
 		
 		// rotation
-		float xrotrad, yrotrad;
+		glm::vec2 rot;
 		
 		// acceleration
-		double pax, pay, paz;
+		glm::vec3 accel;
 		// no-gravity toggle flag
 		bool Flying;
 		// true if player moved voluntarily, update camera etc.
@@ -54,7 +55,7 @@ namespace cppcraft
 		// handles player rotation by following the input rotation vector
 		void handleRotation();
 		// returns the player look vector
-		library::vec3 getLookVector() const;
+		glm::vec3 getLookVector() const;
 		// returns the cube face that would face the player
 		block_t getBlockFacing() const;
 		// returns the terrain id for current player position (x, z)

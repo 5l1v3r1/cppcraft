@@ -2,6 +2,7 @@
 
 #include <library/log.hpp>
 #include <library/opengl/window.hpp>
+#include <library/math/matrix.hpp>
 #include "gameconf.hpp"
 #include "sectors.hpp"
 #include "world.hpp"

@@ -85,15 +85,15 @@ namespace cppcraft
 		bool returnvalue = false;
 		
 		// if player is beyond negative seam offset point on x axis
-		if (player.X <= halfworld - Seamless::OFFSET)
+		if (player.pos.x <= halfworld - Seamless::OFFSET)
 		{
 			preconditions();
 			
 			mtx.sectorseam.lock();
 			
 			// move player forward one sector (in blocks)
-			player.X += Sector::BLOCKS_XZ;
-			player.snapX += Sector::BLOCKS_XZ;
+			player.pos.x += Sector::BLOCKS_XZ;
+			player.snap_pos.x += Sector::BLOCKS_XZ;
 			// offset world x by -1
 			world.worldCoords.x -= 1;
 			world.increaseDelta(-1, 0);
@@ -132,15 +132,15 @@ namespace cppcraft
 			mtx.sectorseam.unlock();
 			returnvalue = true;
 		}
-		else if (player.X >= halfworld + Seamless::OFFSET)
+		else if (player.pos.x >= halfworld + Seamless::OFFSET)
 		{
 			preconditions();
 			
 			mtx.sectorseam.lock();
 			
 			// move player back one sector (in blocks)
-			player.X -= Sector::BLOCKS_XZ;
-			player.snapX -= Sector::BLOCKS_XZ;
+			player.pos.x -= Sector::BLOCKS_XZ;
+			player.snap_pos.x -= Sector::BLOCKS_XZ;
 			// offset world x by +1
 			world.worldCoords.x += 1;
 			world.increaseDelta(1, 0);
@@ -181,15 +181,15 @@ namespace cppcraft
 		
 		// -== Z axis ==-
 		
-		if (player.Z <= halfworld - Seamless::OFFSET)
+		if (player.pos.z <= halfworld - Seamless::OFFSET)
 		{
 			preconditions();
 			
 			mtx.sectorseam.lock();
 			
 			// offset player +z
-			player.Z += Sector::BLOCKS_XZ;
-			player.snapZ += Sector::BLOCKS_XZ;
+			player.pos.z += Sector::BLOCKS_XZ;
+			player.snap_pos.z += Sector::BLOCKS_XZ;
 			// offset world -z
 			world.worldCoords.z -= 1;
 			world.increaseDelta(0, -1);
@@ -225,15 +225,15 @@ namespace cppcraft
 			mtx.sectorseam.unlock();
 			return true;
 		}
-		else if (player.Z >= halfworld + Seamless::OFFSET)
+		else if (player.pos.z >= halfworld + Seamless::OFFSET)
 		{
 			preconditions();
 			
 			mtx.sectorseam.lock();
 			
 			// move player backward on the Z axis
-			player.Z -= Sector::BLOCKS_XZ;
-			player.snapZ -= Sector::BLOCKS_XZ;
+			player.pos.z -= Sector::BLOCKS_XZ;
+			player.snap_pos.z -= Sector::BLOCKS_XZ;
 			// move world forward on the Z axis
 			world.worldCoords.z += 1;
 			world.increaseDelta(0, 1);

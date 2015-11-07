@@ -258,7 +258,7 @@ namespace cppcraft
 	void PlayerActions::handleActions(double frametime)
 	{
 		//block_t facing  = player.getBlockFacing();
-		vec3 lookVector = player.getLookVector();
+		glm::vec3 lookVector = player.getLookVector();
 		
 		playerselect_t& selection =  plogic.selection;
 		
@@ -270,13 +270,13 @@ namespace cppcraft
 		#else
 			const double action_range = 5;
 		#endif
-		const double action_step  = 0.005;
-		const double action_bigstep = 0.2;
+		const float action_step  = 0.005;
+		const float action_bigstep = 0.2;
 		
-		vec3 rayBigStep = lookVector * action_bigstep;
-		vec3 rayStep = lookVector * action_step;
+		glm::vec3 rayBigStep = lookVector * action_bigstep;
+		glm::vec3 rayStep    = lookVector * action_step;
 		
-		vec3 playerPos = vec3(player.X, player.Y, player.Z);
+		glm::vec3 playerPos = player.pos;
 		// account for crouching
 		if (plogic.movestate == PMS_Crouch) playerPos.y -= 0.25;
 		
@@ -360,7 +360,7 @@ namespace cppcraft
 					int FIXME_create_some_smoke_n_shits;
 					
 					// create particles using fractionals
-					particleSystem.newParticle(vec3(ddx + 0.5, ddy + 0.25, ddz + 0.5), PARTICLE_M_GENER, 16);
+					particleSystem.newParticle(glm::vec3(ddx + 0.5f, ddy + 0.25f, ddz + 0.5f), PARTICLE_M_GENER, 16);
 					
 				} // block was removed
 				
@@ -387,7 +387,7 @@ namespace cppcraft
 			// if no block is found, we need to set selection.block to null, so that we know no block is selected
 			
 			// start at player position
-			vec3 ray = playerPos;
+			glm::vec3 ray = playerPos;
 			bool foundSelection = false;
 			
 			// integrate forward
@@ -400,7 +400,7 @@ namespace cppcraft
 				if (Block::fluidToAir(found.getID()) != _AIR)
 				{
 					// create fractionals from ray
-					vec3 fracs = ray.frac();
+					glm::vec3 fracs = fract(ray);
 					
 					if (found.selectionHitbox3D(found, fracs.x, fracs.y, fracs.z))
 					{
@@ -411,7 +411,7 @@ namespace cppcraft
 							ray -= rayStep;
 							Block& bfound = Spiders::getBlock(ray.x, ray.y, ray.z);
 							
-							fracs = ray.frac();
+							fracs = fract(ray);
 							
 							// glean until we hit air, then break
 							if (Block::selectionHitbox3D(bfound, fracs.x, fracs.y, fracs.z) == false) break;
@@ -420,7 +420,7 @@ namespace cppcraft
 						// now that we are out, increase ray by one step ahead to get back inside
 						ray += rayStep;
 						// create new fractionals
-						fracs = ray.frac();
+						fracs = fract(ray);
 						
 						int ddx = ray.x;
 						int ddy = ray.y;

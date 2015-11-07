@@ -1,7 +1,8 @@
 #ifndef THESUN_HPP
 #define THESUN_HPP
 
-#include <library/math/vector.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace library
 {
@@ -27,15 +28,15 @@ namespace cppcraft
 		}
 		
 		// getters for motionless sun
-		const library::vec3& getAngle() const
+		const glm::vec3& getAngle() const
 		{
 			return this->angle;
 		}
-		const library::vec3& getHalfAngle() const
+		const glm::vec3& getHalfAngle() const
 		{
 			return this->half1;
 		}
-		const library::vec3& getHalf2Angle() const
+		const glm::vec3& getHalf2Angle() const
 		{
 			return this->half2;
 		}
@@ -43,14 +44,14 @@ namespace cppcraft
 		// daylight multiplier: 1.0 = full daylight, 0.0 = total darkness
 		float daylight(float y);
 		// world ambient light color
-		library::vec3 ambienceColor();
+		glm::vec3 ambienceColor();
 		
 		// integrator for realtime sun values
 		void integrate(float step);
 		// travel distance check for updating shadows
 		void travelCheck();
 		// gettesr for realtime sun values
-		const library::vec3& getRealtimeAngle() const
+		const glm::vec3& getRealtimeAngle() const
 		{
 			return realAngle;
 		}
@@ -64,9 +65,9 @@ namespace cppcraft
 		}
 		
 		// each frame set realtime view-sunvector
-		void setRealtimeSunView(const library::mat4& matrot);
+		void setRealtimeSunView(const glm::mat4& matrot);
 		// getter for realtime view-sunvector
-		const library::vec3& getRealtimeViewAngle() const
+		const glm::vec3& getRealtimeViewAngle() const
 		{
 			return realViewAngle;
 		}
@@ -75,18 +76,18 @@ namespace cppcraft
 		void setStep(int step);
 		float getStepValue();
 		
-		library::mat4 getSunMatrix() const;
+		glm::mat4 getSunMatrix() const;
 		
 	private:
 		float step;
 		float radianAngle;   // target angle
-		library::vec3 angle; // target sun vector from player
-		library::vec3 half1;
-		library::vec3 half2;
+		glm::vec3 angle; // target sun vector from player
+		glm::vec3 half1;
+		glm::vec3 half2;
 		
 		float realRadian;
-		library::vec3 realAngle;
-		library::vec3 realViewAngle;
+		glm::vec3 realAngle;
+		glm::vec3 realViewAngle;
 		float realAmbience;
 		
 		float renderDist;

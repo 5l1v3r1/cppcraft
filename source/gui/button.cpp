@@ -19,7 +19,7 @@ namespace gui
 		this->active  = false;
 	}
 	
-	void Button::mouseEvent(int event, library::vec2 pos)
+	void Button::mouseEvent(int event, glm::vec2 pos)
 	{
 		// event handlers
 		if (event == 0 && pressed && this->action_func != nullptr)
@@ -45,7 +45,7 @@ namespace gui
 		this->ready_pressed = (event == 0) && !pressed;
 	}
 	
-	void Button::render(const Window& parent, const vec2& tile, double frameCounter)
+	void Button::render(const Window& parent, const glm::vec2& tile, double frameCounter)
 	{
 		(void) frameCounter;
 		if (this->changed)
@@ -56,14 +56,14 @@ namespace gui
 			const int index = (pressed) ? 13 : 10;
 			const int tileSizePixels = 32;
 			
-			vec2 size = rect.size / vec2(5, 1);
+			glm::vec2 size = rect.size / glm::vec2(5, 1);
 			uint32_t noWhite = BGRA8(255, 255, 255, 0);
 			
 			Rect frame = this->rect;
 			frame.pos += parent.getRect().pos;
 			
-			vec2 tileSize = tile * tileSizePixels;
-			vec2 tileBase(index * tileSize.x, 0 * tileSize.y);
+			glm::vec2 tileSize = tile * (float) tileSizePixels;
+			glm::vec2 tileBase(index * tileSize.x, 0 * tileSize.y);
 			
 			BorderedFrames::generate(data, frame, size, tileBase, tileSize, noWhite);
 			
@@ -78,22 +78,22 @@ namespace gui
 	}
 	void Button::renderText(const Window& parent, SimpleFont& font, double frameCounter)
 	{
-		vec2 size = rect.size * vec2(1.0 / this->text.size(), 1.0);
-		vec2 brd(0.125, 0.25);
+		glm::vec2 size = rect.size * glm::vec2(1.0 / this->text.size(), 1.0);
+		glm::vec2 brd(0.125, 0.25);
 		
-		vec2 loc(parent.getRect().pos + rect.pos + brd * size);
+		glm::vec2 loc(parent.getRect().pos + rect.pos + brd * size);
 		loc.x += rect.size.x * brd.x;
 		loc.y += rect.size.y / 2 - size.y / 2;
 		
-		size *= vec2(1.0) - 2 * brd;
+		size *= glm::vec2(1.0) - 2.0f * brd;
 		
-		font.setBackColor(vec4(0.0));
+		font.setBackColor(glm::vec4(0.0f));
 		float xxx = sinf(frameCounter*0.1) * 0.4;
 		if (active)
-			font.setColor(vec4(0.0, 0.0, 0.4 + xxx, 1.0));
+			font.setColor(glm::vec4(0.0, 0.0, 0.4 + xxx, 1.0));
 		else
-			font.setColor(vec4(0.0, 0.0, 0.2, 1.0));
+			font.setColor(glm::vec4(0.0, 0.0, 0.2, 1.0));
 		
-		font.print(vec3(loc.x, loc.y, 0.0), size, this->text, false);
+		font.print(glm::vec3(loc.x, loc.y, 0.0f), size, this->text, false);
 	}
 }

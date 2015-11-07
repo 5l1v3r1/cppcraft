@@ -1,8 +1,6 @@
 #include "render_gui.hpp"
 
 #include <library/log.hpp>
-#include <library/math/matrix.hpp>
-#include <library/math/vector.hpp>
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/vao.hpp>
 #include "camera.hpp"
@@ -12,17 +10,19 @@
 #include "spiders.hpp"
 #include "textureman.hpp"
 #include "world.hpp"
+#include <glm/gtx/transform.hpp>
+#include <library/math/matrix.hpp>
 #include <cmath>
 
 using namespace library;
 
 namespace cppcraft
 {
-	library::mat4 minimapMVP;
-	library::mat4 compassMVP;
+	glm::mat4 minimapMVP;
+	glm::mat4 compassMVP;
 	library::VAO compassVAO;
 	
-	void GUIRenderer::renderMinimap(mat4& ortho)
+	void GUIRenderer::renderMinimap(glm::mat4& ortho)
 	{
 		float compx = this->width * 0.86;
 		float compy = this->height * 0.24;
@@ -34,16 +34,16 @@ namespace cppcraft
 		if (camera.rotated)
 		{
 			// move to position
-			mat4 matview(ortho);
-			matview.translate_xy(compx, compy);
+			glm::mat4 matview(ortho);
+			matview *= glm::translate(glm::vec3(compx, compy, 0.0f));
 			
 			// rotate properly
-			matview *= rotationMatrix(0.0, 0.0, -player.yrotrad);;
+			matview *= rotationMatrix(0.0, 0.0, -player.rot.y);
 			
 			// orthograhic projection * view
-			compassMVP = matview * mat4(compassScale, compassScale, 1.0);
+			compassMVP = matview * glm::scale(glm::vec3(compassScale, compassScale, 1.0));
 			// orthograhic projection * view
-			minimapMVP = matview * mat4(minimapScale, minimapScale, 1.0);
+			minimapMVP = matview * glm::scale(glm::vec3(minimapScale, minimapScale, 1.0));
 		}
 		
 		/// minimap ///
@@ -63,7 +63,7 @@ namespace cppcraft
 		if (true) //camera.ref)
 		{
 			// absolute spawn position
-			vec3 spawn = Spiders::distanceToWorldXZ(World::WORLD_STARTING_X, World::WORLD_STARTING_Z);
+			glm::vec3 spawn = Spiders::distanceToWorldXZ(World::WORLD_STARTING_X, World::WORLD_STARTING_Z);
 			shd.sendVec3("spawn", spawn);
 		}
 		

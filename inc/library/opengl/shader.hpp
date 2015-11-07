@@ -1,9 +1,12 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
-#include <library/math/vector.hpp>
-#include <library/math/matrix.hpp>
 #include <library/opengl/opengl.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -34,21 +37,21 @@ namespace library
 		{
 			glUniform1f(uniform, f);
 		}
-		inline void sendVec2(GLint uniform, const vec2& v)
+		inline void sendVec2(GLint uniform, const glm::vec2& v)
 		{
-			glUniform2f(uniform, v.x, v.y);
+			glUniform2fv(uniform, 1, glm::value_ptr(v));
 		}
-		inline void sendVec3(GLint uniform, const vec3& v)
+		inline void sendVec3(GLint uniform, const glm::vec3& v)
 		{
-			glUniform3fv(uniform, 1, (GLfloat*) &v.x);
+			glUniform3fv(uniform, 1, glm::value_ptr(v));
 		}
-		inline void sendVec4(GLint uniform, const vec4& v)
+		inline void sendVec4(GLint uniform, const glm::vec4& v)
 		{
-			glUniform4fv(uniform, 1, (GLfloat*) &v.x);
+			glUniform4fv(uniform, 1, glm::value_ptr(v));
 		}
-		inline void sendMatrix(GLint uniform, const mat4& m)
+		inline void sendMatrix(GLint uniform, const glm::mat4& m)
 		{
-			glUniformMatrix4fv(uniform, 1, false, const_cast<mat4&> (m).data());
+			glUniformMatrix4fv(uniform, 1, false, glm::value_ptr(m));
 		}
 		// std::string version
 		inline void sendFloat(const std::string& uniform, float v)
@@ -56,22 +59,22 @@ namespace library
 			GLint location = getUniform(uniform);
 			if (location+1) sendFloat(location, v);
 		}
-		inline void sendVec2 (const std::string& uniform, const vec2& v)
+		inline void sendVec2 (const std::string& uniform, const glm::vec2& v)
 		{
 			GLint location = getUniform(uniform);
 			if (location+1) sendVec2(location, v);
 		}
-		inline void sendVec3 (const std::string& uniform, const vec3& v)
+		inline void sendVec3 (const std::string& uniform, const glm::vec3& v)
 		{
 			GLint location = getUniform(uniform);
 			if (location+1) sendVec3(location, v);
 		}
-		inline void sendVec4 (const std::string& uniform, const vec4& v)
+		inline void sendVec4 (const std::string& uniform, const glm::vec4& v)
 		{
 			GLint location = getUniform(uniform);
 			if (location+1) sendVec4(location, v);
 		}
-		inline void sendMatrix(const std::string& uniform, const mat4& m)
+		inline void sendMatrix(const std::string& uniform, const glm::mat4& m)
 		{
 			GLint location = getUniform(uniform);
 			if (location+1) sendMatrix(location, m);

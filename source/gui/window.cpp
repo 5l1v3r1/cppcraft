@@ -18,8 +18,8 @@ namespace cppcraft
 
 namespace gui
 {
-	Window::Window(const library::vec2& pos, 
-				   const library::vec2& size)
+	Window::Window(const glm::vec2& pos, 
+				   const glm::vec2& size)
 		: frame(pos, size)
 	{
 		this->tileSize = 64;
@@ -32,21 +32,21 @@ namespace gui
 			delete c;
 	}
 	
-	void Window::render(SimpleFont& font, const mat4& ortho, double frameCounter)
+	void Window::render(SimpleFont& font, const glm::mat4& ortho, double frameCounter)
 	{
 		Texture& tex = textureman[Textureman::T_GUI];
-		vec2 tile = vec2(1.0) / vec2(tex.getWidth(), tex.getHeight());
+		glm::vec2 tile = glm::vec2(1.0f) / glm::vec2(tex.getWidth(), tex.getHeight());
 		
 		if (this->changed)
 		{
 			this->changed = false;
 			std::vector<gui_vertex_t> data;
 			
-			vec2 size = 4.0 / this->frame.size; // repetitions
+			glm::vec2 size = 4.0f / this->frame.size; // repetitions
 			uint32_t noWhite = BGRA8(255, 255, 255, 0);
 			
-			vec2 tileSize = tile * this->tileSize;
-			vec2 tileBase(1 * tileSize.x, 1 * tileSize.y);
+			glm::vec2 tileSize = tile * (float) this->tileSize;
+			glm::vec2 tileBase(1 * tileSize.x, 1 * tileSize.y);
 			
 			BorderedFrames::generate(data, this->frame, size, tileBase, tileSize, noWhite);
 			

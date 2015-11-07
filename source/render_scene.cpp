@@ -47,9 +47,7 @@ namespace cppcraft
 	{
 		// initialize members
 		this->lastTime = 0.0;
-		this->iplayerX = player.X;
-		this->iplayerY = player.Y;
-		this->iplayerZ = player.Z;
+		this->snapPlayerPos = player.pos;
 		
 		// initialize terrain renderer
 		initTerrain();
@@ -116,7 +114,7 @@ namespace cppcraft
 		}
 		
 		// initialize some shaders with (late) texture sizes
-		vec3 sceneSize = vec3(sceneTex.getWidth(), sceneTex.getHeight(), renderer.getScreen().getAspect());
+		glm::vec3 sceneSize = glm::vec3(sceneTex.getWidth(), sceneTex.getHeight(), renderer.getScreen().getAspect());
 		
 		shaderman[Shaderman::BLOCKS_WATER].bind();
 		shaderman[Shaderman::BLOCKS_WATER].sendVec3("screendata", sceneSize);
@@ -149,7 +147,7 @@ namespace cppcraft
 		/// update frustum rotation matrix ///
 		if (camera.rotated)
 		{
-			camera.setRotation(player.xrotrad, player.yrotrad, 0.0);
+			camera.setRotation(player.rot.x, player.rot.y, 0.0f);
 		}
 		/// set sun view-direction (rotated)
 		thesun.setRealtimeSunView(camera.getRotationMatrix());
@@ -161,7 +159,7 @@ namespace cppcraft
 		/////////////////////////////////////////
 		///   render atmosphere, moon, etc.   ///
 		/////////////////////////////////////////
-		skyrenderer.render(camera, -playerY, renderer.frametick, underwater ? 2 : 0);
+		skyrenderer.render(camera, -playerPos.y, renderer.frametick, underwater ? 2 : 0);
 		
 		// copy sky to scene
 		skyFBO.blitTo(sceneFBO, 
@@ -189,34 +187,33 @@ namespace cppcraft
 				double WEIGHT = std::min(1.0, 0.15 / (renderer.FPS / 120.0));
 				//logger << Log::INFO << WEIGHT << " <-- " << 120.0 / renderer.FPS << Log::ENDL;
 				
-				float dist = distance(vec3(iplayerX, iplayerY, iplayerZ), vec3(player.snapX, player.snapY, player.snapZ));
+				// calculate distance to where we should be
+				float dist = distance(snapPlayerPos, player.snap_pos);
 				
 				// (cheap) movement interpolation
-				iplayerY = iplayerY * (1.0 - WEIGHT) + player.snapY * WEIGHT;
+				snapPlayerPos.y = mix(snapPlayerPos.y, player.snap_pos.y, WEIGHT);
 				
 				int dx = snapWX - world.getWX();
 				int dz = snapWZ - world.getWZ();
 				if (abs(dx) + abs(dz) < 3)
 				{
-					iplayerX = (iplayerX + dx * 16) * (1.0 - WEIGHT) + player.snapX * WEIGHT;
-					iplayerZ = (iplayerZ + dz * 16) * (1.0 - WEIGHT) + player.snapZ * WEIGHT;
+					snapPlayerPos.x = mix(snapPlayerPos.x + dx * BLOCKS_XZ, player.snap_pos.x, WEIGHT);
+					snapPlayerPos.z = mix(snapPlayerPos.z + dz * BLOCKS_XZ, player.snap_pos.z, WEIGHT);
 				}
 				else
 				{
-					iplayerX = player.snapX;
-					iplayerZ = player.snapZ;
+					snapPlayerPos.x = player.snap_pos.x;
+					snapPlayerPos.z = player.snap_pos.z;
 				}
 				this->playerMoved = player.JustMoved;
 				
 				// position & sector snapshots
-				this->playerX = iplayerX;
-				this->playerY = iplayerY;
-				this->playerZ = iplayerZ;
-				this->playerSectorX = (int)playerX / Sector::BLOCKS_XZ;
-				this->playerSectorZ = (int)playerZ / Sector::BLOCKS_XZ;
+				this->playerPos = snapPlayerPos;
+				this->playerSectorX = (int)playerPos.x / BLOCKS_XZ;
+				this->playerSectorZ = (int)playerPos.z / BLOCKS_XZ;
 				
 				// underwater snapshot
-				block_t blockID = Spiders::testArea(this->playerX,this->playerY-camera.getZNear(),this->playerZ);
+				block_t blockID = Spiders::testArea(playerPos.x, playerPos.y - camera.getZNear(), playerPos.z);
 				if (isFluid(blockID))
 				{
 					if (blockID == _WATER)
@@ -225,10 +222,12 @@ namespace cppcraft
 						this->underwater = 2;
 						
 					// cheap hack to fix seeing into water
-					this->playerY -= camera.getZNear();
+					this->playerPos.y -= camera.getZNear();
 				}
 				else this->underwater = 0;
 				
+				// update everything if we are too far from where we should be,
+				// or something new has shown up and we need to force-update
 				frustumRecalc = (dist > 0.01) || camera.recalc;
 				camera.recalc = false;
 			}
@@ -237,8 +236,8 @@ namespace cppcraft
 			if (frustumRecalc)
 			{
 				/// update matview matrix using player snapshot ///
-				camera.setWorldOffset(playerX, playerY, playerZ);
-				reflectionCamera.setWorldOffset(playerX, playerY, playerZ);
+				camera.setWorldOffset(playerPos.x, playerPos.y, playerPos.z);
+				reflectionCamera.setWorldOffset(playerPos.x, playerPos.y, playerPos.z);
 			}
 			
 			/// world coordinate snapshots ///
@@ -246,7 +245,7 @@ namespace cppcraft
 			snapWZ = world.getWZ();
 			
 			/// update minimap ///
-			minimap.update(playerX, playerZ);
+			minimap.update(playerPos.x, playerPos.z);
 			
 			/// set player positions ///
 			netplayers.positionSnapshots(snapWX, snapWZ, renderer.dtime);
@@ -254,7 +253,7 @@ namespace cppcraft
 			/// camera deviations ///
 			double camDev = cameraDeviation(renderer.frametick, renderer.dtime);
 			// modulate playerY when delta is high enough
-			playerY += camDev;
+			playerPos.y += camDev;
 			// update frustum if there was a change
 			frustumRecalc |= (fabs(camDev) > 0.001);
 			
@@ -308,11 +307,12 @@ namespace cppcraft
 		
 		/// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
 		
+		
 		// reflections only happen on the exact water-plane anyways, 
 		// so we just disable them completely when the player is below it
 		if (gameconf.reflections)
 		{
-			if (playerY >= RenderConst::WATER_LEVEL && drawq[RenderConst::TX_WATER].count() != 0)
+			if (playerPos.y >= RenderConst::WATER_LEVEL && drawq[RenderConst::TX_WATER].count() != 0)
 			{
 				reflectionCamera.ref = camera.ref;
 				reflectionCamera.rotated = camera.rotated;
@@ -327,7 +327,7 @@ namespace cppcraft
 				glDepthMask(GL_FALSE);
 				
 				// render sky (atmosphere, sun, moon, clouds)
-				skyrenderer.render(reflectionCamera, playerY - RenderConst::WATER_LEVEL, renderer.frametick, 1);
+				skyrenderer.render(reflectionCamera, playerPos.y - RenderConst::WATER_LEVEL, renderer.frametick, 1);
 				
 				if (gameconf.reflectTerrain)
 				{

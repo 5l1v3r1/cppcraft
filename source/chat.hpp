@@ -10,12 +10,13 @@
 #include <string>
 #include <time.h>
 #include <vector>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace library
 {
-	class vec2;
-	class vec3;
-	class mat4;
 	class SimpleFont;
 }
 
@@ -49,7 +50,7 @@ namespace cppcraft
 		typedef unsigned int color_t;
 		
 		void init(float width, float height);
-		void render(library::SimpleFont& font, const library::mat4& ortho, const library::vec2& textScale, Renderer& renderer);
+		void render(library::SimpleFont& font, const glm::mat4& ortho, const glm::vec2& textScale, Renderer& renderer);
 		void add(const std::string& source, const std::string& text, chattype_t type);
 		
 		void openChat(bool open);
@@ -68,13 +69,13 @@ namespace cppcraft
 		
 		void remove(int index);
 		
-		void bindFont(library::SimpleFont& font, const library::mat4& ortho);
+		void bindFont(library::SimpleFont& font, const glm::mat4& ortho);
 		
 		void renderSourcedMessage
 		(
 			library::SimpleFont& font, 
-			const library::vec3& spos, 
-			const library::vec2& scale, 
+			const glm::vec3& spos, 
+			const glm::vec2& scale, 
 			const std::string& time, 
 			const std::string& source, 
 			const std::string& text
@@ -82,8 +83,8 @@ namespace cppcraft
 		void renderInfoMessage
 		(
 			library::SimpleFont& font, 
-			const library::vec3& spos, 
-			const library::vec2& scale, 
+			const glm::vec3& spos, 
+			const glm::vec2& scale, 
 			const std::string& time, 
 			const std::string& from, 
 			const std::string& text
@@ -91,8 +92,8 @@ namespace cppcraft
 		void renderMessage
 		(
 			library::SimpleFont& font, 
-			const library::vec3& spos, 
-			const library::vec2& scale, 
+			const glm::vec3& spos, 
+			const glm::vec2& scale, 
 			const std::string& time, 
 			const std::string& text
 		);

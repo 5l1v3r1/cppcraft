@@ -1,18 +1,18 @@
 #ifndef FRUSTUM_HPP
 #define FRUSTUM_HPP
 
+#include "matrix.hpp"
+
 namespace library
 {
-	class mat4;
-	
 	class Frustum
 	{
 	public:
 		typedef float frustum_t;
 		
 		// call this every time the camera moves to update the frustum
-		void calculate(const mat4& matproj, const mat4& matview);
-		void calculate(const mat4& matclip);
+		void calculate(const glm::mat4& matproj, const glm::mat4& matview);
+		void calculate(const glm::mat4& matclip);
 		
 		// this takes a 3D point and returns TRUE if it's inside of the frustum
 		bool point(frustum_t x, frustum_t y, frustum_t z) const;

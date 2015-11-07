@@ -15,6 +15,8 @@
 #include "textureman.hpp"
 #include "vertex_block.hpp"
 #include <cmath>
+#include <glm/gtx/transform.hpp>
+#include <library/math/matrix.hpp>
 
 using namespace library;
 
@@ -36,22 +38,22 @@ namespace cppcraft
 	
 	void SceneRenderer::recalculateFrustum()
 	{
-		vec3 look = player.getLookVector();
+		glm::vec3 look = player.getLookVector();
 		
 		// recalculate view & mvp matrix
 		// view matrix (rotation + translation)
-		camera.setTranslation(-playerX, -playerY, -playerZ);
+		camera.setTranslation(-playerPos.x, -playerPos.y, -playerPos.z);
 		
 		recalculateFrustum(camera, drawq, look);
 		
 		if (gameconf.reflections)
 		{
 			// set reflection camera view
-			mat4 matref = camera.getViewMatrix();
-			matref.translate(0, RenderConst::WATER_LEVEL * 2, 0);
-			matref *= mat4(1.0, -1.0, 1.0);
+			glm::mat4 matref = camera.getViewMatrix();
+			matref *= glm::translate(glm::vec3(0.f, RenderConst::WATER_LEVEL * 2.0f, 0.f));
+			matref *= glm::scale(glm::vec3(1.0f, -1.0f, 1.0f));
 			
-			reflectionCamera.setRotationMatrix(matref.rotation());
+			reflectionCamera.setRotationMatrix(extractRotation(matref));
 			reflectionCamera.setViewMatrix(matref);
 			
 			if (gameconf.reflectTerrain)
@@ -62,7 +64,7 @@ namespace cppcraft
 		}
 	}
 	
-	void SceneRenderer::recalculateFrustum(cppcraft::Camera& camera, DrawQueue& drawq, const vec3& look)
+	void SceneRenderer::recalculateFrustum(cppcraft::Camera& camera, DrawQueue& drawq, const glm::vec3& look)
 	{
 		// recalculate camera frustum
 		camera.calculateFrustum();
@@ -165,7 +167,7 @@ namespace cppcraft
 		rg.ystp = ystp;
 		rg.zstp = zstp;
 		rg.majority = majority;
-		rg.playerY  = playerY;
+		rg.playerY  = playerPos.y;
 		rg.frustum = &camera.getFrustum();
 		rg.gridSize = camera.getGridsize();
 		
@@ -234,7 +236,7 @@ namespace cppcraft
 		
 	} // sort render queue
 	
-	void renderColumn(Column* cv, int i, vec3& position, GLint loc_vtrans)
+	void renderColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
 	{
 		// make sure we don't resend same position again
 		// around 10k+ skips per second with axis=64
@@ -259,7 +261,7 @@ namespace cppcraft
 		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
 	}
 	
-	void renderColumnSet(int i, vec3& position, GLint loc_vtrans)
+	void renderColumnSet(int i, glm::vec3& position, GLint loc_vtrans)
 	{
 		if (camera.needsupd)
 		{
@@ -306,7 +308,7 @@ namespace cppcraft
 			Shader& shd, 
 			GLint& location, 
 			GLint& loc_vtrans, 
-			vec3& position,
+			glm::vec3& position,
 			cppcraft::Camera& camera
 		)
 	{
@@ -348,7 +350,7 @@ namespace cppcraft
 	void SceneRenderer::renderScene(Renderer& renderer, cppcraft::Camera& renderCam)
 	{
 		GLint loc_vtrans, location;
-		vec3 position(-1.0f);
+		glm::vec3 position(-1.0f);
 		
 		textureman.bind(2, Textureman::T_SKYBOX);
 		
@@ -441,13 +443,13 @@ namespace cppcraft
 		textureman[Textureman::T_DIFFUSE].setWrapMode(GL_REPEAT);
 	}
 	
-	void renderReflectedColumn(Column* cv, int i, vec3& position, GLint loc_vtrans)
+	void renderReflectedColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
 	{
 		if (position.x != cv->pos.x || 
 			position.z != cv->pos.z)
 		{
 			// remember position
-			position = vec3(cv->pos.x, 0.0f, cv->pos.z);
+			position = glm::vec3(cv->pos.x, 0.0f, cv->pos.z);
 			// translate to new position
 			glUniform3fv(loc_vtrans, 1, &position.x);
 		}
@@ -459,7 +461,7 @@ namespace cppcraft
 	void SceneRenderer::renderReflectedScene(Renderer& renderer, cppcraft::Camera& renderCam)
 	{
 		GLint loc_vtrans, location;
-		vec3  position(-1);
+		glm::vec3  position(-1);
 		
 		// bind standard shader
 		handleSceneUniforms(renderer.frametick, 
@@ -518,7 +520,7 @@ namespace cppcraft
 	void SceneRenderer::renderSceneWater(Renderer& renderer)
 	{
 		GLint loc_vtrans, location;
-		vec3  position(-1);
+		glm::vec3  position(-1);
 		
 		// check for errors
 		#ifdef DEBUG

@@ -1,8 +1,11 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef LIBRARY_CAMERA_HPP
+#define LIBRARY_CAMERA_HPP
 
-#include <library/math/matrix.hpp>
 #include <library/math/frustum.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
+#include <glm/vec2.hpp>
+
 
 namespace library
 {
@@ -10,21 +13,6 @@ namespace library
 	
 	class Camera
 	{
-	protected:
-		float FOV;         //! \brief field of view (angle in degrees)
-		float znear, zfar; //! \brief znear and zfar planes
-		
-		// viewing frustum representation
-		library::Frustum frustum;
-		
-		// camera matrices
-		library::mat4 matproj;     //! \brief projection matrix (P)
-		library::mat4 matrot;      //! \brief camera rotation matrix (R)
-		library::mat4 matview;     //! \brief modelview matrix (MV)
-		library::mat4 matviewproj; //! \brief modelview-projection matrix (MVP)
-		// used to reconstruct viewpos from windowspace depth
-		library::vec2 nearPlaneHalfSize;
-		
 	public:
 		Camera() {}
 		Camera(float FOV, float aspect, float znear, float zfar);
@@ -46,31 +34,46 @@ namespace library
 		void setTranslation(float tx, float ty, float tz);
 		
 		//! \brief directly set rotation matrix
-		void setRotationMatrix(const mat4& rotation_matrix);
+		void setRotationMatrix(const glm::mat4& rotation_matrix);
 		//! \brief directly set modelview matrix
-		void setViewMatrix(const mat4& view_matrix);
+		void setViewMatrix(const glm::mat4& view_matrix);
 		
-		const library::mat4& getProjection() const
+		const glm::mat4& getProjection() const
 		{
 			return matproj;
 		}
-		const library::mat4& getViewMatrix() const
+		const glm::mat4& getViewMatrix() const
 		{
 			return matview;
 		}
-		const library::mat4& getRotationMatrix() const
+		const glm::mat4& getRotationMatrix() const
 		{
 			return matrot;
 		}
-		const library::mat4& getMVP() const
+		const glm::mat4& getMVP() const
 		{
 			return matviewproj;
 		}
 		
-		const library::vec2& getNearPlaneHalfSize() const
+		const glm::vec2& getNearPlaneHalfSize() const
 		{
 			return nearPlaneHalfSize;
 		}
+		
+	protected:
+		float FOV;         //! \brief field of view (angle in degrees)
+		float znear, zfar; //! \brief znear and zfar planes
+		
+		// viewing frustum representation
+		library::Frustum frustum;
+		
+		// camera matrices
+		glm::mat4 matproj;     //! \brief projection matrix (P)
+		glm::mat4 matrot;      //! \brief camera rotation matrix (R)
+		glm::mat4 matview;     //! \brief modelview matrix (MV)
+		glm::mat4 matviewproj; //! \brief modelview-projection matrix (MVP)
+		// used to reconstruct viewpos from windowspace depth
+		glm::vec2 nearPlaneHalfSize;
 	};
 	
 }

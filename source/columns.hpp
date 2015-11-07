@@ -1,11 +1,11 @@
 #ifndef COLUMNS_HPP
 #define COLUMNS_HPP
 
-#include <library/math/vector.hpp>
 #include "renderconst.hpp"
 #include "sectors.hpp"
 #include "vertex_block.hpp"
 #include "world.hpp"
+#include <glm/vec3.hpp>
 #include <string>
 
 namespace cppcraft
@@ -47,7 +47,7 @@ namespace cppcraft
 		unsigned int  vbo; // vertex buffer
 		unsigned int  ibo; // index buffer
 		
-		library::vec3 pos; // rendering position
+		glm::vec3 pos; // rendering position
 		
 		//int indices    [RenderConst::MAX_UNIQUE_SHADERS];
 		//int indexoffset[RenderConst::MAX_UNIQUE_SHADERS];

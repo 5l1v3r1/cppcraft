@@ -2,13 +2,16 @@
 
 #include <library/bitmap/colortools.hpp>
 #include <library/opengl/oglfont.hpp>
+#include <library/math/matrix.hpp>
 #include "../blocks.hpp"
 #include "../shaderman.hpp"
 #include "../textureman.hpp"
 #include <cmath>
+#include <glm/gtx/transform.hpp>
 
 using namespace cppcraft;
 using namespace library;
+using namespace glm;
 
 namespace gui
 {
@@ -20,7 +23,7 @@ namespace gui
 	void ItemRenderer::init(SimpleFont& font)
 	{
 		// pre-transform cube
-		vec3 GUI_cube[12] = 
+		glm::vec3 GUI_cube[12] = 
 		{
 			vec3(-0.5, -0.5,  0.5), vec3( 0.5, -0.5,  0.5), vec3( 0.5,  0.5,  0.5), vec3(-0.5,  0.5,  0.5),
 			vec3(-0.5,  0.5, -0.5), vec3(-0.5,  0.5,  0.5), vec3( 0.5,  0.5,  0.5), vec3( 0.5,  0.5, -0.5),
@@ -28,15 +31,15 @@ namespace gui
 		};
 		
 		// rotate cube and invert the Y-axis
-		mat4 scale(1, -1, 1);
-		mat4 matrot = rotationMatrix(PI / 4, -PI / 4, 0);
+		glm::mat4 scale = glm::scale(glm::vec3(1.0f, -1.0f, 1.0f));
+		glm::mat4 matrot = rotationMatrix(PI / 4, -PI / 4, 0);
 		// turn the cube upside down because this coordinate system
 		// has the positive Y-axis pointing downwards
 		matrot = scale * matrot;
 		
 		for (int vert = 0; vert < 12; vert++)
 		{
-			GUI_cube[vert] = matrot * GUI_cube[vert];
+			GUI_cube[vert] = vec3(matrot * glm::vec4(GUI_cube[vert], 1.0f));
 		}
 		
 		float GUIcube_tex[24] =
@@ -153,7 +156,7 @@ namespace gui
 	}
 	int ItemRenderer::emitBlock(Item& itm, float x, float y, float size)
 	{
-		vec3 offset = vec3(x, y, -1) + vec3(size, size, 0) * 0.6;
+		glm::vec3 offset = glm::vec3(x, y, -1.0f) + glm::vec3(size, size, 0.0f) * 0.6f;
 		
 		for (size_t i = 0; i < transformedCube.size(); i++)
 		{
@@ -199,7 +202,7 @@ namespace gui
 		}
 	}
 	
-	void ItemRenderer::render(mat4& ortho)
+	void ItemRenderer::render(glm::mat4& ortho)
 	{
 		// nothing to do here with no items or blocks
 		if (blockTiles.size() == 0) return;
