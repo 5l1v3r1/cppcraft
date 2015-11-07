@@ -12,6 +12,6 @@ namespace terragen
 		static const int WATERLEVEL = 64;
 		
 		static cppcraft::Block getBlock(float y, float in_beachhead, float density, float caves);
-		static void generateTerrain(gendata_t* gdata);
+		static void generate(gendata_t* gdata);
 	};
 }

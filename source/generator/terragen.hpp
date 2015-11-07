@@ -2,7 +2,7 @@
 #include "../sector.hpp"
 #include "../flatlands.hpp"
 #include "biomegen/biome.hpp"
-#include "genobject.hpp"
+#include "object.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <vector>

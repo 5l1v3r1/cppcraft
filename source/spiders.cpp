@@ -15,16 +15,14 @@ namespace cppcraft
 	Sector* Spiders::spiderwrap(int& bx, int& by, int& bz)
 	{
 		int fx = bx >> Sector::BLOCKS_XZ_SH;
-		int fy = by >> Sector::BLOCKS_Y_SH;
 		int fz = bz >> Sector::BLOCKS_XZ_SH;
 		
 		if (fx < 0 || fx >= sectors.getXZ() || 
 			fz < 0 || fz >= sectors.getXZ() || 
-			fy != 0)
+			by < 0 || by >= BLOCKS_Y)
 				return nullptr;
 		
 		bx &= (Sector::BLOCKS_XZ-1);
-		by &= (Sector::BLOCKS_Y-1);
 		bz &= (Sector::BLOCKS_XZ-1);
 		return sectors.getSector(fx, fz);
 	}
@@ -33,16 +31,14 @@ namespace cppcraft
 	Sector* Spiders::spiderwrap(Sector& s, int& bx, int& by, int& bz)
 	{
 		int fx = s.getX() + (bx >> Sector::BLOCKS_XZ_SH);
-		int fy = by >> Sector::BLOCKS_Y_SH;
 		int fz = s.getZ() + (bz >> Sector::BLOCKS_XZ_SH);
 		
 		if (fx < 0 || fx >= sectors.getXZ() || 
 			fz < 0 || fz >= sectors.getXZ() || 
-			fy != 0)
+			by < 0 || by >= BLOCKS_Y)
 				return nullptr;
 		
 		bx &= (Sector::BLOCKS_XZ-1);
-		by &= (Sector::BLOCKS_Y-1);
 		bz &= (Sector::BLOCKS_XZ-1);
 		return sectors.getSector(fx, fz);
 	}

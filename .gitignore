@@ -24,6 +24,7 @@
 *.log
 Debug/cppcraft
 Debug/Worlds/*
+Debug/config.ini
 
 # Archives
 *.rar

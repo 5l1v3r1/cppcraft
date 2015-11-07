@@ -28,7 +28,8 @@ namespace cppcraft
 {
 	
 	// activates the block in the world selected by the player, if applicable
-	void PlayerActions::activate(Item& item)
+	// held_item is the item the player is currently holding
+	void PlayerActions::activate(Item& held_item)
 	{
 		// with no selection in the world, we can't activate anything
 		if (plogic.hasSelection() == false) return;
@@ -119,21 +120,19 @@ namespace cppcraft
 		
 		bool placement_test = (item.getCount() != 0 && item.getType() == ITT_BLOCK);
 		
-		item_t id = item.getID();
-		
-		if (id == _LADDER)
+		if (item.getID() == _LADDER)
 		{
 			placement_test &= (selection.facing != 2 && selection.facing != 3);
 			
 			// override facing
 			//facing = Block::cubeToFacing(facing);
 		}
-		else if (isStair(id))
+		else if (isStair(item.getID()))
 		{
 			// nothing for the moment =)
 			
 		}
-		else if (isHalfblock(id))
+		else if (isHalfblock(item.getID()))
 		{
 			// top face
 			if (selection.facing == 2)
@@ -157,7 +156,7 @@ namespace cppcraft
 				}
 			}
 		}
-		else if (isLowblock(id))
+		else if (isLowblock(item.getID()))
 		{
 			/// low blocks, don't care ///
 			//ddy = int( frac(plogic.selected(1)) * 8 )
@@ -190,23 +189,23 @@ namespace cppcraft
 			if (Block::blockPlacement(newBlock.getID()))
 			{
 				// check if the block we are to place requires special rules
-				if (isDoor(id))
+				if (isDoor(item.getID()))
 				{
 					// place a door
 					Block& top = Spiders::getBlock(ddx, ddy+1, ddz);
 					if (Block::blockPlacement(top.getID()))
 					{
 						// upper
-						Spiders::addblock(ddx, ddy + 1, ddz, id, facing);
+						Spiders::setBlock(ddx, ddy + 1, ddz, Block(item.getID(), facing));
 						// lower = special bit 0 set to 1
-						Spiders::addblock(ddx, ddy + 0, ddz, id, facing + (1 << 2));
+						Spiders::setBlock(ddx, ddy + 0, ddz, Block(item.getID(), facing + (1 << 2)));
 						
 						// decrease count (directly)?!?
 						//item.setCount(item.getCount() - 1);
 						//inventory.setChanged(true);
 						
 						// play placement sound
-						soundman.playMaterial(id, Soundman::sound_place);
+						soundman.playMaterial(item.getID(), Soundman::sound_place);
 						
 						// upper
 						//NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, facing), NetworkBlock::BSET);
@@ -222,7 +221,7 @@ namespace cppcraft
 					// bitfield value
 					block_t bfield = facing + (item.getSpecial() << 2);
 					// add block to world
-					bool placed = Spiders::addblock(ddx, ddy, ddz, id, bfield);
+					bool placed = Spiders::setBlock(ddx, ddy, ddz, Block(item.getID(), bfield));
 					
 					if (placed)
 					{
@@ -232,7 +231,7 @@ namespace cppcraft
 						//inventory.setChanged(true);
 						
 						// play placement sound
-						soundman.playMaterial(id, Soundman::sound_place);
+						soundman.playMaterial(item.getID(), Soundman::sound_place);
 						
 						// send update to network
 						//NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);

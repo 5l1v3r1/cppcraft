@@ -480,10 +480,10 @@
         <File Name="source/generator/processing/postproc.cpp"/>
       </VirtualDirectory>
       <File Name="source/generator/random.hpp"/>
-      <File Name="source/generator/genobject.hpp"/>
       <VirtualDirectory Name="objects">
         <File Name="source/generator/objects/basic_tree.cpp"/>
       </VirtualDirectory>
+      <File Name="source/generator/object.hpp"/>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>

@@ -30,5 +30,5 @@ namespace cppcraft
 		// the ID of a block is its index into this vector
 		std::vector<BlockData> blocks;
 	};
-	BlockDB blockRegistry;
+	BlockDB blockDB;
 }

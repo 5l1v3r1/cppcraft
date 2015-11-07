@@ -33,7 +33,7 @@ namespace cppcraft
 		
 		// updating & modifying world
 		static bool updateBlock(int bx, int by, int bz, block_t bitfield);
-		static bool addblock(int bx, int by, int bz, block_t id, block_t bitfield);
+		static bool setBlock(int bx, int by, int bz, const Block& block);
 		static Block removeBlock(int bx, int by, int bz);
 		
 		// world distance calculations

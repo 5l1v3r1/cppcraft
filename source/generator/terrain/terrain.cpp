@@ -140,7 +140,7 @@ namespace terragen
 	
 	
 	// the main generator!
-	void Terrain::generateTerrain(gendata_t* data)
+	void Terrain::generate(gendata_t* data)
 	{
 		// interpolation grid dimensions
 		#define ngrid 4
@@ -150,6 +150,8 @@ namespace terragen
 		float noisearray[ngrid+1][ngrid+1];
 		// beach height values
 		float beachhead[ngrid+1][ngrid+1];
+		// caves
+		float cave_array[ngrid+1][ngrid+1];
 		
 		// retrieve data for noise biome interpolation, and heightmap
 		for (int x = 0; x <= ngrid; x++)
@@ -182,6 +184,9 @@ namespace terragen
 					
 				} // weights
 				
+				// caves
+				cave_array[x][z] = terrainFuncs.get(Biome::T_CAVES, p);
+				
 			} // grid x, z
 			
 			// set generic blocks using getTerrainSimple()
@@ -194,7 +199,7 @@ namespace terragen
 			{
 				fx = x / (float)BLOCKS_XZ * ngrid;
 				int bx = (int)fx; // start x
-				frx = fx - bx; frx = library::hermite(frx);
+				frx = fx - bx; //frx = library::hermite(frx);
 				
 				for (int z = 0; z < BLOCKS_XZ; z++)
 				{
@@ -202,10 +207,7 @@ namespace terragen
 					
 					fz = z / (float)BLOCKS_XZ * ngrid;
 					int bz = (int)fz;  // integral
-					frz = fz - bz; frz = library::hermite(frz);
-					
-					//printf("pos: %f, %f\n", fx, fz);
-					//assert (z < BLOCKS_XZ-1);
+					frz = fz - bz; //frz = library::hermite(frz);
 					
 					// density weights //
 					w0 = mix( noisearray[bx][bz  ], noisearray[bx+1][bz  ], frx );
@@ -216,7 +218,9 @@ namespace terragen
 					if (y <= WATERLEVEL || density < 0.0f)
 					{
 						// caves density (high precision) //
-						float caves = terrainFuncs.get(Biome::T_CAVES, p);
+						w0 = mix( cave_array[bx][bz  ], cave_array[bx+1][bz  ], frx );
+						w1 = mix( cave_array[bx][bz+1], cave_array[bx+1][bz+1], frx );
+						float caves = mix( w0, w1, frz );
 						// caves density //
 						
 						// beachhead weights //

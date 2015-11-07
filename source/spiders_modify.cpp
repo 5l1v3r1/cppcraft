@@ -34,67 +34,33 @@ namespace cppcraft
 		return true;
 	}
 	
-	bool Spiders::addblock(int bx, int by, int bz, block_t id, block_t bitfield)
+	bool Spiders::setBlock(int bx, int by, int bz, const Block& newblock)
 	{
-		// don't use addBlock() with _AIR
-		if (id == _AIR) return false;
-		
 		Sector* s = spiderwrap(bx, by, bz);
-		if (s == nullptr) return false;
+		if (s == nullptr)
+		{
+			printf("Could not setblock(%d, %d, %d): out of bounds",
+					bx, by, bz);
+			return false;
+		}
 		// if the area isn't loaded we don't have the ability to modify it,
 		// only the server can do that on-the-fly anyways
-		if (s->generated() == false) return false;
-		
-		Block& block = s[0](bx, by, bz);
-		
-		// avoid re-setting same block id
-		if (block.getID() == id) return false;
-		
-		// if the previous block was air, then we need to increase the "block count"
-		if (block.getID() == _AIR)
+		if (s->generated() == false)
 		{
-			s->getBlocks().blocks += 1;
+			printf("Could not setblock(%d, %d, %d): not generated",
+					bx, by, bz);
+			return false;
 		}
-		
-		// set new ID, facing & special
-		block.setID(id);
-		block.setBitfield(bitfield);
-		
+		// set new block
+		s[0](bx, by, bz) = newblock;
+		// fill in light, if its possible
+		lighting.floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
 		// update mesh
 		s->updateMeshesAt(by);
-		
-		if (id == _CHEST)
-		{
-			//int index = CreateSectorData(s, bx, by, bz, id);
-			//If index <> -1 Then // set index
-			//	b->b(bx, bz, by).datapos = index
-			//EndIf
-		}
-		
 		// write updated sector to disk
 		//chunks.addSector(*s);
-		
 		// update nearby sectors only if we are at certain edges
 		updateSurroundings(*s, bx, by, bz);
-		
-		if (isFluid(id))
-		{
-			block.setExtra(1); // reset fluid counter
-			int FIXME_work_waterfill_testing;
-			//WaterFillTesting(s, bx, by, bz, id, 1)
-		}
-		else
-		{
-			// check if adding this block causes water flood
-			/*
-			if waterfillalgo(s, bx, by, bz) = FALSE then
-				'check if closed off a source of water
-				if IsFluid(getblock(s, bx, by-1, bz)) then
-					WaterCutoff(s, bx, by-1, bz)
-				endif
-			endif
-			*/
-		}
 		return true;
 	}
 	
@@ -121,6 +87,7 @@ namespace cppcraft
 		
 		// update the mesh, so we can see the change!
 		s->updateMeshesAt(by);
+		
 		// write updated sector to disk
 		//chunks.addSector(*s);
 		

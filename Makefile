@@ -7,7 +7,7 @@ OUTPUT = ./Debug/cppcraft
 
 # code folder
 SOURCE  = source source/generator source/generator/biomegen 
-SOURCE += source/generator/terrain source/generator/processing
+SOURCE += source/generator/terrain source/generator/processing source/generator/objects
 SOURCE += source/gui source/sound source/math
 
 # resource file
