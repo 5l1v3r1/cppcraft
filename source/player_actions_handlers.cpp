@@ -177,18 +177,12 @@ namespace cppcraft
 			// move from target block to the one opposite of selected face
 			switch (selection.facing)
 			{
-				case 0: ddz += 1; // +z
-				break;
-				case 1: ddz -= 1; // -z
-				break;
-				case 2: ddy += 1; // +y
-				break;
-				case 3: ddy -= 1; // -y
-				break;
-				case 4: ddx += 1; // +x
-				break;
-				case 5: ddx -= 1; // -x
-				break;
+				case 0: ddz += 1; break; // +z
+				case 1: ddz -= 1; break; // -z
+				case 2: ddy += 1; break; // +y
+				case 3: ddy -= 1; break; // -y
+				case 4: ddx += 1; break; // +x
+				case 5: ddx -= 1; break; // -x
 			}
 			
 			// check if we are allowed to place a block in the selected position
@@ -296,7 +290,7 @@ namespace cppcraft
 			}
 			else if (plogic.hasSelection())
 			{
-				if (selection.block->hasActivation())
+				if (selection.block.hasActivation())
 				{
 					activate(helditem);
 					return;
@@ -323,10 +317,10 @@ namespace cppcraft
 				int ddy = int(selection.pos.y);
 				int ddz = int(selection.pos.z);
 				
-				if (isDoor(selection.block->getID()))
+				if (isDoor(selection.block.getID()))
 				{
 					// remove the other doorpiece
-					if (selection.block->getExtra() & 1)
+					if (selection.block.getExtra() & 1)
 					{
 						// we're at lower, remove upper
 						Spiders::removeBlock(ddx, ddy+1, ddz);
@@ -437,13 +431,14 @@ namespace cppcraft
 						// make crc of internal position
 						int CRC = (ddx * Sector::BLOCKS_XZ + ddz) * Sector::BLOCKS_XZ + ddy;
 						// determine if the selection has been updated
-						if (selection.checkSum != CRC || selection.facing != selectionFace || selection.block == nullptr)
+						if (selection.checkSum != CRC || selection.facing != selectionFace
+							|| selection.block.getID() != selectionBlock.getID())
 						{
 							// set selection results
 							mtx.playerselection.lock();
 							{
 								// info
-								selection.block = &selectionBlock;
+								selection.block = selectionBlock;
 								selection.sector = sector;
 								selection.pos = ray;
 								selection.facing = selectionFace;
@@ -471,12 +466,11 @@ namespace cppcraft
 			
 			if (foundSelection == false)
 			{
-				if (selection.block != nullptr)
+				if (selection.sector)
 				{
-					// we have no selection
+					// unset our selection
 					mtx.playerselection.lock();
 					{
-						selection.block = nullptr;
 						selection.sector = nullptr;
 					}
 					mtx.playerselection.unlock();
@@ -510,7 +504,7 @@ namespace cppcraft
 				minimizer = selection.checkSum;
 				
 				// if we got here we have selected a new block to mine from
-				mineTimer = items.getMiningTime(*selection.block, helditem);
+				mineTimer = items.getMiningTime(selection.block, helditem);
 				
 				if (minimizer == -2)
 				{
@@ -550,7 +544,7 @@ namespace cppcraft
 				// play mining sound based on material
 				if (mineTimer % MINE_SOUNDMOD == 0)
 				{
-					soundman.playMaterial(selection.block->getID(), Soundman::sound_mine);
+					soundman.playMaterial(selection.block.getID(), Soundman::sound_mine);
 				}
 				
 				mineTimer -= 1;

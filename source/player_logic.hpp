@@ -1,13 +1,13 @@
 #ifndef PLAYER_LOGIC_HPP
 #define PLAYER_LOGIC_HPP
 
+#include "blocks.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <stdio.h>
 
 namespace cppcraft
 {
-	class Block;
 	class Sector;
 	
 	enum movestate_t
@@ -23,7 +23,7 @@ namespace cppcraft
 		// selected sector
 		Sector* sector;
 		// selected block
-		Block*  block;
+		Block block;
 		// grid position
 		glm::vec3 pos;
 		// selection direction
@@ -90,7 +90,10 @@ namespace cppcraft
 		Block* lastblock;
 		
 		// returns true if the player has selected a block in the world
-		bool hasSelection() const;
+		bool hasSelection() const
+		{
+			return selection.sector != nullptr;
+		}
 		
 		/// all movement & speed related ///
 		void translatePlayer();

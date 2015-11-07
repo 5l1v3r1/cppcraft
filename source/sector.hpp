@@ -100,6 +100,12 @@ namespace cppcraft
 		{
 			return this->meshgen != 0;
 		}
+		
+		
+		bool isUpdatingMesh() const
+		{
+			return this->meshgen != 0;
+		}
 		// update relevant parts of this sectors mesh
 		void updateByMask(uint8_t mask);
 		void updateMeshesAt(int by);

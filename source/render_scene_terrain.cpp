@@ -324,14 +324,6 @@ namespace cppcraft
 			shd.sendMatrix("matmvp", camera.getMVP());
 		}
 		
-		/*static int lastref = 9;
-		
-		if (lastref != camera.ref)
-		{
-			lastref = camera.ref;
-			logger << Log::INFO << camera.ref << Log::ENDL;
-		}*/
-		
 		// common stuff
 		shd.sendVec3 ("lightVector", thesun.getRealtimeAngle());
 		shd.sendFloat("daylight",    thesun.getRealtimeDaylight());

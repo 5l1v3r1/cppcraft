@@ -66,18 +66,15 @@ namespace cppcraft
 	
 	void Sector::updateMeshesAt(int y)
 	{
-		this->meshgen |= y / 32;
-		precompq.add(*this);
+		precompq.add(*this, y / 32);
 	}
 	void Sector::updateByMask(uint8_t mask)
 	{
-		this->meshgen |= mask;
-		precompq.add(*this);
+		precompq.add(*this, mask);
 	}
 	void Sector::updateAllMeshes()
 	{
-		this->meshgen = 0xFF;
-		precompq.add(*this);
+		precompq.add(*this, 0xFF);
 	}
 	
 	void Sector::clear()

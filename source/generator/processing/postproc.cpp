@@ -66,8 +66,8 @@ namespace terragen
 			
 			// gravel / stone areas
 			glm::vec2 p = gdata->getBaseCoords2D(x, z);
-			float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
-							   glm::simplex(p * 0.02f)  * 0.4;
+			//float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
+			//				   glm::simplex(p * 0.02f)  * 0.4;
 			
 			int terrain = gdata->flatl(x, z).terrain;
 			
@@ -213,9 +213,6 @@ namespace terragen
 					
 				} // ore deposition
 				
-				block.setSkyLight((air) ? 15 : 0);
-				block.setBlockLight(0);
-				
 				// check if megatransparent
 				if (block.isAirOrCross(block.getID()) == false)
 				{
@@ -232,6 +229,10 @@ namespace terragen
 						skyLevel = y+1;
 					}
 				}
+				
+				// SMART: set air value after we have determined air..
+				block.setSkyLight((air) ? 15 : 0);
+				block.setBlockLight(0);
 				
 			} // y
 			

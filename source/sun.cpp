@@ -62,7 +62,7 @@ namespace cppcraft
 		vec3 angle = vec3(cos(rad), sin(rad), 0.0);
 		// interpolate with realtime angle
 		vec3 newAngle = mix(getRealtimeAngle(), angle, timestep);
-		// extract angle
+		// extract "angle" from vector
 		realRadian = atan2(newAngle.y, newAngle.x);
 		// create new realtime angle
 		realAngle = vec3(cos(realRadian), sin(realRadian), 0.0);
@@ -137,7 +137,7 @@ namespace cppcraft
 	
 	void SunClass::setRealtimeSunView(const glm::mat4& matrot)
 	{
-		this->realViewAngle = vec3(matrot * vec4(realAngle, 1.0));
+		this->realViewAngle = mat3(matrot) * realAngle;
 	}
 	
 	glm::mat4 SunClass::getSunMatrix() const

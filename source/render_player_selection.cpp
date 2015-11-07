@@ -124,8 +124,8 @@ namespace cppcraft
 		int vy = (int)plogic.selection.pos.y;
 		int vz = (int)plogic.selection.pos.z;
 		
-		int model  = Block::blockModel(plogic.selection.block->getID());
-		int facing = plogic.selection.block->getFacing();
+		int model  = Block::blockModel(plogic.selection.block.getID());
+		int facing = plogic.selection.block.getFacing();
 		
 		bool updated = plogic.selection.updated;
 		plogic.selection.updated = false;

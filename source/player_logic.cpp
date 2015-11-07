@@ -13,11 +13,6 @@ namespace cppcraft
 	// sound timing intervals
 	///...
 	
-	bool PlayerLogic::hasSelection() const
-	{
-		return (selection.block != nullptr);
-	}
-	
 	static const int TIME_FIRST_STEP      = 4;
 	static const int TIME_BETWEEN_CROUCH  = 50;
 	static const int TIME_BETWEEN_STEPS   = 32;

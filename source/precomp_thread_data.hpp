@@ -5,7 +5,7 @@
 
 namespace cppcraft
 {
-	class FlatlandSector;
+	typedef uint16_t vertex_color_t;
 	class Sector;
 	
 	class PrecompThreadData
@@ -82,8 +82,8 @@ namespace cppcraft
 		// light raytracer & emission functions for each side of a cube
 		
 		// resolve (x, y, z) to vertex lighting
-		uint16_t getLight(int x, int y, int z);
-		uint16_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
+		vertex_color_t getLight(int x, int y, int z);
+		vertex_color_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
 		
 		void applyFaceLighting_PZ(int bx, int by, int bz);
 		void applyFaceLighting_NZ(int bx, int by, int bz);

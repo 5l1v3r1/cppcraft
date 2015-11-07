@@ -22,33 +22,27 @@ out vec3 lightdata;
 
 out vec3 v_pos;
 flat out vec3 v_normal;
-out vec4 waves;
+out vec3 w_vertex;
 
 const float VERTEX_SCALE_INV
 
 void main(void)
 {
 	vec4 position = vec4(in_vertex.xyz * VERTEX_SCALE_INV + vtrans, 1.0);
+	
 	position = matview * position;
 	gl_Position = matproj * position;
+	
+	// galactic coordinates
+	vec3 w_vertex  = position.xyz * mat3(matview) - worldOffset;
 	
 	// light and eye direction in view space
 	v_pos = -position.xyz;
 	// reflect light in view space using view-normal
 	v_normal = mat3(matview) * in_normal.xyz;
 	
-	// galactic coordinates
-	vec3 w_vertex  = position.xyz * mat3(matview) - worldOffset;
-	
-	// Current water vertex position, scaled down a lot, then motion added in one direction	
-	// output to fragment shader
-	float timer = frameCounter / 35.0;
-	
-	waves.xy = w_vertex.xz * vec2(0.20, 0.04) + timer * vec2(0.2, 0.0);
-	waves.zw = w_vertex.xz * vec2(0.08, 0.02) + timer * vec2(0.2, 0.0);
-	
 	int light = int(in_texture.w);
-	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, in_normal.w);
+	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, 1.0);
 	
 	waterColor  = in_biome;
 }
@@ -76,8 +70,7 @@ in vec3 lightdata;
 
 in vec3 v_pos;
 flat in vec3 v_normal;
-
-in vec4 waves; // wave positions
+in vec3 w_vertex;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 normals;
@@ -85,7 +78,7 @@ layout(location = 1) out vec4 normals;
 const float ZNEAR
 const float ZFAR
 
-#include "srdnoise.glsl"
+#include "noise.glsl"
 
 float getDepth(in vec2 uv)
 {
@@ -98,39 +91,15 @@ float getDepth(in vec2 uv)
 void main(void)
 {
 	// derivative simplex noise
-	vec2 grad, grad2;
-	srdnoise(waves.xy, 0.0, grad);
-	srdnoise(waves.zw, 0.0, grad2);
+	vec2 grad;
+	grad.x = snoise(w_vertex.xz);
+	grad.y = snoise(w_vertex.xz * 0.5);
 	
-	vec3 tx = vec3(0.0, grad.x, 2.0);
-	vec3 tz = vec3(2.0, 0.0, grad.y);
-	vec3 Normal = cross(tx, tz);
-	
-	tx.y = grad2.x;
-	tz.z = grad2.y;
-	Normal += cross(tx, tz);
-	
-	// average the gradients
-	Normal = normalize(Normal);
-	
-	/*
-	const vec3 norm = vec3(0, 1, 0);
-	const vec3 tang = vec3(1, 0, 0);
-	vec3 binorm = cross(tang, norm);
-	
-	mat3 tbn = mat3(tang.x, binorm.x, norm.x,
-					tang.y, binorm.y, norm.y,
-					tang.z, binorm.z, norm.z);
-	
-	vec3 n1 = texture(dudvmap, waves.yx).rgb * 2.0 - vec3(1.0);
-	vec3 n2 = texture(dudvmap, waves.wz).rgb * 2.0 - vec3(1.0);
-	vec3 Normal = n1 + n2;
-	Normal = normalize(Normal) * tbn;
-	*/
+	vec3 Normal = vec3(0.0, 1.0, 0.0);
 	
 	float vertdist = length(v_pos);
 	
-	vec3 vNormal = mat3(matview) * Normal;
+	vec3 vNormal = Normal; //mat3(matview) * Normal;
 	#define viewNormal  v_normal
 	
 	// normalize inputs (water planes are complex)
@@ -196,7 +165,6 @@ void main(void)
 #endif
 	
 	//----- LIGHTING -----
-	
 	#include "lightw.glsl"
 	
 	//- sun/specular -//
@@ -204,12 +172,6 @@ void main(void)
 	
 	float shine = max(0.0, dot(vHalf, viewNormal) );
 	float specf = max(0.0, dot(reflect(-vLight, viewNormal), vEye));
-	float spec  = dot(reflect(-vLight, vNormal), vEye);
-	float specv = max(0.0, spec);
-	
-	// ocean waves + sun highlights
-	vec3 highlights = pow(specv, 20.0) * vec3(0.4, 0.35, 0.3) + spec * 0.03;
-	color.rgb += highlights * shadow * shadow;
 	
 	// shiny/specular sun reflection
 	vec3 specular = SUNCOLOR * pow(specf, 20.0) * 1.5 * pow(shine, 8.0);

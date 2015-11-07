@@ -129,7 +129,7 @@ namespace cppcraft
 		return _AIR;
 	}
 	
-	vertex_color_t Spiders::getLightNow(float x, float y, float z)
+	uint16_t Spiders::getLightNow(float x, float y, float z)
 	{
 		if (y <= 0.0f) return 0; // mega-dark
 		if (y >= BLOCKS_Y) return 255;
@@ -141,7 +141,7 @@ namespace cppcraft
 		if (sector == nullptr) return 0;
 		
 		// return calculated shadows & lighting
-		return Lighting.lightCheck(*sector, ix, iy, iz);
+		return lighting.lightValue((*sector)(ix, iy, iz));
 	}
 	
 }

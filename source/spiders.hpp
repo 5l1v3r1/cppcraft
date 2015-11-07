@@ -11,19 +11,14 @@ namespace library
 
 namespace cppcraft
 {
-	typedef unsigned short block_t;
-	typedef uint16_t vertex_color_t;
-	class Block;
-	class Sector;
-	
 	class Spiders
 	{
 	private:
 		
 	public:
+		// various block getters
 		static Block& getBlock(int x, int y, int z);
 		static Block& getBlock(Sector&, int x, int y, int z);
-		static Block& getBlockNoGen(Sector&, int x, int y, int z);
 		static Block& getBlock(float x, float y, float z, float size_xz);
 		
 		// converts a position (x, y, z) to an explicit in-system position
@@ -40,17 +35,15 @@ namespace cppcraft
 		static bool updateBlock(int bx, int by, int bz, block_t bitfield);
 		static bool addblock(int bx, int by, int bz, block_t id, block_t bitfield);
 		static Block removeBlock(int bx, int by, int bz);
-		static bool addsector(int bx, int by, int bz, Sector::sectorblock_t* sectorblock);
-		static bool addemptysector(int bx, int by, int bz);
-
+		
 		// world distance calculations
 		static glm::vec3 distanceToWorldXZ(int wx, int wz);
 		
 		// updating neighbors
 		static void updateSurroundings(Sector&, int bx, int by, int bz);
 		
-		// realtime complex lighting calculation
-		static vertex_color_t getLightNow(float x, float y, float z);
+		// returns the light values at (x, y, z)
+		static uint16_t getLightNow(float x, float y, float z);
 	};
 	extern Block air_block;
 }

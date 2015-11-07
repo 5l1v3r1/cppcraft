@@ -14,23 +14,16 @@ using namespace library;
 namespace cppcraft
 {
 	constexpr float PI = atan(1.0) * 4;
-	LightingClass Lighting;
+	Lighting lighting;
 	
-	const float LightingClass::DARKNESS = 255;
-	const float LightingClass::SHADOWS  = 255 * 0.65;
-	const float LightingClass::AMB_OCC  = 255 * 0.48;
-	const float LightingClass::CORNERS  = 255 * 0.55;
-	
-	void LightingClass::init()
+	void Lighting::init()
 	{
 		extern Block air_block;
 		air_block.setLight(15, 0);
 	}
 	
-	uint16_t LightingClass::lightCheck(Sector& sector, int bx, int by, int bz)
+	uint16_t Lighting::lightValue(Block& block)
 	{
-		Block& block = sector(bx, by, bz);
-		
 		uint16_t r = (block.getSkyLight()   * 17);
 		uint16_t g = (block.getBlockLight() * 17);
 		
@@ -66,16 +59,21 @@ namespace cppcraft
 			z >= sectors.getXZ() * BLOCKS_XZ ||
 			y >= BLOCKS_Y)      break;
 		
-		// avoid setting light values for non-air
-		Block& blk2 = Spiders::getBlock(x, y, z);
+		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
+		//assert(sector.generated());
+		
+		// decrease light level based on what we hit
+		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
 		level -= lightPenetrate(blk2.getID());
-		level = (level < 0) ? 0 : level;
+		level = (level >= 0) ? level : 0;
 		
 		// avoid lowering light values for air
 		if (blk2.getSkyLight() >= level) break;
 		
 		// set new light level
 		blk2.setSkyLight(level);
+		// make sure the sectors mesh is updated, since something was changed
+		if (!sector.isUpdatingMesh()) sector.updateAllMeshes();
 		
 		// once level reaches zero we are done, so early exit
 		if (level == 0) break;
@@ -115,7 +113,7 @@ namespace cppcraft
 		if (mask & 8) propagateSkylight(x, y, z, 5, 15); // -z
 	}
 	
-  void LightingClass::atmosphericFlood(Sector& sector)
+  void Lighting::atmosphericFlood(Sector& sector)
   {
     int sx = sector.getX() * BLOCKS_XZ;
     int sz = sector.getZ() * BLOCKS_XZ;
@@ -143,7 +141,9 @@ namespace cppcraft
       } // y
 	  
 	  // try to enter water and other transparent blocks
-	  propagateSkylight(sx+x, sky-1, sz+z, 3, 15);
+	  // for now, let's jsut use _WATER hardcoded
+	  if (sector(x, sky-1, z).getID() == _WATER)
+		propagateSkylight(sx+x, sky, sz+z, 3, 14);
 	  
     } // x, z
 	
@@ -152,7 +152,7 @@ namespace cppcraft
 	
   } // atmospheric flood
   
-  void LightingClass::torchlight(Sector& sector)
+  void Lighting::torchlight(Sector& sector)
   {
     int sx = sector.getX() * BLOCKS_XZ;
     int sz = sector.getZ() * BLOCKS_XZ;
@@ -200,6 +200,48 @@ namespace cppcraft
     } // x, z, y
 	
   } // atmospheric flood
+  
+  void Lighting::floodInto(int x, int y, int z)
+  {
+	  // for each neighbor to this block, try to
+	  // propagate skylight, assuming there is light...
+	  if (x > 0)
+	  {
+		Block& blk = Spiders::getBlock(x-1, y, z);
+		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+			propagateSkylight(x-1, y, z, 0, blk.getSkyLight()); // +x
+	  }
+	  if (x < sectors.getXZ()*BLOCKS_XZ-1)
+	  {
+		Block& blk = Spiders::getBlock(x+1, y, z);
+		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+			propagateSkylight(x+1, y, z, 1, blk.getSkyLight()); // -x
+	  }
+	  if (y > 0)
+	  {
+		Block& blk = Spiders::getBlock(x, y-1, z);
+		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+			propagateSkylight(x, y-1, z, 2, blk.getSkyLight()); // +y
+	  }
+	  if (y < BLOCKS_Y-1)
+	  {
+		Block& blk = Spiders::getBlock(x, y+1, z);
+		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+			propagateSkylight(x, y+1, z, 3, blk.getSkyLight()); // -y
+	  }
+	  if (z > 0)
+	  {
+		Block& blk = Spiders::getBlock(x, y, z-1);
+		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+			propagateSkylight(x, y, z-1, 4, blk.getSkyLight()); // +z
+	  }
+	  if (z < sectors.getXZ()*BLOCKS_XZ-1)
+	  {
+		Block& blk = Spiders::getBlock(x, y, z+1);
+		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+			propagateSkylight(x, y, z+1, 5, blk.getSkyLight()); // -z
+	  }
+  }
   
   void propagateBlocklight(int x, int y, int z, int dir, int level)
   {

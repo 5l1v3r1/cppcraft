@@ -13,25 +13,19 @@ namespace cppcraft
 {
 	class Sector;
 	
-	class LightingClass
+	class Lighting
 	{
 	public:
-		static const int LIGHT_CULL_SECTOR = 4;
-		
-		static const float DARKNESS;
-		static const float SHADOWS;
-		static const float AMB_OCC;
-		static const float CORNERS;
-		
 		void init();
 		
-		uint16_t lightCheck(Sector& sector, int bx, int by, int bz);
+		uint16_t lightValue(Block& block);
 		
 		// floods an initialized column of sectors with skylight
 		static void atmosphericFlood(Sector& sector);
 		static void torchlight(Sector& sector);
+		static void floodInto(int x, int y, int z);
 	};
-	extern LightingClass Lighting;
+	extern Lighting lighting;
 }
 
 #endif

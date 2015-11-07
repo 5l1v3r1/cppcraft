@@ -72,15 +72,17 @@ namespace cppcraft
 			available.push_back(new PrecompJob);
 	}
 	
-	void PrecompQ::add(Sector& sector)
+	void PrecompQ::add(Sector& sector, uint8_t parts)
 	{
 		// we don't care if the sector is currently
 		// being generated again, all we care about
 		// is that is has been generated at some point
 		assert(sector.generated() == true);
-		//assert(sector.meshgen != 0);
 		
-		sector.meshgen |= 1;
+		//assert(sector.meshgen != 0);
+		if (sector.meshgen != 0) return;
+		
+		sector.meshgen |= parts;
 		queue.push_back(&sector);
 	}
 	
@@ -131,10 +133,11 @@ namespace cppcraft
 					 && sect.getX() < sectors.getXZ()-1 && sect.getZ() < sectors.getXZ()-1)
 					if (sect.atmospherics == false)
 					{
+						if (!validateSector(&sect)) return false;
 						#ifdef TIMING
 							Timer timer;
 						#endif
-						Lighting.atmosphericFlood(sect);
+						lighting.atmosphericFlood(sect);
 						#ifdef TIMING
 							printf("Time spent in that goddamn atm flood: %f\n",
 								timer.getTime());
@@ -154,6 +157,9 @@ namespace cppcraft
 				startJob(*it);
 				queue.erase(it++);
 			}
+			else if ((*it)->meshgen == 0)
+				queue.erase(it++);
+			
 			else ++it;
 		}
 		

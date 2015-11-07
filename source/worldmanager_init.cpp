@@ -29,7 +29,7 @@ namespace cppcraft
 		// initialize precompiler systems
 		precompq.init();
 		// initialize lighting
-		Lighting.init();
+		lighting.init();
 		
 		/// our esteemed generator ///
 		terragen::Generator::init();

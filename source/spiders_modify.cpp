@@ -5,13 +5,12 @@
 #include "columns.hpp"
 #include "chunks.hpp"
 #include "generator.hpp"
+#include "lighting.hpp"
 #include "precompq.hpp"
 #include "sectors.hpp"
 #include <assert.h>
 
 using namespace library;
-
-
 
 namespace cppcraft
 {
@@ -117,6 +116,9 @@ namespace cppcraft
 		// set the block to _AIR
 		s[0](bx, by, bz).setID(_AIR);
 		
+		// try to flood this new fancy empty space with light
+		lighting.floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		
 		// update the mesh, so we can see the change!
 		s->updateMeshesAt(by);
 		// write updated sector to disk
@@ -127,44 +129,6 @@ namespace cppcraft
 		
 		// return COPY of block
 		return block;
-	}
-
-	bool Spiders::addsector(int bx, int by, int bz, Sector::sectorblock_t* sectorblock)
-	{
-		if (sectorblock == nullptr) return false;
-
-		Sector* s = spiderwrap(bx, by, bz);
-		if (s == nullptr) return false;
-		
-		/*
-        if (!s->blockpt) s->blockpt = new Sector::sectorblock_t;
-        if (!s->blockpt) return false;
-		
-        memcpy(s->blockpt, sectorblock, sizeof(Sector::sectorblock_t));
-		*/
-		
-		// write updated sector to disk
-		//chunks.addSector(*s);
-		
-        // update neighboring sectors (depending on edges)
-        updateSurroundings(*s, bx, by, bz);
-		
-		return true;
-	}
-	
-	bool Spiders::addemptysector(int bx, int by, int bz)
-	{
-		Sector* s = spiderwrap(bx, by, bz);
-		if (s == nullptr) return false;
-		s->clear();
-		
-		// write updated sector to disk
-		//chunks.addSector(*s);
-		
-		// update neighboring sectors (depending on edges)
-		//updateSurroundings(*s, bx, by, bz, false);
-		
-		return true;
 	}
 	
 	inline void updateNeighboringSector(Sector& sector, int y)

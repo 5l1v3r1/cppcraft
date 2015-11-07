@@ -6,21 +6,10 @@
 
 namespace cppcraft
 {
-	
-	vertex_color_t mixuint64(vertex_color_t l1, vertex_color_t l2)
+	vertex_color_t mix(vertex_color_t l1, vertex_color_t l2)
 	{
-		vertex_color_t retvalue;
-		unsigned char* x1 = (unsigned char*) &l1;
-		unsigned char* x2 = (unsigned char*) &l2;
-		unsigned char* dest = (unsigned char*) &retvalue;
-		
-		for (unsigned int i = 0; i < sizeof(vertex_color_t); i++)
-		{
-			*dest = (*x1 + *x2) >> 1;
-			x1 ++; x2 ++;
-			dest++;
-		}
-		return retvalue;
+		return (((l1 & 255) + (l2 & 255)) >> 1)
+			 | (((l1 >>  8) + (l2 >>  8)) >> 1) << 8;
 	}
 	
 	int PrecompThreadData::emitStair(const Block& currentBlock, int bx, int by, int bz, block_t sides)
@@ -58,10 +47,10 @@ namespace cppcraft
 		if (sides & 4) // if top face was visible,
 		{
 			// set top lighting
-			indic[0].c = mixuint64(c[0], c[4]);
-			indic[1].c = mixuint64(c[1], c[7]);
-			indic[2].c = mixuint64(c[2], c[6]);
-			indic[3].c = mixuint64(c[3], c[5]);
+			indic[0].c = mix(c[0], c[4]);
+			indic[1].c = mix(c[1], c[7]);
+			indic[2].c = mix(c[2], c[6]);
+			indic[3].c = mix(c[3], c[5]);
 			indic += 4; // go to next face
 		}
 		if (sides & 8) // if bottom face was visible

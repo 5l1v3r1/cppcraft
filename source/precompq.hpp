@@ -1,6 +1,7 @@
 #ifndef PRECOMPQ_HPP
 #define PRECOMPQ_HPP
 
+#include <stdint.h>
 #include <list>
 
 namespace library
@@ -20,7 +21,7 @@ namespace cppcraft
 		void init();
 		
 		//! \brief Queues a sector for the mesh generator subsystem
-		void add(Sector& sector);
+		void add(Sector& sector, uint8_t parts);
 		
 		//! \brief executes one round of mesh generation scheduling
 		//! \warn  very time consuming, running N threads in parallell and waits for them to finish

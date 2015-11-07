@@ -6,9 +6,11 @@
 #include "camera.hpp"
 #include "chat.hpp"
 #include "minimap.hpp"
+#include "player_logic.hpp"
 #include "renderman.hpp"
 #include "sectors.hpp"
 #include "shaderman.hpp"
+#include "threading.hpp"
 #include <cmath>
 #include <sstream>
 #include <glm/vec3.hpp>
@@ -144,14 +146,40 @@ namespace cppcraft
 		}
 		font.print(glm::vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		
-		/*
-		ss.str("");
-		ss << "upd: " << camera.needsupd << " o1: " << drawq.size(1) << " o2: " << drawq.size(2) << " o3: " << drawq.size(3);
-		font.print(vec3(0.01, 0.03, 0.0), textScale, ss.str(), false);
-		*/
+		
+		// determine selection
+		std::unique_lock<std::mutex> lock(mtx.playerselection);
+		
+		// exit if we have no selection
+		if (plogic.hasSelection())
+		{
+		Block& selb   = plogic.selection.block;
+		int selection = plogic.selection.facing;
+		
+		std::stringstream ss;
+		ss << "(inner) ID: " << selb.getID() << " f: " << selection << "  light: " << (int) selb.getSkyLight();
+		
+		int ddx = plogic.selection.pos.x;
+		int ddy = plogic.selection.pos.y;
+		int ddz = plogic.selection.pos.z;
+		switch (selection)
+		{
+			case 0: ddz += 1; break; // +z
+			case 1: ddz -= 1; break; // -z
+			case 2: ddy += 1; break; // +y
+			case 3: ddy -= 1; break; // -y
+			case 4: ddx += 1; break; // +x
+			case 5: ddx -= 1; break; // -x
+		}
+		
+		selb = Spiders::getBlock(ddx, ddy, ddz);
+		ss << "  (outer) ID: " << selb.getID() << " sky: " << (int) selb.getSkyLight() << "  torch: " << (int) selb.getBlockLight();
+		
+		font.print(glm::vec3(0.01, 0.035, 0.0), textScale, ss.str(), false);
+		}
+		
 		glDisable(GL_BLEND);
 		//////////////////
 	}
-	
 	
 }
