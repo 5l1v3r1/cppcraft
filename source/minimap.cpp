@@ -148,15 +148,12 @@ namespace cppcraft
 		return c;
 	}
 	
-	static int getDepth(int x, int y, int z)
+	static int getDepth(Sector& sect, int x, int y, int z)
 	{
-		Sector* sect = Spiders::spiderwrap(x, y, z);
-		if (sect == nullptr) return 0;
-		
 		int depth = 0;
-		while (y > 0)
+		for (;y > 0; y--)
 		{
-			const Block& b = (*sect)(x, --y, z);
+			const Block& b = sect(x, y, z);
 			
 			if (b.getID() != _WATER) return depth;
 			depth++;
@@ -242,7 +239,7 @@ namespace cppcraft
 		}
 		else if (b.getID() == _WATER)
 		{
-			float depth = 1.0 - getDepth(x, y, z) / 64.0; // ocean depth
+			float depth = 1.0 - getDepth(sector, x, y, z) / 64.0; // ocean depth
 			// create gradiented ocean blue
 			return BGRA8(depth * depth * 62, depth*depth * 140, depth * 128, 255);
 		}
@@ -260,14 +257,12 @@ namespace cppcraft
 		
 		if (y < HEIGHT_BIAS)
 		{	// downwards
-			c = mixColor(c, lowColor(c), 0.01 * (HEIGHT_BIAS - y));
+			return mixColor(c, lowColor(c), 0.01 * (HEIGHT_BIAS - y));
 		}
 		else
 		{	// upwards
-			c = mixColor(c, highColor(c), 0.01 * (y - HEIGHT_BIAS));
+			return mixColor(c, highColor(c), 0.01 * (y - HEIGHT_BIAS));
 		}
-		
-		return c;
 	}
 	
 	void Minimap::setUpdated()
@@ -289,17 +284,17 @@ namespace cppcraft
 		
 		// fetch sky levels
 		int skylevel[8];
-		skylevel[0] = fs(3,  3).skyLevel;
-		skylevel[1] = fs(4,  4).skyLevel;
+		skylevel[0] = fs(3,  3).skyLevel-1;
+		skylevel[1] = fs(4,  4).skyLevel-1;
 		
-		skylevel[2] = fs(3, 12).skyLevel;
-		skylevel[3] = fs(4, 11).skyLevel;
+		skylevel[2] = fs(3, 12).skyLevel-1;
+		skylevel[3] = fs(4, 11).skyLevel-1;
 		
-		skylevel[4] = fs(12,  3).skyLevel;
-		skylevel[5] = fs(11,  4).skyLevel;
+		skylevel[4] = fs(12,  3).skyLevel-1;
+		skylevel[5] = fs(11,  4).skyLevel-1;
 		
-		skylevel[6] = fs(12, 12).skyLevel;
-		skylevel[7] = fs(11, 11).skyLevel;
+		skylevel[6] = fs(12, 12).skyLevel-1;
+		skylevel[7] = fs(11, 11).skyLevel-1;
 		
 		// determine colors for skylevel blocks
 		Bitmap::rgba8_t colors[4];
