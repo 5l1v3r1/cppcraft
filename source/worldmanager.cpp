@@ -5,6 +5,7 @@
 #include <library/sleep.hpp>
 #include "chunks.hpp"
 #include "generator.hpp"
+#include "generator/objectq.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
@@ -131,6 +132,11 @@ namespace cppcraft
 				/// ---------- GENERATOR ----------- ///
 				///----------------------------------///
 				Generator::run();
+				
+				///----------------------------------///
+				/// ---------- OBJECT GEN ---------- ///
+				///----------------------------------///
+				terragen::ObjectQueue::run();
 				
 				// update shadows if sun has travelled far
 				// but not when connected to a network

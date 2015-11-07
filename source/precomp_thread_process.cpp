@@ -124,12 +124,11 @@ namespace cppcraft
 		else
 		{
 			// normal transparent block
-			/*if (((bx + by*2 - bz*4) & 7) == 0)
-			{
-				sides = Block(_STONE).visibleFaces(*testdata, bx, by, bz);
-			}
-			else*/
-			sides = currentBlock.visibleFaces(*sector, bx, by, bz);
+			if ((bx + by + bz) & 1)
+				sides = Block(_ADMINIUM).visibleFaces(*sector, bx, by, bz);
+			else
+				sides = currentBlock.visibleFaces(*sector, bx, by, bz);
+			
 			model  = BlockModels::MI_BLOCK;
 			
 			// check if any are visible

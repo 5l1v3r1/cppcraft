@@ -87,7 +87,6 @@ uniform int   texrange;
 in vec3 texCoord;
 in vec4 biomeColor;
 in vec3 lightdata;
-in vec3 biomeCoords;
 flat in vec3 out_normal;
 flat in vec3 v_normals;
 

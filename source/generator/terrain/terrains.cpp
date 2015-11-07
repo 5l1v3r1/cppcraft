@@ -314,8 +314,8 @@ namespace terragen
 
 	float getnoise_grass(vec3 p)
 	{
-		p.x *= 0.002;
-		p.z *= 0.002;
+		p.x *= 0.0002; p.z *= 0.0002;
+		
 		float scale = 3.7;
 		float stretch = 1.0 / 12.0;
 		float width = 1.5f;

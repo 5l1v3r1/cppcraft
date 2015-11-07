@@ -139,6 +139,10 @@ namespace cppcraft
 		
 		// isType
 		static bool isAirOrCross(block_t id);
+		bool isAirOrCross()
+		{
+			return isAirOrCross(getID());
+		}
 		static bool isFallingBlock(block_t id);
 		
 		// tests

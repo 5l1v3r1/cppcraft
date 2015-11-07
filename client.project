@@ -484,6 +484,8 @@
         <File Name="source/generator/objects/basic_tree.cpp"/>
       </VirtualDirectory>
       <File Name="source/generator/object.hpp"/>
+      <File Name="source/generator/objectq.hpp"/>
+      <File Name="source/generator/objectq.cpp"/>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>

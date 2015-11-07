@@ -13,6 +13,9 @@ namespace terragen
 	
 	struct GenObject
 	{
+		GenObject(int X, int Y, int Z, int ID, unsigned int V1)
+			: x(X), y(Y), z(Z), id(ID), var1(V1) {}
+		
 		int getID() const
 		{
 			return id;
@@ -26,12 +29,14 @@ namespace terragen
 			return z / BLOCKS_XZ;
 		}
 		
-		int id, x, y, z;
-		unsigned short sizeX, sizeZ;
-		unsigned int seed;
+		int x, y, z, id;
 		// user-defined
 		unsigned int var1;
 		unsigned int var2;
+		// used to determine if we can generate this object yet
+		unsigned short sizeX, sizeZ;
+		// used to create different objects (eg. different world seeds)
+		unsigned int seed;
 	};
 	
 	class ObjectDB

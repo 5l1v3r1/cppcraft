@@ -30,8 +30,15 @@ namespace terragen
 	block_t terrain_beach [TER_CNT]  = { _SNOWSOIL, _SANDBEACH,   _SANDBEACH,    _SANDBEACH,    _SANDBEACH,    _GREENSOIL,    _GREENSOIL,     _SANDBEACH };
 	
 	#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
-	#define getCross(c_array) c_array[ (int)(randf(x, y+1, z) * ARRAY_SIZE(c_array)) ]
-	#define getCrossExt(c_array, n) c_array[ (int)(randf(x, y+1, z) * n) ]
+	void setCross(gendata_t* gdata, block_t* c_array, int x, int y, int z)
+	{
+		gdata->getb(x, y, z).setID
+		(c_array[(int)(randf(x, y, z) * ARRAY_SIZE(c_array))]);
+	}
+	void setCrossExt(gendata_t* gdata, block_t* c_array, int N, int x, int y, int z)
+	{
+		gdata->getb(x, y, z).setID(c_array[(int)(randf(x, y, z) * N)]);
+	}
 	
 	#define NUM_ORES  6
 	// ore deposit id
@@ -46,12 +53,17 @@ namespace terragen
 	
 	void PostProcess::run(gendata_t* gdata)
 	{
+		static const int GEN_BASIC_TREE = 0;
+		
 		// ore deposit _max_ count per column
 		int depo_count[NUM_ORES] = { 40, 20, 10, 15, 10, 5 };
 		
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		for (int z = 0; z < BLOCKS_XZ; z++)
 		{
+			int wx = gdata->wx * BLOCKS_XZ + x;
+			int wz = gdata->wz * BLOCKS_XZ + z;
+			
 			// count the same block ID until a new one appears
 			int counter = BLOCKS_Y-1;
 			// count current form of dirt/sand etc.
@@ -150,25 +162,28 @@ namespace terragen
 							}
 							
 						}
-						else if (rand < 0.03 && air > 20)
+						*/
+						if (rand < 0.03 && air)
 						{
-							if (snoise2(p.x * 0.005, p.z * 0.005) < 0.0)
+							if (glm::simplex(p * 0.005f) < 0.0)
 							{
-								int height = 7 + randf(dx, dy-1, dz) * 14;
-								if (dy + height < 160)
-									otreeHuge(dx, dy+1, dz, height);
+								unsigned height = 5 + randf(wx, y-1, wz) * 3;
+								if (y + height < 160)
+								{
+									gdata->objects.emplace_back(wx, y+1, wz, GEN_BASIC_TREE, height);
+								}
 								
 							}
-						}*/
+						}
 						if (rand < 0.28)
 						{
 							// note: this is an inverse of the otreeHuge noise
 							if (glm::simplex(p * 0.005f) > 0.25)
 							{
 								if (rand > 0.075)
-									gdata->getb(x, y+1, z) = getCrossExt(c_grass, 2);
+									setCrossExt(gdata, c_grass, 2, x, y+1, z);
 								else
-									gdata->getb(x, y+1, z) = getCross(c_grass);
+									setCross(gdata, c_grass, x, y+1, z);
 							}
 							
 						}

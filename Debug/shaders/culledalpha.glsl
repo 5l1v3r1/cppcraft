@@ -11,15 +11,12 @@ uniform float daylight;
 uniform vec3  lightVector;
 
 in vec3 in_vertex;
-in vec3 in_normal;
-in vec3 in_texture;
+in vec4 in_normal;
+in vec4 in_texture;
 in vec4 in_biome;
-in vec4 in_color;
-in vec4 in_color2;
 
 out vec3 texCoord;
-out vec4 lightdata;
-out vec4 torchlight;
+out vec3 lightdata;
 out vec4 biomeColor;
 out vec3 out_normal;
 out vec3 v_normals;
@@ -36,13 +33,12 @@ void main(void)
 #endif
 	
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
-	biomeColor = in_biome;
-	lightdata  = in_color;
-	torchlight = in_color2;
-	out_normal = in_normal;
 	
-	// dotlight
-	//#include "worldlight.glsl"
+	int light = int(in_texture.w);
+	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, in_normal.w);
+	
+	biomeColor = in_biome;
+	out_normal = in_normal.xyz;
 }
 #endif
 
@@ -58,8 +54,7 @@ uniform vec3  lightVector;
 uniform float modulation;
 
 in vec3 texCoord;
-in vec4 lightdata;
-in vec4 torchlight;
+in vec3 lightdata;
 in vec4 biomeColor;
 in vec3 out_normal;
 in vec3 v_normals;
@@ -74,7 +69,7 @@ const float ZFAR
 void main(void)
 {
 	color = texture(diffuse, texCoord.stp);
-	if (color.a < 0.1) discard;
+	if (color.a < 0.25) discard;
 	
 	// read tonecolor from tonemap
 	vec4 toneColor = texture(tonemap, texCoord.stp);

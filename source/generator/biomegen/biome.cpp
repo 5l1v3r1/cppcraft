@@ -65,7 +65,7 @@ namespace terragen
 		return c;
 	}
 	
-	void addColorv(RGB& a, RGB& b, float level)
+	void addColorv(RGB& a, const RGB& b, float level)
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -241,6 +241,9 @@ namespace terragen
 				addColorv(biomecl[CL_CROSS], cl_terrain, weight);
 				// tree color
 				addColorv(biomecl[CL_TREES], cl_inverted, weight);
+				biomecl[CL_TREES].r *= 0.8;
+				biomecl[CL_TREES].g *= 0.75;
+				biomecl[CL_TREES].b *= 0.6;
 				
 				// stone base color
 				cl_terrain = getStoneColor(terrain);

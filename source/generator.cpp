@@ -15,6 +15,7 @@
 // load compressor last
 #include "compressor.hpp"
 #include "generator/terragen.hpp"
+#include "generator/objectq.hpp"
 #include <algorithm>
 #include <cstring>
 #include <deque>
@@ -150,6 +151,11 @@ namespace cppcraft
 				dest.gen_flags    = Sector::GENERATED;
 				dest.atmospherics = false;
 				dest.meshgen      = 0; // make sure its added to meshgen
+				
+				// add all the objects from this sector to object queue
+				if (gdata->objects.size())
+					terragen::ObjectQueue::add(gdata->objects);
+				
 				// add it to the minimap!!!
 				minimap.addSector(dest);
 				// now that its been generated, let's meshmerize it
