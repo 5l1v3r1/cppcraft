@@ -102,33 +102,6 @@ namespace terragen
 		return mixColor( cl1, cl2, vfrac * 0.5 );
 	}
 	
-	RGB getGradientStone(float v, float w)
-	{
-		int   vint = (int)v, vnxt;
-		float vfrac = v - vint;
-		int   wint = (int)w, wnxt;
-		float wfrac = w - wint;
-		
-		// find color gradient values
-		vint = vint & (GRAD_4-1);
-		wint = wint & (GRAD_4-1);
-		vnxt = (vint + 1) & (GRAD_4-1);
-		wnxt = (wint + 1) & (GRAD_4-1);
-		
-		// get gradient array colors
-		RGB cl[4];
-		cl[0] = StonyColors[vint][wint];
-		cl[1] = StonyColors[vnxt][wint];
-		cl[2] = StonyColors[vint][wnxt];
-		cl[3] = StonyColors[vnxt][wnxt];
-		
-		// bilinear interpolation
-		cl[0] = mixColor( cl[0], cl[1], vfrac );
-		cl[1] = mixColor( cl[2], cl[3], vfrac );
-		
-		return mixColor( cl[0], cl[1], wfrac );
-	}
-	
 	RGB getGradient4x4(float v, float w, RGB grad[GRAD_4x4])
 	{
 		int   vint = (int)v, vnxt;
@@ -251,8 +224,7 @@ namespace terragen
 			}
 			
 			// modulate stone color
-			//cl_terrain = getGradientStone(random1, random2);
-			//biomecl[CL_STONE] = mixColor(&biomecl[CL_STONE], &cl_terrain, 0.5);
+			biomecl[CL_STONE] = getGradient4x4(random1, random2, StonyColors);
 			
 			// skip colors for the edges, where we only care about the terrain weights
 			if (skip_colors == false)

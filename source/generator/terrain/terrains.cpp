@@ -4,6 +4,7 @@
 #include <library/noise/simplex1234.h>
 #include <library/math/toolbox.hpp>
 #include "../biomegen/biome.hpp"
+#include "noise.hpp"
 #include "helpers.hpp"
 #include <cassert>
 #include <csignal>
@@ -163,16 +164,10 @@ namespace terragen
 	
 	float getnoise_autumn(vec3 p)
 	{
+		p.x *= 0.004; p.z *= 0.004;
+		
 		// land level
-		float n1 = p.y - 0.25 + sfreq2d(p, 0.01) * 0.1;
-		
-		float mid = 1.0 - abs(0.25 - p.y) / 0.25;
-		mid = (mid < 0.0) ? 0.0 : mid;
-		mid *= mid * mid * mid;
-		assert(mid >= 0.0 && mid <= 1.0);
-		
-		p.y *= 400.0;
-		n1 += powf(sfreq(p, 0.008), 2.0) * 0.02 + 0.01 * sfreq(p, 0.001);
+		float n1 = p.y - 0.2 - ridgedmultifractal(vec2(p.x, p.z), 4, 2.5, p.y, 0.0, 1.0) * 0.3;
 		return n1;
 	}
 	
@@ -355,8 +350,8 @@ namespace terragen
 
 	float getnoise_marsh(vec3 p)
 	{
-		p.x *= 0.001;
-		p.z *= 0.001;
+		p.x *= 0.002;
+		p.z *= 0.002;
 		float n1 = sfreq(p, 0.3) * 0.025 + sfreq(p, 2.5) * 0.0125;
 		float n2 = sfreq(p, 0.4) * 0.025 + sfreq(p, 2.6) * 0.0125;
 		

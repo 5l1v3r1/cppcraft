@@ -120,7 +120,7 @@ void main()
 	//color.rgb = vec3(luminance);
 	
 	// volumetric fog
-	float fogAmount = 0.0; //fogDensity(ray, wpos.xyz, depth);
+	float fogAmount = depth * depth; //fogDensity(ray, wpos.xyz, depth);
 	// fog density
 	fogAmount *= 0.6 * daylight * daylight;
 	
