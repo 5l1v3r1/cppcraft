@@ -18,6 +18,9 @@ namespace terragen
 		// first object
 		extern void basic_tree(GenObject& obj);
 		objectDB.add(basic_tree);
+		// add some ores
+		extern void initOres();
+		initOres();
 	}
 	
 	void Generator::run(gendata_t* data)

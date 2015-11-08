@@ -480,6 +480,8 @@
       <VirtualDirectory Name="processing">
         <File Name="source/generator/processing/postproc.hpp"/>
         <File Name="source/generator/processing/postproc.cpp"/>
+        <File Name="source/generator/processing/oregen.hpp"/>
+        <File Name="source/generator/processing/oregen.cpp"/>
       </VirtualDirectory>
       <File Name="source/generator/random.hpp"/>
       <VirtualDirectory Name="objects">

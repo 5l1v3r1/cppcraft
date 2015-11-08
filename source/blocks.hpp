@@ -229,7 +229,7 @@ namespace cppcraft
 #define _IRON        41
 #define _GOLD        42
 #define _REDSTONE    43
-#define _GREENSTONE  44
+#define _GRNSTONE    44
 #define _DIAMOND     45
 #define _MAGICSTONE  46
 #define _LIVINGSTONE 47
@@ -415,7 +415,7 @@ namespace cppcraft
 #define isLeaf(id) (id >= TREES_START && id <= TREES_END)
 #define isCross(id) (id >= CROSS_START && id <= CROSS_END)
 #define isFluid(id) (id == _WATER || id == _LAVABLOCK)
-#define isLight(id) (id == _TORCH || id == _MOLTENSTONE || id == _LAVABLOCK || id == _REDSTONE || id == _GREENSTONE || id == _FIRE || id == _LANTERN)
+#define isLight(id) (id == _TORCH || id == _MOLTENSTONE || id == _LAVABLOCK || id == _REDSTONE || id == _GRNSTONE || id == _FIRE || id == _LANTERN)
 
 #define isStair(id) (id >= STAIRS_START && id < STAIRS_END)
 #define isLowblock(id) (id >= LOWBLOCK_START && id <= LOWBLOCK_END)

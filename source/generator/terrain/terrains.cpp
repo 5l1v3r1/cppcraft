@@ -12,6 +12,7 @@
 #include <glm/gtc/noise.hpp>
 
 using namespace glm;
+using namespace library;
 
 namespace terragen
 {
@@ -44,7 +45,7 @@ namespace terragen
 	
 	///////////////////////////////////////////////////
 	///////////////////////////////////////////////////
-	#define sfreq(v, n) glm::simplex(glm::vec3(v))
+	#define sfreq(v, n) glm::simplex(v * (float) n)
 	#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * (float)n)
 	
 	float lower_grass(vec3 p);
@@ -108,10 +109,10 @@ namespace terragen
 		const float COSN_FAT   = 0.0;
 		float COSN_CUTS  = 0.5 - p.y * 0.5;
 		
-		//#define COSN_icecap1 cosnoise(npos, n1, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		//#define COSN_icecap2 cosnoise(npos, n2, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		#define COSN_icecap1 cosnoise(npos, n1, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		#define COSN_icecap2 cosnoise(npos, n2, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
 		
-		return p.y - 0.3 + n1 * 0.05 + n2 * 0.1;
+		return p.y - 0.3 + COSN_icecap1 * 0.05 + COSN_icecap2 * 0.1;
 	}
 
 	float getnoise_snow(vec3 p)
@@ -133,10 +134,10 @@ namespace terragen
 		const float COSN_FAT   = 0.0;
 		float COSN_CUTS  = 0.5 - p.y * 0.5;
 		
-		//#define COSN cosnoise(npos, n1, 0.5, p.y * 2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		#define COSN cosnoise(npos, n1, 0.5, p.y * 2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
 		
-		n1 = (p.y - 0.25) * p.y - n3 * n3 * 0.25 + n4 * 0.1; //COSN * 0.15;
-		//n1 = COSN;
+		n1 = (p.y - 0.25) * p.y - n3 * n3 * 0.25 + n4 * 0.1 + COSN * 0.15;
+		
 		// reduce height by contintental noise
 		n1 += c1 * 0.2 + c2 * 0.1;
 		
@@ -197,10 +198,8 @@ namespace terragen
 		float landx = 0.05; // + fabs(landscape - n0) * cliffscale;
 		float landz = 0.05; // + fabs(n0 - landscape) * cliffscale;
 		
-		//#define COSN_isl1 cosnoise(npos,  n1, landx, landz, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		//#define COSN_isl2 cosnoise(npos2, n2,  0.1,  2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		#define COSN_isl1 0.0
-		#define COSN_isl2 0.0
+		#define COSN_isl1 cosnoise(npos,  n1, landx, landz, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		#define COSN_isl2 cosnoise(npos2, n2,  0.1,  2.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
 		
 		// lower height + compr noise    + continental
 		n1 = p.y * p.y + COSN_isl1 * 0.25 + std::abs(n0) * 0.15 + 0.05;
@@ -418,14 +417,13 @@ namespace terragen
 		const float COSN_FAT   = 0.0; // ( (1.0 - p.y) ^ 2.0 ) * 0.25
 		const float COSN_CUTS  = 0.0; // Abs(n2)
 		
-		//#define COSN_jun  cosnoise(npos,  n1, 0.5, 0.5, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		//#define COSN_jun2 cosnoise(npos2, n2, 1.0, 1.0, 3.0, COSN_FAT, COSN_CUTS)
-		#define COSN_jun2 0
+		#define COSN_jun  cosnoise(npos,  n1, 0.5, 0.5, COSN_CURVE, COSN_FAT, COSN_CUTS)
+		#define COSN_jun2 cosnoise(npos2, n2, 1.0, 1.0, 3.0, COSN_FAT, COSN_CUTS)
 		
 		float ramping = (n1 + 1.0) * 0.5;
 		
 		//  compressed
-		//n1 = p.y - (fabs(n1-COSN_jun) * 0.75 + ramp(inv_y, 2.0) * 0.25);
+		n1 = p.y - (fabs(n1-COSN_jun) * 0.75 + ramp(inv_y, 2.0) * 0.25);
 		
 		n1 += std::abs(landscape1 * 0.2) - std::abs(landscape2 * 0.2);
 		
@@ -437,11 +435,11 @@ namespace terragen
 		
 		// ultra-scale down density above clouds
 		const float scaledown = 0.75;
-		if (p.y > scaledown) {
+		if (p.y > scaledown)
+		{
 			float dy = (p.y - scaledown) / (1.0 - scaledown);
 			n1 += dy * dy * 1.0;
 		}
-		
 		return n1;
 	}
 
@@ -450,14 +448,14 @@ namespace terragen
 		p.x *= 0.003;
 		p.z *= 0.003;
 		
-		float s = barchans(p.x + snoise1(p.z*0.4)*1.0f, p.z + snoise2(p.z*0.2f, p.x*0.2f)*0.3f);
+		float s = barchans(p.x + snoise1(p.z*0.4)*1.0f, p.z + glm::simplex(p*0.2f)*0.3f);
 		float n = snoise2(p.x*0.05, p.z*0.05);
 		s = 0.3 + n * 0.3 + s * (0.6 + n*0.4) * 0.3;
 		
 		s = p.y - (0.21 + s * 0.4);
 		
 		
-		float x = snoise2(p.x * 0.5, p.z * 0.5) + snoise2(p.x * 0.7, p.z * 0.7);
+		float x = glm::simplex(p * 0.5f) + glm::simplex(p * 0.7f);
 		x *= 0.5; // normalize
 		
 		const float EDGE = 0.45;
@@ -470,7 +468,7 @@ namespace terragen
 			// ramp up the value
 			float power = std::pow(linear, 0.25 - linear * 0.15);
 			// apply height
-			float height = power * 0.35 + snoise2(p.x * 0.7, p.z * 0.7) * 0.01;
+			float height = power * 0.35 + glm::simplex(p * 0.7f) * 0.01;
 			
 			if (x > RAMP_EDGE)
 			{

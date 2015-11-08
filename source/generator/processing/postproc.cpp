@@ -2,6 +2,7 @@
 
 #include "../terragen.hpp"
 #include "../random.hpp"
+#include "oregen.hpp"
 #include <glm/gtc/noise.hpp>
 
 using namespace cppcraft;
@@ -40,14 +41,6 @@ namespace terragen
 		gdata->getb(x, y, z).setID(c_array[(int)(randf(x, y, z) * N)]);
 	}
 	
-	#define NUM_ORES  6
-	// ore deposit id
-	block_t  depo_ores[NUM_ORES] = { _COAL, _IRON, _GOLD, _REDSTONE, _GREENSTONE, _DIAMOND };
-	// ore deposit will not spawn above this height
-	float   depo_depth[NUM_ORES] = {  1.0,   0.8,   0.4,     0.2,       0.2,        0.2    };
-	// deposition function
-	void pp_depositOre(gendata_t*, int ore, int* orecount, int x, int y, int z);
-	
 	const int STONE_CONV_OVERW = 4;
 	const int STONE_CONV_UNDER = 8;
 	
@@ -55,8 +48,8 @@ namespace terragen
 	{
 		static const int GEN_BASIC_TREE = 0;
 		
-		// ore deposit _max_ count per column
-		int depo_count[NUM_ORES] = { 40, 20, 10, 15, 10, 5 };
+		/// reset ore generator
+		OreGen::reset();
 		
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		for (int z = 0; z < BLOCKS_XZ; z++)
@@ -78,8 +71,8 @@ namespace terragen
 			
 			// gravel / stone areas
 			glm::vec2 p = gdata->getBaseCoords2D(x, z);
-			//float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
-			//				   glm::simplex(p * 0.02f)  * 0.4;
+			float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
+							   glm::simplex(p * 0.02f)  * 0.4;
 			
 			int terrain = gdata->flatl(x, z).terrain;
 			
@@ -128,7 +121,8 @@ namespace terragen
 				// check if ultradifferent
 				if (block.getID() != lastb->getID() && air)
 				{
-					float rand = randf(x, y, z); // TODO: use poisson disc here
+					// TODO: use poisson disc here
+					float rand = randf(x, y, z);
 					
 					///-////////////////////////////////////-///
 					///- create objects, and litter crosses -///
@@ -195,6 +189,7 @@ namespace terragen
 				}
 				else
 				{
+					// how many times we've seen the same block on the way down
 					counter++;
 				}
 				
@@ -211,18 +206,17 @@ namespace terragen
 					fy = ORE_CHANCE;
 					
 					float rand = randf(x, y-2, z);
-					
 					if (rand < fy)
 					{
 						// try to deposit ore
 						rand /= fy; // scale up!
 						
-						int ore = (int)(rand * rand * NUM_ORES);
+						int oreIndex = (int)(rand * rand * OreGen::size());
+						OreInfo& ore = OreGen::get(oreIndex);
 						
-						if (y < depo_depth[ore] * (float)(BLOCKS_Y-1))
+						if (y < ore.depth && ore.count > 0)
 						{
-							if (depo_count[ore] > 0)
-								pp_depositOre(gdata, ore, &depo_count[ore], x, y, z);
+							OreGen::deposit(gdata, ore, x, y, z);
 						}
 					} // ore chance
 					
@@ -272,33 +266,5 @@ namespace terragen
 		} // next x, z
 		
 	} // PostProcess::run()
-	
-	void pp_depositOre(gendata_t* gdata, int ore, int* orecount, int x, int y, int z)
-	{
-		// find number of deposits
-		int count = orecount[0] * randf(x+40, y-10, z-30);
-		// clamp value, in case of too many
-		if (count > orecount[0]) count = orecount[0];
-		
-		for (int i = 0; i < count; i++)
-		{
-			Block& block = gdata->getb(x, y, z);
-			if (block.getID() != _STONE) return;
-			
-			block.setID(depo_ores[ore]); // set block id
-			orecount[0]--;  // decrease deposition count
-			
-			int dir = (int)( randf(x-15, y-4, z+12) * 64.0 ); // find next direction
-			
-			if (dir &  1) z++;
-			if (dir &  2) z--;
-			if (dir &  4) y++;
-			if (dir &  8) y--;
-			if (dir & 16) x++;
-			if (dir & 32) x--;
-			// prevent going outside bounds
-			if (x < 0 || z < 0 || y < 1 || x >= BLOCKS_XZ || z >= BLOCKS_XZ) return;
-		}
-	}
 	
 } // terragen

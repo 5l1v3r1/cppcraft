@@ -116,7 +116,7 @@ namespace cppcraft
 		case _REDSTONE:  // redstone ore
 			return 2 + 4 * tiles.tilesX;
 			
-		case _GREENSTONE: // greenstone ore
+		case _GRNSTONE: // greenstone ore
 			return 3 + 4 * tiles.tilesX;
 			
 		case _MAGICSTONE: // magic-stone ore
