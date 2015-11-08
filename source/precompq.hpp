@@ -30,6 +30,11 @@ namespace cppcraft
 		//! \brief schedules a sector for mesh generation
 		void schedule(Sector& sector);
 		
+		std::size_t size() const
+		{
+			return queue.size();
+		}
+		
 	private:
 		// starting a job is actually a little complicated
 		void startJob(Sector* sector);

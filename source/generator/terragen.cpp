@@ -16,7 +16,7 @@ namespace terragen
 		// make sure the terrain function list is populated
 		terrainFuncs.init();
 		// first object
-		extern void basic_tree(GenObject& obj);
+		extern void basic_tree(GenObject&, Sector&);
 		objectDB.add(basic_tree);
 		// add some ores
 		extern void initOres();

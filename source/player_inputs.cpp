@@ -55,9 +55,9 @@ namespace cppcraft
 		// initialize input systems
 		input.init(gameScreen, true, true);
 		input.setRotation(player.rot);
+		input.showMouse(false); // hide mouse
 		input.grabMouse(true);  // enable fps-like mouse
 		input.mouseOptions(mspd, msens); // mouse speed & sensitivity
-		input.showMouse(false); // hide mouse
 		
 		// initialize joystick support
 		keyconf.joy_enabled = config.get("joy.enabled", false);
@@ -180,55 +180,24 @@ namespace cppcraft
 				input.hold(GLFW_KEY_F1);
 				
 				thesun.setRadianAngle(3.14159 * 1/8);
-				//Sectors.updateAll();
-				//worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F2) == Input::KEY_PRESSED)
 			{
 				input.hold(GLFW_KEY_F2);
 				
 				thesun.setRadianAngle(3.14159 * 2/8);
-				//Sectors.updateAll();
-				//worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F3) == Input::KEY_PRESSED)
 			{
 				input.hold(GLFW_KEY_F3);
 				
 				thesun.setRadianAngle(3.14159 * 3/8);
-				//Sectors.updateAll();
-				//worldbuilder.reset();
 			}
 			if (input.getKey(GLFW_KEY_F4) == Input::KEY_PRESSED)
 			{
 				input.hold(GLFW_KEY_F4);
 				
 				thesun.setRadianAngle(-1);
-				//Sectors.updateAll();
-				//worldbuilder.reset();
-			}
-			
-			if (input.getKey(GLFW_KEY_C) == Input::KEY_PRESSED)
-			{
-				input.hold(GLFW_KEY_C);
-				
-				Sector* sector = sectors.sectorAt(player.pos.x, player.pos.z);
-				if (sector)
-				{
-					logger << Log::INFO << "Sector (" << sector->getX() << ", " << sector->getZ() << "): " << (int) sector->generated() << Log::ENDL;
-				}
-			}
-			else if (input.getKey(GLFW_KEY_V) == Input::KEY_PRESSED)
-			{
-				input.hold(GLFW_KEY_V);
-				
-				/*
-				PackCoord plc(player.X, player.Y, player.Z);
-				if (plc.valid)
-				{
-					logger << Log::INFO << "World (" << plc.wc.x << ", " << plc.wc.y << ", " << plc.wc.z << ")" << Log::ENDL;
-					logger << Log::INFO << "Block (" << plc.bc.x << ", " << plc.bc.y << ", " << plc.bc.z << ")" << Log::ENDL;
-				}*/
 			}
 			
 			if (input.getKey(keyconf.k_flying) || keyconf.jbuttons[keyconf.joy_btn_flying])

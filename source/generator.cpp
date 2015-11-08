@@ -74,6 +74,11 @@ namespace cppcraft
 		queue.push_back(&sector);
 	}
 	
+	int Generator::size()
+	{
+		return queue.size();
+	}
+	
 	// the queue of vectors that needs terrain (blocks)
 	// we will be using this comparison function to sort
 	// the sectors by distance from center
@@ -144,13 +149,14 @@ namespace cppcraft
 				// resultant sector
 				Sector& dest = sectors(x, z);
 				// copy from terragen into sector
-				memcpy( &dest.getBlocks(),  &gdata->sblock,  sizeof(Sector::sectorblock_t) );
+				memcpy( &dest.getBlocks(), &gdata->sblock, sizeof(Sector::sectorblock_t) );
 				// also, swap out the flatland data
 				dest.flat().assign(gdata->flatl.unassign());
 				// toggle sector generated flag, as well as removing generating flag
-				dest.gen_flags    = Sector::GENERATED;
-				dest.atmospherics = false;
 				dest.meshgen      = 0; // make sure its added to meshgen
+				dest.gen_flags    = Sector::GENERATED;
+				dest.objects      = gdata->objects.size();
+				dest.atmospherics = false;
 				
 				// add all the objects from this sector to object queue
 				if (gdata->objects.size())
@@ -158,6 +164,7 @@ namespace cppcraft
 				
 				// add it to the minimap!!!
 				minimap.addSector(dest);
+				
 				// now that its been generated, let's meshmerize it
 				precompq.add(dest, 0xFF);
 			}

@@ -21,7 +21,6 @@ namespace cppcraft
 		this->datasect = nullptr;
 		
 		this->gen_flags = 0;
-		this->ticking_ents = false;
 		this->atmospherics = false;
 	}
 	Sector::~Sector()
@@ -81,7 +80,6 @@ namespace cppcraft
 	{
 		// clear many flags, ... bite me
 		atmospherics = false;
-		ticking_ents = false;
 		// invalidate blocks
 		//this->gen_flags = 0;
 		

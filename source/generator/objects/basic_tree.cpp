@@ -4,9 +4,11 @@
 namespace terragen
 {
 	using cppcraft::Spiders;
+	using cppcraft::Sector;
 	
-	void basic_tree(GenObject& obj)
+	void basic_tree(GenObject& obj, Sector& sector)
 	{
+		(void) sector;
 		Block trunk(_WOODBROWN);
 		Block leafs(_LEAF_LEAFS);
 		
@@ -15,6 +17,7 @@ namespace terragen
 		
 		for (int i = 0; i < height; i++)
 		{
+			// overwrite with trunk (removing light)
 			cppcraft::Spiders::setBlock(x, y + i, z, trunk);
 		}
 		
@@ -31,6 +34,7 @@ namespace terragen
 				int fx = x + dx; int fy = y + dy; int fz = z + dz;
 				
 				Block& block = Spiders::getBlock(fx, fy, fz);
+				// set ID to leaf, preserve light
 				if (block.isAirOrCross())
 					block.setID(_LEAF_LEAFS);
 			}

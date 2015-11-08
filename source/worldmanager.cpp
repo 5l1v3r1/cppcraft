@@ -107,6 +107,14 @@ namespace cppcraft
 				double timeOut = localTime + MAX_TIMING_WAIT;
 				
 				///----------------------------------///
+				/// ---------- OBJECT GEN ---------- ///
+				///----------------------------------///
+				terragen::ObjectQueue::run();
+				
+				// check for timeout
+				if (timer.getTime() > timeOut) break;
+				
+				///----------------------------------///
 				/// --------- PRECOMPILER ---------- ///
 				///----------------------------------///
 				//double t0 = timer.getTime();
@@ -132,11 +140,6 @@ namespace cppcraft
 				/// ---------- GENERATOR ----------- ///
 				///----------------------------------///
 				Generator::run();
-				
-				///----------------------------------///
-				/// ---------- OBJECT GEN ---------- ///
-				///----------------------------------///
-				terragen::ObjectQueue::run();
 				
 				// update shadows if sun has travelled far
 				// but not when connected to a network

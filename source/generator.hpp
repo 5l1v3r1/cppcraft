@@ -29,6 +29,8 @@ namespace cppcraft
 		static void add(Sector& sector);
 		// schedule some generator jobs, from the queue
 		static void run();
+		// returns the size of the internal queue
+		static int size();
 		
 		// unused atm
 		bool generate(Sector& sector, library::Timer* timer, double timeOut);

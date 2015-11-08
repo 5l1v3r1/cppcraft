@@ -450,7 +450,6 @@
     <File Name="source/player_actions_inputs.cpp"/>
     <File Name="source/blockmodels.cpp"/>
     <File Name="source/render_player_selection.hpp"/>
-    <File Name="source/blockreg.hpp"/>
     <File Name="source/render_sky_clouds.cpp"/>
     <File Name="source/sector.hpp"/>
     <File Name="source/common.hpp"/>
@@ -528,7 +527,10 @@
       <File Name="source/sound/handle.hpp"/>
     </VirtualDirectory>
     <File Name="source/render_gui_interfaces.cpp"/>
-    <VirtualDirectory Name="math"/>
+    <VirtualDirectory Name="db">
+      <File Name="source/db/blockreg.hpp"/>
+      <File Name="source/db/blockdb.hpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>
@@ -559,8 +561,8 @@
       <PostBuild/>
       <CustomBuild Enabled="yes">
         <RebuildCommand/>
-        <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make -j8 debug</BuildCommand>
+        <CleanCommand>mingw32-make clean</CleanCommand>
+        <BuildCommand>mingw32-make -j8 debug</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>
@@ -584,7 +586,7 @@
       </Compiler>
       <Linker Options="-O2" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="" IntermediateDirectory="./Release" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="" IntermediateDirectory="./Debug" Command="cppcraft" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
@@ -597,8 +599,8 @@
       <PostBuild/>
       <CustomBuild Enabled="yes">
         <RebuildCommand/>
-        <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make -j8 fast</BuildCommand>
+        <CleanCommand>mingw32-make clean</CleanCommand>
+        <BuildCommand>mingw32-make -j8 fast</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

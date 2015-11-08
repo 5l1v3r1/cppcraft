@@ -174,24 +174,23 @@ namespace cppcraft
 		// 2d data (just a container!)
 		Flatland _flatl;
 		
+		friend class Sectors;
+		friend class Generator;
+		friend class Seamstress;
+	public:
 		// 8 bits to signify which parts of sector needs update
 		// when an update is needed, 
 		uint8_t meshgen;
 		// true when the generator has generated blocks for this sector
 		uint8_t gen_flags;
+		// non-zero when objects are scheduled directly on this sector
+		uint8_t objects;
 		
-		friend class Sectors;
-		friend class Generator;
-		friend class Seamstress;
-		friend class PrecompQ;
-	public:
-		// grid position
-		short x, z;
-		
-		// contains ticking entities
-		bool ticking_ents;
 		// we flooded this with light, or it needs flooding if the player looks at it?
 		bool atmospherics;
+		
+		// grid position
+		short x, z;
 	};
 	#pragma pack(pop)
 }

@@ -10,6 +10,7 @@ namespace terragen
 	using cppcraft::BLOCKS_XZ;
 	using cppcraft::BLOCKS_Y;
 	using cppcraft::Block;
+	using cppcraft::Sector;
 	
 	struct GenObject
 	{
@@ -42,7 +43,7 @@ namespace terragen
 	class ObjectDB
 	{
 	public:
-		typedef std::function<void(GenObject&)> object_gen_func;
+		typedef std::function<void(GenObject&, Sector&)> object_gen_func;
 		
 		std::size_t add(object_gen_func&& func)
 		{

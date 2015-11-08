@@ -77,7 +77,9 @@ namespace cppcraft
 		// we don't care if the sector is currently
 		// being generated again, all we care about
 		// is that is has been generated at some point
+		#ifdef DEBUG
 		assert(sector.generated() == true);
+		#endif
 		
 		//assert(sector.meshgen != 0);
 		if (sector.meshgen != 0) return;
@@ -121,7 +123,7 @@ namespace cppcraft
 			// we don't want to start jobs we can't finish
 			// this is also bound to be true at some point, 
 			// unless everything completely stopped...
-			if ((*it)->meshgen != 0 && validateSector(*it))
+			if ((*it)->generated() && validateSector(*it))
 			{
 				// make sure we have proper light
 				bool atmos = sectors.on3x3(**it,
@@ -157,7 +159,7 @@ namespace cppcraft
 				startJob(*it);
 				queue.erase(it++);
 			}
-			else if ((*it)->meshgen == 0)
+			else if ((*it)->generated() == false)
 				queue.erase(it++);
 			
 			else ++it;

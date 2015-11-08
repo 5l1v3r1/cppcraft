@@ -56,14 +56,17 @@ namespace terragen
 					obj.x -= worldX;
 					obj.z -= worldZ;
 					// ... and generate it
-					objectDB[obj.getID()](obj);
+					objectDB[obj.getID()](obj, sector);
 					// ..... and remove from queue
 					objects.erase(it++);
+					// reduce the object count on sector
+					if (sector.objects)
+						sector.objects--;
 				}
 				else ++it;
 			}
-			else if (sectX < 0 || sectX > sectors.getXZ()-1
-				  || sectZ < 0 || sectZ > sectors.getXZ()-1)
+			else if (sectX < 0 || sectX >= sectors.getXZ()
+				  || sectZ < 0 || sectZ >= sectors.getXZ())
 			{
 				// this object is outside the grid completely, remove it:
 				//printf("Removing object oob at (%d, %d)\n", sectX, sectZ);

@@ -51,7 +51,7 @@ namespace cppcraft
 		if (current != nullptr)
 		{
 			// retrieve mouse status
-			key_t M = input.getMouse(GLFW_MOUSE_BUTTON_LEFT);
+			library::Input::key_t M = input.getMouse(GLFW_MOUSE_BUTTON_LEFT);
 			// calculate position on screen
 			vec2 screen = vec2(renderer.getScreen().getWidth(), 
 							   renderer.getScreen().getHeight() * renderer.getScreen().getAspect());

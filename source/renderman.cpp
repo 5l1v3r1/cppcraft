@@ -199,20 +199,8 @@ namespace cppcraft
 			}
 			
 			// rendering function
-		#ifdef DEBUG
-			try
-			{
-				render(dtime);
-			}
-			catch (std::string errorstring)
-			{
-				logger << Log::ERR << errorstring << Log::ENDL;
-				logger << Log::ERR << "Error during rendering stage, exiting..." << Log::ENDL;
-				break;
-			}
-		#else
 			render(dtime);
-		#endif
+			
 			// poll for events
 			glfwPollEvents();
 			

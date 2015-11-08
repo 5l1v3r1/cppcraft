@@ -16,9 +16,14 @@ RESOURCES = res/cppcraft.rc
 endif
 
 ##############################################################
+ifeq ($(OS),Windows_NT)
+	CC = C:/TDM-GCC-64/bin/g++
+else
+	CC = g++
+endif
 
 # compiler
-CC = g++ $(BUILDOPT) -std=gnu++11 -mstackrealign
+CC += $(BUILDOPT) -std=gnu++11 -mstackrealign
 # compiler flags
 CCFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
 # linker flags

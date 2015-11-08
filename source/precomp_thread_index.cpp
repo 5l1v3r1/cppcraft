@@ -11,6 +11,8 @@ namespace cppcraft
 {
 	void PrecompThread::createIndices(Precomp& precomp, int totalVertices)
 	{
+		(void) precomp;
+		(void) totalVertices;
 		// create some index bullshit
 		/*
 		delete[] precomp.indidump;

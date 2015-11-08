@@ -8,7 +8,6 @@
 #include "vertex_block.hpp"
 #include <cstring>
 #include <csignal>
-#define DEBUG
 
 using namespace library;
 
@@ -75,6 +74,7 @@ namespace cppcraft
 		// generate resources for column //
 		///////////////////////////////////
 		
+		(void) y;
 		bool updateAttribs = false;
 		
 		if (this->vao == 0)

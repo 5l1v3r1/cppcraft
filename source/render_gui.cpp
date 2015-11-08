@@ -20,6 +20,8 @@
 
 #include "player.hpp"
 #include "spiders.hpp"
+#include "generator.hpp"
+#include "precompq.hpp"
 
 using namespace library;
 
@@ -141,9 +143,16 @@ namespace cppcraft
 		if (flat)
 		{
 			debugText += 
-				" terrain: " + terrainToString(flat->terrain) + "(" + std::to_string(flat->terrain) + 
-				") skylvl: " + std::to_string(flat->skyLevel);
+				" T: " + terrainToString(flat->terrain) + "(" + std::to_string(flat->terrain) + 
+				") "; // + "skylvl: " + std::to_string(flat->skyLevel);
 		}
+		debugText += " gj: " + std::to_string(Generator::size());
+		debugText += " pj: " + std::to_string(precompq.size());
+		
+		Sector* sector = sectors.sectorAt(player.pos.x, player.pos.z);
+		if (sector)
+		debugText += " obj: " + std::to_string(sector->objects);
+		
 		font.print(glm::vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		
 		
