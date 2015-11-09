@@ -43,7 +43,7 @@ namespace terragen
 	class ObjectDB
 	{
 	public:
-		typedef std::function<void(GenObject&, Sector&)> object_gen_func;
+		typedef std::function<void(GenObject&, int, int)> object_gen_func;
 		
 		std::size_t add(object_gen_func&& func)
 		{

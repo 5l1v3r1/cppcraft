@@ -3,6 +3,7 @@
 #include "../terragen.hpp"
 #include "../random.hpp"
 #include "oregen.hpp"
+#include <library/noise/voronoi.hpp>
 #include <glm/gtc/noise.hpp>
 
 using namespace cppcraft;
@@ -47,10 +48,26 @@ namespace terragen
 	void PostProcess::run(gendata_t* gdata)
 	{
 		static const int GEN_BASIC_TREE = 0;
+		static const int GEN_BASIC_HOUS = 1;
 		
 		/// reset ore generator
 		OreGen::reset();
 		
+		/// village builder
+		bool village = false;
+		int simCity = 0;
+		;{
+			glm::vec2 p = gdata->getBaseCoords2D(0, 0);
+			int v = library::Voronoi::getid(p.x * 0.01, p.y * 0.01, 
+					library::Voronoi::vor_chebyshev); // distance function
+			if ((v & 15) == 0)
+			{
+				simCity = v;
+				village = true;
+			}
+		}
+		
+		/// go go go gø go go go ///
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		for (int z = 0; z < BLOCKS_XZ; z++)
 		{
@@ -71,8 +88,8 @@ namespace terragen
 			
 			// gravel / stone areas
 			glm::vec2 p = gdata->getBaseCoords2D(x, z);
-			float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
-							   glm::simplex(p * 0.02f)  * 0.4;
+			//float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
+			//				   glm::simplex(p * 0.02f)  * 0.4;
 			
 			int terrain = gdata->flatl(x, z).terrain;
 			
@@ -122,7 +139,7 @@ namespace terragen
 				if (block.getID() != lastb->getID() && air)
 				{
 					// TODO: use poisson disc here
-					float rand = randf(x, y, z);
+					float rand = randf(wx, y, wz);
 					
 					///-////////////////////////////////////-///
 					///- create objects, and litter crosses -///
@@ -131,7 +148,9 @@ namespace terragen
 					if (block.getID() == _GREENSOIL)
 						block.setID(_GREENGRASS_S);
 					
-					/// terrain tops ///
+					/// terrain specific objects ///
+					if (village == false)
+					{
 					if (terrain == Biome::T_GRASS && block.getID() == _GREENGRASS_S)
 					{
 						// ministry of green forestry
@@ -182,7 +201,7 @@ namespace terragen
 							
 						}
 						
-					}
+					}} // not village: terrain specific objects
 					
 					// ...
 					lastb = &block;
@@ -231,7 +250,7 @@ namespace terragen
 					{
 						// ultra-hard materials?? :)
 						if (block.getID() < 200)
-							groundLevel = y;
+							groundLevel = y+1;
 					}
 					if (skyLevel == 0)
 					{
@@ -252,6 +271,12 @@ namespace terragen
 				groundLevel = 1;
 			if (skyLevel == 256)
 				skyLevel = 255;
+			
+			if (simCity)
+			{
+				gdata->objects.emplace_back(wx, groundLevel, wz, GEN_BASIC_HOUS, simCity);
+				simCity = 0;
+			}
 			
 			// guarantee that the bottom block is hard as ice
 			gdata->getb(x, 0, z) = Block(_ADMINIUM);

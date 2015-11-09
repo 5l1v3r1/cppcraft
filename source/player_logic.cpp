@@ -29,9 +29,8 @@ namespace cppcraft
 				// play material sound
 				if (Block::fluidAndCrossToAir(block->getID()) != _AIR)
 				{
-					int value = rndNorm(3);
-					if (value == 0) value = 1;
-					stepsound = (stepsound + value) & 3;
+					int value = rand() & 1;
+					stepsound = 0 + value;
 					
 					soundman.playMaterial(block->getID(), stepsound);
 				}

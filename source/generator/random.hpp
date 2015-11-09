@@ -8,12 +8,12 @@
 
 inline unsigned int hash(unsigned int x)
 {
-    x += ( x << 10u );
-    x ^= ( x >>  6u );
-    x += ( x <<  3u );
-    x ^= ( x >> 11u );
-    x += ( x << 15u );
-    return x;
+	x = (x ^ 61) ^ (x >> 16);
+	x = x + (x << 3);
+	x = x ^ (x >> 4);
+	x = x * 0x27d4eb2d;
+	x = x ^ (x >> 15);
+	return x;
 }
 inline int ihash(int x)
 {
@@ -31,6 +31,11 @@ inline float randf(int x, int y)
 inline float randf(int x, int y, int z)
 {
 	return randf(x xor ihash(y) xor ihash(z));
+}
+
+inline int rand2d(int x, int z)
+{
+	return ihash(x + 5953) xor ihash(z + 7639);
 }
 
 #endif

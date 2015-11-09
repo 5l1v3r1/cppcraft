@@ -50,16 +50,11 @@ namespace terragen
 				if (validateSector(sector))
 				{
 					//printf("Generating object %d at (%d, %d)\n", obj.getID(), sectX, sectZ);
-					// NOTE: if you move this above, it will modify the actual object when
-					// its not guaranteed that the object will be consumed and deleted
-					//! make the object coordinates local to our grid
-					obj.x -= worldX;
-					obj.z -= worldZ;
-					// ... and generate it
-					objectDB[obj.getID()](obj, sector);
+					// generate object
+					objectDB[obj.getID()](obj, worldX, worldZ);
 					// ..... and remove from queue
 					objects.erase(it++);
-					// reduce the object count on sector
+					// reduce the object count on sector (FIXME)
 					if (sector.objects)
 						sector.objects--;
 				}

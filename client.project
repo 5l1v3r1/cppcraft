@@ -485,6 +485,7 @@
       <File Name="source/generator/random.hpp"/>
       <VirtualDirectory Name="objects">
         <File Name="source/generator/objects/basic_tree.cpp"/>
+        <File Name="source/generator/objects/basic_house.cpp"/>
       </VirtualDirectory>
       <File Name="source/generator/object.hpp"/>
       <File Name="source/generator/objectq.hpp"/>

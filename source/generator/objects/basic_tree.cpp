@@ -6,13 +6,16 @@ namespace terragen
 	using cppcraft::Spiders;
 	using cppcraft::Sector;
 	
-	void basic_tree(GenObject& obj, Sector& sector)
+	void basic_tree(GenObject& obj, int worldX, int worldZ)
 	{
-		(void) sector;
 		Block trunk(_WOODBROWN);
 		Block leafs(_LEAF_LEAFS);
 		
-		int x = obj.x, y = obj.y, z = obj.z;
+		// local coordinates
+		int x = obj.x - worldX;
+		int y = obj.y;
+		int z = obj.z - worldZ;
+		// height of tree
 		int height = obj.var1;
 		
 		for (int i = 0; i < height; i++)
