@@ -10,7 +10,7 @@
 
 namespace cppcraft
 {
-	class PrecompThreadData;
+	class PTD;
 	struct bordered_sector_t;
 	
 	class PrecompThread
@@ -19,7 +19,7 @@ namespace cppcraft
 		PrecompThread();
 		~PrecompThread();
 		
-		PrecompThreadData* ptd;
+		PTD* ptd;
 		
 		// stage 2, generating mesh
 		void precompile(Precomp& pc);

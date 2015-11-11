@@ -1,18 +1,24 @@
 #include "oregen.hpp"
 
+#include "../blocks.hpp"
 #include "../random.hpp"
 
 namespace terragen
 {
-	void initOres()
+	void OreGen::init()
 	{
+		block_t COAL = db::getb("ore_coal");
+		block_t IRON = db::getb("ore_iron");
+		block_t GOLD = db::getb("ore_gold");
+		block_t RSTN = db::getb("ore_redstone");
+		block_t DIAM = db::getb("ore_diamond");
+		
 		OreGen& og = OreGen::get();
-		og.add({_COAL,    255, 40});
-		og.add({_IRON,    200, 20});
-		og.add({_GOLD,     48, 10});
-		og.add({_REDSTONE, 24, 15});
-		og.add({_GRNSTONE, 20, 10});
-		og.add({_DIAMOND,  10, 5});
+		og.add({COAL, 255, 40});
+		og.add({IRON, 200, 20});
+		og.add({GOLD,  48, 10});
+		og.add({RSTN,  24, 15});
+		og.add({DIAM,  10, 5});
 		
 	}
 	

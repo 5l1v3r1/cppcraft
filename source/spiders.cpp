@@ -86,43 +86,46 @@ namespace cppcraft
 			{
 				float fx = dx - int(dx);
 				float fz = dz - int(dz);
-				if (Block::blockHitbox3D(b, fx, fy, fz)) return b;
+				if (b.physicalHitbox3D(b, fx, fy, fz))
+					return b;
 			}
 		}
 		return air_block;
 	}
 	
-	block_t Spiders::testArea(float x, float y, float z)
+	Block Spiders::testArea(float x, float y, float z)
 	{
-		return getBlock(x, y, z, PlayerPhysics::PLAYER_SIZE).getID();
+		return getBlock(x, y, z, PlayerPhysics::PLAYER_SIZE);
 	}
 	
-	block_t Spiders::testAreaEx(double x, double y, double z)
+	Block Spiders::testAreaEx(float x, float y, float z)
 	{
 		// make damn sure!
-		if (y < 0.0) return _AIR;
-		if (y >= BLOCKS_Y) return _AIR;
+		if (y < 0.0) return air_block;
+		if (y >= BLOCKS_Y) return air_block;
 		
-		int    by = int(y);  // integral
-		double fy = y - by;  // fractional
-		const double PLAYER_SIZE = PlayerPhysics::PLAYER_SIZE;
+		int   by = int(y);  // integral
+		float fy = y - by;  // fractional
+		const float PLAYER_SIZE = PlayerPhysics::PLAYER_SIZE;
 		
 		double dx, dz;
 		for (dz = z-PLAYER_SIZE; dz <= z+PLAYER_SIZE; dz += PLAYER_SIZE)
 		for (dx = x-PLAYER_SIZE; dx <= x+PLAYER_SIZE; dx += PLAYER_SIZE)
 		{
-			const Block& b = getBlock(int(dx), by, int(dz));
-			if (b.getID() != _AIR)
+			const Block& block = getBlock(int(dx), by, int(dz));
+			if (block.getID() != _AIR)
 			{
-				double fx = dx - int(dx);
-				double fz = dz - int(dz);
-				if (Block::physicalHitbox3D(b, fx, fy, fz))
+				float fx = dx - int(dx);
+				float fz = dz - int(dz);
+				if (block.physicalHitbox3D(block, fx, fy, fz))
 				{
-					if (Block::movementTest(b.getID())) return b.getID();
+					if (block.blocksMovement())
+						return block;
 				}
 			} // not air
 		} // 3x3 test grid
-		return _AIR;
+		
+		return air_block;
 	}
 	
 	uint16_t Spiders::getLightNow(float x, float y, float z)

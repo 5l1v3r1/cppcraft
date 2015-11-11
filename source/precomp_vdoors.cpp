@@ -4,6 +4,7 @@
 
 namespace cppcraft
 {
+	/*
 	int PrecompThreadData::emitDoor(const Block& currentBlock, int bx, int by, int bz, block_t sides)
 	{
 		// find direction door is facing
@@ -23,5 +24,5 @@ namespace cppcraft
 		}
 		
 		return vertices;
-	}
+	}*/
 }

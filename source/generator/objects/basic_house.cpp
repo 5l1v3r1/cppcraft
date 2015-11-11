@@ -1,4 +1,5 @@
 #include "../object.hpp"
+#include "../blocks.hpp"
 #include "../random.hpp"
 #include "../../sectors.hpp"
 #include "../../spiders.hpp"
@@ -32,14 +33,17 @@ namespace terragen
 	
 	void basic_house(GenObject& obj, int worldX, int worldZ)
 	{
+		return;
 		int random = rand2d(obj.x, obj.z);
 		
 		if (obj.y <= 64) return; // immediately avoid water
 		if ((random & 3) == 0) return; // discard half the houses
 		
-		Block base(_STONEPATTERN);
-		Block corners(_WOODBROWN);
-		Block walls(_PLANK);
+		Block base(db::getb("patterned_stone")); // _STONEPATTERN
+		Block brwood(db::getb("brown_wood"));    // _WOODBROWN
+		Block plank(db::getb("plank"));          // _PLANK
+		Block dirtsoil(_SOIL);                   // _GREENSOIL
+		Block gravel2(db::getb("gravel"));       // _GRAVEL2
 		
 		// local coordinates
 		int x = obj.x - worldX + 7;
@@ -78,10 +82,10 @@ namespace terragen
 						Spiders::setBlock(fx, fy, fz, base);
 					}
 					else if ((dx == -radX || dx == radX) && (dz == -radZ || dz == radZ))
-						Spiders::setBlock(fx, fy, fz, corners);
+						Spiders::setBlock(fx, fy, fz, brwood);
 					else
 					{
-						Spiders::setBlock(fx, fy, fz, walls);
+						Spiders::setBlock(fx, fy, fz, plank);
 					}
 				}
 			}
@@ -93,9 +97,9 @@ namespace terragen
 			for (int dz = -radZ; dz <= radZ; dz++)
 			{
 				if (dx == -radX || dx == radX || dz == -radZ || dz == radZ)
-					Spiders::setBlock(x+dx, y, z+dz, Block(_WOODBROWN));
+					Spiders::setBlock(x+dx, y, z+dz, brwood);
 				else
-					Spiders::setBlock(x+dx, y, z+dz, Block(_GREENSOIL));
+					Spiders::setBlock(x+dx, y, z+dz, dirtsoil);
 			}
 		}
 		else
@@ -104,7 +108,7 @@ namespace terragen
 			for (int dx = -radX; dx <= radX; dx++)
 			for (int dz = -radZ; dz <= radZ; dz++)
 			{
-				Spiders::setBlock(x+dx, y-1, z+dz, Block(_GRAVEL1));
+				Spiders::setBlock(x+dx, y-1, z+dz, gravel2);
 				Spiders::removeBlock(x+dx, y, z+dz);
 			}
 		}
@@ -140,7 +144,7 @@ namespace terragen
 			for (int dz = 0; dz < BLOCKS_XZ; dz++)
 			for (int dx = x1; dx < BLOCKS_XZ; dx++)
 			{
-				Spiders::setBlock   (x + dx, y  , z + dz, Block(_GRAVEL2));
+				Spiders::setBlock   (x + dx, y  , z + dz, gravel2);
 				Spiders::removeBlock(x + dx, y+1, z + dz);
 			}
 		}
@@ -150,7 +154,7 @@ namespace terragen
 			for (int dz = 0; dz < BLOCKS_XZ; dz++)
 			for (int dx = 0; dx < x0; dx++)
 			{
-				Spiders::setBlock   (x + dx, y  , z + dz, Block(_GRAVEL2));
+				Spiders::setBlock   (x + dx, y  , z + dz, gravel2);
 				Spiders::removeBlock(x + dx, y+1, z + dz);
 			}
 		}
@@ -160,7 +164,7 @@ namespace terragen
 			for (int dx = 0; dx < BLOCKS_XZ; dx++)
 			for (int dz = z1; dz < BLOCKS_XZ; dz++)
 			{
-				Spiders::setBlock   (x + dx, y  , z + dz, Block(_GRAVEL2));
+				Spiders::setBlock   (x + dx, y  , z + dz, gravel2);
 				Spiders::removeBlock(x + dx, y+1, z + dz);
 			}
 		}
@@ -170,7 +174,7 @@ namespace terragen
 			for (int dx = 0; dx < BLOCKS_XZ; dx++)
 			for (int dz = 0; dz < z0; dz++)
 			{
-				Spiders::setBlock   (x + dx, y  , z + dz, Block(_GRAVEL2));
+				Spiders::setBlock   (x + dx, y  , z + dz, gravel2);
 				Spiders::removeBlock(x + dx, y+1, z + dz);
 			}
 		}

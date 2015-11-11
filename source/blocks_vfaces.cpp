@@ -13,37 +13,29 @@ namespace cppcraft
 	// and all the neighboring sectors
 	unsigned short Block::visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const
 	{
-		unsigned short lbx = 0;
+		unsigned short lbx;
 		
 		// left side -x
-		if (visibilityComp(bsb(bx-1, by, bz), 3))
-			lbx |= 32; // true
+		lbx = bsb(bx-1, by, bz).visibilityComp(32);
 		
 		// right side +x
-		if (visibilityComp(bsb(bx+1, by, bz), 2))
-			lbx |= 16; // true
+		lbx |= bsb(bx+1, by, bz).visibilityComp(16);
 		
 		// bottom -y
 		if (by > 0)
-		if (visibilityCompBottom(bsb(bx, by-1, bz)))
-			lbx |= 8;
+		lbx |= bsb(bx, by-1, bz).visibilityComp(8);
 		
 		// top +y
 		if (by < BLOCKS_Y-1)
-		{
-			if (visibilityCompTop(bsb(bx, by+1, bz)))
-				lbx |= 4;
-		}
+			lbx |= bsb(bx, by+1, bz).visibilityComp(4);
 		else
 			lbx |= 4;
 		
 		// front +z
-		if (visibilityComp(bsb(bx, by, bz-1), 1))
-			lbx |= 2;
+		lbx |= bsb(bx, by, bz-1).visibilityComp(2);
 		
 		// back -z
-		if (visibilityComp(bsb(bx, by, bz+1), 0))
-			lbx |= 1;
+		lbx |= bsb(bx, by, bz+1).visibilityComp(1);
 		
 		return lbx;
 	}
@@ -58,30 +50,26 @@ namespace cppcraft
 			if (sector.getX() > 0)
 			{
 				Sector& s = sectors(sector.getX()-1, sector.getZ());
-				if (visibilityComp(s(Sector::BLOCKS_XZ-1, by, bz), 3))
-					lbx |= 32;
+				lbx |= s(BLOCKS_XZ-1, by, bz).visibilityComp(32);
 			}
 		}
 		else
 		{
-			if (visibilityComp(sector(bx-1, by, bz), 3))
-				lbx |= 32;
+			lbx |= sector(bx-1, by, bz).visibilityComp(32);
 		}
 		
 		// right side +x
-		if (bx == Sector::BLOCKS_XZ-1) // facing = 4
+		if (bx == BLOCKS_XZ-1) // facing = 4
 		{
 			if (sector.getX() < sectors.getXZ()-1)
 			{
 				Sector& s = sectors(sector.getX()+1, sector.getZ());
-				if (visibilityComp(s(0, by, bz), 2))
-					lbx |= 16;
+				lbx |= s(0, by, bz).visibilityComp(16);
 			}
 		}
 		else
 		{
-			if (visibilityComp(sector(bx+1, by, bz), 2))
-				lbx |= 16;
+			lbx |= sector(bx+1, by, bz).visibilityComp(16);
 		}
 		
 		// bottom -y
@@ -89,8 +77,7 @@ namespace cppcraft
 		{
 			// we will never add faces down towards by=0,
 			// but we will be adding faces towards the block below
-			if (visibilityCompBottom(sector(bx, by-1, bz)))
-				lbx |= 8;
+			lbx |= sector(bx, by-1, bz).visibilityComp(8);
 		}
 		
 		// top +y
@@ -101,8 +88,7 @@ namespace cppcraft
 		}
 		else
 		{
-			if (visibilityCompTop(sector(bx, by+1, bz)))
-				lbx |= 4;
+			lbx |= sector(bx, by+1, bz).visibilityComp(2);
 		}
 		
 		// back -z
@@ -111,29 +97,26 @@ namespace cppcraft
 			if (sector.getZ() > 0)
 			{
 				Sector& s = sectors(sector.getX(), sector.getZ()-1);
-				if (visibilityComp(s(bx, by, Sector::BLOCKS_XZ-1), 1))
-					lbx |= 2;
+				
+				lbx |= s(bx, by, BLOCKS_XZ-1).visibilityComp(2);
 			}
 		}
 		else
 		{
-			if (visibilityComp(sector(bx, by, bz-1), 1))
-				lbx |= 2;
+			lbx |= sector(bx, by, bz-1).visibilityComp(2);
 		}
 		
-		if (bz == Sector::BLOCKS_XZ-1)
+		if (bz == BLOCKS_XZ-1)
 		{
 			if (sector.getZ() < sectors.getXZ()-1)
 			{
 				Sector& s = sectors(sector.getX(), sector.getZ()+1);
-				if (visibilityComp(s(bx, by, 0), 0))
-					lbx |= 1;
+				lbx |= s(bx, by, 0).visibilityComp(1);
 			}
 		}
 		else
 		{
-			if (visibilityComp(sector(bx, by, bz+1), 0))
-				lbx |= 1;
+			lbx |= sector(bx, by, bz+1).visibilityComp(1);
 		}
 		return lbx;
 	}

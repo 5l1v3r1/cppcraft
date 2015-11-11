@@ -134,7 +134,7 @@ namespace cppcraft
 		}
 		
 		// distance to another sector (in block units)
-		float distanceTo(const Sector& sector, int bx, int by, int bz) const;
+		float distanceTo(const Sector& sector, int bx, int bz) const;
 		
 		// torchlight related
 		// counts total lights in chunk AND returns that count
@@ -177,6 +177,7 @@ namespace cppcraft
 		friend class Sectors;
 		friend class Generator;
 		friend class Seamstress;
+		friend class Compressor;
 	public:
 		// 8 bits to signify which parts of sector needs update
 		// when an update is needed, 

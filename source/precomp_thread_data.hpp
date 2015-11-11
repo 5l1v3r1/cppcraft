@@ -6,12 +6,12 @@
 namespace cppcraft
 {
 	typedef uint16_t vertex_color_t;
-	class Sector;
+	class bordered_sector_t;
 	
-	class PrecompThreadData
+	class PTD
 	{
 	public:
-		~PrecompThreadData();
+		~PTD();
 		
 		int pipelineSize[RenderConst::MAX_UNIQUE_SHADERS];
 		// working buffers
@@ -21,65 +21,20 @@ namespace cppcraft
 		// all the blocks
 		bordered_sector_t* sector;
 		
-		// blocks counter, for exiting early when all blocks are processed
-		int blocks;
+		int shaderLine;
 		// vertex data pointer
 		vertex_t* indic;
-		// last block id to be processed
-		block_t lastid;
-		
-		// selected shader type (determined by block id)
-		int shaderLine;
 		
 		// special properties of big tiles
 		bool repeat_y;
-		static const int repeat_factor;
+		static const int REPEAT_FACTOR;
 		int bigTextures;
 		
-		// flatlands biome color index
-		int colorIndex;
-		
-		// vertex biome color index
-		int lastclid;
-		// resulting vertex biome colors
-		unsigned int fbiome[4];
-		// cheap CRC, to prevent calculating the same color position twice
-		int fbicrc;
+		//! returns the terrain color @index for (bx, bz)
+		uint32_t getColor(int bx, int bz, int index);
 		
 		// processes a Block, outputs a mesh w/lighting
 		void process_block(const Block& currentBlock, int bx, int by, int bz);
-		
-		// vertex emitters for each side of a cube
-		int emitCube(const Block& currentBlock, int bx, int by, int bz, int model, block_t facing);
-		
-		void emitCubeVertexPZ(int model, block_t id, int bx, int by, block_t block_facing);
-		void emitCubeVertexNZ(int model, block_t id, int bx, int by, block_t block_facing);
-		
-		void emitCubeVertexPY(int model, block_t id, int bx, int by, int bz);
-		void emitCubeVertexNY(int model, block_t id, int bx, int by, int bz);
-		
-		void emitCubeVertexPX(int model, block_t id, int by, int bz, block_t block_facing);
-		void emitCubeVertexNX(int model, block_t id, int by, int bz, block_t block_facing);
-		
-		// sloped leafs
-		int emitSloped(block_t id, int bx, int by, int bz, block_t model, block_t facing);
-		
-		// ladders
-		int emitLadder(block_t id, int bx, int by, int bz, block_t block_facing);
-		// poles
-		int emitPole(block_t id, int bx, int by, int bz, block_t model);
-		// stairs
-		int emitStair(const Block& currentBlock, int bx, int by, int bz, block_t sides);
-		// fences
-		int emitFence(const Block& currentBlock, int bx, int by, int bz, block_t sides);
-		// doors
-		int emitDoor(const Block& currentBlock, int bx, int by, int bz, block_t sides);
-		// lanterns
-		int emitLantern(block_t id, int bx, int by, int bz);
-		// crosses
-		int emitCross(block_t id, int bx, int by, int bz);
-		
-		// light raytracer & emission functions for each side of a cube
 		
 		// resolve (x, y, z) to vertex lighting
 		vertex_color_t getLight(int x, int y, int z);

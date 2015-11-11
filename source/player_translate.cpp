@@ -86,7 +86,7 @@ namespace cppcraft
 			{
 				// check for a ladder at a certain height under player
 				// if there is a ladder there, prevent jumping
-				if (Spiders::testArea(player.pos.x, player.pos.y - 0.40 - player.accel.y, player.pos.z) == _LADDER)
+				if (Spiders::testArea(player.pos.x, player.pos.y - 0.40 - player.accel.y, player.pos.z).isLadder())
 				{
 					// not sure about this
 					player.accel.y = 0.0;
@@ -135,7 +135,8 @@ namespace cppcraft
 				if (this->jumplock == false)
 				{
 					// check if player is allowed to escape water
-					EscapeAttempt = Block::fluidAndCrossToAir( Spiders::testAreaEx(player.pos.x,player.pos.y-1.6,player.pos.z) ) != _AIR;
+					Block blk = Spiders::testAreaEx(player.pos.x,player.pos.y-1.6,player.pos.z);
+					EscapeAttempt = blk.isOpaque();
 					// if the player is currently escaping, start "holding" this key, preventing bouncing
 					if (EscapeAttempt)
 					{
@@ -144,14 +145,14 @@ namespace cppcraft
 					}
 				}
 				
-				if (Spiders::testArea(player.pos.x,player.pos.y-0.45,player.pos.z) == _AIR)
+				if (Spiders::testArea(player.pos.x,player.pos.y-0.45,player.pos.z).isAir())
 				{
 					// apply slight downward gravity when not too far out of water
 					// basically, as long as not able to escape water
 					if (plogic.EscapeAttempt == false)
 						player.accel.y = -0.05;
 				}
-				else if (Spiders::testArea(player.pos.x, player.pos.y-0.35, player.pos.z) == _AIR)
+				else if (Spiders::testArea(player.pos.x, player.pos.y-0.35, player.pos.z).isAir())
 				{
 					// really far out of water, but able to rest on waves (i think)
 					if (EscapeAttempt == false)
@@ -183,7 +184,7 @@ namespace cppcraft
 		}
 		
 		// 
-		block_t s[4];
+		Block s[4];
 		
 		// when player is determined to be falling, do the fallowing:
 		if (plogic.freefall && player.accel.y != 0)
@@ -206,7 +207,7 @@ namespace cppcraft
 				else
 					s[0] = Spiders::testAreaEx(player.pos.x, player.pos.y+fw_headtest+grav, player.pos.z);
 				
-				if (s[0] == _AIR)
+				if (s[0].isAir())
 				{
 					/// move player on Y-axis ///
 					player.pos.y += grav;
@@ -217,7 +218,7 @@ namespace cppcraft
 				{
 					// check if theres a trampoline there somewhere
 					// then, check minimum bounce gravity requirement
-					if (s[0] == _TRAMPOLINE)
+					/*if (s[0] == _TRAMPOLINE)
 					{
 						if (fabs(player.accel.y) > PlayerPhysics::bump_requirement)
 						{
@@ -241,7 +242,7 @@ namespace cppcraft
 							grav *= PLAYER_GRAVITY_REDUCTION_FACTOR;
 						}
 					}
-					else if (Ladderized == false)
+					else*/ if (Ladderized == false)
 					{
 						// deceleration of gravity when not in-air
 						player.accel.y *= PLAYER_GRAVITY_REDUCTION_FACTOR;
@@ -271,7 +272,7 @@ namespace cppcraft
 			s[3] = Spiders::testAreaEx(dx, player.pos.y + fw_headtest,  player.pos.z);
 			
 			// will move upwards
-			if ((s[0] | s[1] | s[2] | s[3]) == _AIR)
+			if (s[0].isAir() && s[1].isAir() && s[2].isAir() && s[3].isAir())
 			{
 				// not crouching, or crouching AND free-falling
 				if (movestate != PMS_Crouch || freefall == true)
@@ -282,7 +283,8 @@ namespace cppcraft
 				}
 				else  // crouching
 				{
-					if (Block::halfblockToAir(Spiders::testAreaEx(dx, player.pos.y-fw_crouchtest, player.pos.z)) != _AIR)
+					Block blk = Spiders::testAreaEx(dx, player.pos.y-fw_crouchtest, player.pos.z);
+					if (!blk.isAir() && !blk.isHalfblock())
 					{
 						player.pos.x = dx;
 						if (fabs(player.accel.x) >= PlayerPhysics::crouch_determinator) moved = true;
@@ -291,10 +293,10 @@ namespace cppcraft
 				
 				if (freefall == false && player.Flying == false && moved)
 				{
-					if (Spiders::testAreaEx(player.pos.x, player.pos.y - fw_autojump, player.pos.z) == _AIR)
+					if (Spiders::testAreaEx(player.pos.x, player.pos.y - fw_autojump, player.pos.z).isAir())
 					{
 						// ground level must also be air
-						if (Spiders::testAreaEx(player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z) == _AIR)
+						if (Spiders::testAreaEx(player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z).isAir())
 						//---------------------------//
 						//         AUTO JUMP		 //
 						player.accel.y = PlayerPhysics::spdAutoJump;
@@ -305,7 +307,7 @@ namespace cppcraft
 			else
 			{
 				// not moving into air, so do trampoline tests
-				if (fabs(player.accel.x) > PlayerPhysics::bump_requirement && 
+				/*if (fabs(player.accel.x) > PlayerPhysics::bump_requirement && 
 					(s[0] == _TRAMPOLINE || s[1] == _TRAMPOLINE || s[2] == _TRAMPOLINE))
 				{
 					#ifdef USE_SOUND
@@ -315,7 +317,7 @@ namespace cppcraft
 					// reverse player X-force
 					player.accel.x = -player.accel.x;
 				}
-				else if (fabs(player.accel.x) > PlayerPhysics::bump_reflect_treshold)
+				else*/ if (fabs(player.accel.x) > PlayerPhysics::bump_reflect_treshold)
 				{
 					player.accel.x = -player.accel.x * PlayerPhysics::bump_reflection;
 				}
@@ -335,7 +337,7 @@ namespace cppcraft
 			s[2] = Spiders::testAreaEx(player.pos.x, player.pos.y + 0.00, dz);
 			s[3] = Spiders::testAreaEx(player.pos.x, player.pos.y + fw_headtest,  dz);
 			
-			if ((s[0] | s[1] | s[2] | s[3]) == _AIR)
+			if (s[0].isAir() && s[1].isAir() && s[2].isAir() && s[3].isAir())
 			{
 				// player is not crouching, or crouching and free-falling
 				if (movestate != PMS_Crouch || freefall == true)
@@ -345,7 +347,8 @@ namespace cppcraft
 				}
 				else  // crouching
 				{
-					if (Block::halfblockToAir(Spiders::testAreaEx(player.pos.x, player.pos.y - fw_crouchtest, dz)))
+					Block blk = Spiders::testAreaEx(player.pos.x, player.pos.y - fw_crouchtest, dz);
+					if (!blk.isAir() && !blk.isHalfblock())
 					{
 						player.pos.z = dz;
 						if (fabs(player.accel.z) >= PlayerPhysics::crouch_determinator) moved = true;
@@ -354,10 +357,10 @@ namespace cppcraft
 				
 				if (freefall == false && player.Flying == false && moved)
 				{
-					if (Spiders::testAreaEx(player.pos.x, player.pos.y - fw_autojump, player.pos.z) == _AIR)
+					if (Spiders::testAreaEx(player.pos.x, player.pos.y - fw_autojump, player.pos.z).isAir())
 					{
 						// ground level must also be air
-						if (Spiders::testAreaEx(player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z) == _AIR)
+						if (Spiders::testAreaEx(player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z).isAir())
 						//---------------------------//
 						//         AUTO JUMP		 //
 						player.accel.y = PlayerPhysics::spdAutoJump;
@@ -368,7 +371,7 @@ namespace cppcraft
 			else
 			{
 				// player was not moving into air, so do trampoline tests
-				if (fabs(player.accel.z) > PlayerPhysics::bump_requirement && 
+				/*if (fabs(player.accel.z) > PlayerPhysics::bump_requirement && 
 					(s[0] == _TRAMPOLINE || s[1] == _TRAMPOLINE || s[2] == _TRAMPOLINE))
 				{
 					#ifdef USE_SOUND
@@ -378,7 +381,7 @@ namespace cppcraft
 					// reverse player X-force
 					player.accel.z = -player.accel.z;
 				}
-				else if (fabs(player.accel.z) > PlayerPhysics::bump_reflect_treshold)
+				else*/ if (fabs(player.accel.z) > PlayerPhysics::bump_reflect_treshold)
 				{
 					player.accel.z = -player.accel.z * PlayerPhysics::bump_reflection;
 				}
@@ -424,6 +427,12 @@ namespace cppcraft
 		const int maxtries = 10;
 		int tries = 0;
 		
+		std::function<bool(const Block&)> gravityTest =
+		[] (const Block& b)
+		{
+			return b.isAir() || b.isFluid() || b.isCross() || b.isLadder() || b.isSlowing();
+		};
+		
 		while (true) // raytrace correct player Y-position
 		{
 			s[0] = Spiders::testArea(player.pos.x,player.pos.y-fw_feettest,player.pos.z);
@@ -431,44 +440,42 @@ namespace cppcraft
 			s[2] = Spiders::testArea(player.pos.x,player.pos.y+0.00,player.pos.z);
 			
 			block_t gravtest = 
-				Block::gravityTest(s[0]) | 
-				Block::gravityTest(s[1]) | 
-				Block::gravityTest(s[2]);
+				gravityTest(s[0]) ||
+				gravityTest(s[1]) ||
+				gravityTest(s[2]);
 			
 			// break immediately if the player is not determined to be stuck
 			if (gravtest == _AIR)
 			{
 				// player is ladderized if ANY of the results show a ladder
-				Ladderized = (s[0] == _LADDER || s[1] == _LADDER || s[2] == _LADDER);
+				Ladderized = (s[0].isLadder() || s[1].isLadder() || s[2].isLadder());
 				// player is slowfalling is ANY of the results show a vine
-				Slowfall   = (s[0] == _VINES || s[1] == _VINES || s[2] == _VINES);
+				Slowfall   = (s[0].isSlowing() || s[1].isSlowing() || s[2].isSlowing());
 				
 				bool psbb = Submerged;
 				//bool psb  = FullySubmerged;
 				
 				// set fully submerged status, and submerged along with it
-				if (s[2] == _WATER)
+				if (s[2].isFluid())
 				{
-					FullySubmerged = PS_Water;
-					Submerged = PS_Water;
+					FullySubmerged = Submerged = PS_Water;
 				}
-				else if (s[2] == _LAVABLOCK)
+				/*else if (s[2] == _LAVABLOCK)
 				{
-					FullySubmerged = PS_Lava;
-					Submerged = PS_Lava;
-				}
+					FullySubmerged = Submerged = PS_Lava;
+				}*/
 				else
 				{
 					FullySubmerged = PS_None;
 					// see if the player is "otherwise" submerged
-					if (s[0] == _WATER || s[1] == _WATER)
+					if (s[0].isFluid() || s[1].isFluid())
 					{	// in a water block at some level
 						Submerged = PS_Water;
 					}
-					else if (s[0] == _LAVABLOCK || s[1] == _LAVABLOCK)
+					/*else if (s[0] == _LAVABLOCK || s[1] == _LAVABLOCK)
 					{	// in a lava block at some level
 						Submerged = PS_Lava;
-					}
+					}*/
 					else Submerged = PS_None;
 				}
 				
@@ -518,8 +525,8 @@ namespace cppcraft
 		/// manage falling player //
 		// determing if player is falling, then set appropriate flags (DONT USE getBlock!)
 		// note that the player is "falling" also when gravitating up
-		block_t fallTest = Spiders::testAreaEx(player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z);
-		if (fallTest == _AIR || player.accel.y > 0)
+		Block fallTest = Spiders::testAreaEx(player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z);
+		if (fallTest.isAir() || player.accel.y > 0)
 		{
 			plogic.freefall = true;
 		}
@@ -539,10 +546,11 @@ namespace cppcraft
 			// when ending falling, disable gravitation
 			player.accel.y = 0;
 			
-			if (Block::fluidToAir(block->getID()) != _AIR)
+			// play a landing sound
+			if (block->hasSound())
 			{
 				int sound = rnd(4);
-				soundman.playMaterial(block->getID(), sound);
+				soundman.playMaterial(block->getSound(), sound);
 			}
 			
 		} // freefalling
@@ -556,7 +564,8 @@ namespace cppcraft
 		if (jumpKey)
 		{
 			// it's disallowed to try to continue to jump when the eye-height + 0.10 is non-air
-			if (Block::fluidAndCrossToAir( Spiders::testAreaEx(player.pos.x,player.pos.y+0.10,player.pos.z) ) == _AIR)
+			Block blk = Spiders::testAreaEx(player.pos.x,player.pos.y+0.10,player.pos.z);
+			if (blk.isFluid() || blk.isCross() || blk.isAir())
 			{
 				// if submerged in something, but not on a ladder
 				if (Submerged != PS_None && Ladderized == false)

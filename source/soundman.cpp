@@ -221,76 +221,12 @@ namespace cppcraft
 		}
 	}
 	
-	std::string Soundman::blockToMaterial(int id)
+	void Soundman::playMaterial(const std::string& sound, int num)
 	{
-		if (isStone(id))
-		{
-			return "stone";
-		}
-		else if (isSnow(id))
-		{
-			return "snow";
-		}
-		else if (isDirt(id))
-		{
-			return "grass";
-		}
-		else if (isGravel(id))
-		{
-			return "gravel";
-		}
-		else if (isSand(id))
-		{
-			return "sand";
-		}
-		else if (id == _GLASS)
-		{
-			return "glass";
-		}
-		else if (isWood(id))
-		{
-			return "wood";
-		}
-		
-		// specific ids
-		switch (id)
-		{
-		case _ICECUBE:
-		case _LOWICE:
-			return "stone";
-			
-		case _LOWSNOW:
-			return "snow";
-			
-		case _WOODSTAIR:
-		case _WOODDOOR:
-		case _WOODPOLE:
-		case _WOODFENCE:
-		case _TORCH:
-		case _LADDER:
-			return "wood";
-			
-		case _STONESTAIR:
-		case _STONEDOOR:
-		case _LANTERN:
-		case _BRICKSTAIR:
-		case _BRICKWALL:
-		case _BRICKWALL2:
-			return "stone";
-			
-		}
-		
-		return "cloth";
-	}
-	
-	void Soundman::playMaterial(int id, int num)
-	{
-		std::string sound = blockToMaterial(id);
 		this->sounds[sound + std::to_string(num)].play();
 	}
-	void Soundman::playMaterial(int id, int num, vec3 v)
+	void Soundman::playMaterial(const std::string& sound, int num, vec3 v)
 	{
-		std::string sound = blockToMaterial(id);
 		this->sounds[sound + std::to_string(num)].play(v);
 	}
 	

@@ -24,7 +24,7 @@ namespace gui
 		
 		// create default inventory
 		inventory(0, quickbarY) = Item(IT_DIAMPICK, 1, ITT_ITEM);
-		
+		/*
 		inventory(1, quickbarY) = Item(_STONE, 9999, ITT_BLOCK);
 		inventory(2, quickbarY) = Item(_PLANK, 9999, ITT_BLOCK);
 		
@@ -36,7 +36,7 @@ namespace gui
 		
 		inventory(7, quickbarY) = Item(_TORCH, 255, ITT_BLOCK);
 		inventory(8, quickbarY) = Item(_LANTERN, 255, ITT_BLOCK);
-		
+		*/
 		inventory.setChanged(true);
 		
 	}

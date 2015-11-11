@@ -11,12 +11,11 @@ namespace cppcraft
 	{
 	public:
 		static const int FLATCOLORS = 8;
+		typedef uint32_t color_t;
 		
 		typedef struct flatland_t
 		{
-			typedef uint32_t flat_color_t;
-			
-			flat_color_t fcolor[FLATCOLORS];
+			color_t fcolor[FLATCOLORS];
 			uint8_t terrain;
 			uint8_t skyLevel;
 			uint8_t groundLevel;

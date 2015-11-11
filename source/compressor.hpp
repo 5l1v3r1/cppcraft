@@ -14,6 +14,7 @@ namespace cppcraft
 	{
 	public:
 		static void init();
+		static void cleanup();
 		static void load(std::ifstream&, int PL, int x, int z);
 		
 	};

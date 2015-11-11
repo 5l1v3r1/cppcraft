@@ -13,11 +13,11 @@ using namespace library;
 
 namespace cppcraft
 {
-	const int PrecompThreadData::repeat_factor = RenderConst::VERTEX_SCALE / tiles.tilesPerBigtile;
+	const int PTD::REPEAT_FACTOR = RenderConst::VERTEX_SCALE / Tiles::TILES_PER_BIG_TILE;
 	
 	PrecompThread::PrecompThread()
 	{
-		this->ptd = new PrecompThreadData();
+		this->ptd = new PTD();
 		
 		// random default values for vertex array sizes
 		// the arrays get automatically resized as needed
@@ -46,7 +46,7 @@ namespace cppcraft
 		delete this->ptd;
 	}
 	// free vertex arrays
-	PrecompThreadData::~PrecompThreadData()
+	PTD::~PTD()
 	{
 		for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
 			delete[] this->databuffer[i];
@@ -54,10 +54,7 @@ namespace cppcraft
 	
 	void PrecompThread::precompile(Precomp& pc)
 	{
-		PrecompThreadData& pcg = *this->ptd;
-		
-		// last blockid, starting with _AIR
-		pcg.lastid = _AIR;
+		PTD& pcg = *this->ptd;
 		
 		// zero out faces present
 		for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
@@ -67,9 +64,6 @@ namespace cppcraft
 		
 		// number of big tiles
 		pcg.bigTextures = tiles.bigTilesX * tiles.bigTilesY;
-		
-		// initialize to invalid CRC value
-		pcg.fbicrc = 256;
 		
 		// set sector
 		pcg.sector = &pc.sector;
@@ -84,14 +78,14 @@ namespace cppcraft
 		for (int by = y0; by < y1; by++)
 		{
 			// get pointer to current block
-			Block& currentBlock = pc.sector(bx, by, bz);
+			Block& block = pc.sector(bx, by, bz);
 			
-			// ignore AIR and invalid blocks
-			if (currentBlock.getID() > AIR_END && currentBlock.getID() <= MAX_UNIQUE_IDS)
+			// ignore AIR
+			if (block.getID() != _AIR)
 			{
 				// process one block id, and potentially add it to mesh
 				// the generated mesh is added to a shaderline determined by its block id
-				pcg.process_block(currentBlock, bx, by, bz);
+				pcg.process_block(block, bx, by, bz);
 			}
 		}
 		

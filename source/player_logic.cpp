@@ -26,13 +26,13 @@ namespace cppcraft
 		{
 			if (timesteps == 0)
 			{
-				// play material sound
-				if (Block::fluidAndCrossToAir(block->getID()) != _AIR)
+				// play material sound, except for fluids, crosses and air
+				if (block->hasSound())
 				{
 					int value = rand() & 1;
 					stepsound = 0 + value;
 					
-					soundman.playMaterial(block->getID(), stepsound);
+					soundman.playMaterial(block->getSound(), stepsound);
 				}
 				
 				if (movestate == PMS_Crouch)

@@ -88,14 +88,12 @@ namespace gui
 		}
 		else if (itm.isBlock())
 		{
-			cppcraft::block_t id = itm.getID();
-			
 			// some blocks can be represented by quads
-			if (id == _LADDER || isCross(id) || isPole(id))
+			if (itm.toBlock().isCross())
 			{
 				return emitQuad(itm, x, y, size);
 			}
-			else if (isDoor(id))
+			else if (itm.toBlock().isTall())
 			{
 				return emitTallQuad(itm, x, y, size);
 			}
@@ -126,8 +124,9 @@ namespace gui
 	int ItemRenderer::emitTallQuad(Item& itm, float x, float y, float size)
 	{
 		// face value is "as if" front
-		float tileTop = Block::cubeFaceById(itm.getID(), 0, 2);
-		float tileBot = Block::cubeFaceById(itm.getID(), 0, 0);
+		Block blk = itm.toBlock();
+		float tileTop = blk.getTexture(2);
+		float tileBot = blk.getTexture(0);
 		// emit to itemTiles or blockTiles depending on item type
 		std::vector<ivertex_t>& dest = (itm.isItem()) ? itemTiles : blockTiles;
 		
@@ -167,7 +166,9 @@ namespace gui
 			v = offset + v * size;
 			
 			// face value is located in vertex.w
-			float tw = Block::cubeFaceById(itm.getID(), vertex.w, 3);
+			Block blk = itm.toBlock();
+			blk.setFacing(3);
+			float tw = blk.getTexture(vertex.w);
 			// emit to blockTiles only
 			blockTiles.emplace_back(v.x, v.y, v.z,  vertex.u, vertex.v, tw,  vertex.color);
 		}

@@ -47,18 +47,18 @@ namespace cppcraft
 						if (next->x == current->x && next->y == current->y)
 						
 						// color match
-						if (next[2].c == next[3].c)
-						if (next[0].c == next[1].c)
-						if (current[2].c == current[3].c)
-						if (current[0].c == current[1].c)
-						if (next[2].c == current[3].c)
-						if (next[1].c == current[0].c)
+						if (next[2].light == next[3].light)
+						if (next[0].light == next[1].light)
+						if (current[2].light == current[3].light)
+						if (current[0].light == current[1].light)
+						if (next[2].light == current[3].light)
+						if (next[1].light == current[0].light)
 						
 						// terrain color match
-						if (next[2].biome == next[3].biome)
-						if (next[0].biome == next[1].biome)
-						if (next[2].biome == current[3].biome)
-						if (next[1].biome == current[0].biome)
+						if (next[2].color == next[3].color)
+						if (next[0].color == next[1].color)
+						if (next[2].color == current[3].color)
+						if (next[1].color == current[0].color)
 						{
 							// now optimize the quad, by extending the position quad,
 							// and effectively removing the next quad
@@ -82,18 +82,18 @@ namespace cppcraft
 						if (next->y == current->y && next->x == current->x)
 						
 						// color match
-						if (next[0].c == next[3].c)
-						if (next[1].c == next[2].c)
-						if (current[0].c == current[3].c)
-						if (current[1].c == current[2].c)
-						if (next[0].c == current[3].c)
-						if (next[1].c == current[2].c)
+						if (next[0].light == next[3].light)
+						if (next[1].light == next[2].light)
+						if (current[0].light == current[3].light)
+						if (current[1].light == current[2].light)
+						if (next[0].light == current[3].light)
+						if (next[1].light == current[2].light)
 						
 						// terrain color match
-						if (next[0].biome == next[3].biome)
-						if (next[1].biome == next[2].biome)
-						if (next[0].biome == current[3].biome)
-						if (next[1].biome == current[2].biome)
+						if (next[0].color == next[3].color)
+						if (next[1].color == next[2].color)
+						if (next[0].color == current[3].color)
+						if (next[1].color == current[2].color)
 						{
 							// now optimize the quad, by extending the position quad,
 							// and effectively removing the next quad
@@ -119,18 +119,18 @@ namespace cppcraft
 						if (next->y == current->y && next->x == current->x)
 						
 						// color match
-						if (next[2].c == next[3].c)
-						if (next[0].c == next[1].c)
-						if (current[2].c == current[3].c)
-						if (current[0].c == current[1].c)
-						if (next[2].c == current[3].c)
-						if (next[1].c == current[0].c)
+						if (next[2].light == next[3].light)
+						if (next[0].light == next[1].light)
+						if (current[2].light == current[3].light)
+						if (current[0].light == current[1].light)
+						if (next[2].light == current[3].light)
+						if (next[1].light == current[0].light)
 						
 						// terrain color match
-						if (next[2].biome == next[3].biome)
-						if (next[0].biome == next[1].biome)
-						if (next[2].biome == current[3].biome)
-						if (next[1].biome == current[0].biome)
+						if (next[2].color == next[3].color)
+						if (next[0].color == next[1].color)
+						if (next[2].color == current[3].color)
+						if (next[1].color == current[0].color)
 						{
 							// now optimize the quad, by extending the position quad,
 							// and effectively removing the next quad
@@ -152,18 +152,18 @@ namespace cppcraft
 						if (next->y == current->y && next->z == current->z)
 						
 						// color match
-						if (next[2].c == next[3].c)
-						if (next[0].c == next[1].c)
-						if (current[2].c == current[3].c)
-						if (current[0].c == current[1].c)
-						if (next[2].c == current[3].c)
-						if (next[1].c == current[0].c)
+						if (next[2].light == next[3].light)
+						if (next[0].light == next[1].light)
+						if (current[2].light == current[3].light)
+						if (current[0].light == current[1].light)
+						if (next[2].light == current[3].light)
+						if (next[1].light == current[0].light)
 						
 						// terrain color match
-						if (next[2].biome == next[3].biome)
-						if (next[0].biome == next[1].biome)
-						if (next[2].biome == current[3].biome)
-						if (next[1].biome == current[0].biome)
+						if (next[2].color == next[3].color)
+						if (next[0].color == next[1].color)
+						if (next[2].color == current[3].color)
+						if (next[1].color == current[0].color)
 						{
 							// now optimize the quad, by extending the position quad,
 							// and effectively removing the next quad
@@ -185,18 +185,18 @@ namespace cppcraft
 						if (next->y == current->y && next->z == current->z)
 						
 						// color match
-						if (next[0].c == next[3].c)
-						if (next[1].c == next[2].c)
-						if (current[0].c == current[3].c)
-						if (current[1].c == current[2].c)
-						if (next[0].c == current[3].c)
-						if (next[1].c == current[2].c)
+						if (next[0].light == next[3].light)
+						if (next[1].light == next[2].light)
+						if (current[0].light == current[3].light)
+						if (current[1].light == current[2].light)
+						if (next[0].light == current[3].light)
+						if (next[1].light == current[2].light)
 						
 						// terrain color match
-						if (next[0].biome == next[3].biome)
-						if (next[1].biome == next[2].biome)
-						if (next[0].biome == current[3].biome)
-						if (next[1].biome == current[2].biome)
+						if (next[0].color == next[3].color)
+						if (next[1].color == next[2].color)
+						if (next[0].color == current[3].color)
+						if (next[1].color == current[2].color)
 						{
 							// now optimize the quad, by extending the position quad,
 							// and effectively removing the next quad
@@ -255,12 +255,12 @@ namespace cppcraft
 				if (next->x == current->x && next->y == current->y)
 				{
 					// next quad has same (consistent) color
-					if (next[2].c != next[3].c) continue;
-					if (next[0].c != next[1].c) continue;
-					if (current[2].c != current[3].c) continue;
-					if (current[0].c != current[1].c) continue;
-					if (next[2].c != current[3].c) continue;
-					if (next[1].c != current[0].c) continue;
+					if (next[2].light != next[3].light) continue;
+					if (next[0].light != next[1].light) continue;
+					if (current[2].light != current[3].light) continue;
+					if (current[0].light != current[1].light) continue;
+					if (next[2].light != current[3].light) continue;
+					if (next[1].light != current[0].light) continue;
 					
 					// now optimize the quad, by extending the position quad,
 					// and effectively removing the next quad
@@ -269,10 +269,10 @@ namespace cppcraft
 					current[0].z -= RenderConst::VERTEX_SCALE;
 					current[3].z -= RenderConst::VERTEX_SCALE;
 					
-					/*current[0].c = 0 << 24;
-					current[1].c = 0 << 24;
-					current[2].c = 0 << 24;
-					current[3].c = 0 << 24;*/
+					/*current[0].light = 0 << 24;
+					current[1].light = 0 << 24;
+					current[2].light = 0 << 24;
+					current[3].light = 0 << 24;*/
 					
 					verts -= 4;   // decrease total number of vertices
 					goto skipAdvancement;
@@ -308,11 +308,11 @@ namespace cppcraft
 		
 		if (verts == WATER_MAX_VERTS)
 		{
-			const unsigned long long C = water->c;
+			const unsigned long long C = water->light;
 			
 			for (int i = 1; i < WATER_MAX_VERTS; i++)
 			{
-				if (water[i].c != C) goto optimizeManuallyShaded;
+				if (water[i].light != C) goto optimizeManuallyShaded;
 			}
 			
 			water[0].x = 0;

@@ -4,12 +4,13 @@
 
 namespace cppcraft
 {
+	/*
 	inline short randomHeight(int bx, int bz)
 	{
 		return (((bx + bz * 3) & 7) - 2) * 5;
 	}
 	
-	int PrecompThreadData::emitCross(block_t id, int bx, int by, int bz)
+	int emitCross(block_t id, int bx, int by, int bz)
 	{
 		// copy cross-mesh object 0 (cross)
 		int vertices = blockmodels.crosses.copyTo(0, indic);
@@ -53,5 +54,6 @@ namespace cppcraft
 			indic[i].w = indic->w;
 		
 		return vertices;
-	}
+	}*/
+	
 }

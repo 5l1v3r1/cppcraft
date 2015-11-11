@@ -28,8 +28,8 @@ namespace cppcraft
 		// returns false if the position would become out of bounds (after conversion)
 		static Sector* spiderwrap(Sector& s, int& bx, int& by, int& bz);
 		
-		static block_t testArea(float x, float y, float z);
-		static block_t testAreaEx(double x, double y, double z);
+		static Block testArea(float x, float y, float z);
+		static Block testAreaEx(float x, float y, float z);
 		
 		// updating & modifying world
 		static bool updateBlock(int bx, int by, int bz, block_t bitfield);

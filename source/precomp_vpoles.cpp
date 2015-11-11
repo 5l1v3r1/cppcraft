@@ -4,6 +4,7 @@
 
 namespace cppcraft
 {
+	/*
 	int PrecompThreadData::emitPole(block_t id, int bx, int by, int bz, block_t model)
 	{
 		int vertices = blockmodels.poles.copyTo(model, indic);
@@ -18,5 +19,5 @@ namespace cppcraft
 		}
 		
 		return vertices;
-	}
+	}*/
 }

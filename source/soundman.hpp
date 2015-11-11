@@ -50,8 +50,8 @@ namespace cppcraft
 		void playSound(const std::string&, glm::vec3 distance);
 		void playSound(const std::string&);
 		// material sounds, sets of SOUNDS_PER_MAT (4)
-		void playMaterial(int id, int num, glm::vec3 distance);
-		void playMaterial(int id, int num);
+		void playMaterial(const std::string& sound, int num, glm::vec3 distance);
+		void playMaterial(const std::string& sound, int num);
 		
 		void handleSounds(int terrain);
 		

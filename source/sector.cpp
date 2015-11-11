@@ -47,14 +47,14 @@ namespace cppcraft
 		
 		for (; block < lastBlock; block++)
 		{
-			if (isLight(block->getID())) lights++;
+			if (block->isLight()) lights++;
 		}
 		
 		blockpt->lights = lights;
 		return lights;
 	}
 	
-	float Sector::distanceTo(const Sector& sector, int bx, int by, int bz) const
+	float Sector::distanceTo(const Sector& sector, int bx, int bz) const
 	{
 		// centroidal
 		int dx = ((getX() - sector.getX()) << BLOCKS_XZ_SH) + (BLOCKS_XZ / 2 - bx);

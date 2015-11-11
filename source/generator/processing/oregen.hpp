@@ -26,6 +26,8 @@ namespace terragen
 			ores.push_back(oi);
 		}
 		
+		static void init();
+		
 		static void reset()
 		{
 			for (OreInfo& ore : get().ores)

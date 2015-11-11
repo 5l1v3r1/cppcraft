@@ -213,13 +213,13 @@ namespace cppcraft
 				this->playerSectorZ = (int)playerPos.z / BLOCKS_XZ;
 				
 				// underwater snapshot
-				block_t blockID = Spiders::testArea(playerPos.x, playerPos.y - camera.getZNear(), playerPos.z);
-				if (isFluid(blockID))
+				Block blk = Spiders::testArea(playerPos.x, playerPos.y - camera.getZNear(), playerPos.z);
+				if (blk.isFluid())
 				{
-					if (blockID == _WATER)
+					//if (blockID == _WATER)
 						this->underwater = 1;
-					else // _LAVABLOCK
-						this->underwater = 2;
+					//else // _LAVABLOCK
+					//	this->underwater = 2;
 						
 					// cheap hack to fix seeing into water
 					this->playerPos.y -= camera.getZNear();

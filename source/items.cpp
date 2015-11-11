@@ -15,7 +15,7 @@ namespace cppcraft
 	{
 		// regular blocks (as items)
 		if (this->getType() == ITT_BLOCK)
-			return Block::getBlockName(this->getID());
+			return Block(this->getID(), this->getSpecial()).getName();
 		
 		return items.getName(this->getID());
 	}
@@ -23,7 +23,8 @@ namespace cppcraft
 	int Item::getTextureTileID() const
 	{
 		// regular blocks (as items)
-		if (this->getType() == ITT_BLOCK) return Block::cubeFaceById(this->getID(), 0, 0);
+		if (this->getType() == ITT_BLOCK)
+			return toBlock().getTexture(0);
 		
 		return items.tileByID(this->getID());
 		
@@ -180,170 +181,8 @@ namespace cppcraft
 	
 	int ItemsClass::getMiningTime(const Block& block, const Item& helditem) const
 	{
-		item_t ttt = IT_NONE;
-		block_t id = block.getID();
-		
-		if (helditem.getCount() != 0 && helditem.getType() == ITT_ITEM)
-		{
-			// must be an item (and not just a block)
-			ttt = helditem.getID();
-		}
-		
-		if (id == _ADMINIUM)
-		{
-			return 2000; // indestructible
-		}
-		else if (isCross(id))
-		{
-			return 0; // crosses are insta-mined
-		}
-		else if (id == _LOWSNOW || id == _LOWICE)
-		{
-			if (ttt == IT_DIAMSHOVEL || ttt == IT_GOLDSHOVEL)
-			{
-				return 4;
-			}
-			else if (ttt == IT_STONESHOVEL || ttt == IT_IRONSHOVEL)
-			{
-				return 6;
-			}
-			else if (ttt == IT_WOODSHOVEL)
-			{
-				return 8;
-			}
-			return 12;
-		}
-		else if (isStone(id) || id == _STONEDOOR || id == _STONESTAIR || id == _BRICKSTAIR || 
-			(id >= _HALFSTONE && id <= _HALFBRICK2) || 
-			(id >= _FURNACE && id <= _BRICKWALL2))
-		{
-			if (ttt == IT_DIAMPICK)
-			{
-				return 6;
-			}
-			else if (ttt == IT_GOLDPICK)
-			{
-				return 9;
-			}
-			else if (ttt == IT_IRONPICK)
-			{
-				return 12;
-			}
-			else if (ttt == IT_STONEPICK)
-			{
-				return 16;
-			}
-			else if (ttt == IT_WOODPICK)
-			{
-				return 32;
-			}
-			return 96;
-		}
-		else if (isDirt(id))
-		{
-			if (ttt == IT_DIAMSHOVEL)
-			{
-				return 4;
-			}
-			else if (ttt == IT_GOLDPICK)
-			{
-				return 6;
-			}
-			else if (ttt == IT_IRONPICK)
-			{
-				return 8;
-			}
-			else if (ttt == IT_STONESHOVEL)
-			{
-				return 12;
-			}
-			else if (ttt == IT_WOODSHOVEL)
-			{
-				return 16;
-			}
-			return 24;
-		}
-		else if (isSand(id))
-		{
-			if (ttt == IT_DIAMSHOVEL)
-			{
-				return 4;
-			}
-			else if (ttt == IT_GOLDPICK)
-			{
-				return 6;
-			}
-			else if (ttt == IT_IRONPICK)
-			{
-				return 8;
-			}
-			else if (ttt == IT_STONESHOVEL)
-			{
-				return 10;
-			}
-			else if (ttt == IT_WOODSHOVEL)
-			{
-				return 14;
-			}
-			return 20;
-		}
-		else if ((id >= _WOODBROWN && id <= _PUMPKIN) || id == _LADDER || id == _WOODDOOR || 
-				id == _WOODFENCE || id == _WOODPOLE || id == _WOODSIGN || id == _WOODSTAIR)
-		{
-			if (ttt == IT_DIAMAXE)
-			{
-				return 6;
-			}
-			else if (ttt == IT_GOLDAXE)
-			{
-				return 8;
-			}
-			else if (ttt == IT_IRONAXE)
-			{
-				return 12;
-			}
-			else if (ttt == IT_STONEAXE)
-			{
-				return 16;
-			}
-			else if (ttt == IT_WOODAXE)
-			{
-				return 20;
-			}
-			return 28;
-		}
-		else if (id == _GLASS || (id >= _GIANTSHROOMCORE && id <= _GIANTSHROOMTOPSPECLE))
-		{
-			if (ttt == IT_DIAMSWORD || ttt == IT_GOLDSWORD)
-			{
-				return 4;
-			}
-			else if (ttt == IT_STONESWORD || ttt == IT_IRONSWORD)
-			{
-				return 8;
-			}
-			else if (ttt == IT_WOODSWORD)
-			{
-				return 12;
-			}
-			return 16;
-		}
-		else if (isLeaf(id))
-		{
-			if (ttt == IT_DIAMSWORD || ttt == IT_GOLDSWORD)
-			{
-				return 0;
-			}
-			else if (ttt == IT_STONESWORD || ttt == IT_IRONSWORD)
-			{
-				return 2;
-			}
-			else if (ttt == IT_WOODSWORD)
-			{
-				return 4;
-			}
-			return 8;
-		}
+		(void) block;
+		(void) helditem;
 		
 		// default value
 		return 8;

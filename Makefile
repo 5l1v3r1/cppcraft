@@ -6,9 +6,9 @@
 OUTPUT = ./Debug/cppcraft
 
 # code folder
-SOURCE  = source source/generator source/generator/biomegen 
-SOURCE += source/generator/terrain source/generator/processing source/generator/objects
-SOURCE += source/gui source/sound source/math
+SOURCE =  source source/db source/gui source/sound
+SOURCE += source/generator source/generator/biomegen source/generator/terrain
+SOURCE += source/generator/processing source/generator/objects
 
 # resource file
 ifeq ($(OS),Windows_NT)

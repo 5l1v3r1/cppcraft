@@ -7,12 +7,21 @@
 #include <stdio.h>
 #include <cassert>
 
+#include <library/compression/lzo.hpp>
+#include <library/timing/timer.hpp>
+#include <cstring>
+using namespace library;
+
 namespace terragen
 {
 	ObjectDB objectDB;
 	
 	void Generator::init()
 	{
+		// initialize various stuff
+		PostProcess::init();
+		extern void init_blocks();
+		init_blocks();
 		// make sure the terrain function list is populated
 		terrainFuncs.init();
 		// first objects
@@ -20,9 +29,6 @@ namespace terragen
 		objectDB.add(basic_tree);
 		extern void basic_house(GenObject&, int, int);
 		objectDB.add(basic_house);
-		// add some ores
-		extern void initOres();
-		initOres();
 	}
 	
 	void Generator::run(gendata_t* data)

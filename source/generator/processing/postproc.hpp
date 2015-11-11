@@ -7,6 +7,7 @@ namespace terragen
 	class PostProcess
 	{
 	public:
+		static void init();
 		static void run(gendata_t* gdata);
 	};
 }

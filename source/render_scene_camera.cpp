@@ -61,7 +61,7 @@ namespace cppcraft
 			if (plogic.block)
 			{
 				// determine what block we are standing on
-				if (plogic.block->getID() == _LADDER || plogic.block->getID() == _AIR)
+				if (plogic.block->isLadder() || plogic.block->isAir())
 				{
 					// ladder, air --> ladder
 					LADDER_CAMERA_DEV();

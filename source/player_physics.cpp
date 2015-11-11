@@ -276,24 +276,24 @@ namespace cppcraft
 		}
 		else
 		{
-			// normal momentum, except on ground with more/less friction
+			// normal momentum, except on ground with varying friction
 			
 			// player block can affect momentum
-			switch (plogic.block->getID())
+			if (plogic.block->isLowFriction())
 			{
-			case _LOWICE:
 				// weakest momentum change
 				player.accel.x = mix(player.accel.x, dx, 0.01);
 				player.accel.z = mix(player.accel.z, dz, 0.01);
-				break;
-				
-			default:
+			}
+			else
+			{
 				// all other blocks, including air
 				player.accel.x = mix(player.accel.x, dx, 0.125);
 				player.accel.z = mix(player.accel.z, dz, 0.125);
 			}
 			
 		}
-	}
+		
+	} // handleMomentum()
 	
 }

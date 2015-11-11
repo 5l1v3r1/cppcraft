@@ -30,9 +30,9 @@ namespace cppcraft
 		return r + (g << 8);
 	}
   
-  inline int lightPenetrate(block_t id)
+  inline int lightPenetrate(Block& block)
   {
-    if (isAir(id) || id >= CROSS_START)
+    if (block.isAir() || block.isTransparent())
       return 1;
     
     return 16;
@@ -64,7 +64,7 @@ namespace cppcraft
 		
 		// decrease light level based on what we hit
 		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
-		level -= lightPenetrate(blk2.getID());
+		level -= lightPenetrate(blk2);
 		level = (level >= 0) ? level : 0;
 		
 		// avoid lowering light values for air
@@ -142,8 +142,8 @@ namespace cppcraft
 	  
 	  // try to enter water and other transparent blocks
 	  // for now, let's jsut use _WATER hardcoded
-	  if (sector(x, sky-1, z).getID() == _WATER)
-		propagateSkylight(sx+x, sky, sz+z, 3, 14);
+	  if (sector(x, sky-1, z).isFluid())
+			propagateSkylight(sx+x, sky, sz+z, 3, 14);
 	  
     } // x, z
 	
@@ -161,26 +161,26 @@ namespace cppcraft
     for (int z = 0; z < BLOCKS_XZ; z++)
 	for (int y = 0; y <= sector.flat()(x, z).groundLevel; y++)
     {
-		block_t id = sector(x, y, z).getID();
+		Block& block = sector(x, y, z);
 		
-		if (isLight(id))
+		if (block.isLight())
 		{
 			// set to max blocklight value
-			sector(x, y, z).setBlockLight(15);
+			block.setBlockLight(15);
 			// mask out impossible paths
 			int mask = 63;
 			if (x < BLOCKS_XZ-1)
-				if (isAir(sector(x+1, y, z).getID()) == false) mask &= ~1;
+				if (sector(x+1, y, z).isAir() == false) mask &= ~1;
 			if (x > 0)
-				if (isAir(sector(x-1, y, z).getID()) == false) mask &= ~2;
+				if (sector(x-1, y, z).isAir() == false) mask &= ~2;
 			
-			if (isAir(sector(x, y+1, z).getID()) == false) mask &= ~4;
-			if (isAir(sector(x, y-1, z).getID()) == false) mask &= ~8;
+			if (sector(x, y+1, z).isAir() == false) mask &= ~4;
+			if (sector(x, y-1, z).isAir() == false) mask &= ~8;
 			
 			if (z < BLOCKS_XZ-1)
-				if (isAir(sector(x, y, z+1).getID()) == false) mask &= ~16;
+				if (sector(x, y, z+1).isAir() == false) mask &= ~16;
 			if (z > 0)
-				if (isAir(sector(x, y, z-1).getID()) == false) mask &= ~32;
+				if (sector(x, y, z-1).isAir() == false) mask &= ~32;
 			
 			// propagate block light in all directions
 			void propagateBlocklight(int x, int y, int z, int dir, int level);
@@ -208,37 +208,37 @@ namespace cppcraft
 	  if (x > 0)
 	  {
 		Block& blk = Spiders::getBlock(x-1, y, z);
-		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+		if (blk.isAir() && blk.getSkyLight() > 1)
 			propagateSkylight(x-1, y, z, 0, blk.getSkyLight()); // +x
 	  }
 	  if (x < sectors.getXZ()*BLOCKS_XZ-1)
 	  {
 		Block& blk = Spiders::getBlock(x+1, y, z);
-		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+		if (blk.isAir() && blk.getSkyLight() > 1)
 			propagateSkylight(x+1, y, z, 1, blk.getSkyLight()); // -x
 	  }
 	  if (y > 0)
 	  {
 		Block& blk = Spiders::getBlock(x, y-1, z);
-		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+		if (blk.isAir() && blk.getSkyLight() > 1)
 			propagateSkylight(x, y-1, z, 2, blk.getSkyLight()); // +y
 	  }
 	  if (y < BLOCKS_Y-1)
 	  {
 		Block& blk = Spiders::getBlock(x, y+1, z);
-		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+		if (blk.isAir() && blk.getSkyLight() > 1)
 			propagateSkylight(x, y+1, z, 3, blk.getSkyLight()); // -y
 	  }
 	  if (z > 0)
 	  {
 		Block& blk = Spiders::getBlock(x, y, z-1);
-		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+		if (blk.isAir() && blk.getSkyLight() > 1)
 			propagateSkylight(x, y, z-1, 4, blk.getSkyLight()); // +z
 	  }
 	  if (z < sectors.getXZ()*BLOCKS_XZ-1)
 	  {
 		Block& blk = Spiders::getBlock(x, y, z+1);
-		if (isAir(blk.getID()) && blk.getSkyLight() > 1)
+		if (blk.isAir() && blk.getSkyLight() > 1)
 			propagateSkylight(x, y, z+1, 5, blk.getSkyLight()); // -z
 	  }
   }
@@ -266,7 +266,7 @@ namespace cppcraft
 		
 		// avoid setting light values for non-air
 		Block& blk2 = Spiders::getBlock(x, y, z);
-		level -= lightPenetrate(blk2.getID());
+		level -= lightPenetrate(blk2);
 		level = (level < 0) ? 0 : level;
 		
 		// avoid lowering light values for air

@@ -18,6 +18,8 @@ namespace cppcraft
 	void WorldManager::init(gamestate_t gs, library::WindowClass& gameScreen, std::string& worldFolder)
 	{
 		this->gamestate = gs;
+		// initialize block registry
+		db::BlockDB::init();
 		// initalize world
 		world.init(worldFolder);
 		// initialize player

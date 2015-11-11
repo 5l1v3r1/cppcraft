@@ -6,13 +6,14 @@
 
 namespace cppcraft
 {
+	/*
 	vertex_color_t mix(vertex_color_t l1, vertex_color_t l2)
 	{
 		return (((l1 & 255) + (l2 & 255)) >> 1)
 			 | (((l1 >>  8) + (l2 >>  8)) >> 1) << 8;
 	}
 	
-	int PrecompThreadData::emitStair(const Block& currentBlock, int bx, int by, int bz, block_t sides)
+	int emitStair(const Block& currentBlock, int bx, int by, int bz, block_t sides)
 	{
 		// pop back the top face (always visible)
 		sides |= 4;
@@ -157,6 +158,7 @@ namespace cppcraft
 		
 		// set indic to first vertex and return
 		indic = memtarget;
-		return vertices;
+		return 0;
 	}
+	*/
 }

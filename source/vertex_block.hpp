@@ -26,9 +26,9 @@ namespace cppcraft
 		GLshort u; // 8
 		GLshort v;
 		GLshort w;
-		GLshort c; // 2-channeled color (skylight, blocklight)
+		GLshort light; // 2-channeled color (skylight, blocklight)
 		
-		GLuint biome; // 20
+		GLuint color; // 20
 		
 	};  // 24
 	#pragma pack(pop)

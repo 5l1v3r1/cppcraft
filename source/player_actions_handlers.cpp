@@ -40,9 +40,10 @@ namespace cppcraft
 		int ddy = int(selection.pos.y);
 		int ddz = int(selection.pos.z);
 		
-		Block& selectedBlock = Spiders::getBlock(ddx, ddy, ddz);
-		block_t id = selectedBlock.getID();
-		
+		Block& selected = Spiders::getBlock(ddx, ddy, ddz);
+		(void) held_item;
+		(void) selected;
+		/*
 		if (isDoor(id))
 		{
 			block_t newState = (selectedBlock.getExtra() >> 1) xor 1;
@@ -81,14 +82,14 @@ namespace cppcraft
 				
 			}
 			
-			/*#ifdef USE_SOUND
+			#ifdef USE_SOUND
 				if newstate = 0 then
 					inetSoundEx(S_FX_DOOR_OPEN, 1.0, true)
 				else
 					inetSoundEx(S_FX_DOOR_CLOSE, 1.0, true)
 				endif
-			#endif*/
-		}
+			#endif
+		}*/
 		
 	}
 	
@@ -118,50 +119,14 @@ namespace cppcraft
 		// the cube facing that would face player
 		block_t facing = player.getBlockFacing();
 		
+		// well, we need to have non-zero amount of items,
+		// and we can really only place blocks atm.
 		bool placement_test = (item.getCount() != 0 && item.getType() == ITT_BLOCK);
 		
-		if (item.getID() == _LADDER)
-		{
-			placement_test &= (selection.facing != 2 && selection.facing != 3);
-			
-			// override facing
-			//facing = Block::cubeToFacing(facing);
-		}
-		else if (isStair(item.getID()))
-		{
-			// nothing for the moment =)
-			
-		}
-		else if (isHalfblock(item.getID()))
-		{
-			// top face
-			if (selection.facing == 2)
-			{
-				// do nothing
-			}
-			// bottom face
-			else if (selection.facing == 3)
-			{
-				// set halfblock to reside on top under the block
-				facing |= 4;
-			}
-			else
-			{
-				// decide with y fractional part
-				float fr = selection.pos.y - int(selection.pos.y);
-				if (fr > 0.5)
-				{
-					// top level
-					facing |= 4;
-				}
-			}
-		}
-		else if (isLowblock(item.getID()))
-		{
-			/// low blocks, don't care ///
-			//ddy = int( frac(plogic.selected(1)) * 8 )
-			//facing or= ddy shl 2
-		}
+		// additional test for whether the destination face is correct for this block
+		// eg. cant place ladders on top and bottom faces, torches on bottom faces etc.
+		glm::vec3 fpos = fract(selection.pos);
+		placement_test &= item.toBlock().placeToFace(selection.facing, fpos.x, fpos.y, fpos.z);
 		
 		// make sure we can place <here>
 		int ddx = selection.pos.x;
@@ -169,11 +134,14 @@ namespace cppcraft
 		int ddz = selection.pos.z;
 		Block& selectedBlock = Spiders::getBlock(ddx, ddy, ddz);
 		
-		placement_test &= Block::blockPlacementAllowed(selectedBlock.getID());
+		// now that we know we are allowed to place our block with the specificed facing,
+		// we have to check if we are similarly allowed to place something onto the same facing
+		// of the destination block (ddx, ddy, ddz)
+		placement_test &= selectedBlock.placeOntoThis(facing);
 		
 		if (placement_test)
 		{
-			// move from target block to the one opposite of selected face
+			// move to where we are to place the new block
 			switch (selection.facing)
 			{
 				case 0: ddz += 1; break; // +z
@@ -186,60 +154,22 @@ namespace cppcraft
 			
 			// check if we are allowed to place a block in the selected position
 			Block& newBlock = Spiders::getBlock(ddx, ddy, ddz);
-			if (Block::blockPlacement(newBlock.getID()))
+			if (newBlock.overwriteAllowed())
 			{
-				// check if the block we are to place requires special rules
-				if (isDoor(item.getID()))
+				// add block to world
+				bool placed = Spiders::setBlock(ddx, ddy, ddz, item.toBlock());
+				if (placed)
 				{
-					// place a door
-					Block& top = Spiders::getBlock(ddx, ddy+1, ddz);
-					if (Block::blockPlacement(top.getID()))
-					{
-						// upper
-						Spiders::setBlock(ddx, ddy + 1, ddz, Block(item.getID(), facing));
-						// lower = special bit 0 set to 1
-						Spiders::setBlock(ddx, ddy + 0, ddz, Block(item.getID(), facing + (1 << 2)));
-						
-						// decrease count (directly)?!?
-						//item.setCount(item.getCount() - 1);
-						//inventory.setChanged(true);
-						
-						// play placement sound
-						soundman.playMaterial(item.getID(), Soundman::sound_place);
-						
-						// upper
-						//NetworkBlock nblock(ddx, ddy+1, ddz, Block(id, facing), NetworkBlock::BSET);
-						//network.addBlock(Network::OUTGOING, nblock);
-						// lower
-						//nblock = NetworkBlock(ddx, ddy, ddz, Block(id, facing + (1 << 2)), NetworkBlock::BSET);
-						//network.addBlock(Network::OUTGOING, nblock);
-						
-					} // upper door test
-				}
-				else // place regular blocks
-				{
-					// bitfield value
-					block_t bfield = facing + (item.getSpecial() << 2);
-					// add block to world
-					bool placed = Spiders::setBlock(ddx, ddy, ddz, Block(item.getID(), bfield));
+					//item.setCount(item.getCount() - 1); //decrease count (directly)!
+					//inventory.setChanged(true);
 					
-					if (placed)
-					{
-						/// block was placed (PA_AddBlock --> build()) ///
-						
-						//item.setCount(item.getCount() - 1); //decrease count (directly)!
-						//inventory.setChanged(true);
-						
-						// play placement sound
-						soundman.playMaterial(item.getID(), Soundman::sound_place);
-						
-						// send update to network
-						//NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);
-						//network.addBlock(Network::OUTGOING, nblock);
-					}
+					// play placement sound
+					soundman.playMaterial(item.toBlock().getSound(), Soundman::sound_place);
 					
+					// send update to network
+					//NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);
+					//network.addBlock(Network::OUTGOING, nblock);
 				}
-				
 			}
 			
 		} // placement tests
@@ -316,7 +246,7 @@ namespace cppcraft
 				int ddy = int(selection.pos.y);
 				int ddz = int(selection.pos.z);
 				
-				if (isDoor(selection.block.getID()))
+				if (selection.block.isTall())
 				{
 					// remove the other doorpiece
 					if (selection.block.getExtra() & 1)
@@ -340,10 +270,10 @@ namespace cppcraft
 				// now, remove the block we wanted to remove to begin with
 				Block removed = Spiders::removeBlock(ddx, ddy, ddz);
 				
-				if (removed.getID() != _AIR)
+				if (!removed.isAir())
 				{
 					// play material 'removed' sound
-					soundman.playMaterial(removed.getID(), Soundman::sound_remove);
+					soundman.playMaterial(removed.getSound(), Soundman::sound_remove);
 					
 					// send update to network
 					//NetworkBlock nblock(ddx, ddy, ddz, Block(), NetworkBlock::BREM);
@@ -390,12 +320,12 @@ namespace cppcraft
 				ray += rayBigStep;
 				Block& found = Spiders::getBlock(ray.x, ray.y, ray.z);
 				
-				if (Block::fluidToAir(found.getID()) != _AIR)
+				if (!found.isAir() && !found.isFluid())
 				{
 					// create fractionals from ray
 					glm::vec3 fracs = fract(ray);
 					
-					if (found.selectionHitbox3D(found, fracs.x, fracs.y, fracs.z))
+					if (found.selectionHitbox3D(fracs.x, fracs.y, fracs.z))
 					{
 						// for loop to make sure we don't trace ourselves back behind the player
 						for (float backward = forward; backward >= 0.0; backward -= action_step)
@@ -407,7 +337,7 @@ namespace cppcraft
 							fracs = fract(ray);
 							
 							// glean until we hit air, then break
-							if (Block::selectionHitbox3D(bfound, fracs.x, fracs.y, fracs.z) == false) break;
+							if (bfound.selectionHitbox3D(fracs.x, fracs.y, fracs.z) == false) break;
 							
 						}
 						// now that we are out, increase ray by one step ahead to get back inside
@@ -543,7 +473,7 @@ namespace cppcraft
 				// play mining sound based on material
 				if (mineTimer % MINE_SOUNDMOD == 0)
 				{
-					soundman.playMaterial(selection.block.getID(), Soundman::sound_mine);
+					soundman.playMaterial(selection.block.getSound(), Soundman::sound_mine);
 				}
 				
 				mineTimer -= 1;

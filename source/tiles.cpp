@@ -24,7 +24,7 @@ namespace cppcraft
 		// normal
 		this->tileSize = config.get("tiles.size", 32);
 		// big
-		this->bigSize = this->tileSize * this->tilesPerBigtile;
+		this->bigSize = this->tileSize * TILES_PER_BIG_TILE;
 		// players
 		this->skinSize = config.get("players.size", 32);
 		

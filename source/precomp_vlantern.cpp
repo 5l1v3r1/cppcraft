@@ -5,7 +5,8 @@
 
 namespace cppcraft
 {
-	int PrecompThreadData::emitLantern(block_t id, int bx, int by, int bz)
+	/*
+	int emitLantern(block_t id, int bx, int by, int bz)
 	{
 		uint16_t color = getLight(bx, by+1, bz);
 		
@@ -28,5 +29,5 @@ namespace cppcraft
 		}
 		
 		return vertices;
-	}
+	}*/
 }

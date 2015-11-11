@@ -2,7 +2,6 @@
 
 #include <library/log.hpp>
 #include <library/compression/lzo.hpp>
-#include "compressor_rle.hpp"
 #include "sectors.hpp"
 
 #include <cstring>
@@ -24,15 +23,18 @@ namespace cppcraft
 	{
 		logger << Log::INFO << "* Initializing compressor" << Log::ENDL;
 		
-		const int compressed_column_size = Flatland::FLATLAND_SIZE + sizeof(Sector::sectorblock_t);
+		const int compressed_max_size = Flatland::FLATLAND_SIZE + sizeof(Sector::sectorblock_t);
 		
 		// initialize LZO
-		compressor.init(compressed_column_size);
+		compressor.init(compressed_max_size);
 		
 		// allocate towering buffer
-		compressor_databuffer = (lzo_bytep) malloc(compressed_column_size * sizeof(lzo_byte));
-		if (compressor_databuffer == nullptr)
-			throw std::string("Chunks:compressorInit(): Compressor databuffer was null");
+		compressor_databuffer = new lzo_byte[compressed_max_size];
+	}
+	void Compressor::cleanup()
+	{
+		delete[] compressor_databuffer;
+		compressor_databuffer = nullptr;
 	}
 	
 	void Compressor::load(std::ifstream& File, int PL, int x, int z)
@@ -77,27 +79,17 @@ namespace cppcraft
 		cpos += Flatland::FLATLAND_SIZE;
 		
 		Sector& base = sectors(x, z);
+		base.blockpt = new Sector::sectorblock_t;
 		
-		// check if any blocks are present
-		if (rle.hasBlocks(cpos))
-		{
-			// decompress directly onto sectors sectorblock
-			rle.decompress(cpos, base.getBlocks());
-			
-			// set sector flags (based on sectorblock flags)
-			// set sector-has-data flag
-			//base.generated = true;
-			// flag sector for mesh assembly (next stage in pipeline)
-			//base.meshgen = Sector::MESHGEN_ALL;
-		}
-		else
-		{
-			// had no blocks, but we can't null it since its below terrain
-			base.clear();
-		}
+		memcpy(base.blockpt, cpos, sizeof(Sector::sectorblock_t));
 		
-		// go to next RLE compressed sector
-		//cpos += rle.getSize();
+		// mark sector as generated
+		base.gen_flags = Sector::GENERATED;
+		// flag sector for mesh assembly (next stage in pipeline)
+		base.updateAllMeshes();
+		
+		// go to next compressed sector
+		//cpos += compressor.getDataLength();
 		
 	} // loadCompressedColumn
 	

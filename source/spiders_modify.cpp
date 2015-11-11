@@ -9,6 +9,7 @@
 #include "precompq.hpp"
 #include "sectors.hpp"
 #include <assert.h>
+#include <csignal>
 
 using namespace library;
 
@@ -76,8 +77,11 @@ namespace cppcraft
 		// make a copy of the block, so we can return it
 		Block block = s[0](bx, by, bz);
 		
-		// we can't directly remove fluids or air
-		if (Block::fluidToAir(block.getID()) == _AIR) return air_block;
+		// removing _AIR is largely a mistake, so...
+		if (block.getID() == _AIR)
+		{
+			std::raise(SIGINT);
+		}
 		
 		// set the block to _AIR
 		s[0](bx, by, bz).setID(_AIR);

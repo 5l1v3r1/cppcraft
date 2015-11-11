@@ -69,13 +69,6 @@ namespace cppcraft
 	
 	class Item
 	{
-	private:
-		item_t id;              // identifies this item in combination with type, if id is 0 the item is always (no item)
-		unsigned short count;   // if count is 0 this item is (no item), otherwise id will be read
-		unsigned char special;  // special property of an item, and the same as block special property
-		unsigned char type;     // type of inventory item, such as block, item or particle
-		unsigned char health;   // the health of the item, which when reaches 0 destroys the item
-		
 	public:
 		static const int MAX_STACK = 64;
 		
@@ -152,9 +145,21 @@ namespace cppcraft
 			return (isAlive() && getType() == ITT_BLOCK);
 		}
 		
+		Block toBlock() const
+		{
+			return Block(id, special);
+		}
+		
 		// returns the appropriate tile ID
 		// regardless of item type
 		int getTextureTileID() const;
+		
+	private:
+		item_t id;              // identifies this item in combination with type, if id is 0 the item is always (no item)
+		unsigned short count;   // if count is 0 this item is (no item), otherwise id will be read
+		unsigned char special;  // special property of an item, and the same as block special property
+		unsigned char type;     // type of inventory item, such as block, item or particle
+		unsigned char health;   // the health of the item, which when reaches 0 destroys the item
 	};
 	
 	class ItemsClass

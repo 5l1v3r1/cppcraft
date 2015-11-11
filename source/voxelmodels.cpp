@@ -28,7 +28,8 @@ namespace cppcraft
 	
 	void VoxelModels::createBlockModels(Bitmap& bmp)
 	{
-		createModel(voxelBlocks[VOXB_LADDER], bmp, Block::cubeFaceById(_LADDER, 0, 0), tiles.tileSize);
+		/*
+		createModel(voxelBlocks[VOXB_LADDER], bmp, Block(_LADDER).getTexture(0), tiles.tileSize);
 		
 		createModelTall(voxelBlocks[VOXB_WOODDOOR], bmp, Block::cubeFaceById(_WOODDOOR, 0, 1), Block::cubeFaceById(_WOODDOOR, 0, 0), tiles.tileSize);
 		createModelTall(voxelBlocks[VOXB_STONEDOOR], bmp, Block::cubeFaceById(_STONEDOOR, 0, 1), Block::cubeFaceById(_STONEDOOR, 0, 0), tiles.tileSize);
@@ -62,6 +63,7 @@ namespace cppcraft
 		
 		createModel(voxelBlocks[VOXB_FIRE], bmp, Block::cubeFaceById(_FIRE, 0, 0), tiles.tileSize);
 		createModel(voxelBlocks[VOXB_HANGINGAPPLE], bmp, Block::cubeFaceById(_HANGINGAPPLE, 0, 0), tiles.tileSize);
+		*/
 	}
 	
 	void VoxelModels::createModel(VoxelModel*& model, Bitmap& bmp, int tileID, int tileSize)
@@ -123,14 +125,9 @@ namespace cppcraft
 		renderModel(voxelItems[modelid]);
 	}
 	
-	bool VoxelModels::isVoxelBlock(block_t id)
-	{
-		if (id == _LADDER || isDoor(id)) return true;
-		return isCross(id);
-	}
-	
 	int VoxelModels::getVoxelId(block_t id)
 	{
+		/*
 		if (id == _LADDER)
 		{
 			return VOXB_LADDER;
@@ -170,7 +167,7 @@ namespace cppcraft
 		else if (id == _HANGINGAPPLE)
 		{
 			return VOXB_HANGINGAPPLE;
-		}
+		}*/
 		
 		throw std::string("getVoxelId: Invalid voxel id");
 		

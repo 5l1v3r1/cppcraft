@@ -2,10 +2,11 @@
 
 #include "../../common.hpp"
 #include "../terragen.hpp"
-#include <library/math/toolbox.hpp>
+#include "../blocks.hpp"
 #include "terrains.hpp"
 #include <cassert>
 #include <glm/gtc/noise.hpp>
+#include <library/math/toolbox.hpp>
 
 using namespace cppcraft;
 
@@ -57,7 +58,7 @@ namespace terragen
 				if (caves + cavetresh < cave_lower)
 				{
 					// lower caves
-					if (y < lava_height) return _LAVABLOCK;
+					if (y < lava_height) return _LAVA;
 					return _AIR;
 				}
 				
@@ -73,7 +74,7 @@ namespace terragen
 						float deltadens = -(density - cave_lower) / molten_densdx;
 						
 						if (y < (1.0 - deltadens) * molten_height)
-							return _MOLTENSTONE;
+							return _MOLTEN;
 					}
 					
 					return _STONE;
@@ -81,7 +82,7 @@ namespace terragen
 				
 				// soil deposits underground =)
 				if (density < soil_lower)
-					return _GREENSOIL;
+					return _SOIL;
 				
 				// tone down sand the higher up we get
 				if (y >= WATERLEVEL)
@@ -91,12 +92,12 @@ namespace terragen
 					deltay *= deltay;
 					
 					if (deltay > 1.0 - (density / soil_lower) )
-						return _GREENSOIL;
+						return _SOIL;
 				}
 				
 				// remaining density = sand
 				// pp will turn into oceanfloor with water pressure
-				return _SANDBEACH;
+				return _BEACH;
 			}
 			else if (y <= WATERLEVEL + beachhead + lower_to_upper)
 			{
@@ -113,7 +114,7 @@ namespace terragen
 				if (density < stone_upper * (1.0 - deltay) + stone_lower * deltay)
 					return _STONE;
 				
-				return _GREENSOIL;
+				return _SOIL;
 			}
 			
 			// upper hemisphere, dense
@@ -124,7 +125,7 @@ namespace terragen
 			if (density < stone_upper)
 				return _STONE;
 			
-			return _GREENSOIL;
+			return _SOIL;
 		}
 		else
 		{
@@ -135,9 +136,7 @@ namespace terragen
 			// upper hemisphere, clear
 			return _AIR;
 		}
-		
-	}
-	
+	} // Terrain::getBlock()
 	
 	// the main generator!
 	void Terrain::generate(gendata_t* data)

@@ -8,8 +8,9 @@ namespace terragen
 	
 	void basic_tree(GenObject& obj, int worldX, int worldZ)
 	{
-		Block trunk(_WOODBROWN);
-		Block leafs(_LEAF_LEAFS);
+		return;
+		Block trunk(db::getb("wood_brown"));
+		Block leafs(db::getb("leaf_green"));
 		
 		// local coordinates
 		int x = obj.x - worldX;
@@ -38,8 +39,8 @@ namespace terragen
 				
 				Block& block = Spiders::getBlock(fx, fy, fz);
 				// set ID to leaf, preserve light
-				if (block.isAirOrCross())
-					block.setID(_LEAF_LEAFS);
+				if (block.isAir() || block.isCross())
+					block.setID( leafs.getID() );
 			}
 		}
 	}

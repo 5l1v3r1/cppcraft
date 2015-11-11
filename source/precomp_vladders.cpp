@@ -4,7 +4,8 @@
 
 namespace cppcraft
 {
-	int PrecompThreadData::emitLadder(block_t id, int bx, int by, int bz, block_t block_facing)
+	/*
+	int emitLadder(block_t id, int bx, int by, int bz, block_t block_facing)
 	{
 		blockmodels.ladders.copyTo(block_facing, indic);
 		
@@ -66,5 +67,5 @@ namespace cppcraft
 		indic[3].w = indic[0].w;
 		
 		return 4; // 4 vertices
-	}
+	}*/
 }

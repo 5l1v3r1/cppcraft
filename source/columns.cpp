@@ -126,12 +126,8 @@ namespace cppcraft
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(2, 4, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), &vrt->u); // texture
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->biome); // biome color
+		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->color); // biome color
 		glEnableVertexAttribArray(3);
-		//glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->c);  // shadow and brightness
-		//glEnableVertexAttribArray(4);
-		//glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), (char*) (&vrt->c) + 4); // torchlight color
-		//glEnableVertexAttribArray(5);
 		}
 		
 		// check for errors

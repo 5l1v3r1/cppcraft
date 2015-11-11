@@ -4,7 +4,8 @@
 
 namespace cppcraft
 {
-	int PrecompThreadData::emitSloped(block_t id, int bx, int by, int bz, block_t model, block_t facing)
+	/*
+	int emitSloped(block_t id, int bx, int by, int bz, block_t model, block_t facing)
 	{
 		int vertices = 0;
 		
@@ -62,5 +63,5 @@ namespace cppcraft
 		}
 		
 		return vertices;
-	}
+	}*/
 }

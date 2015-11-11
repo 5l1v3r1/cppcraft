@@ -260,7 +260,7 @@ namespace cppcraft
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 		
-		bool isVoxelBlock = helditem.isBlock() && voxels.isVoxelBlock(helditem.getID());
+		bool isVoxelBlock = false; //helditem.isBlock() && voxels.isVoxelBlock(helditem.getID());
 		
 		if (helditem.isItem() || isVoxelBlock)
 		{
@@ -280,12 +280,12 @@ namespace cppcraft
 			}
 			else
 			{
-				if (isVoxelBlock && isDoor(helditem.getID()))
+				/*if (isVoxelBlock && isDoor(helditem.getID()))
 				{
 					// doors are really tall
 					matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y - 0.8f, lastHand.z + 0.25f));
 				}
-				else
+				else*/
 				{
 					matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y, lastHand.z + 0.25f));
 				}
@@ -342,7 +342,7 @@ namespace cppcraft
 			int count = 0;
 			vertex_t* vertices = nullptr;
 			
-			if (id == _LANTERN)
+			/*if (id == _LANTERN)
 			{
 				// lantern model
 				count = blockmodels.lanterns.totalCount();
@@ -357,18 +357,23 @@ namespace cppcraft
 				matview = glm::scale(glm::vec3(0.5f));
 				matview *= glm::translate(glm::vec3(lastHand.x - 0.35f, lastHand.y, lastHand.z - 0.6f));
 			}
-			else
+			else*/
 			{
 				// normal block model
-				int model = Block::blockModel(id);
+				int model = 0; //Block::blockModel(id);
 				
 				count = blockmodels.cubes[model].totalCount();
 				vertices = new vertex_t[count];
 				blockmodels.cubes[model].copyAll(vertices);
 				
+				// convert item to a block
+				Block held = helditem.toBlock();
+				held.setFacing(3);
 				// texture id
 				for (int i = 0; i < count; i++)
-					vertices[i].w = Block::cubeFaceById(helditem.getID(), i / 4, 3);
+				{
+					vertices[i].w = held.getTexture(i / 4);
+				}
 				
 				// translation & scaling
 				matview = glm::mat4(1.0f);

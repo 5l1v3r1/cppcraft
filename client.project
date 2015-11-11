@@ -345,7 +345,6 @@
     <File Name="source/threading.hpp"/>
     <File Name="source/player.cpp"/>
     <File Name="source/render_scene_terrain.cpp"/>
-    <File Name="source/compressor_rle.hpp"/>
     <File Name="source/worldmanager.cpp"/>
     <File Name="source/precomp_vstairs.cpp"/>
     <File Name="source/blocks_vfaces.cpp"/>
@@ -437,7 +436,6 @@
     <File Name="source/tiles.hpp"/>
     <File Name="source/spiders.hpp"/>
     <File Name="source/sun.hpp"/>
-    <File Name="source/compressor_rle.cpp"/>
     <File Name="source/minimap.hpp"/>
     <File Name="source/vertex_selection.hpp"/>
     <File Name="source/precomp_vfences.cpp"/>
@@ -490,6 +488,8 @@
       <File Name="source/generator/object.hpp"/>
       <File Name="source/generator/objectq.hpp"/>
       <File Name="source/generator/objectq.cpp"/>
+      <File Name="source/generator/blocks.cpp"/>
+      <File Name="source/generator/blocks.hpp"/>
     </VirtualDirectory>
     <File Name="source/threadpool.hpp"/>
     <File Name="source/threadpool.cpp"/>
@@ -529,9 +529,11 @@
     </VirtualDirectory>
     <File Name="source/render_gui_interfaces.cpp"/>
     <VirtualDirectory Name="db">
-      <File Name="source/db/blockreg.hpp"/>
       <File Name="source/db/blockdb.hpp"/>
+      <File Name="source/db/blockdata.hpp"/>
+      <File Name="source/db/blockdb.cpp"/>
     </VirtualDirectory>
+    <File Name="source/vemitter.cpp"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>
@@ -562,8 +564,8 @@
       <PostBuild/>
       <CustomBuild Enabled="yes">
         <RebuildCommand/>
-        <CleanCommand>mingw32-make clean</CleanCommand>
-        <BuildCommand>mingw32-make -j8 debug</BuildCommand>
+        <CleanCommand>make clean</CleanCommand>
+        <BuildCommand>make -j8 debug</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>
@@ -587,7 +589,7 @@
       </Compiler>
       <Linker Options="-O2" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="" IntermediateDirectory="./Debug" Command="cppcraft" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="" IntermediateDirectory="./Debug" Command="./cppcraft" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
@@ -600,8 +602,8 @@
       <PostBuild/>
       <CustomBuild Enabled="yes">
         <RebuildCommand/>
-        <CleanCommand>mingw32-make clean</CleanCommand>
-        <BuildCommand>mingw32-make -j8 fast</BuildCommand>
+        <CleanCommand>make clean</CleanCommand>
+        <BuildCommand>make -j8 fast</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

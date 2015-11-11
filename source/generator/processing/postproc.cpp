@@ -1,6 +1,7 @@
 #include "postproc.hpp"
 
 #include "../terragen.hpp"
+#include "../blocks.hpp"
 #include "../random.hpp"
 #include "oregen.hpp"
 #include <library/noise/voronoi.hpp>
@@ -18,7 +19,15 @@ namespace terragen
 	static const int TER_CNT = Biome::T_TERRAINS;
 	static const int WATERLEVEL = 64;
 	
+	void PostProcess::init()
+	{
+		// add some åres
+		//OreGen::init();
+	}
+	
+	
 	// terrain crosses
+	/*
 	block_t c_autumn[3] = { _GRASS_SHORT, _GRASS_LONG, _PLANT_DRYBROWN };
 	block_t c_island[6] = { _GRASS_SHORT, _GRASS_LONG, _FLOWERREDMAG, _FLOWERROSE, _FLOWERYELLOW, _FLOWERRED };
 	block_t c_grass[6]  = { _GRASS_SHORT, _GRASS_LONG, _FLOWERREDMAG, _FLOWERROSE, _FLOWERYELLOW, _FLOWERRED };
@@ -30,6 +39,7 @@ namespace terragen
 	block_t terrain_gravel[TER_CNT]  = { _SNOWSOIL, _GRAVEL2,     _GRAVEL2,      _GRAVEL1,      _GRAVEL1,      _GRAVEL1,      _GRAVEL1,       _GRAVEL1    };
 	block_t terrain_grass [TER_CNT]  = { _SNOWSOIL, _SNOWGRASS_S, _GREENGRASS_S, _GREENGRASS_S, _GREENGRASS_S, _GREENGRASS_S, _GREENGRASS_S,  _DESERTSAND };
 	block_t terrain_beach [TER_CNT]  = { _SNOWSOIL, _SANDBEACH,   _SANDBEACH,    _SANDBEACH,    _SANDBEACH,    _GREENSOIL,    _GREENSOIL,     _SANDBEACH };
+	*/
 	
 	#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
 	void setCross(gendata_t* gdata, block_t* c_array, int x, int y, int z)
@@ -56,7 +66,7 @@ namespace terragen
 		/// village builder
 		bool village = false;
 		int simCity = 0;
-		;{
+		{
 			glm::vec2 p = gdata->getBaseCoords2D(0, 0);
 			int v = library::Voronoi::getid(p.x * 0.01, p.y * 0.01, 
 					library::Voronoi::vor_chebyshev); // distance function
@@ -99,7 +109,7 @@ namespace terragen
 				
 				// we only count primary blocks produced by generator, 
 				// which are specifically greensoil & sandbeach
-				if (block.getID() == _GREENSOIL || isSand(block.getID()))
+				if (block.getID() == _SOIL || block.getID() == _BEACH)
 				{
 					soilCounter++;
 					
@@ -109,21 +119,21 @@ namespace terragen
 						if (soilCounter > STONE_CONV_UNDER)
 							block.setID(_STONE);
 					}
-					else if (terrain == Biome::T_ICECAP && !isSand(block.getID()))
+					else if (terrain == Biome::T_ICECAP && block.getID() != _BEACH)
 					{
 						// on the ice cap we manually create a snow to soil gradient
 						const int snow_conv = 6;
 						// first 2 sets of snowgrass:
 						if (soilCounter < snow_conv)
 						{
-							if (Block::isAirOrCross(lastb ->getID()) || lastb->getID() == _SNOWGRASS)
-								block.setID(_SNOWGRASS); // SNOWSOIL to SNOWGRASS
+							//if (Block::isAirOrCross(lastb ->getID()) || lastb->getID() == _SNOWGRASS)
+							//	block.setID(_SNOWGRASS); // SNOWSOIL to SNOWGRASS
 						}
 						else if (soilCounter == snow_conv)
 						{
 							// after that, snowgrass_s
-							if (lastb->getID() == _SNOWGRASS)
-								block.setID(_SNOWGRASS_S);
+							//if (lastb->getID() == _SNOWGRASS)
+							//	block.setID(_SNOWGRASS_S);
 						}
 					}
 					else
@@ -145,13 +155,13 @@ namespace terragen
 					///- create objects, and litter crosses -///
 					///-////////////////////////////////////-///
 					
-					if (block.getID() == _GREENSOIL)
-						block.setID(_GREENGRASS_S);
+					if (block.getID() == _SOIL)
+						block.setID(_GRASS);
 					
 					/// terrain specific objects ///
 					if (village == false)
 					{
-					if (terrain == Biome::T_GRASS && block.getID() == _GREENGRASS_S)
+					if (terrain == Biome::T_GRASS && block.getID() == _GRASS)
 					{
 						// ministry of green forestry
 						/*
@@ -188,6 +198,7 @@ namespace terragen
 								
 							}
 						}
+						/*
 						if (rand < 0.28)
 						{
 							// note: this is an inverse of the otreeHuge noise
@@ -198,8 +209,7 @@ namespace terragen
 								else
 									setCross(gdata, c_grass, x, y+1, z);
 							}
-							
-						}
+						}*/
 						
 					}} // not village: terrain specific objects
 					
@@ -225,7 +235,7 @@ namespace terragen
 					fy = ORE_CHANCE;
 					
 					float rand = randf(x, y-2, z);
-					if (rand < fy)
+					if (0) //rand < fy)
 					{
 						// try to deposit ore
 						rand /= fy; // scale up!
@@ -242,7 +252,7 @@ namespace terragen
 				} // ore deposition
 				
 				// check if megatransparent
-				if (block.isAirOrCross(block.getID()) == false)
+				if (!block.isTransparent())
 				{
 					air = false;
 					
@@ -279,8 +289,8 @@ namespace terragen
 			}
 			
 			// guarantee that the bottom block is hard as ice
-			gdata->getb(x, 0, z) = Block(_ADMINIUM);
-			assert(gdata->getb(x, 0, z).getID() == _ADMINIUM);
+			gdata->getb(x, 0, z) = Block(_BEDROCK);
+			assert(gdata->getb(x, 0, z).getID() == _BEDROCK);
 			assert(gdata->getb(x, 0, z).getFacing() == 0);
 			assert(gdata->getb(x, 0, z).getExtra() == 0);
 			

@@ -58,7 +58,7 @@ namespace cppcraft
 	#endif
 		
 		// optimize repeating textures mesh
-		optimizeMesh(precomp, RenderConst::TX_REPEAT, RenderConst::VERTEX_SCALE / tiles.tilesPerBigtile);
+		optimizeMesh(precomp, RenderConst::TX_REPEAT, RenderConst::VERTEX_SCALE / Tiles::TILES_PER_BIG_TILE);
 		// optimize normal solids
 		optimizeMesh(precomp, RenderConst::TX_SOLID, RenderConst::VERTEX_SCALE);
 		// optimize transparent textures
@@ -100,8 +100,7 @@ namespace cppcraft
 		if (y == -1) return 1; // mui importante, don't know where else to put it tho
 		if (y == 256) return 0;
 		
-		block_t id = sector(x, y, z).getID();
-		return (id > AIR_END && id < CROSS_START && id != _LANTERN && id != _VINES) & 1;
+		return sector(x, y, z).isTransparent() & 1;
 	}
 	
 	void PrecompThread::ambientOcclusionGradients(bordered_sector_t& sector, vertex_t* datadump, int vertexCount)

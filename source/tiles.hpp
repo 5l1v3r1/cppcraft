@@ -12,7 +12,7 @@ namespace cppcraft
 	{
 	public:
 		// size of a big tile is exactly N regular tiles
-		static const int tilesPerBigtile = 4;
+		static const int TILES_PER_BIG_TILE = 4;
 		
 		// regular tiles
 		int tileSize;

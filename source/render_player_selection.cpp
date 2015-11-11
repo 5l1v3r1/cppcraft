@@ -37,22 +37,20 @@ namespace cppcraft
 	
 	block_t PlayerLogic::determineSelectionFacing(Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize)
 	{
-		block_t id = block.getID();
-		
 		// determine selection-box facing value
-		if (id == _LADDER || id == _VINES)
+		if (block.isLadder())
 		{
 			return 10;
 		}
-		else if (id == _WOODPOLE)
+		/*else if (id == _WOODPOLE)
 		{
 			if (fracs.y >= 1.0 - stepSize)
 			{
 				return 2; // top of pole
 			}
 			else return 9; // select entire pole
-		}
-		else if (isCross(id) || id == _LANTERN || id == _LANTERN_OFF)
+		}*/
+		else if (block.isCross())
 		{
 			return 6; // crosses box
 		}
@@ -99,7 +97,7 @@ namespace cppcraft
 			
 			// since we didn't find any hits yet, it could be a halfblock
 			// or a lowblock, which are at 1/2 and 1/8 respectively in height
-			if (isHalfblock(id) || isLowblock(id))
+			if (block.isHalfblock() || block.isLowblock())
 				return 2; // half/low-block top
 		}
 		// no facing detected, return "something"
@@ -124,7 +122,7 @@ namespace cppcraft
 		int vy = (int)plogic.selection.pos.y;
 		int vz = (int)plogic.selection.pos.z;
 		
-		int model  = Block::blockModel(plogic.selection.block.getID());
+		int model  = 0; //Block::blockModel(plogic.selection.block.getID());
 		int facing = plogic.selection.block.getFacing();
 		
 		bool updated = plogic.selection.updated;
