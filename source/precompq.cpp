@@ -111,19 +111,21 @@ namespace cppcraft
 	
 	bool PrecompQ::run(Timer& timer, double timeOut)
 	{
-		if (needs_sorting)
-		queue.sort(GenerationOrder);
+		if (!job_available() && !AsyncPool::available())
+			return false;
 		
 		// since we are the only ones that can take stuff
 		// from the available queue, we should be good to just
 		// check if there are any available, and thats it
-		if (job_available() && AsyncPool::available())
-		for (auto it = queue.begin(); it != queue.end();)
+		while (!queue.empty())
 		{
+			// find the closest sector to center of world
+			auto it = std::max_element(queue.begin(), queue.end(), GenerationOrder);
+			
 			// we don't want to start jobs we can't finish
 			// this is also bound to be true at some point, 
 			// unless everything completely stopped...
-			if ((*it)->generated() && validateSector(*it))
+			if ((*it)->generated() && (*it)->meshgen != 0 && validateSector(*it))
 			{
 				// make sure we have proper light
 				bool atmos = sectors.on3x3(**it,
@@ -157,14 +159,16 @@ namespace cppcraft
 				
 				// finally, we can start the job
 				startJob(*it);
-				queue.erase(it++);
+				queue.erase(it);
 			}
-			else if ((*it)->generated() == false)
-				queue.erase(it++);
+			else if ((*it)->generated() == false || (*it)->meshgen == 0)
+			{
+				queue.erase(it);
+			}
 			
-			else ++it;
+			// immediately exit while loop
+			break;
 		}
-		
 		// always check if time is out
 		return (timer.getTime() > timeOut);
 	}

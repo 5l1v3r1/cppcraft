@@ -98,15 +98,10 @@ namespace cppcraft
 		minimapVAO.render(GL_QUADS);
 	}
 	
-	static Bitmap::rgba8_t fgetColor(Flatland& fs, int x, int z, int clid)
+	inline void convert(uint32_t* color)
 	{
-		Bitmap::rgba8_t color = fs(x, z).fcolor[clid];
-		/*
-		unsigned char* p = (unsigned char*) &color;
-		unsigned char red = p[0];
-		p[0] = p[2];
-		p[2] = red;*/
-		return color;
+		unsigned char* p = (unsigned char*) color;
+		std::swap(p[0], p[2]);
 	}
 	
 	static Bitmap::rgba8_t mixColor(Bitmap::rgba8_t a, Bitmap::rgba8_t b, float mixlevel)
@@ -148,12 +143,14 @@ namespace cppcraft
 		return c;
 	}
 	
-	static Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int y, int z)
+	static Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int z)
 	{
 		// get the block
+		int y = sector.flat()(x, z).skyLevel;
 		const Block& blk = sector(x, y, z);
 		// the final color
-		Bitmap::rgba8_t c = blk.getMinimapColor(sector, x, y, z);
+		uint32_t c = blk.getMinimapColor(sector, x, y, z);
+		convert(&c);
 		
 		// basic height coloring
 		const int HEIGHT_BIAS = 128;
@@ -183,40 +180,23 @@ namespace cppcraft
 	{
 		// read certain blocks from sector, and determine pixel value
 		// set pixel value in the correct 2x2 position on pixel table
-		Flatland& fs = sector.flat();
-		
-		// fetch sky levels
-		int skylevel[8];
-		skylevel[0] = fs(3,  3).skyLevel-1;
-		skylevel[1] = fs(4,  4).skyLevel-1;
-		
-		skylevel[2] = fs(3, 12).skyLevel-1;
-		skylevel[3] = fs(4, 11).skyLevel-1;
-		
-		skylevel[4] = fs(12,  3).skyLevel-1;
-		skylevel[5] = fs(11,  4).skyLevel-1;
-		
-		skylevel[6] = fs(12, 12).skyLevel-1;
-		skylevel[7] = fs(11, 11).skyLevel-1;
-		
-		// determine colors for skylevel blocks
 		Bitmap::rgba8_t colors[4];
 		
-		colors[0] = getBlockColor(sector,  3, skylevel[0],  3);
+		colors[0] = getBlockColor(sector,  3,  3);
 		colors[0] = mixColor(colors[0],
-					getBlockColor(sector,  4, skylevel[1],  4), 0.5);
+					getBlockColor(sector,  4,  4), 0.5);
 		
-		colors[1] = getBlockColor(sector,  3, skylevel[2], 12);
+		colors[1] = getBlockColor(sector,  3, 12);
 		colors[1] = mixColor(colors[1],
-					getBlockColor(sector,  4, skylevel[3], 11), 0.5);
+					getBlockColor(sector,  4, 11), 0.5);
 		
-		colors[2] = getBlockColor(sector, 12, skylevel[4],  3);
+		colors[2] = getBlockColor(sector, 12,  3);
 		colors[2] = mixColor(colors[2],
-					getBlockColor(sector, 11, skylevel[5],  4), 0.5);
+					getBlockColor(sector, 11,  4), 0.5);
 		
-		colors[3] = getBlockColor(sector, 12, skylevel[6], 12);
+		colors[3] = getBlockColor(sector, 12, 12);
 		colors[3] = mixColor(colors[3],
-					getBlockColor(sector, 11, skylevel[7], 11), 0.5);
+					getBlockColor(sector, 11, 11), 0.5);
 		
 		// set final color @ pixel (px, pz)
 		int px = bitmap->getWidth()  / 2 - sectors.getXZ() + 2 * sector.getX();
@@ -229,6 +209,11 @@ namespace cppcraft
 		pixels[(pz + 1) * scan + px] = colors[1];
 		pixels[ pz      * scan + px + 1] = colors[2];
 		pixels[(pz + 1) * scan + px + 1] = colors[3];
+		
+		// mark minimap as updated
+		minimapMutex.lock();
+		this->needs_update = true;
+		minimapMutex.unlock();
 	}
 	
 	void Minimap::roll(int x, int z)
