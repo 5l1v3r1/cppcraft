@@ -252,8 +252,8 @@ namespace terragen
 					
 				} // ore deposition
 				
-				// check if megatransparent
-				if (!block.isTransparent())
+				// check if not air or cross
+				if (!block.isAir() && !block.isCross())
 				{
 					air = false;
 					

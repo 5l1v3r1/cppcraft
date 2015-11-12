@@ -132,6 +132,10 @@ namespace cppcraft
 		}
 		// returns a reference to the flatland container, if one exists
 		// otherwise, GOD HELP US ALL
+		inline const Flatland& flat() const
+		{
+			return _flatl;
+		}
 		inline Flatland& flat()
 		{
 			return _flatl;

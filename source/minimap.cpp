@@ -34,7 +34,7 @@ namespace cppcraft
 		logger << Log::INFO << "* Initializing minimap" << Log::ENDL;
 		
 		// 32-bits, one pixel per sector on (X, Z) axes
-		bitmap = new Bitmap(sectors.getXZ() * 2, sectors.getXZ() * 2, 32);
+		bitmap = new Bitmap(sectors.getXZ() * 2, sectors.getXZ() * 2);
 		// create texture
 		texture = new Texture(GL_TEXTURE_2D);
 		texture->create(*bitmap, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
@@ -75,7 +75,7 @@ namespace cppcraft
 			// bind minimap texture
 			texture->bind(0);
 			// re-upload pixel data (and auto-generate mipmaps)
-			texture->upload(*bitmap);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texture->getWidth(), texture->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap->data());
 			// done
 		}
 		minimapMutex.unlock();
@@ -96,12 +96,6 @@ namespace cppcraft
 		texture->bind(0);
 		// render minimap
 		minimapVAO.render(GL_QUADS);
-	}
-	
-	inline void convert(uint32_t* color)
-	{
-		unsigned char* p = (unsigned char*) color;
-		std::swap(p[0], p[2]);
 	}
 	
 	static Bitmap::rgba8_t mixColor(Bitmap::rgba8_t a, Bitmap::rgba8_t b, float mixlevel)
@@ -146,15 +140,13 @@ namespace cppcraft
 	static Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int z)
 	{
 		// get the block
-		int y = sector.flat()(x, z).skyLevel;
+		int y = sector.flat()(x, z).skyLevel-1;
 		const Block& blk = sector(x, y, z);
-		// the final color
+		// determine the minimap color
 		uint32_t c = blk.getMinimapColor(sector, x, y, z);
-		convert(&c);
 		
 		// basic height coloring
 		const int HEIGHT_BIAS = 128;
-		
 		if (y < HEIGHT_BIAS)
 		{	// downwards
 			return mixColor(c, lowColor(c), 0.01 * (HEIGHT_BIAS - y));
@@ -181,21 +173,20 @@ namespace cppcraft
 		// read certain blocks from sector, and determine pixel value
 		// set pixel value in the correct 2x2 position on pixel table
 		Bitmap::rgba8_t colors[4];
-		
-		colors[0] = getBlockColor(sector,  3,  3);
-		colors[0] = mixColor(colors[0],
+		colors[0] = mixColor( //  sector ( x,  z )
+					getBlockColor(sector,  3,  3),
 					getBlockColor(sector,  4,  4), 0.5);
 		
-		colors[1] = getBlockColor(sector,  3, 12);
-		colors[1] = mixColor(colors[1],
+		colors[1] = mixColor(
+					getBlockColor(sector,  3, 12),
 					getBlockColor(sector,  4, 11), 0.5);
 		
-		colors[2] = getBlockColor(sector, 12,  3);
-		colors[2] = mixColor(colors[2],
+		colors[2] = mixColor(
+					getBlockColor(sector, 12,  3),
 					getBlockColor(sector, 11,  4), 0.5);
 		
-		colors[3] = getBlockColor(sector, 12, 12);
-		colors[3] = mixColor(colors[3],
+		colors[3] = mixColor(
+					getBlockColor(sector, 12, 12),
 					getBlockColor(sector, 11, 11), 0.5);
 		
 		// set final color @ pixel (px, pz)

@@ -28,6 +28,10 @@ namespace cppcraft
 		}
 		
 		// returns a reference to flatland_t for the 2D location (x, z)
+		inline const flatland_t& operator() (int x, int z) const
+		{
+			return this->fdata[x * BLOCKS_XZ + z];
+		}
 		inline flatland_t& operator() (int x, int z)
 		{
 			return this->fdata[x * BLOCKS_XZ + z];

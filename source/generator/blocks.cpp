@@ -119,7 +119,7 @@ namespace terragen
 			BlockData solid = getSolidBlock();
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
 			solid.indexColored = true;
-			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return BGRA8(48, 48, 48, 255); };
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(48, 48, 48, 255); };
 			solid.getName = [] (const Block&) { return "Bedrock"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 2 + 5 * tiles.tilesX; };
 			solid.sound = "stone";
@@ -131,7 +131,7 @@ namespace terragen
 			BlockData solid = getSolidBlock();
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
 			solid.indexColored = true;
-			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return BGRA8(68, 62, 62, 255); };
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
 			solid.getName = [] (const Block&) { return "Stone"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 3; };
 			solid.sound = "stone";
@@ -142,7 +142,7 @@ namespace terragen
 			BlockData solid = getSolidBlock();
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_GRASS; };
 			solid.indexColored = true;
-			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return BGRA8(97, 57, 14, 255); };
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(97, 57, 14, 255); };
 			solid.getName = [] (const Block&) { return "Dirt"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 2; };
 			solid.shader   = 0;
@@ -154,7 +154,11 @@ namespace terragen
 			BlockData solid = getSolidBlock();
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_GRASS; };
 			solid.indexColored = true;
-			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return BGRA8(97, 57, 14, 255); };
+			solid.minimapColor =
+			[] (const Block&, const Sector& s, int x, int, int z)
+			{
+				return s.flat()(x, z).fcolor[Biome::CL_GRASS];
+			};
 			solid.getName = [] (const Block&) { return "Grass"; };
 			solid.getTexture =
 			[] (const Block&, uint8_t face)
@@ -173,7 +177,7 @@ namespace terragen
 			BlockData solid = getSolidBlock();
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_SAND; };
 			solid.indexColored = true;
-			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return BGRA8(220, 210, 174, 255); };
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
 			solid.getName = [] (const Block&) { return "Sand"; };
 			solid.getTexture =
 			[] (const Block&, uint8_t)
@@ -192,12 +196,12 @@ namespace terragen
 			{
 				float depth = 1.0 - getDepth(sect, x, y, z) / 64.0; // ocean depth
 				// create gradiented ocean blue
-				return BGRA8(depth * depth * 62, depth*depth * 140, depth * 128, 255);
+				return RGBA8(depth * depth * 62, depth*depth * 140, depth * 128, 255);
 			};
 			fluid.getName = [] (const Block&) { return "Water"; };
 			fluid.getTexture = [] (const Block&, uint8_t) { return 0; };
 			fluid.shader = RenderConst::TX_WATER;
-			_WATER  = d.create("water", fluid);
+			_WATER = d.create("water", fluid);
 		}
 		
 		_MOLTEN = _SOIL;

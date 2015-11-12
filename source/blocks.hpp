@@ -170,7 +170,7 @@ namespace cppcraft
 			return db().getTexture(*this, face);
 		}
 		//! returns the dynamic minimap color for this block, depending on custom algorithm
-		uint32_t getMinimapColor(Sector& sector, int bx, int by, int bz) const
+		uint32_t getMinimapColor(const Sector& sector, int bx, int by, int bz) const
 		{
 			return db().minimapColor(*this, sector, bx, by, bz);
 		}
