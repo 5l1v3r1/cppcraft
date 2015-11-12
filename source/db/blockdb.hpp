@@ -38,16 +38,20 @@ namespace db
 		{
 			return blocks[index];
 		}
+		std::size_t size() const
+		{
+			return names.size();
+		}
 		
 		//
 		static void init();
 		//
-		static BlockDB& get()
+		static inline BlockDB& get()
 		{
 			static BlockDB db;
 			return db;
 		}
-		static const BlockDB& cget()
+		static inline const BlockDB& cget()
 		{
 			return get();
 		}

@@ -94,25 +94,15 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 	
-	try
-	{
-		// start world manager thread
-		mtx.initThreading(worldman);
-	}
-	catch (std::string errorstring)
-	{
-		logger.write(Log::ERR, errorstring);
-		logger.write(Log::ERR, "Failed to initialize threading... Exiting.");
-		return EXIT_FAILURE;
-	}
+	// start world manager thread
+	mtx.initThreading(worldman);
 	
 	logger << Log::INFO << "* Starting renderer..." << Log::ENDL;
-	
 	// get stuck in rendering-loop
 	renderer.renderloop();
+	//////////////////////////////
 	
 	logger << Log::INFO << "Ending..." << Log::ENDL;
-	
 	// cleanup
 	mtx.cleanupThreading();
 	

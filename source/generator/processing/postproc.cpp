@@ -8,6 +8,7 @@
 #include <glm/gtc/noise.hpp>
 
 using namespace cppcraft;
+using namespace db;
 
 namespace cppcraft
 {
@@ -271,16 +272,18 @@ namespace terragen
 				// SMART: set air value after we have determined air..
 				block.setSkyLight((air) ? 15 : 0);
 				block.setBlockLight(0);
-				
+			#ifdef DEBUG
+				assert(block.getID() < BlockDB::get().size());
+			#endif
 			} // y
 			
 			//printf("groundLevel: %d\tskyLevel: %d\n",
 			//	groundLevel, skyLevel);
 			
-			if (groundLevel == 0)
-				groundLevel = 1;
 			if (skyLevel == 256)
 				skyLevel = 255;
+			if (groundLevel == 0)
+				groundLevel = 1;
 			
 			if (simCity)
 			{
@@ -290,9 +293,6 @@ namespace terragen
 			
 			// guarantee that the bottom block is hard as ice
 			gdata->getb(x, 0, z) = Block(_BEDROCK);
-			assert(gdata->getb(x, 0, z).getID() == _BEDROCK);
-			assert(gdata->getb(x, 0, z).getFacing() == 0);
-			assert(gdata->getb(x, 0, z).getExtra() == 0);
 			
 			// set skylevel, groundlevel
 			gdata->flatl(x, z).groundLevel = groundLevel;

@@ -324,7 +324,6 @@
     <File Name="source/player_logic.cpp"/>
     <File Name="source/worldmanager_init.cpp"/>
     <File Name="source/vertex_player.hpp"/>
-    <File Name="source/precomp_vemitter.cpp"/>
     <File Name="source/render_gui.hpp"/>
     <File Name="source/sector_data.hpp"/>
     <File Name="source/blocks.cpp"/>
@@ -534,6 +533,7 @@
       <File Name="source/db/blockdb.cpp"/>
     </VirtualDirectory>
     <File Name="source/vemitter.cpp"/>
+    <File Name="source/precomp_thread_light.cpp"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

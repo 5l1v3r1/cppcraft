@@ -95,12 +95,12 @@ namespace cppcraft
 		if (side1 & side2) return 3;
 		return side1 + side2 + corner;
 	}
-	inline unsigned char blockIsOccluder(bordered_sector_t& sector, int x, int y, int z)
+	inline unsigned char blockIsOccluder(bordered_sector_t& bs, int x, int y, int z)
 	{
 		if (y == -1) return 1; // mui importante, don't know where else to put it tho
 		if (y == 256) return 0;
 		
-		return sector(x, y, z).isTransparent() & 1;
+		return (!bs(x, y, z).isTransparent()) & 1;
 	}
 	
 	void PrecompThread::ambientOcclusionGradients(bordered_sector_t& sector, vertex_t* datadump, int vertexCount)

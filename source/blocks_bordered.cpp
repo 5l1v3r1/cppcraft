@@ -6,6 +6,8 @@
 
 namespace cppcraft
 {
+	extern Block air_block;
+	
 	bordered_sector_t::bordered_sector_t(Sector& sector, int y0, int y1)
 	{
 		this->y0 = y0;
@@ -33,6 +35,13 @@ namespace cppcraft
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int z = 0; z < BLOCKS_XZ; z++)
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(-1, y, z) = air_block;
+		}
 		// (+X)
 		if (sector.getX()+1 < sectors.getXZ())
 		{
@@ -43,6 +52,13 @@ namespace cppcraft
 				Block* dst = &get(BLOCKS_XZ, 0, z);
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
+		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int z = 0; z < BLOCKS_XZ; z++)
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(BLOCKS_XZ, y, z) = air_block;
 		}
 		// (-Z)
 		if (sector.getZ() > 0)
@@ -55,6 +71,13 @@ namespace cppcraft
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int x = 0; x < BLOCKS_XZ; x++)
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(x, y, -1) = air_block;
+		}
 		// (+Z)
 		if (sector.getZ()+1 < sectors.getXZ())
 		{
@@ -66,6 +89,13 @@ namespace cppcraft
 				memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 			}
 		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int x = 0; x < BLOCKS_XZ; x++)
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(x, y, BLOCKS_XZ) = air_block;
+		}
 		// (-XZ)
 		if (sector.getX() > 0 && sector.getZ() > 0)
 		{
@@ -74,6 +104,12 @@ namespace cppcraft
 			Block* src = &nbor(BLOCKS_XZ-1, 0, BLOCKS_XZ-1);
 			Block* dst = &get(-1, 0, -1);
 			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
+		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(-1, y, -1) = air_block;
 		}
 		// (+XZ)
 		if (sector.getX() < sectors.getXZ()-1
@@ -85,6 +121,12 @@ namespace cppcraft
 			Block* dst = &get(BLOCKS_XZ, 0, BLOCKS_XZ);
 			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(BLOCKS_XZ, y, BLOCKS_XZ) = air_block;
+		}
 		// (+X-Z)
 		if (sector.getX() < sectors.getXZ()-1 && sector.getZ() > 0)
 		{
@@ -94,6 +136,12 @@ namespace cppcraft
 			Block* dst = &get(BLOCKS_XZ, 0, -1);
 			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
 		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(BLOCKS_XZ, y, -1) = air_block;
+		}
 		// (-X+Z)
 		if (sector.getX() > 0 && sector.getZ() < sectors.getXZ()-1)
 		{
@@ -102,6 +150,12 @@ namespace cppcraft
 			Block* src = &nbor(BLOCKS_XZ-1, 0, 0);
 			Block* dst = &get(-1, 0, BLOCKS_XZ);
 			memcpy(dst, src, BLOCKS_Y * sizeof(Block));
+		}
+		else
+		{
+			// when out of range, we need to set it to _AIR to prevent strange things
+			for (int y = 0; y < BLOCKS_Y; y++)
+				get(-1, y, BLOCKS_XZ) = air_block;
 		}
 		
 		/// flatland data ///
@@ -149,6 +203,12 @@ namespace cppcraft
 				std::raise(SIGINT);
 			
 			this->fget(BLOCKS_XZ, BLOCKS_XZ) = nbor.flat()(0, 0);
+		}
+		else
+		{
+			// we always want valid values!
+			this->fget(BLOCKS_XZ, BLOCKS_XZ) = 
+				this->fget(BLOCKS_XZ-1, BLOCKS_XZ-1);
 		}
 	} // bordered_sectorblock_t()
 	

@@ -166,7 +166,8 @@ namespace cppcraft
 		int selection = plogic.selection.facing;
 		
 		std::stringstream ss;
-		ss << "(inner) ID: " << selb.getID() << " f: " << selection << "  light: " << (int) selb.getSkyLight();
+		ss << "(inner) ID: " << selb.getID() << " f: " << selection << "  light: " << (int) selb.getSkyLight()
+		   << "  tex: " << (int) selb.getTexture(selection);
 		
 		int ddx = plogic.selection.pos.x;
 		int ddy = plogic.selection.pos.y;

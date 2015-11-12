@@ -112,6 +112,10 @@ namespace cppcraft
 		void updateAllMeshes();
 		
 		// returns reference to a Block at (x, y, z)
+		inline const Block& operator() (int x, int y, int z) const
+		{
+			return blockpt->operator()(x, y, z);
+		}
 		inline Block& operator() (int x, int y, int z)
 		{
 			return blockpt->operator()(x, y, z);

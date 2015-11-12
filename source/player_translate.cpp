@@ -439,13 +439,13 @@ namespace cppcraft
 			s[1] = Spiders::testArea(player.pos.x,player.pos.y-0.50,player.pos.z);
 			s[2] = Spiders::testArea(player.pos.x,player.pos.y+0.00,player.pos.z);
 			
-			block_t gravtest = 
+			bool gravtest = 
 				gravityTest(s[0]) ||
 				gravityTest(s[1]) ||
 				gravityTest(s[2]);
 			
 			// break immediately if the player is not determined to be stuck
-			if (gravtest == _AIR)
+			if (gravtest)
 			{
 				// player is ladderized if ANY of the results show a ladder
 				Ladderized = (s[0].isLadder() || s[1].isLadder() || s[2].isLadder());

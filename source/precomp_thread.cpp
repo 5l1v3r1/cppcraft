@@ -62,9 +62,6 @@ namespace cppcraft
 			pcg.vertices[i] = 0;
 		}
 		
-		// number of big tiles
-		pcg.bigTextures = tiles.bigTilesX * tiles.bigTilesY;
-		
 		// set sector
 		pcg.sector = &pc.sector;
 		

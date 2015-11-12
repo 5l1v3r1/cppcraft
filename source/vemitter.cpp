@@ -9,7 +9,7 @@ namespace cppcraft
 		// copy cube-mesh object 0 (+z side)
 		blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(0, ptd.indic);
 		
-		if (ptd.shaderLine == RenderConst::TX_REPEAT)
+		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
 			if (block.db().repeat_y)
 			{
@@ -73,7 +73,7 @@ namespace cppcraft
 		// copy cube-mesh object 1 (-z side)
 		blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(1, ptd.indic);
 		
-		if (ptd.shaderLine == RenderConst::TX_REPEAT)
+		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
 			if (block.db().repeat_y)
 			{
@@ -139,7 +139,7 @@ namespace cppcraft
 		// copy cube-mesh object 2 (+y side)
 		blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(2, ptd.indic);
 		
-		if (ptd.shaderLine == RenderConst::TX_REPEAT)
+		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
 			ptd.indic[0].u = bx * ptd.REPEAT_FACTOR; // 0, 0
 			ptd.indic[0].v = bz * ptd.REPEAT_FACTOR;
@@ -192,7 +192,7 @@ namespace cppcraft
 		// copy cube-mesh object 3 (-y side)
 		blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(3, ptd.indic);
 		
-		if (ptd.shaderLine == RenderConst::TX_REPEAT)
+		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
 			// {1,1,  0,1,  0,0,  1,0}
 			ptd.indic[0].u = bx * ptd.REPEAT_FACTOR; // 0, 0
@@ -245,7 +245,7 @@ namespace cppcraft
 		// copy cube-mesh object 4 (+x side)
 		blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(4, ptd.indic);
 		
-		if (ptd.shaderLine == RenderConst::TX_REPEAT)
+		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
 			if (block.db().repeat_y)
 			{
@@ -312,7 +312,7 @@ namespace cppcraft
 		// copy cube-mesh object 5 (+x side)
 		blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(5, ptd.indic);
 		
-		if (ptd.shaderLine == RenderConst::TX_REPEAT)
+		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
 			if (block.db().repeat_y)
 			{
@@ -371,14 +371,14 @@ namespace cppcraft
 		
 	} // emitCubeVertexNX()
 	
-	int emitCube(PTD& ptd, const Block& block, int bx, int by, int bz, block_t facing)
+	int emitCube(PTD& ptd, int bx, int by, int bz, block_t facing)
 	{
 		///////////////////////////////////////////////
 		////  loop through of all sides on a cube  ////
 		////   ----   ----   ----   ----   ----    ////
 		////  emit vertices & calculate lighting   ////
 		///////////////////////////////////////////////
-		
+		const Block& block = ptd.sector->get(bx, by, bz);
 		int vertices = 0;
 		
 		for (int i = 1; i < 64; i <<= 1)

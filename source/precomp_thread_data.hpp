@@ -1,6 +1,7 @@
 #include "renderconst.hpp"
 
 #include "blocks.hpp"
+#include "blocks_bordered.hpp"
 #include "vertex_block.hpp"
 
 namespace cppcraft
@@ -20,18 +21,19 @@ namespace cppcraft
 		
 		// all the blocks
 		bordered_sector_t* sector;
-		
-		int shaderLine;
 		// vertex data pointer
 		vertex_t* indic;
 		
+		int shader;
 		// special properties of big tiles
 		bool repeat_y;
 		static const int REPEAT_FACTOR;
-		int bigTextures;
 		
 		//! returns the terrain color @index for (bx, bz)
-		uint32_t getColor(int bx, int bz, int index);
+		uint32_t getColor(int bx, int bz, int index)
+		{
+			return sector->fget(bx, bz).fcolor[index];
+		}
 		
 		// processes a Block, outputs a mesh w/lighting
 		void process_block(const Block& currentBlock, int bx, int by, int bz);

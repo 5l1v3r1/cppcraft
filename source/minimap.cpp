@@ -98,7 +98,7 @@ namespace cppcraft
 		minimapVAO.render(GL_QUADS);
 	}
 	
-	Bitmap::rgba8_t fgetColor(Flatland& fs, int x, int z, int clid)
+	static Bitmap::rgba8_t fgetColor(Flatland& fs, int x, int z, int clid)
 	{
 		Bitmap::rgba8_t color = fs(x, z).fcolor[clid];
 		/*
@@ -109,7 +109,7 @@ namespace cppcraft
 		return color;
 	}
 	
-	Bitmap::rgba8_t mixColor(Bitmap::rgba8_t a, Bitmap::rgba8_t b, float mixlevel)
+	static Bitmap::rgba8_t mixColor(Bitmap::rgba8_t a, Bitmap::rgba8_t b, float mixlevel)
 	{
 		if (a == b) return a;
 		
@@ -129,7 +129,7 @@ namespace cppcraft
 	static const int HEIGHTMAP_G = HEIGHTMAP_F;
 	static const int HEIGHTMAP_B = HEIGHTMAP_F;
 	
-	Bitmap::rgba8_t lowColor(Bitmap::rgba8_t c)
+	static Bitmap::rgba8_t lowColor(Bitmap::rgba8_t c)
 	{
 		unsigned char* p = (unsigned char*)&c;
 		// overflow checks
@@ -138,7 +138,7 @@ namespace cppcraft
 		p[2] = (p[2] - HEIGHTMAP_B >= 0) ? p[2] - HEIGHTMAP_B : 0;
 		return c;
 	}
-	Bitmap::rgba8_t highColor(Bitmap::rgba8_t c)
+	static Bitmap::rgba8_t highColor(Bitmap::rgba8_t c)
 	{
 		unsigned char* p = (unsigned char*)&c;
 		// overflow checks
@@ -148,29 +148,12 @@ namespace cppcraft
 		return c;
 	}
 	
-	static int getDepth(Sector& sect, int x, int y, int z)
+	static Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int y, int z)
 	{
-		int depth = 0;
-		for (;y > 0; y--)
-		{
-			const Block& b = sect(x, y, z);
-			
-			if (!b.isFluid()) return depth;
-			depth++;
-		}
-		return depth;
-	}
-	
-	Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int y, int z)
-	{
-		if (y == 0) return BGRA8(48, 48, 48, 255);
-		
 		// get the block
 		const Block& blk = sector(x, y, z);
 		// the final color
-		Bitmap::rgba8_t c;
-		
-		c = blk.getMinimapColor(sector, x, y, z);
+		Bitmap::rgba8_t c = blk.getMinimapColor(sector, x, y, z);
 		
 		// basic height coloring
 		const int HEIGHT_BIAS = 128;

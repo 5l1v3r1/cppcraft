@@ -18,6 +18,7 @@ namespace db
 	class BlockData
 	{
 	public:
+		static const int SIDE_ALL = 63;
 		
 		// tick function
 		std::function<void (Block&)> tick_function;
@@ -53,7 +54,7 @@ namespace db
 		}
 		
 		// place mesh into PTD buffers (indic), returns number of vertices emitted
-		std::function<int(cppcraft::PTD&, const Block&, int, int, int, uint16_t)> emit;
+		std::function<int(cppcraft::PTD&, int, int, int, uint16_t)> emit;
 		
 		// returns true if the block has an activation function
 		std::function <bool(const Block&)> hasActivation;
@@ -66,7 +67,9 @@ namespace db
 		
 		// returns the texture value for @block
 		std::function <short(const Block&, uint8_t face)> getTexture;
-		
+		//! returns the non-zero facing mask @facing, if determined visible
+		//! first block is source, second is the block we are checking against
+		std::function<uint16_t(const Block&, const Block&, uint16_t)> visibilityComp;
 		//! \brief Physical hitbox test for this block
 		std::function<bool(const Block&, float, float, float)> physicalHitbox3D;
 		//! \brief Selection hitbox test for this block
@@ -92,9 +95,9 @@ namespace db
 		bool lowfriction; // low friction = skating
 		bool tall;    // 2 blocks tall, using 1 bit to distinguish top and bottom
 		
-		// true for each side that is completely solid
+		// true for each side that is not solid (completely covered)
 		// used by solidityComp to determine which faces to generate mesh for
-		uint16_t solidFaces;
+		uint16_t transparentSides;
 		
 		std::string sound;
 	};

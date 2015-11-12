@@ -4,6 +4,16 @@
 
 namespace cppcraft
 {
+	uint16_t PTD::getLight(int x, int y, int z)
+	{
+		Block& block = sector->get(x, y, z);
+		
+		uint16_t r = (block.getSkyLight()   * 17);
+		uint16_t g = (block.getBlockLight() * 17);
+		
+		return r + (g << 8);
+	}
+	
 	uint16_t PTD::smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4)
 	{
 		// TOOD: calculate the actual light values...

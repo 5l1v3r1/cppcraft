@@ -54,6 +54,10 @@ namespace cppcraft
 	
 	void Generator::init()
 	{
+		// initialize block registry
+		db::BlockDB::init();
+		/// our esteemed generator ///
+		terragen::Generator::init();
 		// load all block data in view
 		for (int x = 0; x < sectors.getXZ(); x++)
 		for (int z = 0; z < sectors.getXZ(); z++)

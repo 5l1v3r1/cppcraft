@@ -31,7 +31,7 @@ namespace db
 		_AIR.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
 		_AIR.shader = 0;
 		_AIR.slowing = false;
-		_AIR.solidFaces = 0;
+		_AIR.transparentSides = BlockData::SIDE_ALL;
 		_AIR.sound = "";
 		_AIR.tall = false;
 		_AIR.tick_function = nullptr;

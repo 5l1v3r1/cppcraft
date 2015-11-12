@@ -4,7 +4,6 @@
 #include "items.hpp"
 #include "lighting.hpp"
 #include "gui/menu.hpp"
-#include "generator/terragen.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
@@ -18,8 +17,6 @@ namespace cppcraft
 	void WorldManager::init(gamestate_t gs, library::WindowClass& gameScreen, std::string& worldFolder)
 	{
 		this->gamestate = gs;
-		// initialize block registry
-		db::BlockDB::init();
 		// initalize world
 		world.init(worldFolder);
 		// initialize player
@@ -32,9 +29,6 @@ namespace cppcraft
 		precompq.init();
 		// initialize lighting
 		lighting.init();
-		
-		/// our esteemed generator ///
-		terragen::Generator::init();
 		
 		// initialize particles
 		particleSystem.init();

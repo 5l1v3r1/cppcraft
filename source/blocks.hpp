@@ -179,6 +179,17 @@ namespace cppcraft
 		unsigned short visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const;
 		// run visibility tests using spiders
 		unsigned short visibleFaces(Sector& sector, int bx, int by, int bz) const;
+		//! face visibility test, returning the same mask for each face that is visible
+		//! this function lets @this determine whether @dst covers the face mask @facing
+		//! @facing: 1 = +z, 2 = -z, 4 = +y, 8 = -y, 16 = +x, 32 = -x
+		uint16_t visibilityComp(const Block& dst, uint16_t facing) const
+		{
+			return db().visibilityComp(*this, dst, facing);
+		}
+		uint16_t getTransparentSides() const
+		{
+			return db().transparentSides;
+		}
 		
 		// returns true if the blocks physical hitbox exists at (dx, dy, dz)
 		bool physicalHitbox3D(const Block& b, float dx, float dy, float dz) const
@@ -193,13 +204,6 @@ namespace cppcraft
 			if (db().selectionHitbox3D == nullptr)
 				return true;
 			return db().selectionHitbox3D(*this, dx, dy, dz);
-		}
-		
-		// visibility test, returning true for each face that is
-		// completely covered, eg. a fully solid block covers all its sides
-		uint16_t visibilityComp(uint16_t facing) const
-		{
-			return db().solidFaces & facing;
 		}
 		
 		// true if being inside the physical part of the block blocks movement
