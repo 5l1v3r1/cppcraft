@@ -143,13 +143,14 @@ namespace cppcraft
 			return getID() == _AIR;
 		}
 		
-		bool isTransparent() const
-		{
-			return db().opaque == false;
-		}
+		
 		bool isOpaque() const
 		{
 			return db().opaque;
+		}
+		bool isTransparent() const
+		{
+			return db().opaque == false;
 		}
 		bool isLiquid() const
 		{

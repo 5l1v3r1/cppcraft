@@ -8,7 +8,6 @@ namespace terragen
 	
 	void basic_tree(GenObject& obj, int worldX, int worldZ)
 	{
-		return;
 		Block trunk(db::getb("wood_brown"));
 		Block leafs(db::getb("leaf_green"));
 		
@@ -22,7 +21,7 @@ namespace terragen
 		for (int i = 0; i < height; i++)
 		{
 			// overwrite with trunk (removing light)
-			cppcraft::Spiders::setBlock(x, y + i, z, trunk);
+			Spiders::setBlock(x, y + i, z, trunk);
 		}
 		
 		int base = height / 3;
@@ -39,7 +38,7 @@ namespace terragen
 				
 				Block& block = Spiders::getBlock(fx, fy, fz);
 				// set ID to leaf, preserve light
-				if (block.isAir() || block.isCross())
+				if (block.overwriteAllowed())
 					block.setID( leafs.getID() );
 			}
 		}

@@ -1,6 +1,8 @@
 #include "precomp_thread_data.hpp"
 #include "blocks_bordered.hpp"
 #include "blockmodels.hpp"
+#include <cassert>
+#include <csignal>
 
 namespace cppcraft
 {

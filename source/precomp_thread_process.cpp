@@ -16,7 +16,7 @@ namespace cppcraft
 			///////////////////////////////
 			//  now, emit some vertices  //
 			///////////////////////////////
-			int shader = block.db().shader;
+			this->shader = block.db().shader;
 			this->repeat_y = block.db().repeat_y;
 			// get pointer, increase it by existing vertices
 			indic = databuffer[shader] + this->vertices[shader];

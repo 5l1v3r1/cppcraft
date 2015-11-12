@@ -137,6 +137,10 @@ namespace terragen
 							//	block.setID(_SNOWGRASS_S);
 						}
 					}
+					else if (terrain == Biome::T_DESERT && block.getID() != _BEACH)
+					{
+						block.setID(_DESERT);
+					}
 					else
 					{	// convert to stone, if reached conv depth
 						if (soilCounter > STONE_CONV_OVERW)
@@ -260,7 +264,7 @@ namespace terragen
 					if (groundLevel == 0)
 					{
 						// ultra-hard materials?? :)
-						if (block.getID() < 200)
+						if (block.isOpaque())
 							groundLevel = y+1;
 					}
 					if (skyLevel == 0)

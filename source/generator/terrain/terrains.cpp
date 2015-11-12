@@ -445,8 +445,8 @@ namespace terragen
 
 	float getnoise_desert(vec3 p)
 	{
-		p.x *= 0.003;
-		p.z *= 0.003;
+		p.x *= 0.01;
+		p.z *= 0.01;
 		
 		float s = barchans(p.x + snoise1(p.z*0.4)*1.0f, p.z + glm::simplex(p*0.2f)*0.3f);
 		float n = snoise2(p.x*0.05, p.z*0.05);

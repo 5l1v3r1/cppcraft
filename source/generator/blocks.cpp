@@ -27,10 +27,14 @@ namespace terragen
 	block_t _SOIL;
 	block_t _GRASS;
 	block_t _BEACH;
+	block_t _DESERT;
 	
 	block_t _MOLTEN;
 	block_t _WATER;
 	block_t _LAVA;
+	
+	block_t _WOOD;
+	block_t _LEAF;
 	
 	static int getDepth(const Sector& sect, int x, int y, int z)
 	{
@@ -99,7 +103,7 @@ namespace terragen
 		fluid.visibilityComp = 
 		[] (const Block& src, const Block& dst, uint16_t mask)
 		{
-			// if they are both fluids, we will not add this face
+			// if they are both the same ID, we will not add this face
 			if (src.getID() == dst.getID())
 				return 0;
 			// otherwise, business as usual, only add towards transparent sides
@@ -107,6 +111,39 @@ namespace terragen
 		};
 		fluid.emit = cppcraft::emitCube;
 		return fluid;
+	}
+	BlockData getLeafBlock()
+	{
+		BlockData leaf;
+		leaf.blocksMovement = [] (const Block&) { return true; };
+		leaf.cross = false;
+		leaf.forwardMovement = [] (const Block&) { return false; };
+		leaf.hasActivation = [] (const Block&) { return false; };
+		leaf.indexColored = false;
+		leaf.ladder = false;
+		leaf.liquid = false;
+		leaf.lowfriction = false;
+		leaf.opacity = 0; // not a light
+		leaf.opaque = false;
+		leaf.pad = false;
+		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
+		leaf.repeat_y = false;
+		leaf.shader = RenderConst::TX_2SIDED;
+		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
+		leaf.slowing = false;
+		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
+		leaf.voxelModel = 0;
+		leaf.visibilityComp = 
+		[] (const Block& src, const Block& dst, uint16_t mask)
+		{
+			// if they are both the same ID, we only add every 2nd face
+			if (src.getID() == dst.getID())
+				return mask & (1 + 4 + 32);
+			// otherwise, business as usual, only add towards transparent sides
+			return mask & dst.getTransparentSides();
+		};
+		leaf.emit = cppcraft::emitCube;
+		return leaf;
 	}
 	
 	void init_blocks()
@@ -175,8 +212,8 @@ namespace terragen
 		// _BEACH (sand)
 		{
 			BlockData solid = getSolidBlock();
-			solid.getColorIndex = [] (const Block&) { return Biome::CL_SAND; };
-			solid.indexColored = true;
+			solid.getColor = [] (const Block&) { return 8; };
+			solid.indexColored = false;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
 			solid.getName = [] (const Block&) { return "Sand"; };
 			solid.getTexture =
@@ -186,6 +223,21 @@ namespace terragen
 			};
 			solid.sound = "sand";
 			_BEACH = d.create("beach", solid);
+		}
+		// _DESERT (sand)
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColorIndex = [] (const Block&) { return Biome::CL_SAND; };
+			solid.indexColored = true;
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
+			solid.getName = [] (const Block&) { return "Desert Sand"; };
+			solid.getTexture =
+			[] (const Block&, uint8_t)
+			{
+				return 2 + 1 * tiles.bigTilesX; // (2, 1) desert sand texture
+			};
+			solid.sound = "sand";
+			_DESERT = d.create("desert", solid);
 		}
 		// create _WATER
 		{
@@ -202,6 +254,47 @@ namespace terragen
 			fluid.getTexture = [] (const Block&, uint8_t) { return 0; };
 			fluid.shader = RenderConst::TX_WATER;
 			_WATER = d.create("water", fluid);
+		}
+		
+		// _WOOD (brown)
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColor = [] (const Block&) { return 0; };
+			solid.indexColored = false;
+			solid.minimapColor =
+			[] (const Block&, const Sector&, int, int, int)
+			{
+				return RGBA8(111, 63, 16, 255);
+			};
+			solid.getName = [] (const Block&) { return "Wood"; };
+			solid.getTexture =
+			[] (const Block&, uint8_t)
+			{
+				return 0 + 7 * tiles.tilesX;
+			};
+			solid.repeat_y = false;
+			solid.shader   = RenderConst::TX_SOLID;
+			solid.sound = "wood";
+			_WOOD = d.create("wood_brown", solid);
+		}
+		// create _LEAF
+		{
+			BlockData blk = getLeafBlock();
+			blk.getColorIndex = [] (const Block&) { return Biome::CL_TREES; };
+			blk.indexColored = true;
+			blk.minimapColor =
+			[] (const Block&, const Sector& s, int x, int, int z)
+			{
+				return s.flat()(x, z).fcolor[Biome::CL_TREES];
+			};
+			blk.getName = [] (const Block&) { return "Leaf (block)"; };
+			blk.getTexture =
+			[] (const Block&, uint8_t)
+			{
+				return 15 + 0 * tiles.tilesX;
+			};
+			blk.shader = RenderConst::TX_TRANS;
+			_LEAF = d.create("leaf_green", blk);
 		}
 		
 		_MOLTEN = _SOIL;

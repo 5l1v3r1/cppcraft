@@ -35,6 +35,7 @@ namespace cppcraft
 		
 		// 32-bits, one pixel per sector on (X, Z) axes
 		bitmap = new Bitmap(sectors.getXZ() * 2, sectors.getXZ() * 2);
+		memset(bitmap->data(), 0, bitmap->getWidth() * bitmap->getHeight() * sizeof(Bitmap::rgba8_t));
 		// create texture
 		texture = new Texture(GL_TEXTURE_2D);
 		texture->create(*bitmap, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
