@@ -18,5 +18,8 @@ namespace terragen
 	extern block_t _LAVA;
 	extern block_t _MOLTEN;
 	
+	extern block_t _WOOD;
+	extern block_t _LEAF;
+	
 	extern void init_blocks();
 }

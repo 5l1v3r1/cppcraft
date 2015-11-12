@@ -61,6 +61,8 @@ namespace cppcraft
 		optimizeMesh(precomp, RenderConst::TX_REPEAT, RenderConst::VERTEX_SCALE / Tiles::TILES_PER_BIG_TILE);
 		// optimize normal solids
 		optimizeMesh(precomp, RenderConst::TX_SOLID, RenderConst::VERTEX_SCALE);
+		// optimize 2-sided textures
+		optimizeMesh(precomp, RenderConst::TX_2SIDED, RenderConst::VERTEX_SCALE);
 		// optimize transparent textures
 		optimizeMesh(precomp, RenderConst::TX_TRANS, RenderConst::VERTEX_SCALE);
 		// optimize water & lava meshes

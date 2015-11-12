@@ -1,5 +1,11 @@
 #include "../object.hpp"
+#include "../random.hpp"
+#include "../blocks.hpp"
 #include "../../spiders.hpp"
+#include <library/math/toolbox.hpp>
+#include "helpers.hpp"
+
+using namespace library;
 
 namespace terragen
 {
@@ -8,8 +14,8 @@ namespace terragen
 	
 	void basic_tree(GenObject& obj, int worldX, int worldZ)
 	{
-		Block trunk(db::getb("wood_brown"));
-		Block leafs(db::getb("leaf_green"));
+		const Block   trunk(_WOOD);
+		const block_t leafs = _LEAF;
 		
 		// local coordinates
 		int x = obj.x - worldX;
@@ -39,8 +45,9 @@ namespace terragen
 				Block& block = Spiders::getBlock(fx, fy, fz);
 				// set ID to leaf, preserve light
 				if (block.overwriteAllowed())
-					block.setID( leafs.getID() );
+					block.setID( leafs );
 			}
 		}
 	}
+	
 }

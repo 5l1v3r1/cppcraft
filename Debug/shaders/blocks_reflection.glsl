@@ -10,15 +10,12 @@ uniform vec3  lightVector;
 uniform float daylight;
 
 in vec3 in_vertex;
-in vec3 in_normal;
-in vec3 in_texture;
-in vec4 in_color;
-in vec4 in_color2;
+in vec4 in_normal;
+in vec4 in_texture;
 in vec4 in_biome;
 
 out vec3 texCoord;
-out vec4 lightdata;
-out vec4 torchlight;
+out vec3 lightdata;
 out vec4 biomeColor;
 flat out float worldLight;
 
@@ -27,6 +24,7 @@ const float VERTEX_SCALE_INV
 void main(void)
 {
 	vec4 position = vec4(in_vertex * VERTEX_SCALE_INV + vtrans, 1.0);
+  gl_ClipDistance[0] = position.y - 64.0;
 	gl_Position = matmvp * position;
 	
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
@@ -34,8 +32,9 @@ void main(void)
 	// dotlight
 	#include "worldlight.glsl"
 	
-	lightdata  = in_color;
-	torchlight = in_color2;
+	int light = int(in_texture.w);
+	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, in_normal.w);
+  
 	biomeColor = in_biome;
 }
 
@@ -51,8 +50,7 @@ uniform float daylight;
 uniform float modulation;
 
 in vec3 texCoord;
-in vec4 lightdata;
-in vec4 torchlight;
+in vec3 lightdata;
 in vec4 biomeColor;
 flat in float worldLight;
 
@@ -78,5 +76,7 @@ void main(void)
 	// fake fog
 	vec3 fogColor = vec3(1.0) * daylight;
 	color.rgb = mix(color.rgb, fogColor, 0.1);
+  
+  color.rgb = pow(color.rgb, vec3(2.2));
 }
 #endif

@@ -63,7 +63,6 @@ namespace terragen
 		solid.lowfriction = false;
 		solid.opacity = 0; // not a light
 		solid.opaque  = true;
-		solid.pad     = false;
 		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		solid.repeat_y = true;
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
@@ -93,7 +92,6 @@ namespace terragen
 		fluid.lowfriction = false;
 		fluid.opacity = 0; // not a light
 		fluid.opaque = false;
-		fluid.pad = false;
 		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		fluid.repeat_y = true;
 		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
@@ -125,7 +123,6 @@ namespace terragen
 		leaf.lowfriction = false;
 		leaf.opacity = 0; // not a light
 		leaf.opaque = false;
-		leaf.pad = false;
 		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.repeat_y = false;
 		leaf.shader = RenderConst::TX_2SIDED;
@@ -236,6 +233,7 @@ namespace terragen
 			{
 				return 2 + 1 * tiles.bigTilesX; // (2, 1) desert sand texture
 			};
+			solid.shader = RenderConst::TX_REPEAT; // TX_REPEAT uses bigtiles
 			solid.sound = "sand";
 			_DESERT = d.create("desert", solid);
 		}

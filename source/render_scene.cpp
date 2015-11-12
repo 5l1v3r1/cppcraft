@@ -331,6 +331,7 @@ namespace cppcraft
 				
 				if (gameconf.reflectTerrain)
 				{
+					glEnable(GL_CLIP_DISTANCE0); // we are using this to discard stuff under water
 					glEnable(GL_DEPTH_TEST);
 					glDepthMask(GL_TRUE);
 					glClear(GL_DEPTH_BUFFER_BIT);
@@ -339,6 +340,8 @@ namespace cppcraft
 					glCullFace(GL_FRONT);
 					renderReflectedScene(renderer, reflectionCamera);
 					glCullFace(GL_BACK);
+					
+					glDisable(GL_CLIP_DISTANCE0);
 				}
 			}
 		}

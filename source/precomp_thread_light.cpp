@@ -30,11 +30,8 @@ namespace cppcraft
 		
 		for (int i = 0; i < 4; i++)
 		{
-			if (totalS < v[i]->getSkyLight())
-				totalS = v[i]->getSkyLight();
-			
-			if (totalB < v[i]->getBlockLight())
-				totalB = v[i]->getBlockLight();
+			totalS = (totalS < v[i]->getSkyLight()) ? v[i]->getSkyLight() : totalS;
+			totalB = (totalB < v[i]->getBlockLight()) ? v[i]->getBlockLight() : totalB;
 		}
 		uint16_t r = (totalS * 17);
 		uint16_t g = (totalB * 17);

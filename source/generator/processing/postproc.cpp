@@ -43,12 +43,12 @@ namespace terragen
 	*/
 	
 	#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
-	void setCross(gendata_t* gdata, block_t* c_array, int x, int y, int z)
+	static inline void setCross(gendata_t* gdata, block_t* c_array, int x, int y, int z)
 	{
 		gdata->getb(x, y, z).setID
 		(c_array[(int)(randf(x, y, z) * ARRAY_SIZE(c_array))]);
 	}
-	void setCrossExt(gendata_t* gdata, block_t* c_array, int N, int x, int y, int z)
+	static inline void setCrossExt(gendata_t* gdata, block_t* c_array, int N, int x, int y, int z)
 	{
 		gdata->getb(x, y, z).setID(c_array[(int)(randf(x, y, z) * N)]);
 	}
@@ -60,6 +60,7 @@ namespace terragen
 	{
 		static const int GEN_BASIC_TREE = 0;
 		static const int GEN_BASIC_HOUS = 1;
+		static const int GEN_JUNGL_TREE = 2;
 		
 		/// reset ore generator
 		OreGen::reset();

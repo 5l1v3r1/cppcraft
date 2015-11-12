@@ -24,7 +24,6 @@ namespace db
 		_AIR.lowfriction = false;
 		_AIR.minimapColor = [] (const Block&, const Sector&, int, int, int) { return 255; };
 		_AIR.opacity = 0; // not a light
-		_AIR.pad = false;
 		_AIR.repeat_y = false;
 		// you can never hit or select _AIR
 		_AIR.physicalHitbox3D = [] (const Block&, float, float, float) { return false; };

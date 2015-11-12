@@ -72,6 +72,9 @@ CCRES   = $(RESOURCES:.rc=.o)
 debug: BUILDOPT = -ggdb3 -fstack-protector -DDEBUG
 debug: all
 
+prof: BUILDOPT = -O2 -march=native -pg
+prof: all
+
 fast: BUILDOPT = -O3 -ffast-math -march=native
 fast: all
 

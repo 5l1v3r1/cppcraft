@@ -88,10 +88,10 @@ namespace db
 		bool opaque;
 		bool liquid;
 		bool indexColored;
-		bool pad;     // flat, lets players stand on it
 		bool cross;   // cross, flowers and torches etc
 		bool ladder;  // lets players move up and down
 		bool slowing; // slows players on touch
+		bool falling; // falls down when overwritables are under it
 		bool lowfriction; // low friction = skating
 		bool tall;    // 2 blocks tall, using 1 bit to distinguish top and bottom
 		

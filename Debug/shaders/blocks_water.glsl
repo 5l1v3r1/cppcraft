@@ -88,6 +88,11 @@ float getDepth(in vec2 uv)
 	return wsDepth * length(vec3((uv * 2.0 - 1.0) * nearPlaneHalfSize, -1.0));
 }
 
+float rand(vec2 co)
+{
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main(void)
 {
 	// derivative simplex noise
@@ -116,6 +121,7 @@ void main(void)
 	
 	// wave modulation
 	vec2 refcoord = texCoord + vNormal.xz * 0.005 * (1.0 - dist);
+  //+ vec2(sin(frameCounter*0.1 + sin(texCoord.x*60.0)), sin(frameCounter*0.1 + texCoord.y*80.0)*0.25) * 0.001;
 	
 	// read underwater, use as base color
 	vec4 underw = texture(underwatermap, refcoord);
@@ -153,11 +159,12 @@ void main(void)
 	
 #ifdef REFLECTIONS
 	// world/terrain reflection
-	vec4 wreflection = texture(reflectionmap, refcoord);
-	
+  vec4 wreflection = texture(reflectionmap, refcoord);
+	wreflection.rgb = pow(wreflection.rgb, vec3(1.0 / 2.2));
+  
 	//----- fresnel term -----
 	float fresnel = max(0.0, dot(vEye, viewNormal));
-	fresnel = pow(1.0 - fresnel, 3.0);
+	fresnel = pow(1.0 - fresnel, 1.5);
 	
 	// add reflections to final color
 	color.rgb = mix(color.rgb, wreflection.rgb, fresnel);

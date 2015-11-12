@@ -483,6 +483,9 @@
       <VirtualDirectory Name="objects">
         <File Name="source/generator/objects/basic_tree.cpp"/>
         <File Name="source/generator/objects/basic_house.cpp"/>
+        <File Name="source/generator/objects/helpers.hpp"/>
+        <File Name="source/generator/objects/helpers.cpp"/>
+        <File Name="source/generator/objects/jungle_tree.cpp"/>
       </VirtualDirectory>
       <File Name="source/generator/object.hpp"/>
       <File Name="source/generator/objectq.hpp"/>

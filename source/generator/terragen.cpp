@@ -29,6 +29,8 @@ namespace terragen
 		objectDB.add(basic_tree);
 		extern void basic_house(GenObject&, int, int);
 		objectDB.add(basic_house);
+		extern void jungle_tree(GenObject& obj, int worldX, int worldZ);
+		objectDB.add(jungle_tree);
 	}
 	
 	void Generator::run(gendata_t* data)
