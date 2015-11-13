@@ -19,12 +19,14 @@ out vec3 lightdata;
 out vec4 biomeColor;
 flat out float worldLight;
 
+out float gl_ClipDistance[1];
+
 const float VERTEX_SCALE_INV
 
 void main(void)
 {
 	vec4 position = vec4(in_vertex * VERTEX_SCALE_INV + vtrans, 1.0);
-  gl_ClipDistance[0] = position.y - 64.0;
+	gl_ClipDistance[0] = position.y - 64.0;
 	gl_Position = matmvp * position;
 	
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);

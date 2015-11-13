@@ -164,7 +164,7 @@ void main(void)
   
 	//----- fresnel term -----
 	float fresnel = max(0.0, dot(vEye, viewNormal));
-	fresnel = pow(1.0 - fresnel, 1.5);
+	fresnel = pow(1.0 - fresnel, 2.0);
 	
 	// add reflections to final color
 	color.rgb = mix(color.rgb, wreflection.rgb, fresnel);
