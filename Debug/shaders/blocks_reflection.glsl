@@ -19,8 +19,6 @@ out vec3 lightdata;
 out vec4 biomeColor;
 flat out float worldLight;
 
-out float gl_ClipDistance[1];
-
 const float VERTEX_SCALE_INV
 
 void main(void)

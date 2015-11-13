@@ -55,7 +55,6 @@ namespace cppcraft
 		// initialize input systems
 		input.init(gameScreen, true, true);
 		input.setRotation(player.rot);
-		input.showMouse(false); // hide mouse
 		input.grabMouse(true);  // enable fps-like mouse
 		input.mouseOptions(mspd, msens); // mouse speed & sensitivity
 		

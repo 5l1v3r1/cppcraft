@@ -27,7 +27,7 @@ CC += $(BUILDOPT) -std=gnu++11 -mstackrealign
 # compiler flags
 CCFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
 # linker flags
-LFLAGS  = -static-libgcc -static-libstdc++ -Llib \
+LFLAGS  = -static-libgcc -static-libstdc++ -Llib -L. \
 	-llibrary -lbass -llzo2 -l:libGLEW.a -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
 ifeq ($(OS),Windows_NT)
 	LFLAGS  = -Llib -static -llibrary -lpthread -lbassdll -lglfw3 -lgdi32 -lglew32s -lopengl32 -llzo2 -lws2_32
@@ -69,14 +69,14 @@ CCRES   = $(RESOURCES:.rc=.o)
 
 .PHONY: clean all debug fast
 
+fast: BUILDOPT = -O3 -ffast-math -march=native
+fast: all
+
 debug: BUILDOPT = -ggdb3 -fstack-protector -DDEBUG
 debug: all
 
 prof: BUILDOPT = -O2 -march=native -pg
 prof: all
-
-fast: BUILDOPT = -O3 -ffast-math -march=native
-fast: all
 
 # link all OBJS using CC and link with LFLAGS, then output to OUTPUT
 all: $(CXXOBJS) $(CCOBJS) $(CCRES)
