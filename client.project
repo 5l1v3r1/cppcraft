@@ -537,6 +537,13 @@
     </VirtualDirectory>
     <File Name="source/vemitter.cpp"/>
     <File Name="source/precomp_thread_light.cpp"/>
+    <VirtualDirectory Name="server">
+      <File Name="source/server/main.cpp"/>
+      <File Name="source/server/clients.hpp"/>
+      <File Name="source/server/client.hpp"/>
+      <File Name="source/server/entity.hpp"/>
+      <File Name="source/server/entities.hpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

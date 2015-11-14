@@ -1,4 +1,4 @@
-GLFW_ICON ICON "cppcraft.ico"
+GLFW_ICON ICON "server.ico"
 
 1 VERSIONINFO
  FILEVERSION     0,0,1,0
@@ -14,11 +14,11 @@ GLFW_ICON ICON "cppcraft.ico"
     BLOCK "040904B0"
     {
       VALUE "CompanyName", "Green Hill Zone"
-      VALUE "FileDescription", "C++Craft Client"
+      VALUE "FileDescription", "C++Craft Server"
       VALUE "FileVersion", "0.0.1.0"
-      VALUE "InternalName", "cppcraft"
+      VALUE "InternalName", "server"
       VALUE "LegalCopyright", "Copyright (C) 2015"
-      VALUE "OriginalFilename", "cppcraft.exe"
+      VALUE "OriginalFilename", "server.exe"
       VALUE "ProductName", "C++Craft"
       VALUE "ProductVersion", "0.0.1.0"
     }

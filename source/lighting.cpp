@@ -13,7 +13,6 @@ using namespace library;
 
 namespace cppcraft
 {
-	constexpr float PI = atan(1.0) * 4;
 	Lighting lighting;
 	
 	void Lighting::init()

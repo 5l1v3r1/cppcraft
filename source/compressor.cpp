@@ -10,19 +10,19 @@ using namespace library;
 
 namespace cppcraft
 {
-	library::LZO compressor;
+	/*library::LZO compressor;
 	lzo_bytep compressor_databuffer;
 	
 	struct compressed_datalength_t
 	{
 		unsigned short lzoSize;
 		//unsigned short sectors;
-	};
+	};*/
 	
 	void Compressor::init()
 	{
 		logger << Log::INFO << "* Initializing compressor" << Log::ENDL;
-		
+		/*
 		const int compressed_max_size = Flatland::FLATLAND_SIZE + sizeof(Sector::sectorblock_t);
 		
 		// initialize LZO
@@ -30,15 +30,19 @@ namespace cppcraft
 		
 		// allocate towering buffer
 		compressor_databuffer = new lzo_byte[compressed_max_size];
+		*/
 	}
 	void Compressor::cleanup()
 	{
+		/*
 		delete[] compressor_databuffer;
 		compressor_databuffer = nullptr;
+		*/
 	}
 	
 	void Compressor::load(std::ifstream& File, int PL, int x, int z)
 	{
+		/*
 		// read datalength
 		compressed_datalength_t datalength;
 		
@@ -90,7 +94,7 @@ namespace cppcraft
 		
 		// go to next compressed sector
 		//cpos += compressor.getDataLength();
-		
+		*/
 	} // loadCompressedColumn
 	
 }

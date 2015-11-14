@@ -4,33 +4,33 @@
 
 # output file
 OUTPUT = ./Debug/cppcraft
+SERVER = ./Debug/server
 
 # code folder
 SOURCE =  source source/db source/gui source/sound
 SOURCE += source/generator source/generator/biomegen source/generator/terrain
 SOURCE += source/generator/processing source/generator/objects
 
+# server folders
+SDIRS = source/server
+
 # resource file
 ifeq ($(OS),Windows_NT)
-RESOURCES = res/cppcraft.rc
+CCRES = res/cppcraft.o
+SRRES = res/server.o
 endif
 
 ##############################################################
-ifeq ($(OS),Windows_NT)
-	CC = C:/TDM-GCC-64/bin/g++
-else
-	CC = g++
-endif
-
+CC = g++
 # compiler
 CC += $(BUILDOPT) -std=gnu++11 -mstackrealign
 # compiler flags
-CCFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
+CFLAGS = -c -MMD -Wall -Wextra -pedantic -Iinc
 # linker flags
 LFLAGS  = -static-libgcc -static-libstdc++ -Llib -L. \
-	-llibrary -lbass -llzo2 -l:libGLEW.a -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
+	-library -lbass -llzo2 -l:libGLEW.a -DGLEW_STATIC `pkg-config --static --libs glfw3` -Wl,-rpath,../lib
 ifeq ($(OS),Windows_NT)
-	LFLAGS  = -Llib -static -llibrary -lpthread -lbassdll -lglfw3 -lgdi32 -lglew32s -lopengl32 -llzo2 -lws2_32
+	LFLAGS  = -Llib -static -library -lpthread -lbassdll -lglfw3 -lgdi32 -lglew32s -lopengl32 -llzo2 -lws2_32
 endif
 # resource builder
 RES = windres
@@ -48,11 +48,11 @@ CXXMODS = $(wildcard $(CXXDIRS))
 
 # compile each .c to .o
 .c.o:
-	$(CC) $(CCFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 # compile each .cpp to .o
 .cpp.o:
-	$(CC) $(CCFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 # recipe for building .o from .rc files
 %.o : %.rc
@@ -64,12 +64,10 @@ CCOBJS  = $(CCMODS:.c=.o)
 CXXOBJS = $(CXXMODS:.cpp=.o)
 # convert .o to .d
 DEPENDS = $(CXXOBJS:.o=.d) $(CCOBJS:.o=.d)
-# resource .rc to .o
-CCRES   = $(RESOURCES:.rc=.o)
 
 .PHONY: clean all debug fast
 
-fast: BUILDOPT = -O3 -ffast-math -march=native
+fast: BUILDOPT = -O3 -ffast-math -march=corei7-avx
 fast: all
 
 debug: BUILDOPT = -ggdb3 -fstack-protector -DDEBUG
@@ -81,6 +79,9 @@ prof: all
 # link all OBJS using CC and link with LFLAGS, then output to OUTPUT
 all: $(CXXOBJS) $(CCOBJS) $(CCRES)
 	$(CC) $(CXXOBJS) $(CCOBJS) $(CCRES) $(LFLAGS) -o $(OUTPUT)
+
+server: $(SERVER_OBJS) $(SRRES)
+	$(CC) $(SERVER_OBJS) $(SRRES) $(SLFLAGS) -o $(SERVER)
 
 # remove each known .o file, and output
 clean:
