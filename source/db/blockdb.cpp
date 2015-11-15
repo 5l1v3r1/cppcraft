@@ -31,7 +31,7 @@ namespace db
 		_AIR.shader = 0;
 		_AIR.slowing = false;
 		_AIR.transparentSides = BlockData::SIDE_ALL;
-		_AIR.sound = "";
+		_AIR.getSound = nullptr;
 		_AIR.tall = false;
 		_AIR.tick_function = nullptr;
 		_AIR.voxelModel = 0;

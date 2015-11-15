@@ -45,8 +45,8 @@ namespace terragen
 	
 	///////////////////////////////////////////////////
 	///////////////////////////////////////////////////
-	#define sfreq(v, n) glm::simplex(v * (float) n)
-	#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * (float)n)
+	#define sfreq(v, n) glm::simplex(v * float(n))
+	#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * float(n))
 	
 	float lower_grass(vec3 p);
 	
@@ -91,7 +91,7 @@ namespace terragen
 				else n1 = 1.0f;
 				
 				float t = 1.0 - cavenoise / DEPTH_DENSITY;
-				return -t * 0.1 * n1;
+				return -t * 0.1;
 			}
 		}
 		return 0.1;
@@ -114,11 +114,11 @@ namespace terragen
 		
 		return p.y - 0.3 + COSN_icecap1 * 0.05 + COSN_icecap2 * 0.1;
 	}
-
+	
 	float getnoise_snow(vec3 p)
 	{
-		p.x *= 0.002;
-		p.z *= 0.002;
+		p.x *= 0.006;
+		p.z *= 0.006;
 		float n1 = sfreq(p, 3.0);
 		
 		// peaks
@@ -139,27 +139,12 @@ namespace terragen
 		n1 = (p.y - 0.25) * p.y - n3 * n3 * 0.25 + n4 * 0.1 + COSN * 0.15;
 		
 		// reduce height by contintental noise
-		n1 += c1 * 0.2 + c2 * 0.1;
+		n1 += c1 * 0.2 + c2 * 0.2;
 		
 		// create me some bridges
 		const float bridge_height = 0.3;
 		float dist = 1.0 - std::sqrt(p.y * p.y + bridge_height*bridge_height);
 		n1 -= dist * dist * (1.0 - c2 + c1) * 0.75;
-		
-		// ultra-scale down density above clouds
-		/*const float scaledown = 0.8;
-		if (p.y > scaledown)
-		{
-			float dy = (p.y - scaledown) / (1.0 - scaledown);
-			n1 += dy * dy * dy * 0.5;
-		}
-		else if (p.y < 0.2)
-		{
-			// scale up seafloor
-			float dy = (1.0 - p.y / 0.2);
-			n1 -= dy * dy * 1.0;
-		}*/
-		
 		return n1;
 	}
 	
@@ -245,7 +230,7 @@ namespace terragen
 
 	float lower_grass(vec3 p)
 	{
-		glm::vec2 G(p.x, p.z); G *= 0.25f;
+		glm::vec2 G(p.x, p.z); G *= 2.5f;
 		
 		float sel = nmix2(glm::simplex(G)) + nmix2(glm::simplex(G*2.1f)) * 0.5f
 				+    nmix2(glm::simplex(G*4.2f))* 0.25f + nmix2(glm::simplex(G*8.f))* 0.125f
@@ -308,7 +293,7 @@ namespace terragen
 
 	float getnoise_grass(vec3 p)
 	{
-		p.x *= 0.0002; p.z *= 0.0002;
+		p.x *= 0.002; p.z *= 0.002;
 		
 		float scale = 3.7;
 		float stretch = 1.0 / 12.0;
@@ -334,6 +319,7 @@ namespace terragen
 		noi = p.y - (land + 0.4 * depth);
 		
 		// vary cliff terrain with lower_grass terrain (that also has mountains)
+		/*
 		const float GMIX = 0.5;
 		float gmix = simplex(P * vec2(0.66f, 0.66f)) * 0.5 + 0.5;
 		
@@ -343,8 +329,9 @@ namespace terragen
 			gmix = (gmix - GMIX) / (1.0 - GMIX);
 			// mixify
 			return lower_grass(p) * gmix + noi * (1.0 - gmix);
-		}
-		return noi;
+		}*/
+		return lower_grass(p) + noi;
+		//return noi;
 	}
 
 	float getnoise_marsh(vec3 p)
@@ -454,8 +441,9 @@ namespace terragen
 		
 		s = p.y - (0.21 + s * 0.4);
 		
+		glm::vec2 p2(p.x, p.z);
 		
-		float x = glm::simplex(p * 0.5f) + glm::simplex(p * 0.7f);
+		float x = glm::simplex(p2 * 0.2f) + glm::simplex(p2 * 0.3f);
 		x *= 0.5; // normalize
 		
 		const float EDGE = 0.45;
@@ -468,7 +456,7 @@ namespace terragen
 			// ramp up the value
 			float power = std::pow(linear, 0.25 - linear * 0.15);
 			// apply height
-			float height = power * 0.35 + glm::simplex(p * 0.7f) * 0.01;
+			float height = power * 0.35 + glm::simplex(p2 * 0.7f) * 0.01;
 			
 			if (x > RAMP_EDGE)
 			{

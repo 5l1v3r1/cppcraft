@@ -141,7 +141,7 @@ namespace cppcraft
 	static Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int z)
 	{
 		// get the block
-		int y = sector.flat()(x, z).skyLevel-1;
+		int y = sector.flat()(x, z).groundLevel-1;
 		const Block& blk = sector(x, y, z);
 		// determine the minimap color
 		uint32_t c = blk.getMinimapColor(sector, x, y, z);

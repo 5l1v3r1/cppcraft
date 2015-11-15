@@ -46,19 +46,10 @@ void main(void)
 		
 		// standing
 		float speed  = frameCounter * 0.01;
+		float factor = CROSSWIND_STRENGTH * texCoord.t;
 		// crosses waving in the wind
 		vec2 pos = in_vertex.xz * VERTEX_SCALE_INV / 16.0;
-		if (texCoord.z == 94.0)
-		{
-			// hanging
-			position.x += (sin(PI2 * (2.0*pos.x + pos.y) + speed) + 0.6) * CROSSWIND_STRENGTH * (1.0 - texCoord.t);
-		}
-		else
-		{
-			float factor = CROSSWIND_STRENGTH * texCoord.t;
-			position.x += sin(PI2 * (2.0*pos.x + pos.y) + speed) * factor;
-			
-		} // hanging & standing
+		position.x += sin(PI2 * (2.0*pos.x + pos.y) + speed) * factor;
 	}
 	
 	gl_Position = matproj * position;

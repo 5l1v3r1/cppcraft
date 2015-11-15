@@ -11,6 +11,7 @@ namespace cppcraft
 		// terrains
 		typedef enum
 		{
+			T_CAVES,
 			T_ICECAP,
 			T_SNOW,
 			T_AUTUMN,

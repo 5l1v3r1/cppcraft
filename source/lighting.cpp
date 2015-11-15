@@ -31,10 +31,7 @@ namespace cppcraft
   
   inline int lightPenetrate(Block& block)
   {
-    if (block.isAir() || block.isTransparent())
-      return 1;
-    
-    return 16;
+    return (block.isTransparent() ? 1 : 16);
   }
   
   void propagateSkylight(int x, int y, int z, int dir, int level)
@@ -141,7 +138,7 @@ namespace cppcraft
 	  
 	  // try to enter water and other transparent blocks
 	  // for now, let's jsut use _WATER hardcoded
-	  if (sector(x, sky-1, z).isFluid())
+	  if (sector(x, sky-1, z).isTransparent())
 			propagateSkylight(sx+x, sky, sz+z, 3, 14);
 	  
     } // x, z

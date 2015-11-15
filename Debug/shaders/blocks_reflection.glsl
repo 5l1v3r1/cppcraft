@@ -18,8 +18,10 @@ out vec3 texCoord;
 out vec3 lightdata;
 out vec4 biomeColor;
 flat out float worldLight;
+out float dist;
 
 const float VERTEX_SCALE_INV
+const float ZFAR
 
 void main(void)
 {
@@ -27,6 +29,7 @@ void main(void)
 	gl_ClipDistance[0] = position.y - 64.0;
 	gl_Position = matmvp * position;
 	
+	dist = length(gl_Position.xyz) / ZFAR;
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
 	
 	// dotlight
@@ -34,7 +37,7 @@ void main(void)
 	
 	int light = int(in_texture.w);
 	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, in_normal.w);
-  
+	
 	biomeColor = in_biome;
 }
 
@@ -53,6 +56,7 @@ in vec3 texCoord;
 in vec3 lightdata;
 in vec4 biomeColor;
 flat in float worldLight;
+in float dist;
 
 const float ZFAR
 
@@ -75,8 +79,8 @@ void main(void)
 	
 	// fake fog
 	vec3 fogColor = vec3(1.0) * daylight;
-	color.rgb = mix(color.rgb, fogColor, 0.1);
-  
-  color.rgb = pow(color.rgb, vec3(2.2));
+	color.rgb = mix(color.rgb, fogColor, 0.1 + dist * 0.3);
+	
+	color.rgb = pow(color.rgb, vec3(2.2));
 }
 #endif

@@ -96,7 +96,7 @@ namespace terragen
 			// start counting from top (pretend really high)
 			int skyLevel = 0;
 			int groundLevel = 0;
-			bool air = true;
+			int air = 0; // simple _AIR counter
 			
 			// gravel / stone areas
 			glm::vec2 p = gdata->getBaseCoords2D(x, z);
@@ -116,27 +116,19 @@ namespace terragen
 					soilCounter++;
 					
 					// making stones under water level has priority!
-					if (y < WATERLEVEL)
+					if (y < WATERLEVEL && soilCounter > STONE_CONV_UNDER)
 					{
-						if (soilCounter > STONE_CONV_UNDER)
-							block.setID(_STONE);
+						block.setID(_STONE);
 					}
 					else if (terrain == Biome::T_ICECAP && block.getID() != _BEACH)
 					{
-						// on the ice cap we manually create a snow to soil gradient
-						const int snow_conv = 6;
-						// first 2 sets of snowgrass:
-						if (soilCounter < snow_conv)
-						{
-							//if (Block::isAirOrCross(lastb ->getID()) || lastb->getID() == _SNOWGRASS)
-							//	block.setID(_SNOWGRASS); // SNOWSOIL to SNOWGRASS
-						}
-						else if (soilCounter == snow_conv)
-						{
-							// after that, snowgrass_s
-							//if (lastb->getID() == _SNOWGRASS)
-							//	block.setID(_SNOWGRASS_S);
-						}
+						// from grass to snow, although we would like full-snow
+						block.setExtra(1);
+					}
+					else if (terrain == Biome::T_SNOW && block.getID() != _BEACH)
+					{
+						// from grass to snow
+						block.setExtra(1);
 					}
 					else if (terrain == Biome::T_DESERT && block.getID() != _BEACH)
 					{
@@ -152,11 +144,8 @@ namespace terragen
 				else soilCounter = 0;
 				
 				// check if ultradifferent
-				if (block.getID() != lastb->getID() && air)
+				if (block.getID() != lastb->getID() && air > 8)
 				{
-					// TODO: use poisson disc here
-					float rand = randf(wx, y, wz);
-					
 					///-////////////////////////////////////-///
 					///- create objects, and litter crosses -///
 					///-////////////////////////////////////-///
@@ -165,34 +154,15 @@ namespace terragen
 						block.setID(_GRASS);
 					
 					/// terrain specific objects ///
-					if (village == false)
+					if (village == false) // NO VILLAGE ALLOWED
 					{
+					// TODO: use poisson disc here
+					float rand = randf(wx, y, wz);
+					
 					if (terrain == Biome::T_GRASS && block.getID() == _GRASS)
 					{
 						// ministry of green forestry
-						/*
-						if (rand < 0.0006 && air > 32)
-						{
-							if (dy < 128)
-							{
-								if (rand < 0.00006 * 0.5)
-								{
-									int height = randf(dx, dy-1, dz) * 20 + 40;
-									if (dy + height < 160)
-										omushWildShroom(dx, dy+1, dz, height);
-									
-								}
-								else
-								{
-									int height = randf(dx, dy-1, dz) * 15 + 12;
-									if (dy + height < 160)
-										omushStrangeShroom(dx, dy+1, dz, height);
-								}
-							}
-							
-						}
-						*/
-						if (rand < 0.03 && air)
+						if (rand < 0.03 && air > 16)
 						{
 							if (glm::simplex(p * 0.005f) < 0.0)
 							{
@@ -204,18 +174,16 @@ namespace terragen
 								
 							}
 						}
-						/*
-						if (rand < 0.28)
+						else if (rand < 0.28)
 						{
 							// note: this is an inverse of the otreeHuge noise
-							if (glm::simplex(p * 0.005f) > 0.25)
+							if (glm::simplex(p * 0.005f) > 0.2)
 							{
-								if (rand > 0.075)
-									setCrossExt(gdata, c_grass, 2, x, y+1, z);
-								else
-									setCross(gdata, c_grass, x, y+1, z);
+								Block grassblock(_C_GRASS);
+								//grassblock.setSkyLight(15);
+								gdata->getb(x, y+1, z) = grassblock;
 							}
-						}*/
+						}
 						
 					}} // not village: terrain specific objects
 					
@@ -258,25 +226,28 @@ namespace terragen
 				} // ore deposition
 				
 				// check if not air or cross
-				if (!block.isAir() && !block.isCross())
+				if (block.isTransparent())
 				{
-					air = false;
-					
-					if (groundLevel == 0)
-					{
-						// ultra-hard materials?? :)
-						if (block.isOpaque())
-							groundLevel = y+1;
-					}
+					air++;
+				}
+				else
+				{
+					air = 0;
 					if (skyLevel == 0)
 					{
 						skyLevel = y+1;
 					}
 				}
+				if (!block.isAir())
+				{
+					if (groundLevel == 0)
+						groundLevel = y+1;
+				}
 				
 				// SMART: set air value after we have determined air..
-				block.setSkyLight((air) ? 15 : 0);
+				block.setSkyLight((skyLevel == 0) ? 15 : 0);
 				block.setBlockLight(0);
+				//block.setSkyLight(15);
 			#ifdef DEBUG
 				assert(block.getID() < BlockDB::get().size());
 			#endif

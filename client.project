@@ -374,7 +374,6 @@
     <File Name="source/render_gui_inventory.cpp"/>
     <File Name="source/blockmodels_crosses.cpp"/>
     <File Name="source/player_actions.cpp"/>
-    <File Name="source/precomp_vcrosses.cpp"/>
     <File Name="source/player_physics.cpp"/>
     <File Name="source/atmosphere.cpp"/>
     <File Name="source/shaderman.hpp"/>
@@ -535,7 +534,6 @@
       <File Name="source/db/blockdata.hpp"/>
       <File Name="source/db/blockdb.cpp"/>
     </VirtualDirectory>
-    <File Name="source/vemitter.cpp"/>
     <File Name="source/precomp_thread_light.cpp"/>
     <VirtualDirectory Name="server">
       <File Name="source/server/main.cpp"/>
@@ -543,6 +541,10 @@
       <File Name="source/server/client.hpp"/>
       <File Name="source/server/entity.hpp"/>
       <File Name="source/server/entities.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="meshes">
+      <File Name="source/meshes/vemitcross.cpp"/>
+      <File Name="source/meshes/vemitter.cpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">

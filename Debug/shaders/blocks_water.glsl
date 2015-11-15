@@ -159,7 +159,7 @@ void main(void)
 	
 #ifdef REFLECTIONS
 	// world/terrain reflection
-  vec4 wreflection = texture(reflectionmap, refcoord);
+  vec4 wreflection = texture(reflectionmap, texCoord);
 	wreflection.rgb = pow(wreflection.rgb, vec3(1.0 / 2.2));
   
 	//----- fresnel term -----

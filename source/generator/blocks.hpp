@@ -13,6 +13,8 @@ namespace terragen
 	extern block_t _GRASS;
 	extern block_t _BEACH;
 	extern block_t _DESERT;
+	extern block_t _SNOW;
+	extern block_t _SNOWGRASS;
 	
 	extern block_t _WATER;
 	extern block_t _LAVA;
@@ -20,6 +22,8 @@ namespace terragen
 	
 	extern block_t _WOOD;
 	extern block_t _LEAF;
+	
+	extern block_t _C_GRASS;
 	
 	extern void init_blocks();
 }

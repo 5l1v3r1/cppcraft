@@ -288,13 +288,13 @@ namespace cppcraft
 		}
 		
 		// material (automatic) sound
-		bool hasSound() const
+		inline bool hasSound() const
 		{
-			return db().sound.size();
+			return db().getSound != nullptr;
 		}
-		const std::string& getSound() const
+		inline std::string getSound() const
 		{
-			return db().sound;
+			return db().getSound(*this);
 		}
 		
 	private:

@@ -7,7 +7,7 @@ OUTPUT = ./Debug/cppcraft
 SERVER = ./Debug/server
 
 # code folder
-SOURCE =  source source/db source/gui source/sound
+SOURCE =  source source/db source/gui source/meshes source/sound
 SOURCE += source/generator source/generator/biomegen source/generator/terrain
 SOURCE += source/generator/processing source/generator/objects
 

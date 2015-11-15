@@ -9,6 +9,7 @@
 #include <library/math/toolbox.hpp>
 
 using namespace cppcraft;
+using namespace library;
 
 namespace terragen
 {
@@ -138,40 +139,40 @@ namespace terragen
 		}
 	} // Terrain::getBlock()
 	
+	#define ALIGN_AVX   __attribute__((aligned(32)))
+	
 	// the main generator!
 	void Terrain::generate(gendata_t* data)
 	{
 		// interpolation grid dimensions
-		#define ngrid 4
-		
+		static const int ngrid = 4;
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
+		
 		// noise (terrain density) values
-		float noisearray[ngrid+1][ngrid+1];
+		float noisearray[ngrid+1][ngrid+1][BLOCKS_Y + 1] ALIGN_AVX;
+		// 3D caves densities
+		float cave_array[ngrid+1][ngrid+1][BLOCKS_Y + 1] ALIGN_AVX;
 		// beach height values
-		float beachhead[ngrid+1][ngrid+1];
-		// caves
-		float cave_array[ngrid+1][ngrid+1];
+		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		
 		// retrieve data for noise biome interpolation, and heightmap
 		for (int x = 0; x <= ngrid; x++)
 		for (int z = 0; z <= ngrid; z++)
 		{
-			glm::vec2 p = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
+			glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
 			
 			// beach height/level variance
-			beachhead[x][z] = glm::simplex(p * 0.005f);
-		}
-		
-		// generating from top to bottom, not including y == 0
-		for (int y = BLOCKS_Y-1; y > 0; y--)
-		{
-			for (int x = 0; x <= ngrid; x++)
-			for (int z = 0; z <= ngrid; z++)
+			beachhead[x][z] = glm::simplex(p2 * 0.005f);
+			
+			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
+			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
+			
+			for (int y = 0; y <= BLOCKS_Y; y += 2)
 			{
-				glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, y, z * grid_pfac);
+				p.y = y / (float)(BLOCKS_Y);
 				
-				Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
-				noisearray[x][z] = 0.0;
+				float* noise = noisearray[x][z] + y / 2;
+				*noise = 0.0f;
 				
 				for (int i = 0; i < 4; i++)
 				{
@@ -179,14 +180,21 @@ namespace terragen
 					if (biome.w[i] < 0.005f) continue;
 					
 					int id = Biome::toTerrain(biome.b[i]);
-					noisearray[x][z] += terrainFuncs.get(id, p) * biome.w[i];
+					*noise += terrainFuncs.get(id, p) * biome.w[i];
 					
 				} // weights
 				
 				// caves
-				cave_array[x][z] = terrainFuncs.get(Biome::T_CAVES, p);
+				cave_array[x][z][y / 2] = terrainFuncs.get(Biome::T_CAVES, p);
 				
-			} // grid x, z
+			} // for(y)
+		}
+		
+		// generating from top to bottom, not including y == 0
+		for (int y = 0; y < BLOCKS_Y; y++)
+		{
+			int   iy  = y / 2;
+			float fry = (y & 1) / 2.0f;
 			
 			// set generic blocks using getTerrainSimple()
 			// interpolate using linear bore-a-thon
@@ -196,31 +204,46 @@ namespace terragen
 			
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
-				fx = x / (float)BLOCKS_XZ * ngrid;
-				int bx = (int)fx; // start x
-				frx = fx - bx; //frx = library::hermite(frx);
+				fx = x / float(BLOCKS_XZ) * ngrid;
+				int bx = fx; // start x
+				frx = fx - bx;
 				
 				for (int z = 0; z < BLOCKS_XZ; z++)
 				{
 					glm::vec3 p = data->getBaseCoords3D(x, y, z);
 					
-					fz = z / (float)BLOCKS_XZ * ngrid;
-					int bz = (int)fz;  // integral
-					frz = fz - bz; //frz = library::hermite(frz);
+					fz = z / float(BLOCKS_XZ) * ngrid;
+					int bz = fz;  // integral
+					frz = fz - bz;
 					
 					// density weights //
-					w0 = mix( noisearray[bx][bz  ], noisearray[bx+1][bz  ], frx );
-					w1 = mix( noisearray[bx][bz+1], noisearray[bx+1][bz+1], frx );
+					// mix all Y-variants
+					float noise00 = mix( noisearray[bx  ][bz  ][iy], noisearray[bx  ][bz  ][iy+1], fry );
+					float noise10 = mix( noisearray[bx+1][bz  ][iy], noisearray[bx+1][bz  ][iy+1], fry );
+					float noise01 = mix( noisearray[bx  ][bz+1][iy], noisearray[bx  ][bz+1][iy+1], fry );
+					float noise11 = mix( noisearray[bx+1][bz+1][iy], noisearray[bx+1][bz+1][iy+1], fry );
+					// mix all X-variants
+					w0 = mix( noise00, noise10, frx );
+					w1 = mix( noise01, noise11, frx );
+					// final density from Z-variant
 					float density = mix( w0, w1, frz );
 					// density weights //
 					
 					if (y <= WATERLEVEL || density < 0.0f)
 					{
-						// caves density (high precision) //
-						w0 = mix( cave_array[bx][bz  ], cave_array[bx+1][bz  ], frx );
-						w1 = mix( cave_array[bx][bz+1], cave_array[bx+1][bz+1], frx );
-						float caves = mix( w0, w1, frz );
-						// caves density //
+						float caves;
+						if (density < 0.0f)
+						{
+							noise00 = mix( cave_array[bx  ][bz  ][iy], cave_array[bx  ][bz  ][iy+1], fry );
+							noise10 = mix( cave_array[bx+1][bz  ][iy], cave_array[bx+1][bz  ][iy+1], fry );
+							noise01 = mix( cave_array[bx  ][bz+1][iy], cave_array[bx  ][bz+1][iy+1], fry );
+							noise11 = mix( cave_array[bx+1][bz+1][iy], cave_array[bx+1][bz+1][iy+1], fry );
+							// caves density (high precision) //
+							w0 = mix( noise00, noise10, frx );
+							w1 = mix( noise01, noise11, frx );
+							caves = mix( w0, w1, frz );
+							// caves density //
+						} else caves = 0.0f;
 						
 						// beachhead weights //
 						w0 = mix( beachhead[bx][bz  ], beachhead[bx+1][bz  ], frx );

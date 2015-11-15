@@ -98,7 +98,7 @@ namespace db
 		// true for each side that is not solid (completely covered)
 		// used by solidityComp to determine which faces to generate mesh for
 		uint16_t transparentSides;
-		
-		std::string sound;
+		// 
+		std::function<std::string(const Block&)> getSound;
 	};
 }
