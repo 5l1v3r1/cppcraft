@@ -85,7 +85,10 @@ namespace db
 		// if non-zero, block is a light
 		uint8_t opacity;
 		// fully opaque blocks are common, and cover all their sides
-		bool opaque;
+		bool block;
+		// light travels through transparent blocks
+		bool transparent;
+		
 		bool liquid;
 		bool indexColored;
 		bool cross;   // cross, flowers and torches etc

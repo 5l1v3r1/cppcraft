@@ -30,7 +30,7 @@ namespace cppcraft
 		static const short WATER_LEVEL  = 64;
 		static const short WATER_VX_LEVEL = (WATER_LEVEL - 1) * RenderConst::VERTEX_SCALE;
 		
-		static const int   SKY_LEVEL    = 256;
+		static const int   SKY_LEVEL    = 200;
 	};
 }
 

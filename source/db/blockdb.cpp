@@ -11,6 +11,9 @@ namespace db
 		
 		// the first Block *MUST* be _AIR
 		BlockData _AIR;
+		_AIR.block       = false;
+		_AIR.transparent = true;
+		
 		_AIR.blocksMovement = [] (const Block&) { return false; };
 		_AIR.cross = false;
 		_AIR.forwardMovement = [] (const Block&) { return true; };

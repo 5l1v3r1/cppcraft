@@ -44,7 +44,7 @@ namespace terragen
 				
 				Block& block = Spiders::getBlock(fx, fy, fz);
 				// set ID to leaf, preserve light
-				if (block.overwriteAllowed())
+				if (block.overwriteable())
 					block.setID( leafs );
 			}
 		}

@@ -223,7 +223,8 @@ namespace cppcraft
 		
 		shd->sendMatrix("matmvp", camera.getMVP());
 		// position in space
-		shd->sendVec3("vtrans", glm::vec3(vx, vy, vz));
+		if (updated)
+			shd->sendVec3("vtrans", glm::vec3(vx, vy, vz));
 		
 		// render quad(s)
 		vao.render(GL_QUADS);

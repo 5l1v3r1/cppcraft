@@ -143,15 +143,19 @@ namespace cppcraft
 			return getID() == _AIR;
 		}
 		
-		
-		bool isOpaque() const
+		// opaque means all sides are fully covered
+		// 1. this block contributes to AO
+		// 2. ...
+		bool isBlock() const
 		{
-			return db().opaque;
+			return db().block;
 		}
+		// returns true if light travels through this block
 		bool isTransparent() const
 		{
-			return db().opaque == false;
+			return db().transparent;
 		}
+		
 		bool isLiquid() const
 		{
 			return db().liquid;
@@ -239,7 +243,7 @@ namespace cppcraft
 			return !isCross();
 		}
 		// we are allowed to overwrite crosses, fluids and air by default
-		bool overwriteAllowed() const
+		bool overwriteable() const
 		{
 			return isCross() || isFluid() || isAir();
 		}

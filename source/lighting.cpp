@@ -29,12 +29,13 @@ namespace cppcraft
 		return r + (g << 8);
 	}
   
-  inline int lightPenetrate(Block& block)
-  {
-    return (block.isTransparent() ? 1 : 16);
-  }
+	inline char lightPenetrate(Block& block)
+	{
+		if (block.isAir()) return 1;
+		return (block.isTransparent() ? 1 : 16);
+	}
   
-  void propagateSkylight(int x, int y, int z, int dir, int level)
+  void propagateSkylight(int x, int y, int z, char dir, char level)
   {
     while (level > 0)
     {
@@ -57,12 +58,13 @@ namespace cppcraft
 		
 		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		//assert(sector.generated());
+		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
 		
 		// decrease light level based on what we hit
-		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
 		level -= lightPenetrate(blk2);
-		level = (level >= 0) ? level : 0;
 		
+		// once level reaches zero we are done, so early exit
+		if (level <= 0) break; // impossible to have a value less than < 0
 		// avoid lowering light values for air
 		if (blk2.getSkyLight() >= level) break;
 		
@@ -70,9 +72,6 @@ namespace cppcraft
 		blk2.setSkyLight(level);
 		// make sure the sectors mesh is updated, since something was changed
 		if (!sector.isUpdatingMesh()) sector.updateAllMeshes();
-		
-		// once level reaches zero we are done, so early exit
-		if (level == 0) break;
 		
 		switch (dir)
 		{
@@ -138,7 +137,7 @@ namespace cppcraft
 	  
 	  // try to enter water and other transparent blocks
 	  // for now, let's jsut use _WATER hardcoded
-	  if (sector(x, sky-1, z).isTransparent())
+	  if (sector(x, sky, z).isTransparent())
 			propagateSkylight(sx+x, sky, sz+z, 3, 14);
 	  
     } // x, z

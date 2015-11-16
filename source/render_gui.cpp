@@ -183,7 +183,7 @@ namespace cppcraft
 		}
 		
 		selb = Spiders::getBlock(ddx, ddy, ddz);
-		ss << "  (outer) ID: " << selb.getID() << " sky: " << (int) selb.getSkyLight() << "  torch: " << (int) selb.getBlockLight();
+		ss << "  (outer) ID: " << selb.getID() << " sky: " << (int) selb.getSkyLight() << "  light: " << (int) selb.getSkyLight();
 		
 		font.print(glm::vec3(0.01, 0.035, 0.0), textScale, ss.str(), false);
 		}

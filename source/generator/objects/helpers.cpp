@@ -54,7 +54,7 @@ namespace terragen
 				{
 					// air test: exit when not AIR or fluid
 					Block block = Spiders::getBlock(x + dx, y + dy, z + dz);
-					if (block.isOpaque() || block.isFluid()) return false;
+					if (block.overwriteable() == false) return false;
 				}
 			}
 		}

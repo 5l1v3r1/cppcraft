@@ -147,11 +147,12 @@ namespace terragen
 		// interpolation grid dimensions
 		static const int ngrid = 4;
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
+		static const int MAX_Y = 192;
 		
 		// noise (terrain density) values
-		float noisearray[ngrid+1][ngrid+1][BLOCKS_Y + 1] ALIGN_AVX;
+		float noisearray[ngrid+1][ngrid+1][MAX_Y + 1] ALIGN_AVX;
 		// 3D caves densities
-		float cave_array[ngrid+1][ngrid+1][BLOCKS_Y + 1] ALIGN_AVX;
+		float cave_array[ngrid+1][ngrid+1][MAX_Y + 1] ALIGN_AVX;
 		// beach height values
 		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		
@@ -167,9 +168,9 @@ namespace terragen
 			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 			
-			for (int y = 0; y <= BLOCKS_Y; y += 2)
+			for (int y = 0; y <= MAX_Y; y += 2)
 			{
-				p.y = y / (float)(BLOCKS_Y);
+				p.y = y / (float)(MAX_Y);
 				
 				float* noise = noisearray[x][z] + y / 2;
 				*noise = 0.0f;
@@ -191,7 +192,7 @@ namespace terragen
 		}
 		
 		// generating from top to bottom, not including y == 0
-		for (int y = 0; y < BLOCKS_Y; y++)
+		for (int y = 0; y < MAX_Y; y++)
 		{
 			int   iy  = y / 2;
 			float fry = (y & 1) / 2.0f;
@@ -263,6 +264,12 @@ namespace terragen
 			} // x
 			
 		} // y
+		for (int y = MAX_Y; y < BLOCKS_Y; y++)
+		{
+			for (int x = 0; x < BLOCKS_XZ; x++)
+			for (int z = 0; z < BLOCKS_XZ; z++)
+				new (&data->getb(x, y, z)) Block(_AIR);
+		}
 		
 	} // generateTerrain()
 

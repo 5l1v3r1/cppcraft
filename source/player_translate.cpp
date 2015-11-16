@@ -136,7 +136,7 @@ namespace cppcraft
 				{
 					// check if player is allowed to escape water
 					Block blk = Spiders::testAreaEx(player.pos.x,player.pos.y-1.6,player.pos.z);
-					EscapeAttempt = blk.isOpaque();
+					EscapeAttempt = blk.blocksMovement();
 					// if the player is currently escaping, start "holding" this key, preventing bouncing
 					if (EscapeAttempt)
 					{

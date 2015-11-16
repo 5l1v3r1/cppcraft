@@ -154,7 +154,7 @@ namespace cppcraft
 			
 			// check if we are allowed to place a block in the selected position
 			Block& newBlock = Spiders::getBlock(ddx, ddy, ddz);
-			if (newBlock.overwriteAllowed())
+			if (newBlock.overwriteable())
 			{
 				// add block to world
 				bool placed = Spiders::setBlock(ddx, ddy, ddz, item.toBlock());
@@ -164,7 +164,10 @@ namespace cppcraft
 					//inventory.setChanged(true);
 					
 					// play placement sound
-					soundman.playMaterial(item.toBlock().getSound(), Soundman::sound_place);
+					if (item.toBlock().hasSound())
+						soundman.playMaterial(item.toBlock().getSound(), Soundman::sound_place);
+					else
+						printf("Missing placement sound for %s\n", item.toBlock().getName().c_str());
 					
 					// send update to network
 					//NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);
@@ -246,34 +249,16 @@ namespace cppcraft
 				int ddy = int(selection.pos.y);
 				int ddz = int(selection.pos.z);
 				
-				if (selection.block.isTall())
-				{
-					// remove the other doorpiece
-					if (selection.block.getExtra() & 1)
-					{
-						// we're at lower, remove upper
-						Spiders::removeBlock(ddx, ddy+1, ddz);
-						// send update to network
-						//NetworkBlock nblock(ddx, ddy+1, ddz, Block(), NetworkBlock::BREM);
-						//network.addBlock(Network::OUTGOING, nblock);
-					}
-					else
-					{
-						// we're at upper, remove lower
-						Spiders::removeBlock(ddx, ddy-1, ddz);
-						// send update to network
-						//NetworkBlock nblock(ddx, ddy-1, ddz, Block(), NetworkBlock::BREM);
-						//network.addBlock(Network::OUTGOING, nblock);
-					}
-				}
-				
 				// now, remove the block we wanted to remove to begin with
 				Block removed = Spiders::removeBlock(ddx, ddy, ddz);
 				
 				if (!removed.isAir())
 				{
 					// play material 'removed' sound
-					soundman.playMaterial(removed.getSound(), Soundman::sound_remove);
+					if (removed.hasSound())
+						soundman.playMaterial(removed.getSound(), Soundman::sound_remove);
+					else
+						printf("Missing removal sound for %s\n", removed.getName().c_str());
 					
 					// send update to network
 					//NetworkBlock nblock(ddx, ddy, ddz, Block(), NetworkBlock::BREM);
@@ -345,9 +330,7 @@ namespace cppcraft
 						// create new fractionals
 						fracs = fract(ray);
 						
-						int ddx = ray.x;
-						int ddy = ray.y;
-						int ddz = ray.z;
+						int ddx = ray.x, ddy = ray.y, ddz = ray.z;
 						// find position in local grid
 						Sector* sector = sectors.sectorAt(ddx, ddz);
 						
@@ -473,7 +456,8 @@ namespace cppcraft
 				// play mining sound based on material
 				if (mineTimer % MINE_SOUNDMOD == 0)
 				{
-					soundman.playMaterial(selection.block.getSound(), Soundman::sound_mine);
+					if (selection.block.hasSound())
+						soundman.playMaterial(selection.block.getSound(), Soundman::sound_mine);
 				}
 				
 				mineTimer -= 1;

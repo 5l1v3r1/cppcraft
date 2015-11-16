@@ -67,7 +67,8 @@ namespace terragen
 		solid.liquid = false;
 		solid.lowfriction = false;
 		solid.opacity = 0; // not a light
-		solid.opaque  = true;
+		solid.block       = true;
+		solid.transparent = false;
 		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		solid.repeat_y = true;
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
@@ -96,7 +97,8 @@ namespace terragen
 		fluid.liquid = true;
 		fluid.lowfriction = false;
 		fluid.opacity = 0; // not a light
-		fluid.opaque = false;
+		fluid.block       = false;
+		fluid.transparent = true;
 		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		fluid.repeat_y = true;
 		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
@@ -127,7 +129,8 @@ namespace terragen
 		leaf.liquid = false;
 		leaf.lowfriction = false;
 		leaf.opacity = 0; // not a light
-		leaf.opaque = false;
+		leaf.block       = true;
+		leaf.transparent = true;
 		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.repeat_y = false;
 		leaf.shader = RenderConst::TX_2SIDED;
@@ -150,8 +153,10 @@ namespace terragen
 	static BlockData getCross()
 	{
 		BlockData blk;
+		blk.cross       = true;  // is indeed a cross
+		blk.block       = false; // no AO
+		blk.transparent = true;  // transparent as fuck
 		blk.blocksMovement = [] (const Block&) { return false; };
-		blk.cross = true;
 		blk.forwardMovement = [] (const Block&) { return true; };
 		blk.hasActivation = [] (const Block&) { return false; };
 		blk.indexColored = true;
@@ -165,7 +170,6 @@ namespace terragen
 			return s.flat()(x, z).fcolor[Biome::CL_CROSS];
 		};
 		blk.opacity = 0; // not a light
-		blk.opaque = false;
 		blk.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		blk.repeat_y = false;
 		blk.shader = RenderConst::TX_CROSS;
@@ -339,7 +343,6 @@ namespace terragen
 			{
 				return 15 + 0 * tiles.tilesX;
 			};
-			blk.opaque = true;
 			blk.shader = RenderConst::TX_TRANS;
 			blk.getSound = [] (const Block&) { return "cloth"; };
 			_LEAF = d.create("leaf_green", blk);
@@ -353,6 +356,8 @@ namespace terragen
 			{
 				return 6 + 1 * tiles.tilesX;
 			};
+			blk.transparent = true;
+			blk.block = false;
 			blk.getSound = nullptr;
 			_C_GRASS = d.create("cross_grass", blk);
 		}

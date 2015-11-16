@@ -437,9 +437,9 @@ namespace terragen
 		
 		float s = barchans(p.x + snoise1(p.z*0.4)*1.0f, p.z + glm::simplex(p*0.2f)*0.3f);
 		float n = snoise2(p.x*0.05, p.z*0.05);
-		s = 0.3 + n * 0.3 + s * (0.6 + n*0.4) * 0.3;
+		s = 0.3 + n * 0.2 + s * (0.6 + n*0.4) * 0.3;
 		
-		s = p.y - (0.21 + s * 0.4);
+		s = p.y - (0.3 + s * 0.4);
 		
 		glm::vec2 p2(p.x, p.z);
 		

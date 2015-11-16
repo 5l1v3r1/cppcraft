@@ -179,9 +179,7 @@ namespace terragen
 							// note: this is an inverse of the otreeHuge noise
 							if (glm::simplex(p * 0.005f) > 0.2)
 							{
-								Block grassblock(_C_GRASS);
-								//grassblock.setSkyLight(15);
-								gdata->getb(x, y+1, z) = grassblock;
+								gdata->getb(x, y+1, z).setID(_C_GRASS);
 							}
 						}
 						
@@ -226,7 +224,7 @@ namespace terragen
 				} // ore deposition
 				
 				// check if not air or cross
-				if (block.isTransparent())
+				if (block.isAir())
 				{
 					air++;
 				}
@@ -234,12 +232,7 @@ namespace terragen
 				{
 					air = 0;
 					if (skyLevel == 0)
-					{
 						skyLevel = y+1;
-					}
-				}
-				if (!block.isAir())
-				{
 					if (groundLevel == 0)
 						groundLevel = y+1;
 				}
@@ -247,8 +240,9 @@ namespace terragen
 				// SMART: set air value after we have determined air..
 				block.setSkyLight((skyLevel == 0) ? 15 : 0);
 				block.setBlockLight(0);
-				//block.setSkyLight(15);
+				
 			#ifdef DEBUG
+				//block.setSkyLight(15);
 				assert(block.getID() < BlockDB::get().size());
 			#endif
 			} // y
