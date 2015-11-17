@@ -4,17 +4,18 @@
 
 namespace cppcraft
 {
-	uint16_t PTD::getLight(int x, int y, int z)
+	uint32_t PTD::getLight(int x, int y, int z)
 	{
 		Block& block = sector->get(x, y, z);
 		
-		uint16_t r = (block.getSkyLight()   * 17);
-		uint16_t g = (block.getBlockLight() * 17);
-		
-		return r + (g << 8);
+		uint32_t a = block.getSkyLight() * 17; // channel 0
+		uint32_t r = block.getChannel(1) * 17;
+		uint32_t g = block.getChannel(2) * 17;
+		uint32_t b = block.getChannel(3) * 17;
+		return r + (g << 8) + (b << 16) + (a << 24);
 	}
 	
-	uint16_t PTD::smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4)
+	uint32_t PTD::smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4)
 	{
 		// TOOD: calculate the actual light values...
 		y1 &= 255; y2 &= 255; y3 &= 255; y4 &= 255;
@@ -25,17 +26,22 @@ namespace cppcraft
 		v[2] = &sector->get(x3, y3, z3);
 		v[3] = &sector->get(x4, y4, z4);
 		
-		int totalS = 0;
-		int totalB = 0;
+		int sky = 0;
+		int RGB[3] = {0, 0, 0};
 		
 		for (int i = 0; i < 4; i++)
 		{
-			totalS = (totalS < v[i]->getSkyLight()) ? v[i]->getSkyLight() : totalS;
-			totalB = (totalB < v[i]->getBlockLight()) ? v[i]->getBlockLight() : totalB;
+			sky = (sky < v[i]->getSkyLight()) ? v[i]->getSkyLight() : sky; // channel 0
+			RGB[0] = (RGB[0] < v[i]->getChannel(1)) ? v[i]->getChannel(1) : RGB[0];
+			RGB[1] = (RGB[1] < v[i]->getChannel(2)) ? v[i]->getChannel(2) : RGB[1];
+			RGB[2] = (RGB[2] < v[i]->getChannel(3)) ? v[i]->getChannel(3) : RGB[2];
 		}
-		uint16_t r = (totalS * 17);
-		uint16_t g = (totalB * 17);
-		return r + (g << 8);
+		
+		uint32_t r = RGB[0] * 17;
+		uint32_t g = RGB[1] * 17;
+		uint32_t b = RGB[2] * 17;
+		uint32_t a = sky * 17;
+		return r + (g << 8) + (b << 16) + (a << 24);
 	}
 	
 	

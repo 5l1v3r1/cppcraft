@@ -12,12 +12,14 @@ uniform int texrange;
 
 in vec3 in_vertex;
 in vec4 in_normal;
-in vec4 in_texture;
+in vec3 in_texture;
+in vec4 in_light;
 in vec4 in_biome;
 
 out vec3 texCoord;
+out float ao;
+out vec4 lightdata;
 out vec4 biomeColor;
-out vec3 lightdata;
 flat out vec3 out_normal;
 flat out vec3 v_normals;
 
@@ -55,9 +57,8 @@ void main(void)
 	gl_Position = matproj * position;
 	v_normals = mat3(matview) * in_normal.xyz;
 	
-	int light = int(in_texture.w);
-	lightdata = vec3(float(light & 255) / 255.0, float(light >> 8) / 255.0, 1.0);
-	
+	ao         = in_normal.w;
+	lightdata  = in_light;
 	biomeColor = in_biome;
 	out_normal = in_normal.xyz;
 }
@@ -76,8 +77,9 @@ uniform float modulation;
 uniform int   texrange;
 
 in vec3 texCoord;
+in float ao;
+in vec4 lightdata;
 in vec4 biomeColor;
-in vec3 lightdata;
 flat in vec3 out_normal;
 flat in vec3 v_normals;
 

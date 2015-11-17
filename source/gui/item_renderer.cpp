@@ -167,7 +167,7 @@ namespace gui
 			
 			// face value is located in vertex.w
 			Block blk = itm.toBlock();
-			blk.setFacing(3);
+			blk.setBits(3); // assuming bits are used to determine direction of block
 			float tw = blk.getTexture(vertex.w);
 			// emit to blockTiles only
 			blockTiles.emplace_back(v.x, v.y, v.z,  vertex.u, vertex.v, tw,  vertex.color);

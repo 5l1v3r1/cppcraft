@@ -10,11 +10,10 @@ uniform vec3 vtrans;
 uniform vec3 worldOffset;
 
 in vec3 in_vertex;
-in vec3 in_normal;
+in vec4 in_normal;
 in vec3 in_texture;
+in vec4 in_light;
 in vec4 in_biome;
-in vec4 in_color;
-in vec4 in_color2;
 
 out vec2 wave;
 

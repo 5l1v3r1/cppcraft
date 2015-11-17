@@ -28,6 +28,10 @@ namespace db
 		{
 			return opacity != 0;
 		}
+		void setLightColor(int r, int g, int b)
+		{
+			opacity = (r & 0xF) + ((g & 0xF) << 4) + ((b & 0xF) << 8);
+		}
 		
 		bool isTerrainColored() const
 		{
@@ -83,7 +87,7 @@ namespace db
 		uint8_t shader;
 		bool repeat_y;
 		// if non-zero, block is a light
-		uint8_t opacity;
+		uint32_t opacity;
 		// fully opaque blocks are common, and cover all their sides
 		bool block;
 		// light travels through transparent blocks

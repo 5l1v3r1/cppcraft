@@ -22,73 +22,44 @@ namespace cppcraft
 	{
 	public:
 		typedef cppcraft::block_t block_t;
-		typedef uint8_t  bfield_t;
-		typedef uint8_t  light_t;
+		typedef uint8_t   bfield_t;
+		typedef uint16_t  light_t;
 		
 		// DOES NOTHING on default constructor
 		Block() {}
 		// constructor taking block id as parameter
 		Block(block_t id)
 		{
-			this->id = id;
-			this->bitfield = 0;
+			this->blk = id;
 		}
 		// semi-complete constructor
 		Block(block_t id, bfield_t bitfield)
 		{
-			this->id = id;
-			this->bitfield = bitfield;
-		}
-		// complete whole constructor
-		Block(block_t id, bfield_t facing, bfield_t extra)
-		{
-			this->id = id;
-			this->bitfield = facing | (extra << 3);
+			this->blk = (id & 0xFFF) | (bitfield << 12);
 		}
 		
 		// sets/gets the block ID for this block
 		void setID(block_t id)
 		{
 			// remove id part
-			this->id = id;
+			this->blk &= 0xF000;
+			this->blk |= id & 0xFFF;
 		}
 		block_t getID() const
 		{
-			return this->id;
+			return this->blk & 0xFFF;
 		}
-		// sets/gets block facing bits
-		void setFacing(bfield_t facing)
+		// sets/gets block extra bits
+		void setBits(bfield_t val)
 		{
-			// mask out old facing
-			this->bitfield &= 0xF8;
-			// mask in new facing
-			this->bitfield |= facing;
+			// mask out old extra bits
+			this->blk &= 0xFFF;
+			// or in new bits
+			this->blk |= val << 12;
 		}
-		bfield_t getFacing() const
+		bfield_t getBits() const
 		{
-			return this->bitfield & 0x7;
-		}
-		// set/get special bits for this block
-		void setExtra(bfield_t extra)
-		{
-			// remove special part
-			this->bitfield &= 0x7;
-			// add new special part
-			this->bitfield |= (extra << 3);
-		}
-		bfield_t getExtra() const
-		{
-			return this->bitfield >> 3;
-		}
-		
-		// set/get whole bitfield part
-		void setBitfield(bfield_t bitf)
-		{
-			this->bitfield = bitf;
-		}
-		bfield_t getBitfield()
-		{
-			return this->bitfield;
+			return this->blk >> 12;
 		}
 		
 		// returns the whole block as 32bits of data
@@ -103,23 +74,37 @@ namespace cppcraft
 		}
 		inline void setSkyLight(light_t level)
 		{
-			this->light &= 0xF0;
+			this->light &= 0xFFF0;
 			this->light |= level;
 		}
-		inline light_t getBlockLight() const
-		{
-			return this->light >> 4;
-		}
-		inline void setBlockLight(light_t level)
+		inline void setTorchLight(light_t rgb)
 		{
 			this->light &= 0xF;
-			this->light |= (level << 4);
+			this->light |= rgb << 4;
 		}
-		inline void setLight(light_t sky, light_t block)
+		inline void setChannel(const int ch, const light_t level)
 		{
-			this->light = (sky & 0xF) | (block << 4);
+			this->light &= ~(0xF << (ch * 4));
+			this->light |= (level & 0xF) << (ch * 4);
+		}
+		inline light_t getChannel(const int ch) const
+		{
+			return (this->light >> (ch * 4)) & 0xF;
 		}
 		
+		inline void removeTorchlight()
+		{
+			this->light &= 0xF;
+		}
+		inline void removeSkylight()
+		{
+			this->light &= 0xFFF0;
+		}
+		
+		inline void setLight(light_t sky, light_t rgb)
+		{
+			this->light = (sky & 0xF) | (rgb << 4);
+		}
 		
 		//! lookup in blockdb for this block, returning its properties
 		const db::BlockData& db() const
@@ -164,9 +149,9 @@ namespace cppcraft
 		{
 			return db().isLight();
 		}
-		uint8_t getOpacity() const
+		light_t getOpacity(int ch) const
 		{
-			return db().opacity;
+			return (db().opacity >> (ch * 4)) & 0xF;
 		}
 		
 		//! returns the texture id for this block, dependent on @face
@@ -302,8 +287,7 @@ namespace cppcraft
 		}
 		
 	private:
-		block_t  id;
-		bfield_t bitfield;
+		block_t  blk;
 		light_t  light;
 	};
 	

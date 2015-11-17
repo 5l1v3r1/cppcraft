@@ -24,6 +24,7 @@ namespace terragen
 	extern block_t _LEAF;
 	
 	extern block_t _C_GRASS;
+	extern block_t _TORCH;
 	
 	extern void init_blocks();
 }

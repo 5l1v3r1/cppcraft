@@ -36,7 +36,7 @@ void main()
 uniform sampler2DArray texture;
 
 uniform float daylight;
-uniform vec2  lightdata;
+uniform vec4  lightdata;
 uniform float modulation;
 
 in vec3 texCoord;
@@ -46,9 +46,9 @@ out vec4 color;
 void main(void)
 {
 	/// shadows & torchlight ///
-	float brightness = lightdata.y;
+	float brightness = length(lightdata.rgb);
 	// shadow is smallest between shadow-value and daylight level
-	float shadow = min(1.0, min(daylight, lightdata.x) + brightness);
+	float shadow = min(1.0, min(daylight, lightdata.a) + brightness);
 	
 	color = texture2DArray(texture, texCoord);
 	#include "degamma.glsl"

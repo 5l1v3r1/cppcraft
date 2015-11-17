@@ -6,7 +6,7 @@
 
 namespace cppcraft
 {
-	typedef uint16_t vertex_color_t;
+	typedef uint32_t vertex_color_t;
 	class bordered_sector_t;
 	
 	class PTD

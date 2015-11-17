@@ -94,6 +94,7 @@ namespace cppcraft
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_normal");
 		linkstage.emplace_back("in_texture");
+		linkstage.emplace_back("in_light");
 		linkstage.emplace_back("in_biome");
 		
 		// block shaders

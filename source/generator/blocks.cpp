@@ -40,6 +40,7 @@ namespace terragen
 	block_t _LEAF;
 	// the first cross, the grass-thingamajig
 	block_t _C_GRASS;
+	block_t _TORCH;
 	
 	static int getDepth(const Sector& sect, int x, int y, int z)
 	{
@@ -242,16 +243,16 @@ namespace terragen
 			solid.getTexture =
 			[] (const Block& b, uint8_t face)
 			{
-				if (face == 2) return b.getExtra() + 0; // (0, 0) grass texture top
-				if (face == 3) return b.getExtra() + 2; // (2, 0) soil texture bottom
-				return b.getExtra() + 1 * tiles.bigTilesX; // (0, 1) grass->soil side texture
+				if (face == 2) return b.getBits() + 0; // (0, 0) grass texture top
+				if (face == 3) return b.getBits() + 2; // (2, 0) soil texture bottom
+				return b.getBits() + 1 * tiles.bigTilesX; // (0, 1) grass->soil side texture
 			};
 			solid.repeat_y = false;
 			solid.shader   = 0;
 			solid.getSound =
 			[] (const Block& b)
 			{
-				if (b.getExtra())
+				if (b.getBits())
 					return "snow";
 				else
 					return "grass";
@@ -304,6 +305,23 @@ namespace terragen
 			fluid.getTexture = [] (const Block&, uint8_t) { return 0; };
 			fluid.shader = RenderConst::TX_WATER;
 			_WATER = d.create("water", fluid);
+		}
+		// create _LAVA
+		{
+			BlockData fluid = getFluidBlock();
+			fluid.getColor = [] (const Block&) { return BGRA8(0, 0, 0, 0); };
+			fluid.minimapColor = 
+			[] (const Block&, const Sector&, int, int, int)
+			{
+				return RGBA8(240, 140, 64, 255);
+			};
+			fluid.getName = [] (const Block&) { return "Lava"; };
+			fluid.getTexture = [] (const Block&, uint8_t) { return 0; };
+			fluid.shader = RenderConst::TX_LAVA;
+			fluid.block       = false;
+			fluid.transparent = false;
+			fluid.setLightColor(11, 7, 2);
+			_LAVA = d.create("lava", fluid);
 		}
 		
 		// _WOOD (brown)
@@ -361,8 +379,24 @@ namespace terragen
 			blk.getSound = nullptr;
 			_C_GRASS = d.create("cross_grass", blk);
 		}
+		// create _TORCH
+		{
+			BlockData blk = getCross();
+			blk.getName = [] (const Block&) { return "Torch"; };
+			blk.getTexture =
+			[] (const Block&, uint8_t)
+			{
+				return 0 + 13 * tiles.tilesX;
+			};
+			blk.transparent = true;
+			blk.block       = false;
+			blk.getSound = [] (const Block&) { return "wood"; };
+			//blk.setLightColor(15, 12, 8);
+			blk.setLightColor(0, 15, 0);
+			blk.voxelModel = 0;
+			_TORCH = d.create("torch", blk);
+		}
 		
 		_MOLTEN = _SOIL;
-		_LAVA   = _WATER;
 	}
 }

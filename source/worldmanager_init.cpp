@@ -3,6 +3,7 @@
 #include "chunks.hpp"
 #include "items.hpp"
 #include "lighting.hpp"
+#include "generator.hpp"
 #include "gui/menu.hpp"
 #include "particles.hpp"
 #include "player.hpp"
@@ -29,6 +30,9 @@ namespace cppcraft
 		precompq.init();
 		// initialize lighting
 		lighting.init();
+		
+		// initialize blocks and such
+		Generator::init();
 		
 		// initialize particles
 		particleSystem.init();

@@ -153,6 +153,10 @@ namespace cppcraft
 		if (sector)
 		debugText += " obj: " + std::to_string(sector->objects);
 		
+		std::stringstream ss;
+		ss << " lava: " << drawq[RenderConst::TX_LAVA].count();
+		debugText = ss.str();
+		
 		font.print(glm::vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		
 		
@@ -183,7 +187,10 @@ namespace cppcraft
 		}
 		
 		selb = Spiders::getBlock(ddx, ddy, ddz);
-		ss << "  (outer) ID: " << selb.getID() << " sky: " << (int) selb.getSkyLight() << "  light: " << (int) selb.getSkyLight();
+		std::string torch = std::to_string( (int) selb.getChannel(1) ) + "," + 
+							std::to_string( (int) selb.getChannel(2) ) + "," +
+							std::to_string( (int) selb.getChannel(3) );
+		ss << "  (outer) ID: " << selb.getID() << " sky: " << (int) selb.getSkyLight() << "  torch: " << torch;
 		
 		font.print(glm::vec3(0.01, 0.035, 0.0), textScale, ss.str(), false);
 		}

@@ -174,8 +174,9 @@ namespace cppcraft
 			}
 			else
 			{
-				printf("INVALID sector was generated: (%d, %d)\n",
-					x, z);
+			#ifdef DEBUG
+				printf("INVALID sector was generated: (%d, %d)\n", x, z);
+			#endif
 			}
 			
 			// delete the job!

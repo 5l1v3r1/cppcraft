@@ -561,7 +561,7 @@ namespace cppcraft
 		
 		if (this->isUnderwater() == false)
 		{
-			// water shader
+			// fluid shaders
 			for (int i = RenderConst::TX_WATER; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
 			{
 				switch (i)

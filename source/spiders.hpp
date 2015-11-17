@@ -43,7 +43,7 @@ namespace cppcraft
 		static void updateSurroundings(Sector&, int bx, int by, int bz);
 		
 		// returns the light values at (x, y, z)
-		static uint16_t getLightNow(float x, float y, float z);
+		static uint32_t getLightNow(float x, float y, float z);
 	};
 	extern Block air_block;
 }

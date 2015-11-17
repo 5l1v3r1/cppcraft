@@ -38,7 +38,7 @@ void main()
 uniform sampler2DArray texture;
 
 uniform float daylight;
-uniform vec2  lightdata;
+uniform vec4  lightdata;
 uniform float modulation;
 
 in vec3 texCoord;
@@ -47,9 +47,9 @@ flat in float worldLight;
 void main(void)
 {
 	/// shadows & torchlight ///
-	float brightness = lightdata.y;
+	float brightness = length(lightdata.rgb) / sqrt(3.0);
 	// shadow is smallest between shadow-value and daylight level
-	float shadow = min(1.0, min(daylight, lightdata.x) + brightness);
+	float shadow = min(1.0, min(daylight, lightdata.a) + brightness);
 	
 	vec3 color = texture2DArray(texture, texCoord).rgb;
 	#include "degamma.glsl"
@@ -57,6 +57,10 @@ void main(void)
 	color.rgb *= worldLight; // min(1.0, worldLight + 0.35 * brightness)
 	// mix in shadows
 	color.rgb *= shadow;
+	// torchlight
+	float darkness = 1.0 - daylight * lightdata.a;
+	vec3 whiteness = lightdata.rgb * (1.0 - pow(brightness, 2.0)) * 0.8 * darkness;
+	color.rgb = mix(color.rgb, lightdata.rgb, whiteness);
 	
 	// back to gamma space
 	const vec3 gamma = vec3(2.2);

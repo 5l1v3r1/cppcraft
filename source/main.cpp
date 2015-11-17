@@ -83,14 +83,11 @@ int main(int argc, char* argv[])
 	{
 		// load player location
 		worldman.initPlayer();
-		// initialize generator as late as possible because
-		// there's some rendering dependencies that are just barely finished
-		Generator::init();
 	}
 	catch (std::string errorstring)
 	{
 		logger.write(Log::ERR, errorstring);
-		logger.write(Log::ERR, "Failed to generate inital world... Exiting.");
+		logger.write(Log::ERR, "Failed to initialize player... Exiting.");
 		return EXIT_FAILURE;
 	}
 	

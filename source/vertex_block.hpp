@@ -26,8 +26,9 @@ namespace cppcraft
 		GLshort u; // 8
 		GLshort v;
 		GLshort w;
-		GLshort light; // 2-channeled color (skylight, blocklight)
-		
+		GLshort pad;
+		// 4-channeled lighting (skylight, RGB torchlight)
+		GLuint light;
 		GLuint color; // 20
 		
 	};  // 24

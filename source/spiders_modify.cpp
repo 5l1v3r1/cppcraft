@@ -2,11 +2,8 @@
 
 #include <library/log.hpp>
 #include "blocks.hpp"
-#include "columns.hpp"
 #include "chunks.hpp"
-#include "generator.hpp"
 #include "lighting.hpp"
-#include "precompq.hpp"
 #include "sectors.hpp"
 #include <assert.h>
 #include <csignal>
@@ -15,7 +12,7 @@ using namespace library;
 
 namespace cppcraft
 {
-	bool Spiders::updateBlock(int bx, int by, int bz, block_t bitfield)
+	bool Spiders::updateBlock(int bx, int by, int bz, block_t bits)
 	{
 		Sector* s = spiderwrap(bx, by, bz);
 		if (s == nullptr) return false;
@@ -25,7 +22,7 @@ namespace cppcraft
 		
 		Block& block = s[0](bx, by, bz);
 		// set bitfield directly
-		block.setBitfield(bitfield);
+		block.setBits(bits);
 		// make sure the mesh is updated
 		s->updateMeshesAt(by);
 		
@@ -54,8 +51,13 @@ namespace cppcraft
 		}
 		// set new block
 		s[0](bx, by, bz) = newblock;
-		// fill in light, if its possible
+		// fill in skylight, if its possible
 		lighting.floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		// for torchlights, we will emit lighting outwards
+		if (newblock.isLight())
+		{
+			lighting.floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		}
 		// update mesh
 		s->updateMeshesAt(by);
 		// write updated sector to disk

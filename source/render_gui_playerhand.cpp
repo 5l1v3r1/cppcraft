@@ -67,7 +67,7 @@ namespace cppcraft
 		PlayerHand();
 		void render(double frameCounter);
 		void renderItem();
-		void renderHandItem(const glm::vec2& light, float modulation);
+		void renderHandItem(const glm::vec4& light, float modulation);
 	};
 	PlayerHand playerHand;
 	
@@ -206,7 +206,7 @@ namespace cppcraft
 		}
 		
 		// convert shadow & torchlight color to 4-vectors
-		glm::vec2 light = plogic.getLight();
+		glm::vec4 light = plogic.getLight();
 		float modulation = 1.0f; //torchlight.getModulation(frameCounter);
 		
 		renderHandItem(light, modulation);
@@ -218,7 +218,7 @@ namespace cppcraft
 		shd.sendVec3("lightVector", thesun.getRealtimeAngle());
 		shd.sendFloat("daylight", thesun.getRealtimeDaylight());
 		// player shadow & torchlight color
-		shd.sendVec2("lightdata", light);
+		shd.sendVec4("lightdata", light);
 		// torchlight modulation
 		shd.sendFloat("modulation", modulation);
 		
@@ -250,7 +250,7 @@ namespace cppcraft
 		vao.render(GL_QUADS);
 	}
 	
-	void PlayerHand::renderHandItem(const glm::vec2& light, float modulation)
+	void PlayerHand::renderHandItem(const glm::vec4& light, float modulation)
 	{
 		// render held item
 		Item& helditem = gui::menu.getHeldItem();
@@ -267,7 +267,7 @@ namespace cppcraft
 			Shader& shd = shaderman[Shaderman::VOXEL];
 			shd.bind();
 			// player shadow & torchlight color
-			shd.sendVec2("lightdata", light);
+			shd.sendVec4("lightdata", light);
 			// torchlight modulation
 			shd.sendFloat("modulation", modulation);
 			// view matrix
@@ -323,7 +323,7 @@ namespace cppcraft
 			shd.sendVec3("lightVector", thesun.getRealtimeAngle());
 			shd.sendFloat("daylight", thesun.getRealtimeDaylight());
 			// player shadow & torchlight color
-			shd.sendVec2("lightdata", light);
+			shd.sendVec4("lightdata", light);
 			// torchlight modulation
 			shd.sendFloat("modulation", modulation);
 			
@@ -368,7 +368,7 @@ namespace cppcraft
 				
 				// convert item to a block
 				Block held = helditem.toBlock();
-				held.setFacing(3);
+				held.setBits(3); // assuming bits are used to determine direction
 				// texture id
 				for (int i = 0; i < count; i++)
 				{

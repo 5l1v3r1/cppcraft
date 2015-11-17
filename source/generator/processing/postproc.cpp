@@ -123,12 +123,12 @@ namespace terragen
 					else if (terrain == Biome::T_ICECAP && block.getID() != _BEACH)
 					{
 						// from grass to snow, although we would like full-snow
-						block.setExtra(1);
+						block.setBits(1);
 					}
 					else if (terrain == Biome::T_SNOW && block.getID() != _BEACH)
 					{
 						// from grass to snow
-						block.setExtra(1);
+						block.setBits(1);
 					}
 					else if (terrain == Biome::T_DESERT && block.getID() != _BEACH)
 					{
@@ -239,7 +239,7 @@ namespace terragen
 				
 				// SMART: set air value after we have determined air..
 				block.setSkyLight((skyLevel == 0) ? 15 : 0);
-				block.setBlockLight(0);
+				block.setTorchLight(0);
 				
 			#ifdef DEBUG
 				//block.setSkyLight(15);

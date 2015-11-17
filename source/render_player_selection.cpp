@@ -123,7 +123,7 @@ namespace cppcraft
 		int vz = (int)plogic.selection.pos.z;
 		
 		int model  = 0; //Block::blockModel(plogic.selection.block.getID());
-		int facing = plogic.selection.block.getFacing();
+		int bits = plogic.selection.block.getBits();
 		
 		bool updated = plogic.selection.updated;
 		plogic.selection.updated = false;
@@ -167,7 +167,7 @@ namespace cppcraft
 				vertices = 24;
 				vertexData = new selection_vertex_t[vertices];
 				// ladder selection box
-				if (vertices != blockmodels.selectionLadder.copyTo(facing, vertexData))
+				if (vertices != blockmodels.selectionLadder.copyTo(bits, vertexData))
 					throw std::string("PlayerSelection::render(): selection == 10 vertex count mismatch");
 			}
 			

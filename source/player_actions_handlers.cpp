@@ -162,6 +162,8 @@ namespace cppcraft
 				{
 					//item.setCount(item.getCount() - 1); //decrease count (directly)!
 					//inventory.setChanged(true);
+					printf("Placing item %d with block ID %d\n",
+							item.getID(), item.toBlock().getID());
 					
 					// play placement sound
 					if (item.toBlock().hasSound())

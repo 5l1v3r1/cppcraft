@@ -79,7 +79,7 @@ namespace cppcraft
 			: id(ID), count(icount), special(0), type(itype), health(0) {}
 		
 		Item(Block& block, unsigned short icount)
-			: id(block.getID()), count(icount), special(block.getBitfield()), type(ITT_BLOCK) {}
+			: id(block.getID()), count(icount), special(block.getBits()), type(ITT_BLOCK) {}
 		
 		inline void setID(item_t id)
 		{
