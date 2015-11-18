@@ -92,7 +92,7 @@ namespace cppcraft
 		lighting.floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
 		
 		// update the mesh, so we can see the change!
-		s->updateMeshesAt(by);
+		s->updateAllMeshes();
 		
 		// write updated sector to disk
 		//chunks.addSector(*s);
@@ -104,12 +104,12 @@ namespace cppcraft
 		return block;
 	}
 	
-	inline void updateNeighboringSector(Sector& sector, int y)
+	inline void updateNeighboringSector(Sector& sector, int)
 	{
 		// if the sector in question has blocks already,
 		if (sector.generated())
 			// just regenerate his mesh
-			sector.updateMeshesAt(y);
+			sector.updateAllMeshes();
 	}
 	
 	void Spiders::updateSurroundings(Sector& sector, int bx, int by, int bz)

@@ -64,7 +64,7 @@ namespace terragen
 		
 		float n1 = glm::simplex(npos);
 		
-		const float CAVE_TRESHOLD = 0.11f;
+		const float CAVE_TRESHOLD = 0.25f;
 		const float EDGE = CAVE_TRESHOLD * 0.2f;
 		
 		if (n1 > -CAVE_TRESHOLD && n1 < CAVE_TRESHOLD)

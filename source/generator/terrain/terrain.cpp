@@ -25,11 +25,10 @@ namespace terragen
 		// FOR TESTING CAVES:
 		//if (caves < 0.0) return _STONE;
 		//return _AIR;
-		
-		const float WATERLEVEL = 0.25;
+		const float WATERHEIGHT = Terrain::WATERLEVEL / (float) BLOCKS_Y;
 		
 		float cavetresh = 0.0; // distance from air/dense barrier
-		if (density > -0.1 && density <= 0.0) cavetresh = 1.0 - density / -0.1;
+		if (density > -0.1 && density <= 0.0) cavetresh = density / -0.1;
 		
 		// caves
 		const float cave_lower = 0.0; // underworld cave density treshold
@@ -39,9 +38,9 @@ namespace terragen
 		const float stone_lower = -0.1;
 		const float stone_upper = -0.05; // density treshold for stone upper / lower hemisphere
 		
-		const float lava_height   = 0.025;
-		const float molten_densdx = 0.01; // difference between stone and cave
-		const float molten_height = 0.025;
+		const float lava_height = 0.025 + in_beachhead * 0.025;
+		//const float molten_densdx = 0.04; // difference between stone and cave
+		//const float molten_height = 0.05;
 		
 		// middle = waterlevel + beachhead
 		float beachhead  = in_beachhead * 0.025; // sand above water (0.0075 + ...)
@@ -52,7 +51,7 @@ namespace terragen
 		
 		if (density < 0.0)
 		{
-			if (y <= WATERLEVEL + beachhead)
+			if (y <= WATERHEIGHT + beachhead)
 			{
 				// lower hemisphere, dense
 				
@@ -69,14 +68,16 @@ namespace terragen
 					
 					// density > cave_lower
 					// density < cave_lower + molten_densdx
-					
-					if (density < cave_lower + molten_densdx)
+					/*
+					if (density < 1.0-molten_densdx)
 					{
-						float deltadens = -(density - cave_lower) / molten_densdx;
-						
-						if (y < (1.0 - deltadens) * molten_height)
+						float deltadens = -density / (1.0-molten_densdx);
+						//printf("density %f, molten_densdx %f, deltadens %f, y %f\n",
+						//	density, molten_densdx, deltadens, y);
+						//if (y < (1.0 - deltadens) * molten_height)
+						if (y < deltadens * molten_height)
 							return _MOLTEN;
-					}
+					}*/
 					
 					return _STONE;
 				}
@@ -86,10 +87,10 @@ namespace terragen
 					return _SOIL;
 				
 				// tone down sand the higher up we get
-				if (y >= WATERLEVEL)
+				if (y >= WATERHEIGHT)
 				{
 					// transitional density for sand to soil
-					float deltay = ( y - WATERLEVEL ) / beachhead;
+					float deltay = ( y - WATERHEIGHT ) / beachhead;
 					deltay *= deltay;
 					
 					if (deltay > 1.0 - (density / soil_lower) )
@@ -100,12 +101,12 @@ namespace terragen
 				// pp will turn into oceanfloor with water pressure
 				return _BEACH;
 			}
-			else if (y <= WATERLEVEL + beachhead + lower_to_upper)
+			else if (y <= WATERHEIGHT + beachhead + lower_to_upper)
 			{
 				// middle hemisphere, dense
 				
 				// transitional density for lower to upper
-				float deltay = ((WATERLEVEL + beachhead + lower_to_upper) - y) / lower_to_upper;
+				float deltay = ((WATERHEIGHT + beachhead + lower_to_upper) - y) / lower_to_upper;
 				
 				// cave transition lower/upper
 				if (caves < cave_upper * (1.0 - deltay) + cave_lower * deltay)
@@ -131,7 +132,7 @@ namespace terragen
 		else
 		{
 			// lower hemisphere, dense
-			if (y < WATERLEVEL)
+			if (y < WATERHEIGHT)
 				return _WATER;
 			
 			// upper hemisphere, clear
@@ -145,14 +146,15 @@ namespace terragen
 	void Terrain::generate(gendata_t* data)
 	{
 		// interpolation grid dimensions
-		static const int ngrid = 4;
+		static const int ngrid = 8;
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
-		static const int MAX_Y = 192;
+		static const int y_step   = 4;
+		static const int y_points = MAX_Y / y_step + 1;
 		
 		// noise (terrain density) values
-		float noisearray[ngrid+1][ngrid+1][MAX_Y + 1] ALIGN_AVX;
+		float noisearray[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
 		// 3D caves densities
-		float cave_array[ngrid+1][ngrid+1][MAX_Y + 1] ALIGN_AVX;
+		float cave_array[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
 		// beach height values
 		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		
@@ -168,11 +170,11 @@ namespace terragen
 			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 			
-			for (int y = 0; y <= MAX_Y; y += 2)
+			for (int y = 0; y <= MAX_Y; y += y_step)
 			{
 				p.y = y / (float)(MAX_Y);
 				
-				float* noise = noisearray[x][z] + y / 2;
+				float* noise = noisearray[x][z] + y / y_step;
 				*noise = 0.0f;
 				
 				for (int i = 0; i < 4; i++)
@@ -186,7 +188,7 @@ namespace terragen
 				} // weights
 				
 				// caves
-				cave_array[x][z][y / 2] = terrainFuncs.get(Biome::T_CAVES, p);
+				cave_array[x][z][y / y_step] = terrainFuncs.get(Biome::T_CAVES, p);
 				
 			} // for(y)
 		}
@@ -194,8 +196,8 @@ namespace terragen
 		// generating from top to bottom, not including y == 0
 		for (int y = 0; y < MAX_Y; y++)
 		{
-			int   iy  = y / 2;
-			float fry = (y & 1) / 2.0f;
+			int   iy  = y / y_step;
+			float fry = (y % y_step) / (float) y_step;
 			
 			// set generic blocks using getTerrainSimple()
 			// interpolate using linear bore-a-thon

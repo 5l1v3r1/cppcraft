@@ -215,6 +215,18 @@ namespace terragen
 			solid.getSound = [] (const Block&) { return "stone"; };
 			_STONE = d.create("stone", solid);
 		}
+		// create _MOLTEN stones
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
+			solid.indexColored = true;
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
+			solid.getName = [] (const Block&) { return "Molten Stone"; };
+			solid.getTexture = [] (const Block&, uint8_t) { return 15 * tiles.tilesX + 13; };
+			solid.shader = RenderConst::TX_SOLID;
+			solid.getSound = [] (const Block&) { return "stone"; };
+			_MOLTEN = d.create("moltenstone", solid);
+		}
 		// create _SOIL
 		{
 			BlockData solid = getSolidBlock();
@@ -320,7 +332,7 @@ namespace terragen
 			fluid.shader = RenderConst::TX_LAVA;
 			fluid.block       = false;
 			fluid.transparent = false;
-			fluid.setLightColor(11, 7, 2);
+			fluid.setLightColor(12, 7, 3);
 			_LAVA = d.create("lava", fluid);
 		}
 		
@@ -391,12 +403,11 @@ namespace terragen
 			blk.transparent = true;
 			blk.block       = false;
 			blk.getSound = [] (const Block&) { return "wood"; };
-			//blk.setLightColor(15, 12, 8);
-			blk.setLightColor(0, 15, 0);
+			blk.setLightColor(13, 11, 8);
+			//blk.setLightColor(0, 15, 0);
 			blk.voxelModel = 0;
 			_TORCH = d.create("torch", blk);
 		}
 		
-		_MOLTEN = _SOIL;
 	}
 }
