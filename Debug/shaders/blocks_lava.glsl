@@ -12,7 +12,6 @@ uniform vec3 worldOffset;
 in vec3 in_vertex;
 in vec4 in_normal;
 in vec3 in_texture;
-in vec4 in_light;
 in vec4 in_biome;
 
 out vec2 wave;

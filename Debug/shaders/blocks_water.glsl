@@ -14,12 +14,10 @@ uniform float frameCounter;
 
 in vec4 in_vertex;
 in vec4 in_normal;
-in vec3 in_texture;
-in vec4 in_light;
+in vec4 in_texture;
 in vec4 in_biome;
 
-out float ao;
-out vec4 lightdata;
+out vec3 lightdata;
 out vec4 waterColor;
 
 out vec3 v_pos;
@@ -43,7 +41,7 @@ void main(void)
 	// reflect light in view space using view-normal
 	v_normal = mat3(matview) * in_normal.xyz;
 	
-	lightdata  = in_light;
+  #include "unpack_light.glsl"
 	waterColor = in_biome;
 }
 
@@ -65,7 +63,7 @@ uniform float daylight;
 uniform float modulation;
 uniform vec3  v_ldir;
 
-in vec4 lightdata;
+in vec3 lightdata;
 in vec4 waterColor;
 
 in vec3 v_pos;

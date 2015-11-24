@@ -2,21 +2,19 @@
 // Standard lighting code snippet
 //
 
-float brightness = length(lightdata.rgb) / sqrt(3.0);
+float skylight   = lightdata.r;
+float brightness = lightdata.g;
 
-// shadow is smallest between shadow-value and daylight level
-float shadow = min(1.0, daylight * lightdata.a + brightness);
+// shadow is smallest between skylight and daylight level
+float shadow = min(1.0, daylight * skylight + brightness);
 shadow = 0.2 + 0.8 * shadow;
 
 // corner shadows and dotlight
-float cornershad = smoothstep(0.0, 1.0, ao);
+float cornershad = smoothstep(0.0, 1.0, lightdata.b);
 cornershad = min(1.0, cornershad * worldLight + brightness * 0.125);
 
 // final shadow applied
 color.rgb *= cornershad * shadow;
-//color.rgb = vec3(cornershad * shadow);
-
-// torchlight
-float darkness = 1.0 - daylight * lightdata.a;
-vec3 whiteness = lightdata.rgb * (1.0 - pow(brightness, 2.0)) * 0.8 * darkness;
-color.rgb = mix(color.rgb, lightdata.rgb, whiteness);
+//color.rgb = vec3(brightness);
+vec3 torchColor = vec3(1.0, 1.0, 0.75);
+color.rgb = mix(color.rgb, torchColor, brightness * 0.2);

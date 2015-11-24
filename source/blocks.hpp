@@ -21,21 +21,23 @@ namespace cppcraft
 	class Block
 	{
 	public:
-		typedef cppcraft::block_t block_t;
-		typedef uint8_t   bfield_t;
-		typedef uint16_t  light_t;
-		
+		typedef uint8_t bfield_t;
+		typedef uint8_t light_t;
+		static const int CHANNELS = 2;
+    
 		// DOES NOTHING on default constructor
 		Block() {}
 		// constructor taking block id as parameter
 		Block(block_t id)
 		{
-			this->blk = id;
+			this->blk   = id;
+      this->extra = 0;
 		}
 		// semi-complete constructor
 		Block(block_t id, bfield_t bitfield)
 		{
 			this->blk = (id & 0xFFF) | (bitfield << 12);
+      this->extra = 0;
 		}
 		
 		// sets/gets the block ID for this block
@@ -49,39 +51,68 @@ namespace cppcraft
 		{
 			return this->blk & 0xFFF;
 		}
-		// sets/gets block extra bits
+		// sets/gets block 4 bits
 		void setBits(bfield_t val)
 		{
-			// mask out old extra bits
+			// mask out old 4 bits
 			this->blk &= 0xFFF;
-			// or in new bits
+			// or in new 4-bits
 			this->blk |= val << 12;
 		}
+    // returns the 4 extra bits
 		bfield_t getBits() const
 		{
 			return this->blk >> 12;
 		}
-		
+		// sets the extra field (8 bits)
+    void setExtra(bfield_t v)
+    {
+      extra = v;
+    }
+    // returns the 8-bit extra field
+    bfield_t getExtra() const
+    {
+      return extra;
+    }
+    
 		// returns the whole block as 32bits of data
 		inline uint32_t getWhole() const
 		{
 			return *(uint32_t*) this;
 		}
 		
+		inline void setSkyLight(light_t level)
+		{
+			this->light &= 0xF0;
+			this->light |= level;
+		}
 		inline light_t getSkyLight() const
 		{
 			return this->light & 0xF;
 		}
-		inline void setSkyLight(light_t level)
+		inline void removeSkylight()
 		{
-			this->light &= 0xFFF0;
-			this->light |= level;
+			this->light &= 0xF0;
 		}
-		inline void setTorchLight(light_t rgb)
+		inline void setTorchLight(light_t level)
 		{
-			this->light &= 0xF;
-			this->light |= rgb << 4;
+			this->light &= 0x0F;
+			this->light |= level << 4;
 		}
+		inline light_t getTorchLight()
+		{
+			return this->light >> 4;
+		}
+		inline void removeTorchlight()
+		{
+			this->light &= 0x0F;
+		}
+    
+		inline void setLight(light_t sky, light_t torch)
+		{
+			this->light = sky | (torch << 4);
+		}
+    
 		inline void setChannel(const int ch, const light_t level)
 		{
 			this->light &= ~(0xF << (ch * 4));
@@ -90,20 +121,6 @@ namespace cppcraft
 		inline light_t getChannel(const int ch) const
 		{
 			return (this->light >> (ch * 4)) & 0xF;
-		}
-		
-		inline void removeTorchlight()
-		{
-			this->light &= 0xF;
-		}
-		inline void removeSkylight()
-		{
-			this->light &= 0xFFF0;
-		}
-		
-		inline void setLight(light_t sky, light_t rgb)
-		{
-			this->light = (sky & 0xF) | (rgb << 4);
 		}
 		
 		//! lookup in blockdb for this block, returning its properties
@@ -288,6 +305,7 @@ namespace cppcraft
 		
 	private:
 		block_t  blk;
+    bfield_t extra;
 		light_t  light;
 	};
 	

@@ -39,8 +39,8 @@ namespace cppcraft
 				(y * BLOCKS_Y >= RenderConst::WATER_LEVEL);
 		}
 		
-		// should be 28 bytes, due to RGB torchlight
-		assert(sizeof(vertex_t) == 28);
+		// should be 24 bytes
+		assert(sizeof(vertex_t) == 24);
 	}
 	Columns::Columns()
 	{
@@ -123,12 +123,10 @@ namespace cppcraft
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1, 4, GL_BYTE,		  GL_TRUE,  sizeof(vertex_t), &vrt->nx); // normal
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 3, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), &vrt->u); // texture
+		glVertexAttribPointer(2, 4, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), &vrt->u); // texture
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->light); // lighting
+		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->color); // biome color
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), &vrt->color); // biome color
-		glEnableVertexAttribArray(4);
 		}
 		
 		// check for errors

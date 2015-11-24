@@ -2,11 +2,11 @@
 
 #include "blocks.hpp"
 #include "blocks_bordered.hpp"
+#include "common.hpp"
 #include "vertex_block.hpp"
 
 namespace cppcraft
 {
-	typedef uint32_t vertex_color_t;
 	class bordered_sector_t;
 	
 	class PTD
@@ -30,7 +30,7 @@ namespace cppcraft
 		static const int REPEAT_FACTOR;
 		
 		//! returns the terrain color @index for (bx, bz)
-		uint32_t getColor(int bx, int bz, int index)
+		light_value_t getColor(int bx, int bz, int index)
 		{
 			return sector->fget(bx, bz).fcolor[index];
 		}
@@ -39,8 +39,8 @@ namespace cppcraft
 		void process_block(const Block& currentBlock, int bx, int by, int bz);
 		
 		// resolve (x, y, z) to vertex lighting
-		vertex_color_t getLight(int x, int y, int z);
-		vertex_color_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
+		light_value_t getLight(int x, int y, int z);
+		light_value_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
 		
 		void applyFaceLighting_PZ(int bx, int by, int bz);
 		void applyFaceLighting_NZ(int bx, int by, int bz);

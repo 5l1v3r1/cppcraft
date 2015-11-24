@@ -20,14 +20,16 @@ namespace cppcraft
 		air_block.setLight(15, 0);
 	}
 	
-	uint32_t Lighting::lightValue(Block& block)
+	light_value_t Lighting::lightValue(Block& block)
 	{
-		uint32_t r = block.getChannel(1) * 17;
-		uint32_t g = block.getChannel(2) * 17;
-		uint32_t b = block.getChannel(3) * 17;
-		uint32_t a = block.getSkyLight() * 17;
-		
-		return r + (g << 8) + (b << 16) + (a << 24);
+		light_value_t RGBA = 0;
+    
+    for (int ch = 0; ch < Block::CHANNELS; ch++)
+    {
+      int V = block.getChannel(ch);
+      RGBA |= V << (ch * 4);
+    }
+		return RGBA;
 	}
   
   inline void beginPropagateSkylight(int x, int y, int z, char mask)
@@ -92,41 +94,41 @@ namespace cppcraft
 		
 		if (block.isLight())
 		{
+			const int ch = 1;
+      
 			// set to max blocklight value
-			for (int ch = 0; ch < 3; ch++)
-			{
-				char opacity = block.getOpacity(ch);
-				block.setChannel(ch+1, opacity);
-				
-				// mask out impossible paths
-				int mask = 63;
-				if (x < BLOCKS_XZ-1)
-					if (!sector(x+1, y, z).isTransparent()) mask &= ~1;
-				if (x > 0)
-					if (!sector(x-1, y, z).isTransparent()) mask &= ~2;
-				
-				if (!sector(x, y+1, z).isTransparent()) mask &= ~4;
-				if (!sector(x, y-1, z).isTransparent()) mask &= ~8;
-				
-				if (z < BLOCKS_XZ-1)
-					if (!sector(x, y, z+1).isTransparent()) mask &= ~16;
-				if (z > 0)
-					if (!sector(x, y, z-1).isTransparent()) mask &= ~32;
-				
-				// propagate block light in all directions
-				if (mask & 1)
-					propagateChannel(sx+x, y, sz+z, ch+1, 0, opacity); // +x
-				if (mask & 2)
-					propagateChannel(sx+x, y, sz+z, ch+1, 1, opacity); // -x
-				if (mask & 4)
-					propagateChannel(sx+x, y, sz+z, ch+1, 2, opacity); // +y
-				if (mask & 8)
-					propagateChannel(sx+x, y, sz+z, ch+1, 3, opacity); // -y
-				if (mask & 16)
-					propagateChannel(sx+x, y, sz+z, ch+1, 4, opacity); // +z
-				if (mask & 32)
-					propagateChannel(sx+x, y, sz+z, ch+1, 5, opacity); // -z
-			} // ch
+      char opacity = block.getOpacity(0);
+      block.setChannel(ch, opacity);
+      
+      // mask out impossible paths
+      int mask = 63;
+      if (x < BLOCKS_XZ-1)
+        if (!sector(x+1, y, z).isTransparent()) mask &= ~1;
+      if (x > 0)
+        if (!sector(x-1, y, z).isTransparent()) mask &= ~2;
+      
+      if (!sector(x, y+1, z).isTransparent()) mask &= ~4;
+      if (!sector(x, y-1, z).isTransparent()) mask &= ~8;
+      
+      if (z < BLOCKS_XZ-1)
+        if (!sector(x, y, z+1).isTransparent()) mask &= ~16;
+      if (z > 0)
+        if (!sector(x, y, z-1).isTransparent()) mask &= ~32;
+      
+      // propagate block light in all directions
+      if (mask & 1)
+        propagateChannel(sx+x, y, sz+z, ch, 0, opacity); // +x
+      if (mask & 2)
+        propagateChannel(sx+x, y, sz+z, ch, 1, opacity); // -x
+      if (mask & 4)
+        propagateChannel(sx+x, y, sz+z, ch, 2, opacity); // +y
+      if (mask & 8)
+        propagateChannel(sx+x, y, sz+z, ch, 3, opacity); // -y
+      if (mask & 16)
+        propagateChannel(sx+x, y, sz+z, ch, 4, opacity); // +z
+      if (mask & 32)
+        propagateChannel(sx+x, y, sz+z, ch, 5, opacity); // -z
+			
 		} // isLight()
     } // x, z, y
 	
@@ -139,41 +141,41 @@ namespace cppcraft
 	  if (x > 0)
 	  {
 		Block& blk = Spiders::getBlock(x-1, y, z);
-		for (char ch = 0; ch < 4; ch++)
+		for (char ch = 0; ch < Block::CHANNELS; ch++)
 		if (blk.getChannel(ch) != 0)
 			propagateChannel(x-1, y, z, ch, 0, blk.getChannel(ch)); // +x
 	  }
 	  if (x < sectors.getXZ()*BLOCKS_XZ-1)
 	  {
 		Block& blk = Spiders::getBlock(x+1, y, z);
-		for (char ch = 0; ch < 4; ch++)
+		for (char ch = 0; ch < Block::CHANNELS; ch++)
 		if (blk.getChannel(ch) != 0)
 			propagateChannel(x+1, y, z, ch, 1, blk.getChannel(ch)); // -x
 	  }
 	  if (y > 0)
 	  {
 		Block& blk = Spiders::getBlock(x, y-1, z);
-		for (char ch = 0; ch < 4; ch++)
+		for (char ch = 0; ch < Block::CHANNELS; ch++)
 			propagateChannel(x, y-1, z, ch, 2, blk.getChannel(ch)); // +y
 	  }
 	  if (y < BLOCKS_Y-1)
 	  {
 		Block& blk = Spiders::getBlock(x, y+1, z);
-		for (char ch = 0; ch < 4; ch++)
+		for (char ch = 0; ch < Block::CHANNELS; ch++)
 		if (blk.getChannel(ch) != 0)
 			propagateChannel(x, y+1, z, ch, 3, blk.getChannel(ch)); // -y
 	  }
 	  if (z > 0)
 	  {
 		Block& blk = Spiders::getBlock(x, y, z-1);
-		for (char ch = 0; ch < 4; ch++)
+		for (char ch = 0; ch < Block::CHANNELS; ch++)
 		if (blk.getChannel(ch) != 0)
 			propagateChannel(x, y, z-1, ch, 4, blk.getChannel(ch)); // +z
 	  }
 	  if (z < sectors.getXZ()*BLOCKS_XZ-1)
 	  {
 		Block& blk = Spiders::getBlock(x, y, z+1);
-		for (char ch = 0; ch < 4; ch++)
+		for (char ch = 0; ch < Block::CHANNELS; ch++)
 		if (blk.getChannel(ch) != 0)
 			propagateChannel(x, y, z+1, ch, 5, blk.getChannel(ch)); // -z
 	  }
@@ -184,18 +186,16 @@ namespace cppcraft
 	  // propagate our own light outwards
 	  Block& blk = Spiders::getBlock(x, y, z);
 	  
-	  for (char ch = 1; ch < 4; ch++)
-	  {
-		char lvl = blk.getOpacity(ch-1);
-		blk.setChannel(ch, lvl);
-		
-		propagateChannel(x, y, z, ch, 0, lvl); // +x
-		propagateChannel(x, y, z, ch, 1, lvl); // -x
-		propagateChannel(x, y, z, ch, 2, lvl); // +y
-		propagateChannel(x, y, z, ch, 3, lvl); // -y
-		propagateChannel(x, y, z, ch, 4, lvl); // +z
-		propagateChannel(x, y, z, ch, 5, lvl); // -z
-	  }
+    const char ch = 1;
+    char lvl = blk.getOpacity(0);
+    blk.setChannel(ch, lvl);
+    
+    propagateChannel(x, y, z, ch, 0, lvl); // +x
+    propagateChannel(x, y, z, ch, 1, lvl); // -x
+    propagateChannel(x, y, z, ch, 2, lvl); // +y
+    propagateChannel(x, y, z, ch, 3, lvl); // -y
+    propagateChannel(x, y, z, ch, 4, lvl); // +z
+    propagateChannel(x, y, z, ch, 5, lvl); // -z
   }
   
   void Lighting::removeLight(int x, int y, int z)
@@ -203,18 +203,18 @@ namespace cppcraft
 	  std::queue<emitter_t> q;
 	  Block& blk = Spiders::getBlock(x, y, z);
 	  
-	  for (char ch  = 0; ch  < 4; ch++)
+	  for (char ch  = 0; ch  < Block::CHANNELS; ch++)
 	  for (char dir = 0; dir < 6; dir++)
 	  {
-		emitter_t removed(x, y, z, ch, dir, blk.getChannel(ch));
-		removeChannel(x, y, z, dir, removed, q);
+      emitter_t removed(x, y, z, ch, dir, blk.getChannel(ch));
+      removeChannel(x, y, z, dir, removed, q);
 	  }
 	  
 	  while (!q.empty())
 	  {
-		emitter_t e = q.front();
-		q.pop();
-		//floodInto(e.x, e.y, e.z);
+      emitter_t e = q.front();
+      q.pop();
+      //floodInto(e.x, e.y, e.z);
 	  }
   }
   

@@ -11,13 +11,11 @@ uniform float daylight;
 
 in vec3 in_vertex;
 in vec4 in_normal;
-in vec3 in_texture;
-in vec4 in_light;
+in vec4 in_texture;
 in vec4 in_biome;
 
 out vec3 texCoord;
-out float ao;
-out vec4 lightdata;
+out vec3 lightdata;
 out vec4 biomeColor;
 flat out float worldLight;
 out float dist;
@@ -37,8 +35,7 @@ void main(void)
 	// dotlight
 	#include "worldlight.glsl"
 	
-	ao = in_normal.w;
-	lightdata  = in_light;
+  #include "unpack_light.glsl"
 	biomeColor = in_biome;
 }
 
@@ -54,8 +51,7 @@ uniform float daylight;
 uniform float modulation;
 
 in vec3 texCoord;
-in float ao;
-in vec4 lightdata;
+in vec3 lightdata;
 in vec4 biomeColor;
 flat in float worldLight;
 in float dist;

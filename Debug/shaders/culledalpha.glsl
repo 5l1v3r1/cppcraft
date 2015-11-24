@@ -12,13 +12,11 @@ uniform vec3  lightVector;
 
 in vec3 in_vertex;
 in vec4 in_normal;
-in vec3 in_texture;
-in vec4 in_light;
+in vec4 in_texture;
 in vec4 in_biome;
 
 out vec3 texCoord;
-out float ao;
-out vec4 lightdata;
+out vec3 lightdata;
 out vec4 biomeColor;
 out vec3 out_normal;
 out vec3 v_normals;
@@ -36,8 +34,7 @@ void main(void)
 	
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
 	
-	ao         = in_normal.w;
-	lightdata  = in_light;
+  #include "unpack_light.glsl"
 	biomeColor = in_biome;
 	out_normal = in_normal.xyz;
 }
@@ -55,8 +52,7 @@ uniform vec3  lightVector;
 uniform float modulation;
 
 in vec3 texCoord;
-in float ao;
-in vec4 lightdata;
+in vec3 lightdata;
 in vec4 biomeColor;
 in vec3 out_normal;
 in vec3 v_normals;

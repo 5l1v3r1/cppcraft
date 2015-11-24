@@ -57,10 +57,6 @@ void main(void)
 	color.rgb *= worldLight; // min(1.0, worldLight + 0.35 * brightness)
 	// mix in shadows
 	color.rgb *= shadow;
-	// torchlight
-	float darkness = 1.0 - daylight * lightdata.a;
-	vec3 whiteness = lightdata.rgb * (1.0 - pow(brightness, 2.0)) * 0.8 * darkness;
-	color.rgb = mix(color.rgb, lightdata.rgb, whiteness);
 	
 	// back to gamma space
 	const vec3 gamma = vec3(2.2);

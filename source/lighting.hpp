@@ -6,7 +6,7 @@
  * 
 **/
 
-#include <cstdint>
+#include "common.hpp"
 
 namespace cppcraft
 {
@@ -17,7 +17,7 @@ namespace cppcraft
 	{
 	public:
 		static void init();
-		static uint32_t lightValue(Block& block);
+		static light_value_t lightValue(Block& block);
 		
 		struct emitter_t
 		{
