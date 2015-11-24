@@ -67,7 +67,7 @@ DEPENDS = $(CXXOBJS:.o=.d) $(CCOBJS:.o=.d)
 
 .PHONY: clean all debug fast
 
-fast: BUILDOPT = -O3 -ffast-math -march=corei7-avx
+fast: BUILDOPT = -O3 -ffast-math -march=native
 fast: all
 
 debug: BUILDOPT = -ggdb3 -fstack-protector -DDEBUG

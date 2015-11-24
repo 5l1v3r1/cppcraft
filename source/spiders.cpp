@@ -140,7 +140,7 @@ namespace cppcraft
 		if (sector == nullptr) return 0;
 		
 		// return calculated shadows & lighting
-		return lighting.lightValue((*sector)(ix, iy, iz));
+		return Lighting::lightValue((*sector)(ix, iy, iz));
 	}
 	
 }

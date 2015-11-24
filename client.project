@@ -546,6 +546,7 @@
       <File Name="source/meshes/vemitcross.cpp"/>
       <File Name="source/meshes/vemitter.cpp"/>
     </VirtualDirectory>
+    <File Name="source/lighting_algos.cpp"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

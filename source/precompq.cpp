@@ -141,7 +141,7 @@ namespace cppcraft
 						#ifdef TIMING
 							Timer timer;
 						#endif
-						lighting.atmosphericFlood(sect);
+						Lighting::atmosphericFlood(sect);
 						#ifdef TIMING
 							printf("Time spent in that goddamn atm flood: %f\n",
 								timer.getTime());

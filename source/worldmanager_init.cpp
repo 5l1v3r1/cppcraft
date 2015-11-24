@@ -29,7 +29,7 @@ namespace cppcraft
 		// initialize precompiler systems
 		precompq.init();
 		// initialize lighting
-		lighting.init();
+		Lighting::init();
 		
 		// initialize blocks and such
 		Generator::init();

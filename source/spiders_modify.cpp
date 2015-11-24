@@ -52,11 +52,11 @@ namespace cppcraft
 		// set new block
 		s[0](bx, by, bz) = newblock;
 		// fill in skylight, if its possible
-		lighting.floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
 		// for torchlights, we will emit lighting outwards
 		if (newblock.isLight())
 		{
-			lighting.floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
 		}
 		// update mesh
 		s->updateMeshesAt(by);
@@ -89,7 +89,8 @@ namespace cppcraft
 		s[0](bx, by, bz).setID(_AIR);
 		
 		// try to flood this new fancy empty space with light
-		lighting.floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		//Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		Lighting::removeLight(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
 		
 		// update the mesh, so we can see the change!
 		s->updateAllMeshes();
