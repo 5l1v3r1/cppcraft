@@ -22,14 +22,14 @@ namespace cppcraft
 	
 	light_value_t Lighting::lightValue(Block& block)
 	{
-		light_value_t RGBA = 0;
-    
-    for (int ch = 0; ch < Block::CHANNELS; ch++)
-    {
-      int V = block.getChannel(ch);
-      RGBA |= V << (ch * 4);
-    }
-		return RGBA;
+		light_value_t result = 0;
+		
+		for (int ch = 0; ch < Block::CHANNELS; ch++)
+		{
+			int V = block.getChannel(ch);
+			result |= ((V << 4) | V) << (ch * 4);
+		}
+		return result;
 	}
   
   inline void beginPropagateSkylight(int x, int y, int z, char mask)

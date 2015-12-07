@@ -128,7 +128,7 @@ namespace cppcraft
 		return air_block;
 	}
 	
-	uint32_t Spiders::getLightNow(float x, float y, float z)
+	light_value_t Spiders::getLightNow(float x, float y, float z)
 	{
 		if (y <= 0.0f) return 0; // mega-dark
 		if (y >= BLOCKS_Y) return 255;

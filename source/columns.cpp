@@ -41,6 +41,8 @@ namespace cppcraft
 		
 		// should be 24 bytes
 		assert(sizeof(vertex_t) == 24);
+		// color should be at 20 bytes
+		assert(offsetof(vertex_t, color) == 20);
 	}
 	Columns::Columns()
 	{

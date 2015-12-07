@@ -34,7 +34,7 @@ void main()
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform float daylight;
-uniform vec4  lightdata;
+uniform vec2  lightdata;
 uniform float modulation;
 
 flat in vec4  out_color;
@@ -43,9 +43,9 @@ flat in float worldLight;
 void main(void)
 {
 	/// shadows & torchlight ///
-	float brightness = length(lightdata.rgb) / sqrt(3.0);
+	float brightness = lightdata.g;
 	// shadow is smallest between shadow-value and daylight level
-	float shadow = min(1.0, min(daylight, lightdata.a) + brightness);
+	float shadow = min(1.0, min(daylight, lightdata.r) + brightness);
 	
 	vec3 color = out_color.rgb;
 	#include "degamma.glsl"

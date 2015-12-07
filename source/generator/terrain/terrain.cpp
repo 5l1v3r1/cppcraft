@@ -146,78 +146,99 @@ namespace terragen
 	void Terrain::generate(gendata_t* data)
 	{
 		// interpolation grid dimensions
-		static const int ngrid = 8;
+		static const int ngrid = 4;
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
 		static const int y_step   = 4;
-		static const int y_points = MAX_Y / y_step + 1;
+		static const int y_points = BLOCKS_Y / y_step + 1;
 		
+		// terrain heightmap
+		float heightmap[ngrid+1][ngrid+1] ALIGN_AVX;
+		// beach height values
+		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		// noise (terrain density) values
 		float noisearray[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
 		// 3D caves densities
 		float cave_array[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
-		// beach height values
-		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		
 		// retrieve data for noise biome interpolation, and heightmap
 		for (int x = 0; x <= ngrid; x++)
 		for (int z = 0; z <= ngrid; z++)
 		{
 			glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
+			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 			
 			// beach height/level variance
 			beachhead[x][z] = glm::simplex(p2 * 0.005f);
 			
-			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
+			// the heightvalue for this position, averaged across terrains
+			float hvalue = 0.0f;
+			int id[4];
+			for (int i = 0; i < 4; i++)
+			{
+				// determine terrain ID for biome value
+				id[i]   = Biome::toTerrain(biome.b[i]);
+				// use ID to get total weighted terrain height
+				hvalue += terrainFuncs.get(id[i], p2) * biome.w[i];
+			}
+			
+			heightmap[x][z] = hvalue;
+			const int MAX_Y = hvalue * 255.0;
+			
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 			
-			for (int y = 0; y <= MAX_Y; y += y_step)
+			for (int y = 0; y < MAX_Y + y_step; y += y_step)
 			{
-				p.y = y / (float)(MAX_Y);
+				p.y = y / (float)(BLOCKS_Y);
 				
-				float* noise = noisearray[x][z] + y / y_step;
-				*noise = 0.0f;
+				float& noise = noisearray[x][z][y / y_step];
+				noise = 0.0f;
 				
 				for (int i = 0; i < 4; i++)
 				{
 					// low-impact weights BEGONE!
 					if (biome.w[i] < 0.005f) continue;
-					
-					int id = Biome::toTerrain(biome.b[i]);
-					*noise += terrainFuncs.get(id, p) * biome.w[i];
+					// Note: using @hvalue directly here (the heightmap value)
+					// noise total is terrain (density function) * (weight) for all 4 weights summed
+					noise += terrainFuncs.get(id[i], p, hvalue) * biome.w[i];
 					
 				} // weights
 				
-				// caves
-				cave_array[x][z][y / y_step] = terrainFuncs.get(Biome::T_CAVES, p);
+				// cave density function
+				cave_array[x][z][y / y_step] = terrainFuncs.get(Biome::T_CAVES, p, hvalue);
 				
 			} // for(y)
 		}
 		
 		// generating from top to bottom, not including y == 0
-		for (int y = 0; y < MAX_Y; y++)
+		for (int x = 0; x < BLOCKS_XZ; x++)
 		{
-			int   iy  = y / y_step;
-			float fry = (y % y_step) / (float) y_step;
+			float fx = x / float(BLOCKS_XZ) * ngrid;
+			int bx = fx; // start x
+			float frx = fx - bx;
 			
-			// set generic blocks using getTerrainSimple()
-			// interpolate using linear bore-a-thon
-			float fx, fz;   // position in grid[]
-			float frx, frz; // fractionals
-			float w0, w1;   // interpolation weights
-			
-			for (int x = 0; x < BLOCKS_XZ; x++)
+			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
-				fx = x / float(BLOCKS_XZ) * ngrid;
-				int bx = fx; // start x
-				frx = fx - bx;
+				float fz = z / float(BLOCKS_XZ) * ngrid;
+				int bz = fz;  // integral
+				float frz = fz - bz;
 				
-				for (int z = 0; z < BLOCKS_XZ; z++)
+				float w0, w1;
+				// heightmap weights //
+				w0 = mix( heightmap[bx][bz  ], heightmap[bx+1][bz  ], frx );
+				w1 = mix( heightmap[bx][bz+1], heightmap[bx+1][bz+1], frx );
+				const int MAX_Y = mix( w0, w1, frz ) * 255.0;
+				// heightmap weights //
+				
+				// beachhead weights //
+				w0 = mix( beachhead[bx][bz  ], beachhead[bx+1][bz  ], frx );
+				w1 = mix( beachhead[bx][bz+1], beachhead[bx+1][bz+1], frx );
+				float beach = mix( w0, w1, frz );
+				// beachhead weights //
+				
+				for (int y = 0; y < MAX_Y; y++)
 				{
-					glm::vec3 p = data->getBaseCoords3D(x, y, z);
-					
-					fz = z / float(BLOCKS_XZ) * ngrid;
-					int bz = fz;  // integral
-					frz = fz - bz;
+					int   iy  = y / y_step;
+					float fry = (y % y_step) / (float) y_step;
 					
 					// density weights //
 					// mix all Y-variants
@@ -248,30 +269,23 @@ namespace terragen
 							// caves density //
 						} else caves = 0.0f;
 						
-						// beachhead weights //
-						w0 = mix( beachhead[bx][bz  ], beachhead[bx+1][bz  ], frx );
-						w1 = mix( beachhead[bx][bz+1], beachhead[bx+1][bz+1], frx );
-						float beach = mix( w0, w1, frz );
-						// beachhead weights //
-						
-						data->sblock(x, y, z) = getBlock(p.y, beach, density, caves);
+						data->sblock(x, y, z) = getBlock(y / float(BLOCKS_Y), beach, density, caves);
 					}
 					else
 					{
 						new (&data->getb(x, y, z)) Block(_AIR);
 					}
 					
-				} // z
+				} // y
+				// fill the rest with _AIR
+				for (int y = MAX_Y; y < BLOCKS_Y; y++)
+				{
+					new (&data->getb(x, y, z)) Block(_AIR);
+				}
 				
-			} // x
+			} // z
 			
-		} // y
-		for (int y = MAX_Y; y < BLOCKS_Y; y++)
-		{
-			for (int x = 0; x < BLOCKS_XZ; x++)
-			for (int z = 0; z < BLOCKS_XZ; z++)
-				new (&data->getb(x, y, z)) Block(_AIR);
-		}
+		} // x
 		
 	} // generateTerrain()
 

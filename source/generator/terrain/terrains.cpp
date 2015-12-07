@@ -18,29 +18,32 @@ namespace terragen
 {
 	TerrainFunctions terrainFuncs;
 	
-	float getnoise_caves(vec3 p);
-	float getnoise_icecap(vec3 p);
-	float getnoise_snow(vec3 p);
-	float getnoise_autumn(vec3 p);
-	float getnoise_islands(vec3 p);
-	float getnoise_grass(vec3 p);
-	float getnoise_marsh(vec3 p);
-	float getnoise_jungle(vec3 p);
-	float getnoise_desert(vec3 p);
+	float getnoise_caves(vec3 p,  float hvalue);
+	float getnoise_icecap(vec3 p, float hvalue);
+	float getnoise_snow(vec3 p,   float hvalue);
+	float getnoise_autumn(vec3 p, float hvalue);
+	float getnoise_islands(vec3 p, float hvalue);
+	float getnoise_grass(vec3 p,  float hvalue);
+	float getnoise_marsh(vec3 p,  float hvalue);
+	float getnoise_jungle(vec3 p, float hvalue);
+	float getnoise_desert(vec3 p, float hvalue);
+	
+	float getheight_shitass(glm::vec2 p)
+	{
+		return 0.5;
+	}
 	
 	void TerrainFunctions::init()
 	{
-		funcs.resize(Biome::T_TERRAINS);
-		
-		funcs[Biome::T_CAVES] = getnoise_caves;
-		funcs[Biome::T_ICECAP] = getnoise_icecap;
-		funcs[Biome::T_SNOW] = getnoise_snow;
-		funcs[Biome::T_AUTUMN] = getnoise_autumn;
-		funcs[Biome::T_ISLANDS] = getnoise_islands;
-		funcs[Biome::T_GRASS] = getnoise_grass;
-		funcs[Biome::T_MARSH] = getnoise_marsh;
-		funcs[Biome::T_JUNGLE] = getnoise_jungle;
-		funcs[Biome::T_DESERT] = getnoise_desert;
+		terrains.emplace_back(getheight_shitass, getnoise_caves);
+		terrains.emplace_back(getheight_shitass, getnoise_icecap);
+		terrains.emplace_back(getheight_shitass, getnoise_snow);
+		terrains.emplace_back(getheight_shitass, getnoise_autumn);
+		terrains.emplace_back(getheight_shitass, getnoise_islands);
+		terrains.emplace_back(getheight_shitass, getnoise_grass);
+		terrains.emplace_back(getheight_shitass, getnoise_marsh);
+		terrains.emplace_back(getheight_shitass, getnoise_jungle);
+		terrains.emplace_back(getheight_shitass, getnoise_desert);
 	}
 	
 	///////////////////////////////////////////////////
@@ -58,7 +61,7 @@ namespace terragen
 		return 1.0;
 	}
 	
-	float getnoise_caves(vec3 p)
+	float getnoise_caves(vec3 p, float hvalue)
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 		
@@ -97,7 +100,7 @@ namespace terragen
 		return 0.1;
 	}
 
-	float getnoise_icecap(vec3 p)
+	float getnoise_icecap(vec3 p, float hvalue)
 	{
 		p.x *= 0.005;
 		p.z *= 0.005;
@@ -115,7 +118,7 @@ namespace terragen
 		return p.y - 0.3 + COSN_icecap1 * 0.05 + COSN_icecap2 * 0.1;
 	}
 	
-	float getnoise_snow(vec3 p)
+	float getnoise_snow(vec3 p, float hvalue)
 	{
 		p.x *= 0.006;
 		p.z *= 0.006;
@@ -148,7 +151,7 @@ namespace terragen
 		return n1;
 	}
 	
-	float getnoise_autumn(vec3 p)
+	float getnoise_autumn(vec3 p, float hvalue)
 	{
 		p.x *= 0.004; p.z *= 0.004;
 		
@@ -157,7 +160,7 @@ namespace terragen
 		return n1;
 	}
 	
-	float getnoise_islands(vec3 p)
+	float getnoise_islands(vec3 p, float hvalue)
 	{
 		p.x *= 0.008;
 		p.z *= 0.008;
@@ -291,7 +294,7 @@ namespace terragen
 		return d;
 	}
 
-	float getnoise_grass(vec3 p)
+	float getnoise_grass(vec3 p, float hvalue)
 	{
 		p.x *= 0.002; p.z *= 0.002;
 		
@@ -334,7 +337,7 @@ namespace terragen
 		//return noi;
 	}
 
-	float getnoise_marsh(vec3 p)
+	float getnoise_marsh(vec3 p, float hvalue)
 	{
 		p.x *= 0.002;
 		p.z *= 0.002;
@@ -384,7 +387,7 @@ namespace terragen
 		return n1 + river * 0.04; //fabsf(n2) * 8.0;
 	}
 
-	float getnoise_jungle(vec3 p)
+	float getnoise_jungle(vec3 p, float hvalue)
 	{
 		float inv_y = 1.0 - p.y;
 		p.x *= 0.003;
@@ -430,7 +433,7 @@ namespace terragen
 		return n1;
 	}
 
-	float getnoise_desert(vec3 p)
+	float getnoise_desert(vec3 p, float hvalue)
 	{
 		p.x *= 0.01;
 		p.z *= 0.01;

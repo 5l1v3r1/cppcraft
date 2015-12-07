@@ -27,7 +27,7 @@ namespace cppcraft
 		GLshort v;
 		GLshort w;
 		// 2-channels skylight & torchlight
-    GLushort light;
+		GLushort light;
 		// 4-channels terrain color
 		GLuint color; // 20
 		

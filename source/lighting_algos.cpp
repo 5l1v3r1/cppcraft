@@ -38,7 +38,9 @@ namespace cppcraft
 		
 		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		//assert(sector.generated());
-		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
+		int bx = x & (BLOCKS_XZ-1);
+    int bz = z & (BLOCKS_XZ-1);
+    Block& blk2 = sector(bx, y, bz);
 		
 		// decrease light level based on what we hit
 		level -= lightPenetrate(blk2);
@@ -52,7 +54,30 @@ namespace cppcraft
 		blk2.setChannel(ch, level);
 		// make sure the sectors mesh is updated, since something was changed
 		if (!sector.isUpdatingMesh()) sector.updateAllMeshes();
-		
+    // update all neighboring sectors :(
+    if (bx == 0 || bx == BLOCKS_XZ-1 || bz == 0 || bz == BLOCKS_XZ-1)
+    {
+      if (bx == 0)
+      {
+        if (sector.getX() > 0)
+            sectors(sector.getX()-1, sector.getZ()).updateAllMeshes();
+      }
+      else if (bx == BLOCKS_XZ-1)
+      {
+        if (sector.getX()+1 < sectors.getXZ())
+            sectors(sector.getX()+1, sector.getZ()).updateAllMeshes();
+      }
+      if (bz == 0)
+      {
+        if (sector.getZ() > 0)
+            sectors(sector.getX(), sector.getZ()-1).updateAllMeshes();
+      }
+      else if (bz == BLOCKS_XZ-1)
+      {
+        if (sector.getZ()+1 < sectors.getXZ())
+            sectors(sector.getX(), sector.getZ()+1).updateAllMeshes();
+      }
+    }
 		switch (dir)
 		{
 		case 0: // +x

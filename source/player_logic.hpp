@@ -2,8 +2,9 @@
 #define PLAYER_LOGIC_HPP
 
 #include "blocks.hpp"
+#include "common.hpp"
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 #include <stdio.h>
 
 namespace cppcraft
@@ -49,13 +50,13 @@ namespace cppcraft
 		Sector* sector;
 		movestate_t movestate;
 		
-		// players current shadow/color
-		uint32_t light;
-		// current terrain type
-		int terrain;
-		
 		// selection
 		playerselect_t selection;
+		
+		// current terrain type
+		int terrain;
+		// players current shadow/color
+		light_value_t light;
 		
 		// temporary for jump-locking
 		bool jumplock;
@@ -102,9 +103,9 @@ namespace cppcraft
 		// walking / etc. sounds
 		void playerSounds();
 		
-		glm::vec4 getLight() const
+		glm::vec2 getLight() const
 		{
-			return glm::vec4(light & 0xFF, (light >> 8) & 0xFF, (light >> 16) & 0xFF, light >> 24) / 255.0f;
+			return glm::vec2(light & 0xFF, (light >> 8) & 0xFF) / 255.0f;
 		}
 		
 		unsigned short determineSelectionFacing(Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize);

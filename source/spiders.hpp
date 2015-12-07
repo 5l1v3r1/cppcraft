@@ -1,6 +1,7 @@
 #ifndef SPIDERS_HPP
 #define SPIDERS_HPP
 
+#include "common.hpp"
 #include "sector.hpp"
 #include <glm/vec3.hpp>
 
@@ -43,7 +44,7 @@ namespace cppcraft
 		static void updateSurroundings(Sector&, int bx, int by, int bz);
 		
 		// returns the light values at (x, y, z)
-		static uint32_t getLightNow(float x, float y, float z);
+		static light_value_t getLightNow(float x, float y, float z);
 	};
 	extern Block air_block;
 }

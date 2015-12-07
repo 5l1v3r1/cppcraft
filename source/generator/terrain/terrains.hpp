@@ -1,9 +1,7 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <functional>
+#include "terrain.hpp"
 #include <vector>
-
 
 namespace terragen
 {
@@ -13,13 +11,16 @@ namespace terragen
 		void init();
 		
 		// calls specified terrain function
-		float get(int id, glm::vec3& p)
+		inline float get(int id, const glm::vec2& p)
 		{
-			return funcs[id](p);
+			return terrains[id].func2d(p);
+		}
+		inline float get(int id, const glm::vec3& p, float hvalue)
+		{
+			return terrains[id].func3d(p, hvalue);
 		}
 		
-		// vector of terrain functions
-		std::vector< std::function<float(glm::vec3&)> > funcs;
+		std::vector<Terrain> terrains;
 	};
 	extern TerrainFunctions terrainFuncs;
 }

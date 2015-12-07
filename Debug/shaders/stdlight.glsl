@@ -16,5 +16,5 @@ cornershad = min(1.0, cornershad * worldLight + brightness * 0.125);
 // final shadow applied
 color.rgb *= cornershad * shadow;
 //color.rgb = vec3(brightness);
-vec3 torchColor = vec3(1.0, 1.0, 0.75);
-color.rgb = mix(color.rgb, torchColor, brightness * 0.2);
+//vec3 torchColor = vec3(1.0, 1.0, 0.75);
+//color.rgb = mix(color.rgb, torchColor, brightness * 0.2);
