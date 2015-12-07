@@ -48,17 +48,19 @@ float fogDensity(in vec3  ray,
 {
 	const float HEIGHT   = 64.0;
 	const float fogY     = 64.0;
+	const float density  = 0.1;
+	const float falloff  = 2.0;
 	
 	// distance in fog
-	float foglen = smoothstep(0.15, 0.75, depth);
+	float foglen = smoothstep(0.0, 1.0, depth);
 	
 	// how far are we from center of fog?
 	float foglevel = min(1.0, abs(point.y - fogY) / HEIGHT);
 	float above = 1.0 - step(point.y, fogY);
 	// make S-curve/gradient
-	foglevel = 1.0 - smoothstep(0.0, 1.0, foglevel);
+	foglevel = smoothstep(0.0, 1.0, 1.0 - foglevel);
 	// steeper curve under fog center (fogY)
-	foglevel = above * foglevel + (1.0 - above) * 1.0;
+	//foglevel = above * foglevel + (1.0 - above) * 1.0;
 	
 	return foglevel * foglen;
 }
@@ -94,7 +96,7 @@ void main()
 	// volumetric fog
 	float fogAmount = fogDensity(ray, wpos.xyz, depth);
 	// fog density
-	fogAmount *= 0.5;
+	fogAmount *= 0.6;
 	
 	// mix in the sun effect
 	const vec3 sunBaseColor = vec3(1.0, 0.8, 0.5);
@@ -111,13 +113,8 @@ void main()
 	float edge = smoothstep(0.75, 1.0, depth);
 	color.rgb = mix(color.rgb, skyColor, edge);
 	
-	// determine final color luminance (AFTER sky, and after sun)
-	//const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
-	//float luminance = min(1.0, 0.3 + 3.0 * dot(color.rgb, LUMA));
-	// the fogs color is thus:
-	//vec3 fogBaseColor = vec3(0.7) * luminance * daylight * daylight;
-	vec3 fogBaseColor = vec3(0.7) * daylight * daylight;
-	
+	// final fog color (AFTER sky, and after sun)
+	vec3 fogBaseColor = vec3(0.5, 0.6, 0.7) * daylight * daylight;
 	// then finally, add the height-based fog
 	color.rgb = mix(color.rgb, fogBaseColor, fogAmount);
 	// ... and, use alpha-channel as depth

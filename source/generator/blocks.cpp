@@ -247,9 +247,12 @@ namespace terragen
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_GRASS; };
 			solid.indexColored = true;
 			solid.minimapColor =
-			[] (const Block&, const Sector& s, int x, int, int z)
+			[] (const Block& b, const Sector& s, int x, int, int z)
 			{
-				return s.flat()(x, z).fcolor[Biome::CL_GRASS];
+				if (b.getBits() == 0)
+					return s.flat()(x, z).fcolor[Biome::CL_GRASS];
+				else
+					return BGRA8(255, 255, 255, 255);
 			};
 			solid.getName = [] (const Block&) { return "Grass Block"; };
 			solid.getTexture =
