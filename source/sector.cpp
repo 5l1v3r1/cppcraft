@@ -63,14 +63,6 @@ namespace cppcraft
 		return sqrtf(dx*dx + dz*dz) - (BLOCKS_XZ / 2) * sqrtf(3.0);
 	}
 	
-	void Sector::updateMeshesAt(int y)
-	{
-		precompq.add(*this, y / 32);
-	}
-	void Sector::updateByMask(uint8_t mask)
-	{
-		precompq.add(*this, mask);
-	}
 	void Sector::updateAllMeshes()
 	{
 		precompq.add(*this, 0xFF);
@@ -79,12 +71,8 @@ namespace cppcraft
 	void Sector::clear()
 	{
 		// clear many flags, ... bite me
+		gen_flags    = 0;
+		objects      = 0;
 		atmospherics = false;
-		// invalidate blocks
-		//this->gen_flags = 0;
-		
-		// zero the blocks (why?)
-		blockpt->blocks = 0;
-		//memset(blockpt, 0, sizeof(Sector::sectorblock_t));
 	}
 }

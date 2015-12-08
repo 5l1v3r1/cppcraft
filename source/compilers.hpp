@@ -22,7 +22,6 @@ namespace cppcraft
 		static void init();
 		static void run();
 	};
-	extern Compilers compilers;
 }
 
 #endif

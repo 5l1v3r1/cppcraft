@@ -147,24 +147,36 @@ namespace cppcraft
 			if (x >= 0 && x < sectors.getXZ() &&
 				z >= 0 && z < sectors.getXZ())
 			{
-				//printf("Sector was generated: (%d, %d)\n",
-				//	dest.getX(), dest.getZ());
-				
 				// resultant sector
 				Sector& dest = sectors(x, z);
-				// copy from terragen into sector
-				memcpy( &dest.getBlocks(), &gdata->sblock, sizeof(Sector::sectorblock_t) );
-				// also, swap out the flatland data
+				//printf("Sector was generated: (%d, %d)\n", dest.getX(), dest.getZ());
+				
+				// swap out generated blocks
+				dest.assignBlocks(gdata->unassignBlocks());
+				// and, swap out the flatland data
 				dest.flat().assign(gdata->flatl.unassign());
 				// toggle sector generated flag, as well as removing generating flag
 				dest.meshgen      = 0; // make sure its added to meshgen
 				dest.gen_flags    = Sector::GENERATED;
+				// we just generated this, it couldnt possibly have any objects scheduled for it? could it?
 				dest.objects      = gdata->objects.size();
 				dest.atmospherics = false;
 				
 				// add all the objects from this sector to object queue
-				if (gdata->objects.size())
+				if (!gdata->objects.empty())
 					terragen::ObjectQueue::add(gdata->objects);
+				
+				int worldX = sectors(0, 0).getWX() * BLOCKS_XZ;
+				int worldZ = sectors(0, 0).getWZ() * BLOCKS_XZ;
+				
+				for (terragen::GenObject& obj : gdata->objects)
+				{
+					int sectX = (obj.x - worldX) / BLOCKS_XZ;
+					int sectZ = (obj.z - worldZ) / BLOCKS_XZ;
+					
+					if (sectX != dest.getX() || sectZ != dest.getZ())
+						assert(0);
+				}
 				
 				// add it to the minimap!!!
 				minimap.addSector(dest);

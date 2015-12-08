@@ -107,9 +107,15 @@ namespace cppcraft
 			return this->meshgen != 0;
 		}
 		// update relevant parts of this sectors mesh
-		void updateByMask(uint8_t mask);
-		void updateMeshesAt(int by);
 		void updateAllMeshes();
+		inline void updateMeshesAt(int)
+		{
+			updateAllMeshes();
+		}
+		inline void updateByMask(uint8_t)
+		{
+			updateAllMeshes();
+		}
 		
 		// returns reference to a Block at (x, y, z)
 		inline const Block& operator() (int x, int y, int z) const
@@ -152,6 +158,11 @@ namespace cppcraft
 		{
 			return *blockpt;
 		}
+		inline void assignBlocks(sectorblock_t* blocks)
+		{
+			delete this->blockpt; // out with the old
+			this->blockpt = blocks; // in with the new
+		}
 		
 		std::string to_string() const
 		{
@@ -165,11 +176,11 @@ namespace cppcraft
 			return (bx * BLOCKS_XZ + bz) * BLOCKS_XZ + by;
 		}
 		
-		bool generated() const
+		inline bool generated() const
 		{
 			return gen_flags & 0x1;
 		}
-		bool generating() const
+		inline bool generating() const
 		{
 			return gen_flags & 0x2;
 		}

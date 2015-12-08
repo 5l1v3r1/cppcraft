@@ -235,6 +235,8 @@ namespace terragen
 				float beach = mix( w0, w1, frz );
 				// beachhead weights //
 				
+				Block* block = &data->getb(x, 0, z);
+				
 				for (int y = 0; y < MAX_Y; y++)
 				{
 					int   iy  = y / y_step;
@@ -269,18 +271,18 @@ namespace terragen
 							// caves density //
 						} else caves = 0.0f;
 						
-						data->sblock(x, y, z) = getBlock(y / float(BLOCKS_Y), beach, density, caves);
+						block[y] = getBlock(y / float(BLOCKS_Y), beach, density, caves);
 					}
 					else
 					{
-						new (&data->getb(x, y, z)) Block(_AIR);
+						new (&block[y]) Block(_AIR);
 					}
 					
 				} // y
 				// fill the rest with _AIR
 				for (int y = MAX_Y; y < BLOCKS_Y; y++)
 				{
-					new (&data->getb(x, y, z)) Block(_AIR);
+					new (&block[y]) Block(_AIR);
 				}
 				
 			} // z

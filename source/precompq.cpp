@@ -95,7 +95,7 @@ namespace cppcraft
 		return sectors.on3x3(*sect,
 		[] (Sector& sect)
 		{
-			return sect.generated();
+			return sect.generated() && sect.objects == 0;
 		});
 	}
 	

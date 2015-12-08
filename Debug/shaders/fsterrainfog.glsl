@@ -46,23 +46,22 @@ float fogDensity(in vec3  ray,
 				 in vec3  point,
 				 in float depth)
 {
-	const float HEIGHT   = 64.0;
+	const float DENSITY  = 0.6;
+	const float HEIGHT   = 32.0;
 	const float fogY     = 64.0;
-	const float density  = 0.1;
-	const float falloff  = 2.0;
 	
 	// distance in fog
-	float foglen = smoothstep(0.0, 1.0, depth);
+	float foglen = pow(depth, 0.5);
 	
 	// how far are we from center of fog?
-	float foglevel = min(1.0, abs(point.y - fogY) / HEIGHT);
-	float above = 1.0 - step(point.y, fogY);
+	float foglevel = max(0.0, 1.0 - abs(point.y - fogY) / HEIGHT);
 	// make S-curve/gradient
-	foglevel = smoothstep(0.0, 1.0, 1.0 - foglevel);
+	foglevel = smoothstep(0.0, 1.0, foglevel);
 	// steeper curve under fog center (fogY)
-	//foglevel = above * foglevel + (1.0 - above) * 1.0;
+	float above = 1.0 - step(point.y, fogY);
+	foglevel = above * foglevel + (1.0 - above) * 1.0;
 	
-	return foglevel * foglen;
+	return foglevel * foglen * DENSITY;
 }
 
 float linearDepth(in vec2 uv)
@@ -95,8 +94,6 @@ void main()
 	
 	// volumetric fog
 	float fogAmount = fogDensity(ray, wpos.xyz, depth);
-	// fog density
-	fogAmount *= 0.6;
 	
 	// mix in the sun effect
 	const vec3 sunBaseColor = vec3(1.0, 0.8, 0.5);

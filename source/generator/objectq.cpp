@@ -28,14 +28,14 @@ namespace terragen
 	
 	void ObjectQueue::run_internal()
 	{
+		if (objects.empty()) return;
+		
 		int worldX = sectors(0, 0).getWX() * BLOCKS_XZ;
 		int worldZ = sectors(0, 0).getWZ() * BLOCKS_XZ;
 		
-		if (objects.empty()) return;
-		
 		for (auto it = objects.begin(); it != objects.end();)
 		{
-			GenObject& obj = objects.front();
+			GenObject& obj = *it;
 			
 			int sectX = (obj.x - worldX) / BLOCKS_XZ;
 			int sectZ = (obj.z - worldZ) / BLOCKS_XZ;
@@ -55,10 +55,14 @@ namespace terragen
 					// ..... and remove from queue
 					objects.erase(it++);
 					// reduce the object count on sector (FIXME)
+					//assert (sector.objects);
 					if (sector.objects)
 						sector.objects--;
 				}
-				else ++it;
+				//else ++it;
+				// Note: if the sector can't be validated, its extremely unlikely
+				// any sectors further out can be validated.. we might as well exit
+				return;
 			}
 			else if (sectX < 0 || sectX >= sectors.getXZ()
 				  || sectZ < 0 || sectZ >= sectors.getXZ())

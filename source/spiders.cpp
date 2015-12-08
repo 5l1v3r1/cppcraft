@@ -138,6 +138,7 @@ namespace cppcraft
 		// not really cause to exit, since torchlights can still affect someone barely outside of world,
 		// but whatever, we exit when out of bounds
 		if (sector == nullptr) return 0;
+		if (sector->generated() == false) return 0;
 		
 		// return calculated shadows & lighting
 		return Lighting::lightValue((*sector)(ix, iy, iz));

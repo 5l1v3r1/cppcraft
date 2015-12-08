@@ -17,23 +17,26 @@ namespace terragen
 	
 	struct gendata_t
 	{
-		gendata_t(int wx, int wz)
+		gendata_t(int WX, int WZ)
+			: wx(WX), wz(WZ)
 		{
-			// sector position (in sectors):
-			this->wx = wx;
-			this->wz = wz;
 			// position we use to generate with:
 			genx = (wx - cppcraft::World::WORLD_CENTER);
 			genx *= BLOCKS_XZ;
 			genz = (wz - cppcraft::World::WORLD_CENTER);
 			genz *= BLOCKS_XZ;
 			
+			// allocate new block data to avoid a copy at the end
+			sblock = new Sector::sectorblock_t;
 			// create new flatland data, since it isnt allocated by default :(
 			flatl.assign(new Flatland::flatland_t[BLOCKS_XZ*BLOCKS_XZ]);
 		}
+		gendata_t(const gendata_t&) = delete;
+		gendata_t& operator= (const gendata_t&) = delete;
 		~gendata_t()
 		{
 			delete[] flatl.unassign();
+			delete sblock;
 		}
 		
 		Biome::biome_t& getWeights(int x, int z)
@@ -56,7 +59,14 @@ namespace terragen
 		
 		inline Block& getb(int x, int y, int z)
 		{
-			return sblock(x, y, z);
+			return (*sblock)(x, y, z);
+		}
+		
+		inline Sector::sectorblock_t* unassignBlocks()
+		{
+			Sector::sectorblock_t* sb = sblock;
+			sblock = nullptr;
+			return sb;
 		}
 		
 		/// === working set === ///
@@ -70,8 +80,8 @@ namespace terragen
 		
 		/// === results === ///
 		// ALL final results produced from terragen is in sblock and flatl
-		Sector::sectorblock_t sblock; // the blocks
-		Flatland flatl;               // 2d data, colors etc.
+		Sector::sectorblock_t* sblock; // the blocks
+		Flatland flatl;                // 2d data, colors etc.
 		std::vector<GenObject> objects;
 		/// === results === ///
 	};
