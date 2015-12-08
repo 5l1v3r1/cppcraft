@@ -30,7 +30,7 @@ namespace cppcraft
 		static const int REPEAT_FACTOR;
 		
 		//! returns the terrain color @index for (bx, bz)
-		light_value_t getColor(int bx, int bz, int index)
+		uint32_t getColor(int bx, int bz, int index)
 		{
 			return sector->fget(bx, bz).fcolor[index];
 		}

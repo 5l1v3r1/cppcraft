@@ -81,6 +81,7 @@ void main(void)
 	// mix diffuse map
 	color = texture(diffuse, texCoord);
 	color.rgb = mix(color.rgb, tone.rgb, tone.a);
+	//color.rgb = biomeColor.rgb;
 	
 	#include "degamma.glsl"
 	#include "stdlight.glsl"

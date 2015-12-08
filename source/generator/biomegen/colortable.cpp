@@ -200,7 +200,7 @@ namespace terragen
 		case Biome::T_DESERT:  // 
 			return RGB(121, 96, 90);
 		}
-		return RGB(255, 0, 255);
+		return RGB(255, 255, 255);
 	}
 	
 }

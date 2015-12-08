@@ -46,7 +46,7 @@ float fogDensity(in vec3  ray,
 				 in vec3  point,
 				 in float depth)
 {
-	const float DENSITY  = 0.6;
+	const float DENSITY  = 0.5;
 	const float HEIGHT   = 32.0;
 	const float fogY     = 64.0;
 	

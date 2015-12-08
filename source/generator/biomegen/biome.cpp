@@ -224,7 +224,7 @@ namespace terragen
 			}
 			
 			// modulate stone color
-			biomecl[CL_STONE] = getGradient4x4(random1, random2, StonyColors);
+			//biomecl[CL_STONE] = getGradient4x4(random1, random2, StonyColors);
 			
 			// skip colors for the edges, where we only care about the terrain weights
 			if (skip_colors == false)
