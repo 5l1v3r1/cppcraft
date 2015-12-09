@@ -2,6 +2,7 @@
 #define SCREENSPACE_HPP
 
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
 namespace library
@@ -33,6 +34,9 @@ namespace cppcraft
 		unsigned int flareFBO;
 		
 		int underwater;
+		glm::vec4 currentFog;
+		float     currentFogHeight{16};
+		double currentTime;
 		
 		friend class Textureman;
 	};

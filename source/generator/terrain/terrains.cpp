@@ -1,8 +1,8 @@
 #include "terrains.hpp"
 
 #include <library/noise/cosnoise.hpp>
-#include <library/noise/simplex1234.h>
-#include <library/math/toolbox.hpp>
+#include <library/noise/simplex1234.h> // snoise1
+#include <library/bitmap/colortools.hpp>
 #include "../biomegen/biome.hpp"
 #include "noise.hpp"
 #include "helpers.hpp"
@@ -16,7 +16,7 @@ using namespace library;
 
 namespace terragen
 {
-	TerrainFunctions terrainFuncs;
+	Terrains terrains;
 	
 	float getnoise_caves(vec3 p,  float hvalue);
 	float getnoise_icecap(vec3 p, float hvalue);
@@ -28,22 +28,74 @@ namespace terragen
 	float getnoise_jungle(vec3 p, float hvalue);
 	float getnoise_desert(vec3 p, float hvalue);
 	
-	float getheight_shitass(glm::vec2 p)
+	static float getheight_shitass(glm::vec2 p)
 	{
-		return 0.5;
+		return 0.5 + glm::simplex(p * 0.01f) * 0.1;
 	}
 	
-	void TerrainFunctions::init()
+	static uint16_t T_ICECAP, T_SNOW;
+	static uint16_t T_AUTUMN, T_ISLANDS;
+	static uint16_t T_GRASS,  T_MARSH;
+	static uint16_t T_JUNGLE, T_DESERT;
+	
+	static uint32_t grassyColor(uint16_t t, uint8_t, glm::vec2)
 	{
-		terrains.emplace_back(getheight_shitass, getnoise_caves);
-		terrains.emplace_back(getheight_shitass, getnoise_icecap);
-		terrains.emplace_back(getheight_shitass, getnoise_snow);
-		terrains.emplace_back(getheight_shitass, getnoise_autumn);
-		terrains.emplace_back(getheight_shitass, getnoise_islands);
-		terrains.emplace_back(getheight_shitass, getnoise_grass);
-		terrains.emplace_back(getheight_shitass, getnoise_marsh);
-		terrains.emplace_back(getheight_shitass, getnoise_jungle);
-		terrains.emplace_back(getheight_shitass, getnoise_desert);
+		if (t == T_JUNGLE || t == T_MARSH)
+			return RGBA8(16, 100, 0, 255);
+		
+		return RGBA8(4, 156, 0, 255);
+	}
+	static uint32_t stonyColor(uint16_t t, uint8_t, glm::vec2)
+	{
+		if (t == T_ICECAP || t == T_SNOW)
+			return RGBA8(180, 180, 180, 255);
+		else if (t == T_DESERT)
+			return RGBA8(128, 80, 80, 255);
+		
+		return RGBA8(128, 128, 128, 255);
+	}
+	
+	void Terrains::init()
+	{
+		add("caves",  "Caves",  getheight_shitass, getnoise_caves);
+		add("icecap", "Icecap", getheight_shitass, getnoise_icecap);
+		add("snow",   "Snow",   getheight_shitass, getnoise_snow);
+		add("autumn", "Autumn", getheight_shitass, getnoise_autumn);
+		add("islands","Islands", getheight_shitass, getnoise_islands);
+		add("grass",  "Grasslands", getheight_shitass, getnoise_grass);
+		add("marsh",  "Marsh",  getheight_shitass, getnoise_marsh);
+		add("jungle", "Jungle", getheight_shitass, getnoise_jungle);
+		add("desert", "Desert", getheight_shitass, getnoise_desert);
+		
+		T_ICECAP  = terrains["icecap"];
+		T_SNOW    = terrains["snow"];
+		T_AUTUMN  = terrains["autumn"];
+		T_GRASS   = terrains["grass"];
+		T_ISLANDS = terrains["islands"];
+		T_MARSH   = terrains["marsh"];
+		T_JUNGLE  = terrains["jungle"];
+		T_DESERT  = terrains["desert"];
+		
+		for (size_t t = 0; t < terrains.size(); t++)
+		{
+			// default colors
+			terrains[t].setColor(Biome::CL_GRASS, grassyColor);
+			terrains[t].setColor(Biome::CL_CROSS, grassyColor);
+			terrains[t].setColor(Biome::CL_TREES, grassyColor);
+			terrains[t].setColor(Biome::CL_STONE, stonyColor);
+			
+			// fog settings
+			if (t == 0) // T_CAVES
+				terrains[t].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f), 96);
+			else if (t == T_ICECAP || t == T_SNOW)
+				terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 1.0f), 48);
+			else if (t == T_DESERT)
+				terrains[t].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
+			else if (t == T_MARSH || t == T_JUNGLE)
+				terrains[t].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
+			else
+				terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 32);
+		}
 	}
 	
 	///////////////////////////////////////////////////

@@ -263,7 +263,7 @@ namespace cppcraft
 		
 		if (fabs(player.accel.x) > MINIMUM_PLAYER_ACCELERATION_SPEED)
 		{
-			double dx = player.pos.x + player.accel.x;
+			float dx = player.pos.x + player.accel.x;
 			
 			// regular movement test
 			s[0] = Spiders::testAreaEx(dx, player.pos.y - fw_downtest, player.pos.z);
@@ -329,7 +329,7 @@ namespace cppcraft
 		
 		if (fabs(player.accel.z) > MINIMUM_PLAYER_ACCELERATION_SPEED)
 		{
-			double dz = player.pos.z + player.accel.z;
+			float dz = player.pos.z + player.accel.z;
 			
 			// regular movement test
 			s[0] = Spiders::testAreaEx(player.pos.x, player.pos.y - fw_downtest, dz);
@@ -398,9 +398,17 @@ namespace cppcraft
 		{
 			Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);
 			if (flat != nullptr)
-				plogic.terrain = flat->terrain;
+			{
+				int skylight = plogic.light & 0xFF;
+				// if the player is below something, and its REALLY dark,
+				// then we change to super-dark terrain (T_CAVES)
+				if (player.pos.y < flat->groundLevel && skylight == 0)
+					plogic.terrain = 0; // T_CAVES
+				else
+					plogic.terrain = flat->terrain;
+			}
 			else
-				plogic.terrain = 5; // no value is better than any other here..
+				plogic.terrain = 0; // no value is better than any other here..
 		}
 		
 		// if the player is flying, set certain flags and just exit

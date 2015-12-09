@@ -175,10 +175,13 @@ namespace terragen
 			int id[4];
 			for (int i = 0; i < 4; i++)
 			{
+				// NOTE: needed to avoid invalid terrain ids
+				if (biome.w[i] < 0.005f) continue;
 				// determine terrain ID for biome value
 				id[i]   = Biome::toTerrain(biome.b[i]);
+				
 				// use ID to get total weighted terrain height
-				hvalue += terrainFuncs.get(id[i], p2) * biome.w[i];
+				hvalue += terrains.get(id[i], p2) * biome.w[i];
 			}
 			
 			heightmap[x][z] = hvalue;
@@ -199,12 +202,12 @@ namespace terragen
 					if (biome.w[i] < 0.005f) continue;
 					// Note: using @hvalue directly here (the heightmap value)
 					// noise total is terrain (density function) * (weight) for all 4 weights summed
-					noise += terrainFuncs.get(id[i], p, hvalue) * biome.w[i];
+					noise += terrains.get(id[i], p, hvalue) * biome.w[i];
 					
 				} // weights
 				
 				// cave density function
-				cave_array[x][z][y / y_step] = terrainFuncs.get(Biome::T_CAVES, p, hvalue);
+				cave_array[x][z][y / y_step] = terrains.get(Biome::T_CAVES, p, hvalue);
 				
 			} // for(y)
 		}

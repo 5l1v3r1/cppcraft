@@ -35,6 +35,9 @@ uniform float timeElapsed;
 uniform vec2 nearPlaneHalfSize;
 uniform vec2 screenSize;
 
+uniform vec4  fogData;
+uniform float fogHeight;
+
 in  vec2 texCoord;
 in  vec3 eye_direction;
 out vec4 color;
@@ -42,26 +45,25 @@ out vec4 color;
 const float ZFAR
 const float ZNEAR
 
-float fogDensity(in vec3  ray,
-				 in vec3  point,
-				 in float depth)
+float fog(in vec3  ray,
+		  in vec3  point,
+		  in float depth)
 {
-	const float DENSITY  = 0.5;
-	const float HEIGHT   = 32.0;
-	const float fogY     = 64.0;
+	// fog is strongest at the waterline
+	const float fogY = 64.0;
 	
 	// distance in fog
 	float foglen = pow(depth, 0.5);
 	
 	// how far are we from center of fog?
-	float foglevel = max(0.0, 1.0 - abs(point.y - fogY) / HEIGHT);
+	float foglevel = max(0.0, 1.0 - abs(point.y - fogY) / fogHeight);
 	// make S-curve/gradient
 	foglevel = smoothstep(0.0, 1.0, foglevel);
 	// steeper curve under fog center (fogY)
 	float above = 1.0 - step(point.y, fogY);
 	foglevel = above * foglevel + (1.0 - above) * 1.0;
 	
-	return foglevel * foglen * DENSITY;
+	return foglevel * foglen;
 }
 
 float linearDepth(in vec2 uv)
@@ -93,7 +95,7 @@ void main()
 	wpos.xyz -= worldOffset;
 	
 	// volumetric fog
-	float fogAmount = fogDensity(ray, wpos.xyz, depth);
+	float fogAmount = fog(ray, wpos.xyz, depth) * fogData.a;
 	
 	// mix in the sun effect
 	const vec3 sunBaseColor = vec3(1.0, 0.8, 0.5);
@@ -111,9 +113,7 @@ void main()
 	color.rgb = mix(color.rgb, skyColor, edge);
 	
 	// final fog color (AFTER sky, and after sun)
-	vec3 fogBaseColor = vec3(0.5, 0.6, 0.7) * daylight * daylight;
-	// then finally, add the height-based fog
-	color.rgb = mix(color.rgb, fogBaseColor, fogAmount);
+	color.rgb = mix(color.rgb, fogData.rgb, fogAmount);
 	// ... and, use alpha-channel as depth
 	color.a   = depth;
 }

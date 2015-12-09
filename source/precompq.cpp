@@ -95,7 +95,7 @@ namespace cppcraft
 		return sectors.on3x3(*sect,
 		[] (Sector& sect)
 		{
-			return sect.generated() && sect.objects == 0;
+			return sect.generated();
 		});
 	}
 	
@@ -111,7 +111,7 @@ namespace cppcraft
 	
 	bool PrecompQ::run(Timer& timer, double timeOut)
 	{
-		if (!job_available() && !AsyncPool::available())
+		if (!job_available() || !AsyncPool::available())
 			return false;
 		
 		// since we are the only ones that can take stuff
@@ -125,7 +125,7 @@ namespace cppcraft
 			// we don't want to start jobs we can't finish
 			// this is also bound to be true at some point, 
 			// unless everything completely stopped...
-			if ((*it)->generated() && (*it)->meshgen != 0 && validateSector(*it))
+			if ((*it)->meshgen != 0 && validateSector(*it) && (*it)->objects == 0)
 			{
 				// make sure we have proper light
 				bool atmos = sectors.on3x3(**it,
@@ -161,14 +161,23 @@ namespace cppcraft
 				startJob(*it);
 				queue.erase(it);
 			}
-			else if ((*it)->generated() == false || (*it)->meshgen == 0)
-			{
-				queue.erase(it);
-			}
 			
-			// immediately exit while loop
+			// immediately exit while loop, as the sector was not validated
 			break;
 		}
+		
+		// -= try to clear out old shite =-
+		// NOTE: there will always be sectors that cannot be finished
+		// due to objects begin scheduled and not enough room to build them
+		for (auto it = queue.begin(); it != queue.end();)
+		{
+			if ((*it)->generated() == false || (*it)->meshgen == 0)
+				queue.erase(it++);
+			else
+				++it;
+		}
+		// -= try to clear out old shite =-
+		
 		// always check if time is out
 		return (timer.getTime() > timeOut);
 	}

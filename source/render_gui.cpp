@@ -153,10 +153,6 @@ namespace cppcraft
 		if (sector)
 		debugText += " obj: " + std::to_string(sector->objects);
 		
-		std::stringstream ss;
-		ss << " lava: " << drawq[RenderConst::TX_LAVA].count();
-		debugText = ss.str();
-		
 		font.print(glm::vec3(0.01, 0.02, 0.0), textScale, debugText, false);
 		
 		

@@ -178,29 +178,4 @@ namespace terragen
 		},
 	};
 	
-	// indirectly 2D gradients via weights
-	// can be made into arrays that match T_TERRAINS size
-	
-	RGB getStoneColor(int terrain)
-	{
-		switch (terrain)
-		{
-		case Biome::T_ICECAP:
-		case Biome::T_SNOW:    // 
-			return RGB(126, 126, 126);
-		case Biome::T_AUTUMN:  // 
-			return RGB(126, 126, 126);
-		case Biome::T_ISLANDS: // 
-			return RGB(126, 126, 126);
-		case Biome::T_GRASS:   // 
-			return RGB(126, 126, 126);
-		case Biome::T_MARSH:
-		case Biome::T_JUNGLE:  // 
-			return RGB(126, 126, 126);
-		case Biome::T_DESERT:  // 
-			return RGB(121, 96, 90);
-		}
-		return RGB(255, 255, 255);
-	}
-	
 }

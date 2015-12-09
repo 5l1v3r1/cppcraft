@@ -19,11 +19,10 @@ namespace terragen
 	void Generator::init()
 	{
 		// initialize various stuff
-		PostProcess::init();
 		extern void init_blocks();
 		init_blocks();
 		// make sure the terrain function list is populated
-		terrainFuncs.init();
+		terrains.init();
 		// first objects
 		extern void basic_tree(GenObject&, int, int);
 		objectDB.add(basic_tree);
@@ -31,6 +30,10 @@ namespace terragen
 		objectDB.add(basic_house);
 		extern void jungle_tree(GenObject& obj, int worldX, int worldZ);
 		objectDB.add(jungle_tree);
+		// cølørs
+		Biome::init();
+		// åres
+		PostProcess::init();
 	}
 	
 	void Generator::run(gendata_t* data)

@@ -1,12 +1,14 @@
 #ifndef BIOME_HPP
 #define BIOME_HPP
 
+#include <cstdint>
+
 namespace cppcraft
 {
 	class Biomes
 	{
 	public:
-		typedef unsigned int biomecolor_t;
+		typedef uint32_t biomecolor_t;
 		
 		// terrains
 		typedef enum

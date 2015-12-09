@@ -8,7 +8,7 @@ namespace cppcraft
 	static const int BLOCKS_Y  = 256;
 	
 	// scale up and down all terrains
-	const float BIOME_SCALE = 0.25;
+	const float BIOME_SCALE = 0.001;
 	
 	typedef uint16_t light_value_t;
 }

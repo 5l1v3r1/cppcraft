@@ -1,14 +1,20 @@
 #ifndef BIOMEGEN_COLORTABLE_HPP
 #define BIOMEGEN_COLORTABLE_HPP
 
+#include <cstdint>
+
 namespace terragen
 {
 	union RGB
 	{
 	public:
 		RGB() {}
-		RGB(int v)
-			: r(v), g(v), b(v) {}
+		RGB(uint32_t v)
+		{
+			r = (v >>  0) & 0xFF;
+			g = (v >>  8) & 0xFF;
+			b = (v >> 16) & 0xFF;
+		}
 		RGB(int R, int G, int B)
 			: r(R), g(G), b(B) {}
 		
@@ -52,8 +58,6 @@ namespace terragen
 	extern RGB clGrassyColors[GRAD_4x4];
 	extern RGB clJungleColors[GRAD_4x4];
 	extern RGB clDesertColors[GRAD_4x4];
-	
-	extern RGB getStoneColor(int terrain);
 }
 
 #endif

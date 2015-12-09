@@ -1,16 +1,19 @@
 #include "biome.hpp"
 
-#include <library/noise/simplex1234.h>
-#include <math.h>
+#include <glm/vec2.hpp>
+#include <glm/gtc/noise.hpp>
+#include <cmath>
 
 namespace terragen
 {
+	static const int BT_AXES = 8;
+	
 	// 2D biomes
-	int biomeTable[9][9] =
+	uint16_t biomeTable[BT_AXES+1][BT_AXES+1] =
 	{
-		{  0, 0, 0, 0, 0, 0, 0, 1,  1 },
-		{  0, 0, 0, 1, 2, 3, 2, 3,  3 },
-		{  1, 2, 3, 4, 5, 5, 6, 6,  6 },
+		{  0, 0, 0, 1, 1, 1, 1, 2,  7 },
+		{  1, 2, 2, 3, 4, 5, 6, 7,  7 },
+		{  2, 2, 3, 4, 5, 5, 6, 6,  6 },
 		{ 10,11, 3, 5, 5, 8, 7, 8,  8 },
 		{ 12,12, 7, 5, 6, 7, 8, 9,  9 },
 		{ 13,12, 9,10,11,12, 9,10, 10 },
@@ -19,7 +22,7 @@ namespace terragen
 		{ 14,13,18,15,16,16,20,17, 17 }
 	};
 	
-	int cols[21][3] =
+	const int cols[21][3] =
 	{
 		{ 232,232,232},  // ice
 		{ 89, 92, 76 },  // polar stone/ice desert
@@ -50,7 +53,16 @@ namespace terragen
 		{  31, 65, 13 }   // amazonas rf
 	};
 	
-	Biome::biome_t Biome::biomeGen(float gx, float gy)
+	void Biome::init()
+	{
+		for (int y = 0; y < BT_AXES; y++)
+		for (int x = 0; x < BT_AXES; x++)
+		{
+			//biomeTable[y][x] = ...;
+		}
+	}
+	
+	Biome::biome_t Biome::biomeGen(glm::vec2 pos)
 	{
 		biome_t biome;
 		/// code-snippet below used to generate only a single type of terrain
@@ -61,19 +73,17 @@ namespace terragen
 		biome.w[1] = biome.w[2] = biome.w[3] = 0.0;
 		return biome;
 		*/
-		gx *= 0.001; gy *= 0.001;
-	  
 		const float climateBias = 0.9; // <1.0 more warm, >1.0 more cold
 		const float edge = 0.75;
 		const float emul = 1.0 / (1.0 - edge);
 		
-		float b1 = 0.5 + 0.45*snoise2(gx*0.3, gy*0.3) + 0.05*snoise2(gx*3, gy*3);
-		float b2 = 0.5 + 0.45*snoise2(gy*1.0, gx*1.0) + 0.05*snoise2(gy*7, gx*7) + 0.025*snoise2(gy*14, gx*14);
+		float b1 = 0.5 + 0.45*glm::simplex(pos*0.3f) + 0.05*glm::simplex(pos*3.0f);
+		float b2 = 0.5 + 0.45*glm::simplex(pos*1.0f) + 0.05*glm::simplex(pos*7.0f) + 0.025*glm::simplex(pos*14.0f);
 		
 		b1 = powf(b1, climateBias);
 		
-		b1 *= 8.421; // b1 only reaches 0.95
-		b2 *= 8.0;
+		b1 *= BT_AXES / 0.95; // b1 only reaches 0.95
+		b2 *= BT_AXES;
 		if (b1 < 0) b1 = 0; else if (b1 >= 7.99999) b1 = 7.99999;
 		if (b2 < 0) b2 = 0; else if (b2 >= 7.99999) b2 = 7.99999;
 		// integral			// fractional

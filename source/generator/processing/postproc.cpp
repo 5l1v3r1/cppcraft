@@ -3,6 +3,7 @@
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "../random.hpp"
+#include "../terrain/terrains.hpp"
 #include "oregen.hpp"
 #include <library/noise/voronoi.hpp>
 #include <glm/gtc/noise.hpp>
@@ -17,7 +18,6 @@ namespace cppcraft
 
 namespace terragen
 {
-	static const int TER_CNT = Biome::T_TERRAINS;
 	static const int WATERLEVEL = 64;
 	
 	void PostProcess::init()
@@ -65,6 +65,11 @@ namespace terragen
 		/// reset ore generator
 		OreGen::reset();
 		
+		const size_t T_ICECAP = terrains["icecap"];
+		const size_t T_SNOW   = terrains["snow"];
+		const size_t T_GRASS  = terrains["grass"];
+		const size_t T_DESERT = terrains["desert"];
+		
 		/// village builder
 		bool village = false;
 		int simCity = 0;
@@ -103,7 +108,7 @@ namespace terragen
 			//float groundtype = glm::simplex(p * 0.001f) * 0.6 + 
 			//				   glm::simplex(p * 0.02f)  * 0.4;
 			
-			int terrain = gdata->flatl(x, z).terrain;
+			uint16_t terrain = gdata->flatl(x, z).terrain;
 			
 			for (int y = BLOCKS_Y-1; y > 0; y--)
 			{
@@ -120,17 +125,17 @@ namespace terragen
 					{
 						block.setID(_STONE);
 					}
-					else if (terrain == Biome::T_ICECAP && block.getID() != _BEACH)
+					else if (terrain == T_ICECAP && block.getID() != _BEACH)
 					{
 						// from grass to snow, although we would like full-snow
 						block.setBits(1);
 					}
-					else if (terrain == Biome::T_SNOW && block.getID() != _BEACH)
+					else if (terrain == T_SNOW && block.getID() != _BEACH)
 					{
 						// from grass to snow
 						block.setBits(1);
 					}
-					else if (terrain == Biome::T_DESERT && block.getID() != _BEACH)
+					else if (terrain == T_DESERT && block.getID() != _BEACH)
 					{
 						block.setID(_DESERT);
 					}
@@ -159,7 +164,7 @@ namespace terragen
 					// TODO: use poisson disc here
 					float rand = randf(wx, y, wz);
 					
-					if (terrain == Biome::T_GRASS && block.getID() == _GRASS)
+					if (terrain == T_GRASS && block.getID() == _GRASS)
 					{
 						// ministry of green forestry
 						if (rand < 0.03 && air > 16)

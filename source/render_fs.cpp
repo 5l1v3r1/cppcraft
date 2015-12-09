@@ -6,7 +6,6 @@
 #include <library/opengl/fbo.hpp>
 #include <library/opengl/vao.hpp>
 #include <library/opengl/window.hpp>
-#include <library/math/vector.hpp>
 #include "camera.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
@@ -14,6 +13,7 @@
 #include "shaderman.hpp"
 #include "sun.hpp"
 #include "textureman.hpp"
+#include "generator/terrain/terrains.hpp"
 
 using namespace library;
 
@@ -66,6 +66,24 @@ namespace cppcraft
 			// world offset for noise
 			shd.sendVec3("worldOffset", camera.getWorldOffset());
 		}
+		
+		terragen::Terrain& terrain = terragen::terrains[ plogic.terrain ];
+		
+		// avoid shit-ass laggs
+		if (currentTime + 0.1 < timeElapsed)
+		{
+			currentTime = timeElapsed;
+			//currentFog = terrain.fog;
+		}
+		while (currentTime <= timeElapsed)
+		{
+			currentTime += 0.01;
+			currentFog = currentFog * 0.95f + terrain.fog * 0.05f;
+			currentFogHeight = currentFogHeight * 0.95f + terrain.fog_height * 0.05f;
+		}
+		// the fogs color is ultimately dampened by daylight
+		shd.sendVec4("fogData", currentFog * thesun.getRealtimeDaylight());
+		shd.sendFloat("fogHeight", currentFogHeight);
 		
 		// render fullscreen quad
 		screenVAO.render(GL_QUADS);

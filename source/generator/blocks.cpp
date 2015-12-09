@@ -220,7 +220,11 @@ namespace terragen
 			BlockData solid = getSolidBlock();
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
 			solid.indexColored = true;
-			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
+			solid.minimapColor =
+			[] (const Block& b, const Sector& s, int x, int, int z)
+			{
+				return s.flat()(x, z).fcolor[Biome::CL_STONE];
+			};
 			solid.getName = [] (const Block&) { return "Molten Stone"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 15 * tiles.tilesX + 13; };
 			solid.shader = RenderConst::TX_SOLID;
