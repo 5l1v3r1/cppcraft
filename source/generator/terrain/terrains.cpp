@@ -67,6 +67,7 @@ namespace terragen
 		add("jungle", "Jungle", getheight_shitass, getnoise_jungle);
 		add("desert", "Desert", getheight_shitass, getnoise_desert);
 		
+		const int T_CAVES = 0;
 		T_ICECAP  = terrains["icecap"];
 		T_SNOW    = terrains["snow"];
 		T_AUTUMN  = terrains["autumn"];
@@ -83,19 +84,22 @@ namespace terragen
 			terrains[t].setColor(Biome::CL_CROSS, grassyColor);
 			terrains[t].setColor(Biome::CL_TREES, grassyColor);
 			terrains[t].setColor(Biome::CL_STONE, stonyColor);
-			
-			// fog settings
-			if (t == 0) // T_CAVES
-				terrains[t].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f), 96);
-			else if (t == T_ICECAP || t == T_SNOW)
-				terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 1.0f), 48);
-			else if (t == T_DESERT)
-				terrains[t].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
-			else if (t == T_MARSH || t == T_JUNGLE)
-				terrains[t].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
-			else
-				terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 32);
+			// default grey-blue atmospheric fog, 32 units height from waterline
+			terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 32);
 		}
+		
+		// fog settings
+		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f), 96);
+		terrains[T_ICECAP].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 32);
+		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);
+		
+		terrains[T_AUTUMN ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
+		terrains[T_ISLANDS].setFog(glm::vec4(0.4f, 0.5f, 0.8f, 0.40f), 32);
+		terrains[T_GRASS  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
+		
+		terrains[T_MARSH ].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
+		terrains[T_JUNGLE].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
+		terrains[T_DESERT].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
 	}
 	
 	///////////////////////////////////////////////////
