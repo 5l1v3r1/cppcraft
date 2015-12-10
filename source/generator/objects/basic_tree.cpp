@@ -24,6 +24,11 @@ namespace terragen
 		// height of tree
 		int height = obj.var1;
 		
+		if (Spiders::getBlock(x+1, y, z).isAir() == false) return;
+		if (Spiders::getBlock(x-1, y, z).isAir() == false) return;
+		if (Spiders::getBlock(x, y, z+1).isAir() == false) return;
+		if (Spiders::getBlock(x, y, z-1).isAir() == false) return;
+		
 		for (int i = 0; i < height; i++)
 		{
 			// overwrite with trunk (removing light)

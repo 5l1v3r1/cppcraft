@@ -17,36 +17,29 @@ using namespace library;
 namespace terragen
 {
 	Terrains terrains;
-	
-	float getnoise_caves(vec3 p,  float hvalue);
+	float getnoise_caves(vec3 p, float hvalue);
 	extern float getheight_icecap(vec2 p);
-	extern float getnoise_icecap(vec3 p, float hvalue);
+	extern float getnoise_icecap (vec3 p, float hvalue);
+	extern float getheight_grass(vec2 p);
+	extern float getnoise_grass (vec3 p, float hvalue);
 	
-	
-	float getnoise_snow(vec3 p,   float hvalue);
-	float getnoise_autumn(vec3 p, float hvalue);
-	float getnoise_islands(vec3 p, float hvalue);
-	float getnoise_grass(vec3 p,  float hvalue);
-	float getnoise_marsh(vec3 p,  float hvalue);
-	float getnoise_jungle(vec3 p, float hvalue);
-	float getnoise_desert(vec3 p, float hvalue);
-	
-	static float getheight_shitass(glm::vec2 p)
-	{
-		return 0.5 + glm::simplex(p * 0.01f) * 0.1;
-	}
+	static float getheight_shitass(glm::vec2) { return 0.5; }
+	static void process_shitass(gendata_t*, int, int, const int, int) {}
 	
 	static uint16_t T_ICECAP, T_SNOW;
 	static uint16_t T_AUTUMN, T_ISLANDS;
 	static uint16_t T_GRASS,  T_MARSH;
 	static uint16_t T_JUNGLE, T_DESERT;
 	
-	static uint32_t grassyColor(uint16_t t, uint8_t, glm::vec2)
+	static uint32_t grassyColor(uint16_t, uint8_t, glm::vec2 p)
 	{
-		if (t == T_JUNGLE || t == T_MARSH)
-			return RGBA8(16, 100, 0, 255);
-		
-		return RGBA8(4, 156, 0, 255);
+		float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
+		return RGBA8(34 + 30 * v, 136, 0, 255);
+	}
+	static uint32_t treeColor(uint16_t, uint8_t, glm::vec2 p)
+	{
+		float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
+		return RGBA8(30 + v * 30.0f, 104 + v * 30.0f, 0, 255);
 	}
 	static uint32_t stonyColor(uint16_t t, uint8_t, glm::vec2)
 	{
@@ -62,52 +55,54 @@ namespace terragen
 	{
 		add("caves",  "Caves",  getheight_shitass, getnoise_caves);
 		add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
+		add("grass",  "Grasslands", getheight_grass, getnoise_grass);
 		/*
 		add("snow",   "Snow",   getheight_shitass, getnoise_snow);
 		add("autumn", "Autumn", getheight_shitass, getnoise_autumn);
 		add("islands","Islands", getheight_shitass, getnoise_islands);
-		add("grass",  "Grasslands", getheight_shitass, getnoise_grass);
 		add("marsh",  "Marsh",  getheight_shitass, getnoise_marsh);
 		add("jungle", "Jungle", getheight_shitass, getnoise_jungle);
 		add("desert", "Desert", getheight_shitass, getnoise_desert);
 		
-		T_ICECAP  = terrains["icecap"];
 		T_SNOW    = terrains["snow"];
 		T_AUTUMN  = terrains["autumn"];
-		T_GRASS   = terrains["grass"];
 		T_ISLANDS = terrains["islands"];
 		T_MARSH   = terrains["marsh"];
 		T_JUNGLE  = terrains["jungle"];
 		T_DESERT  = terrains["desert"];
 		*/
 		T_ICECAP  = terrains["icecap"];
+		T_GRASS   = terrains["grass"];
 		
 		for (size_t t = 0; t < terrains.size(); t++)
 		{
 			// default colors
 			terrains[t].setColor(Biome::CL_GRASS, grassyColor);
 			terrains[t].setColor(Biome::CL_CROSS, grassyColor);
-			terrains[t].setColor(Biome::CL_TREES, grassyColor);
+			terrains[t].setColor(Biome::CL_TREES, treeColor);
 			terrains[t].setColor(Biome::CL_STONE, stonyColor);
 			// default grey-blue atmospheric fog, 32 units height from waterline
 			terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 32);
+			// worst processing function
+			terrains[t].process = process_shitass;
 		}
 		
 		// fog settings
 		const int T_CAVES = 0;
-		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.7f), 96);
+		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 		terrains[T_ICECAP].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 32);
+		terrains[T_GRASS ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
 		
 		extern void snow_process(gendata_t*, int x, int z, const int MAX_Y, int zone);
 		terrains[T_ICECAP].process = snow_process;
 		
+		extern void grass_process(gendata_t*, int x, int z, const int MAX_Y, int zone);
+		terrains[T_GRASS].process = grass_process;
+		
 		/*
 		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);
-		
 		terrains[T_AUTUMN ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
 		terrains[T_ISLANDS].setFog(glm::vec4(0.4f, 0.5f, 0.8f, 0.40f), 32);
-		terrains[T_GRASS  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
-		
 		terrains[T_MARSH ].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
 		terrains[T_JUNGLE].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
 		terrains[T_DESERT].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
@@ -118,8 +113,6 @@ namespace terragen
 	///////////////////////////////////////////////////
 	#define sfreq(v, n) glm::simplex(v * float(n))
 	#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * float(n))
-	
-	float lower_grass(vec3 p);
 	
 	inline float ramp(float x, float p)
 	{
@@ -274,119 +267,7 @@ namespace terragen
 		}
 		return n1;
 	}
-
-
-	double nmix2(double x)
-	{
-		return x * 0.8 + (std::abs(x)-0.5) * (0.2*2);
-	}
-
-	float lower_grass(vec3 p)
-	{
-		glm::vec2 G(p.x, p.z); G *= 2.5f;
-		
-		float sel = nmix2(glm::simplex(G)) + nmix2(glm::simplex(G*2.1f)) * 0.5f
-				+    nmix2(glm::simplex(G*4.2f))* 0.25f + nmix2(glm::simplex(G*8.f))* 0.125f
-				+	 nmix2(glm::simplex(G*16.f))* 0.125f * 0.5f;
-
-		double s = tanh(sel*1.5f-0.4f) * 0.5f + 0.5f;
-		
-		double ghei = (glm::simplex(G*0.4f)+1.0f)*0.5f;
-		s = p.y - (0.1 + s*ghei*ghei * 2.5);
-		
-		/*
-		float px = p.x * 0.5;
-		float py = p.y * 0.25;
-		float pz = p.z * 0.5;
-		double dsn4 = (sse_simplex3(px*1.54, py*1.53, pz*1.55)) + 
-					fabs(sse_simplex3(px*3.14, py*3.14, pz*3.35)) * 0.7 + 
-					fabs(sse_simplex3(px*6.74, py*6.94, pz*6.35))* 0.35 + s * s * 3.0;
-		
-		double t = (dsn4 - 0.10);
-		s += t * (1.0 - p.y);
-		//if (t < s) s = t;
-		*/
-		
-		// ultra-scale down density above clouds
-		const float scaledown = 0.9;
-		if (p.y > scaledown) {
-			float dy = (p.y - scaledown) / (1.0 - scaledown);
-			s += dy * dy * 1.0;
-		}
-		
-		return s;
-	}
-
-	float cracks(float x, float y, float width, float down_ratio)
-	{
-		int ix = FASTFLOOR(x); // first find the x block
-		y += noise1u(ix); // randomize the y offset
-		int iy = FASTFLOOR(y); // find the y block
-
-		float dx = x - ix - 0.5;
-		float dy = y - iy - 0.5;
-
-		dy = 1.0f - std::abs(dy) * 2;
-		dy = dy*dy*(3 - 2*dy);
-		
-		dx = std::abs(dx)*2 / width + (1-dy); if (dx > 1) dx = 1;
-		dx = 1 - dx*dx;
-		
-		float d = std::sqrt(dx*dx + dy*dy);
-		float max_depth = noise1u(ix + iy*40501); // crack depth
-		
-		d = -max_depth * dx * dy;
-		if (d > 0) d = 0;
-		
-		if (noise1u(ix*40501 + iy) > down_ratio)
-			d = -d *0.5;
-		
-		return d;
-	}
-
-	float getnoise_grass(vec3 p, float hvalue)
-	{
-		p.x *= 0.002; p.z *= 0.002;
-		
-		float scale = 3.7;
-		float stretch = 1.0 / 12.0;
-		float width = 1.5f;
-		
-		float lnoise = glm::simplex(glm::vec2(p.x*0.75, p.z*0.7));
-		
-		// 0.3 is land base-height, 0.4 is higher up, 0.2 is underwater
-		float land = 0.32 + lnoise * 0.05;
-		
-		vec2 P(p.x, p.z);
-		land += simplex(P) * 0.03f + simplex(P*vec2(2.7f, 2.8f)) * 0.02f + simplex(P*vec2(5.8f, 5.6f)) * (p.y * 0.05f);
-		float noi = simplex(P*vec2(4.f, 4.f))* 0.16f + simplex(P*vec2(8.f, 8.f))* 0.08f + 
-					simplex(P*vec2(16.f, 16.f))* 0.04f + simplex(P*vec2(32.f, 32.f))* 0.02f;
-		
-		float cosa = cos(lnoise * 0.05);
-		float sina = sin(lnoise * 0.05);
-		float xx = (cosa * p.x + sina * p.z) * scale;
-		float zz = (cosa * p.z - sina * p.x) * scale;
-		
-		float depth = cracks(xx + noi*0.6, zz * stretch, width, 0.5f);
-		
-		noi = p.y - (land + 0.4 * depth);
-		
-		// vary cliff terrain with lower_grass terrain (that also has mountains)
-		/*
-		const float GMIX = 0.5;
-		float gmix = simplex(P * vec2(0.66f, 0.66f)) * 0.5 + 0.5;
-		
-		if (gmix > GMIX)
-		{
-			// normalize
-			gmix = (gmix - GMIX) / (1.0 - GMIX);
-			// mixify
-			return lower_grass(p) * gmix + noi * (1.0 - gmix);
-		}*/
-		return lower_grass(p) + noi;
-		//return noi;
-	}
-
+	
 	float getnoise_marsh(vec3 p, float hvalue)
 	{
 		p.x *= 0.002;

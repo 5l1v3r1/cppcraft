@@ -68,7 +68,7 @@ namespace terragen
 				else if (block.getID() != _BEACH)
 				{
 					// from soil to full-snow
-					block.setID(_GRASS);
+					block.setID(_SNOW);
 				}
 			}
 			else soilCounter = 0;
@@ -82,7 +82,7 @@ namespace terragen
 					///- create objects, and litter crosses -///
 					///-////////////////////////////////////-///
 					if (block.getID() == _SOIL)
-						block.setID(_GRASS);
+						block.setID(_SNOW);
 					
 					/// terrain specific objects ///
 					// TODO: use poisson disc here
