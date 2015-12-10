@@ -13,6 +13,8 @@ using namespace library;
 
 namespace terragen
 {
+	static const float WATERHEIGHT = WATERLEVEL / float(BLOCKS_Y);
+	
 	inline float mix(float a, float b, float level)
 	{
 		return a * (1.0 - level) + b * level;
@@ -25,10 +27,9 @@ namespace terragen
 		// FOR TESTING CAVES:
 		//if (caves < 0.0) return _STONE;
 		//return _AIR;
-		const float WATERHEIGHT = Terrain::WATERLEVEL / (float) BLOCKS_Y;
-		
-		float cavetresh = 0.0; // distance from air/dense barrier
-		if (density > -0.1 && density <= 0.0) cavetresh = density / -0.1;
+		float cavetresh = 0.0f; // distance from air/dense barrier
+		if (density > -0.15 && density <= -0.05) cavetresh = (density + 0.05) / -0.1;
+		if (density > -0.025 && density <= 0.0) cavetresh = 1.0f;
 		
 		// caves
 		const float cave_lower = 0.0; // underworld cave density treshold
@@ -172,27 +173,37 @@ namespace terragen
 			
 			// the heightvalue for this position, averaged across terrains
 			float hvalue = 0.0f;
-			int id[4];
+			int id[4]{0};
 			for (int i = 0; i < 4; i++)
 			{
 				// NOTE: needed to avoid invalid terrain ids
 				if (biome.w[i] < 0.005f) continue;
 				// determine terrain ID for biome value
-				id[i]   = Biome::toTerrain(biome.b[i]);
+				id[i] = Biome::toTerrain(biome.b[i]);
 				
 				// use ID to get total weighted terrain height
 				hvalue += terrains.get(id[i], p2) * biome.w[i];
 			}
 			
+			// prevent heights beneath waterlevel
+			//hvalue = (hvalue < WATERHEIGHT) ? WATERHEIGHT : hvalue;
+			// set heightmap value
 			heightmap[x][z] = hvalue;
-			const int MAX_Y = hvalue * 255.0;
+			int MAX_Y = hvalue * 255.0;
+			MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
 			
+			// create unprocessed 3D volume
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 			
 			for (int y = 0; y < MAX_Y + y_step; y += y_step)
 			{
 				p.y = y / (float)(BLOCKS_Y);
 				
+				// cave density function
+				float& caves = cave_array[x][z][y / y_step];
+				caves = terrains.get(Biome::T_CAVES, p, hvalue);
+				
+				// terrain density functions
 				float& noise = noisearray[x][z][y / y_step];
 				noise = 0.0f;
 				
@@ -205,9 +216,6 @@ namespace terragen
 					noise += terrains.get(id[i], p, hvalue) * biome.w[i];
 					
 				} // weights
-				
-				// cave density function
-				cave_array[x][z][y / y_step] = terrains.get(Biome::T_CAVES, p, hvalue);
 				
 			} // for(y)
 		}
@@ -229,8 +237,11 @@ namespace terragen
 				// heightmap weights //
 				w0 = mix( heightmap[bx][bz  ], heightmap[bx+1][bz  ], frx );
 				w1 = mix( heightmap[bx][bz+1], heightmap[bx+1][bz+1], frx );
-				const int MAX_Y = mix( w0, w1, frz ) * 255.0;
+				int MAX_Y = mix( w0, w1, frz ) * 255.0;
+				MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
 				// heightmap weights //
+				// !!! Set skylevel with INTERPOLATED heightmap value !!!
+				data->flatl(x, z).skyLevel = MAX_Y;
 				
 				// beachhead weights //
 				w0 = mix( beachhead[bx][bz  ], beachhead[bx+1][bz  ], frx );
@@ -286,6 +297,7 @@ namespace terragen
 				for (int y = MAX_Y; y < BLOCKS_Y; y++)
 				{
 					new (&block[y]) Block(_AIR);
+					block[y].setLight(15, 0); // default: max skylight
 				}
 				
 			} // z

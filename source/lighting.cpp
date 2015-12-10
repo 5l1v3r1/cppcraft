@@ -4,6 +4,7 @@
 #include "blocks.hpp"
 #include "sectors.hpp"
 #include "spiders.hpp"
+#include <cmath>
 #include <queue>
 
 using namespace library;
@@ -27,7 +28,10 @@ namespace cppcraft
 		for (int ch = 0; ch < Block::CHANNELS; ch++)
 		{
 			int V = block.getChannel(ch);
-			result |= ((V << 4) | V) << (ch * 4);
+			// apply compound decay
+			V = 255.0f * powf(1.0f - 0.12f, 15 - V);
+			// shift into correct channel
+			result |= V << (ch * 8);
 		}
 		return result;
 	}

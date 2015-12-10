@@ -19,7 +19,10 @@ namespace terragen
 	Terrains terrains;
 	
 	float getnoise_caves(vec3 p,  float hvalue);
-	float getnoise_icecap(vec3 p, float hvalue);
+	extern float getheight_icecap(vec2 p);
+	extern float getnoise_icecap(vec3 p, float hvalue);
+	
+	
 	float getnoise_snow(vec3 p,   float hvalue);
 	float getnoise_autumn(vec3 p, float hvalue);
 	float getnoise_islands(vec3 p, float hvalue);
@@ -58,7 +61,8 @@ namespace terragen
 	void Terrains::init()
 	{
 		add("caves",  "Caves",  getheight_shitass, getnoise_caves);
-		add("icecap", "Icecap", getheight_shitass, getnoise_icecap);
+		add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
+		/*
 		add("snow",   "Snow",   getheight_shitass, getnoise_snow);
 		add("autumn", "Autumn", getheight_shitass, getnoise_autumn);
 		add("islands","Islands", getheight_shitass, getnoise_islands);
@@ -67,7 +71,6 @@ namespace terragen
 		add("jungle", "Jungle", getheight_shitass, getnoise_jungle);
 		add("desert", "Desert", getheight_shitass, getnoise_desert);
 		
-		const int T_CAVES = 0;
 		T_ICECAP  = terrains["icecap"];
 		T_SNOW    = terrains["snow"];
 		T_AUTUMN  = terrains["autumn"];
@@ -76,6 +79,8 @@ namespace terragen
 		T_MARSH   = terrains["marsh"];
 		T_JUNGLE  = terrains["jungle"];
 		T_DESERT  = terrains["desert"];
+		*/
+		T_ICECAP  = terrains["icecap"];
 		
 		for (size_t t = 0; t < terrains.size(); t++)
 		{
@@ -89,8 +94,14 @@ namespace terragen
 		}
 		
 		// fog settings
-		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f), 96);
+		const int T_CAVES = 0;
+		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.7f), 96);
 		terrains[T_ICECAP].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 32);
+		
+		extern void snow_process(gendata_t*, int x, int z, const int MAX_Y, int zone);
+		terrains[T_ICECAP].process = snow_process;
+		
+		/*
 		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);
 		
 		terrains[T_AUTUMN ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
@@ -100,6 +111,7 @@ namespace terragen
 		terrains[T_MARSH ].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
 		terrains[T_JUNGLE].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
 		terrains[T_DESERT].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
+		*/
 	}
 	
 	///////////////////////////////////////////////////
@@ -154,24 +166,6 @@ namespace terragen
 			}
 		}
 		return 0.1;
-	}
-
-	float getnoise_icecap(vec3 p, float hvalue)
-	{
-		p.x *= 0.005;
-		p.z *= 0.005;
-		float n1 = sfreq2d(p, 0.5);
-		float n2 = sfreq2d(p, 0.15);
-		vec3 npos = p / 4.0f; // the relationship between n1 and npos is 4 / 0.5
-		
-		const float COSN_CURVE = 0.5; // sharper waves at higher value, crested waves at values < 1.0
-		const float COSN_FAT   = 0.0;
-		float COSN_CUTS  = 0.5 - p.y * 0.5;
-		
-		#define COSN_icecap1 cosnoise(npos, n1, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		#define COSN_icecap2 cosnoise(npos, n2, 1.0, 4.0, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		
-		return p.y - 0.3 + COSN_icecap1 * 0.05 + COSN_icecap2 * 0.1;
 	}
 	
 	float getnoise_snow(vec3 p, float hvalue)

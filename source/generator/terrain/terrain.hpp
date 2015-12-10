@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <functional>
+#include "../../common.hpp"
 #include "../../blocks.hpp"
 #include "../biomegen/biome.hpp"
 
@@ -17,6 +18,7 @@ namespace terragen
 		typedef std::function<float(glm::vec2)> terfunc2d;
 		typedef std::function<float(glm::vec3, float)> terfunc3d;
 		typedef std::function<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
+		typedef std::function<void(gendata_t*, int, int, const int, int)> process_func_t;
 		
 		Terrain(const std::string& Name, terfunc2d t2d, terfunc3d t3d)
 			: name(Name), func2d(t2d), func3d(t3d)
@@ -47,16 +49,15 @@ namespace terragen
 		terfunc2d func2d;
 		// vector of 3d terrain functions, taking in a vector of 2d heightvalues
 		terfunc3d func3d;
-		
 		// terrain colors (terrain ID, color ID, position)
 		color_func_t colors[Biome::CL_MAX];
+		// terrain post-processing function
+		process_func_t process;
 		
 		// fog settings
 		glm::vec4 fog; // alpha is density
 		uint16_t fog_height;
 		uint16_t fog_start;
-		
-		static const int WATERLEVEL = 64;
 		
 		static cppcraft::Block getBlock(float y, float in_beachhead, float density, float caves);
 		static void generate(gendata_t* gdata);

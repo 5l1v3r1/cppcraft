@@ -402,7 +402,8 @@ namespace cppcraft
 				int skylight = plogic.light & 0xFF;
 				// if the player is below something, and its REALLY dark,
 				// then we change to super-dark terrain (T_CAVES)
-				if (player.pos.y < flat->groundLevel && skylight == 0)
+				printf("skylight: %d\n", skylight);
+				if (player.pos.y < flat->groundLevel && skylight < 40)
 					plogic.terrain = 0; // T_CAVES
 				else
 					plogic.terrain = flat->terrain;

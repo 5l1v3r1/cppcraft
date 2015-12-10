@@ -7,6 +7,11 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
+namespace cppcraft
+{
+	extern Block air_block;
+}
+
 namespace terragen
 {
 	using cppcraft::BLOCKS_XZ;

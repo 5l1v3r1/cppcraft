@@ -11,10 +11,9 @@ namespace terragen
 	extern block_t _STONE;
 	extern block_t _SOIL;
 	extern block_t _GRASS;
+	extern block_t _SNOW;
 	extern block_t _BEACH;
 	extern block_t _DESERT;
-	extern block_t _SNOW;
-	extern block_t _SNOWGRASS;
 	
 	extern block_t _WATER;
 	extern block_t _LAVA;

@@ -471,6 +471,7 @@
         <File Name="source/generator/terrain/helpers.hpp"/>
         <File Name="source/generator/terrain/noise.hpp"/>
         <File Name="source/generator/terrain/noise.cpp"/>
+        <File Name="source/generator/terrain/t_snow.cpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="processing">
         <File Name="source/generator/processing/postproc.hpp"/>

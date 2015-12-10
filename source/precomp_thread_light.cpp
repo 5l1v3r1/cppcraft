@@ -1,6 +1,7 @@
 #include "precomp_thread_data.hpp"
 
 #include "blocks_bordered.hpp"
+#include <cmath>
 
 namespace cppcraft
 {
@@ -9,12 +10,11 @@ namespace cppcraft
 		Block& block = sector->get(x, y, z);
 		
 		light_value_t RGBA = 0;
-    
-    for (int ch = 0; ch < Block::CHANNELS; ch++)
-    {
-      int V = block.getChannel(ch);
-      RGBA |= V << (ch * 4);
-    }
+		for (int ch = 0; ch < Block::CHANNELS; ch++)
+		{
+			int V = block.getChannel(ch);
+			RGBA |= ((V << 4) | V) << (ch * 8);
+		}
 		return RGBA;
 	}
 	
@@ -29,28 +29,29 @@ namespace cppcraft
 		bl[2] = &sector->get(x3, y3, z3);
 		bl[3] = &sector->get(x4, y4, z4);
 		
-    light_value_t RGBA = 0;
+		light_value_t RGBA = 0;
 		
-    for (int ch = 0; ch < Block::CHANNELS; ch++)
-    {
-      int  total = 0;
-      light_value_t V = 0;
-      
-      for (int i = 0; i < 4; i++)
-      {
-        if (bl[i]->isTransparent())
-        {
-          V += bl[i]->getChannel(ch);
-          total ++;
-        }
-      }
-      // average light value
-      total = (total > 0) ? total : 1;
-      V /= total;
-      // place channel into RGBA slot
-      RGBA |= V << (ch * 4);
-    }
-    
+		for (int ch = 0; ch < Block::CHANNELS; ch++)
+		{
+			int total = 0;
+			light_value_t V = 0;
+			
+			for (int i = 0; i < 4; i++)
+			{
+				if (bl[i]->isTransparent())
+				{
+					V += bl[i]->getChannel(ch);
+					total ++;
+				}
+			}
+			// average light value
+			total = (total > 0) ? total : 1;
+			V /= total;
+			// apply compound decay
+			V = 255.0f * powf(1.0f - 0.12f, 15 - V);
+			// place channel into RGBA slot
+			RGBA |= V << (ch * 8);
+		}
 		return RGBA;
 	}
 	

@@ -27,10 +27,9 @@ namespace terragen
 	block_t _STONE;
 	block_t _SOIL;
 	block_t _GRASS;
+	block_t _SNOW;
 	block_t _BEACH;
 	block_t _DESERT;
-	block_t _SNOW;
-	block_t _SNOWGRASS;
 	
 	block_t _MOLTEN;
 	block_t _WATER;
@@ -221,7 +220,7 @@ namespace terragen
 			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
 			solid.indexColored = true;
 			solid.minimapColor =
-			[] (const Block& b, const Sector& s, int x, int, int z)
+			[] (const Block&, const Sector& s, int x, int, int z)
 			{
 				return s.flat()(x, z).fcolor[Biome::CL_STONE];
 			};
@@ -263,7 +262,7 @@ namespace terragen
 			[] (const Block& b, uint8_t face)
 			{
 				if (face == 2) return b.getBits() + 0; // (0, 0) grass texture top
-				if (face == 3) return b.getBits() + 2; // (2, 0) soil texture bottom
+				if (face == 3) return 2; // (2, 0) soil texture bottom
 				return b.getBits() + 1 * tiles.bigTilesX; // (0, 1) grass->soil side texture
 			};
 			solid.repeat_y = false;
@@ -277,6 +276,31 @@ namespace terragen
 					return "grass";
 			};
 			_GRASS = d.create("grass_block", solid);
+		}
+		// _SNOW
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColorIndex = [] (const Block&) { return Biome::CL_GRASS; };
+			solid.indexColored = true;
+			solid.minimapColor =
+			[] (const Block&, const Sector&, int, int, int)
+			{
+				return BGRA8(255, 255, 255, 255);
+			};
+			solid.getName = [] (const Block&) { return "Snow Block"; };
+			solid.getTexture =
+			[] (const Block&, uint8_t)
+			{
+				return 1; // (1, 0) snow texture
+			};
+			solid.repeat_y = false;
+			solid.shader   = 0;
+			solid.getSound =
+			[] (const Block&)
+			{
+				return "snow";
+			};
+			_SNOW = d.create("snow_block", solid);
 		}
 		// _BEACH (sand)
 		{
