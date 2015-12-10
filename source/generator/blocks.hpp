@@ -7,8 +7,10 @@ namespace terragen
 	using cppcraft::Block;
 	
 	extern block_t _BEDROCK;
-	
 	extern block_t _STONE;
+	extern block_t _ORE_COAL;
+	extern block_t _ORE_IRON;
+	
 	extern block_t _SOIL;
 	extern block_t _GRASS;
 	extern block_t _SNOW;

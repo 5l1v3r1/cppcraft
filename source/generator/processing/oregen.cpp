@@ -9,17 +9,16 @@ namespace terragen
 	{
 		block_t COAL = db::getb("ore_coal");
 		block_t IRON = db::getb("ore_iron");
-		block_t GOLD = db::getb("ore_gold");
+		/*block_t GOLD = db::getb("ore_gold");
 		block_t RSTN = db::getb("ore_redstone");
-		block_t DIAM = db::getb("ore_diamond");
+		block_t DIAM = db::getb("ore_diamond");*/
 		
 		OreGen& og = OreGen::get();
-		og.add({COAL, 255, 40});
-		og.add({IRON, 200, 20});
-		og.add({GOLD,  48, 10});
+		og.add({COAL, 255, 80});
+		og.add({IRON, 200, 40});
+		/*og.add({GOLD,  48, 10});
 		og.add({RSTN,  24, 15});
-		og.add({DIAM,  10, 5});
-		
+		og.add({DIAM,  10, 5});*/
 	}
 	
 	void OreGen::deposit(gendata_t* gdata, OreInfo& ore, int x, int y, int z)

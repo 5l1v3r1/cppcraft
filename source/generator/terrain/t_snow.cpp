@@ -119,7 +119,7 @@ namespace terragen
 				air = 0;
 				if (skyLevel == 0)
 					skyLevel = y+1;
-				if (block.isTransparent() == false)
+				//if (block.isTransparent() == false)
 				if (groundLevel == 0)
 					groundLevel = y+1;
 			}

@@ -23,8 +23,10 @@ namespace terragen
 	using cppcraft::RenderConst;
 	
 	block_t _BEDROCK;
-	
 	block_t _STONE;
+	block_t _ORE_COAL;
+	block_t _ORE_IRON;
+	
 	block_t _SOIL;
 	block_t _GRASS;
 	block_t _SNOW;
@@ -213,6 +215,30 @@ namespace terragen
 			solid.getTexture = [] (const Block&, uint8_t) { return 3; };
 			solid.getSound = [] (const Block&) { return "stone"; };
 			_STONE = d.create("stone", solid);
+		}
+		// create _ORE_COAL
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
+			solid.indexColored = true;
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
+			solid.getName = [] (const Block&) { return "Coal Ore"; };
+			solid.getTexture = [] (const Block&, uint8_t) { return 4 + 3 * tiles.tilesX; };
+			solid.getSound = [] (const Block&) { return "stone"; };
+			solid.shader = RenderConst::TX_SOLID;
+			_ORE_COAL = d.create("ore_coal", solid);
+		}
+		// create _ORE_IRON
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColorIndex = [] (const Block&) { return Biome::CL_STONE; };
+			solid.indexColored = true;
+			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
+			solid.getName = [] (const Block&) { return "Iron Ore"; };
+			solid.getTexture = [] (const Block&, uint8_t) { return 3 + 3 * tiles.tilesX; };
+			solid.getSound = [] (const Block&) { return "stone"; };
+			solid.shader = RenderConst::TX_SOLID;
+			_ORE_IRON = d.create("ore_iron", solid);
 		}
 		// create _MOLTEN stones
 		{

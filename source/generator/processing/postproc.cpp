@@ -16,7 +16,7 @@ namespace terragen
 	void PostProcess::init()
 	{
 		// add some åres
-		//OreGen::init();
+		OreGen::init();
 	}
 	
 	void PostProcess::try_deposit(gendata_t* gdata, int x, int y, int z)
@@ -31,7 +31,7 @@ namespace terragen
 		fy = ORE_CHANCE;
 		
 		float rand = randf(wx, y-2, wz);
-		if (0) //rand < fy)
+		if (rand < fy)
 		{
 			// try to deposit ore
 			rand /= fy; // scale up!
