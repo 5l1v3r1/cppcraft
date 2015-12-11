@@ -15,6 +15,9 @@ namespace terragen
 	class Terrain
 	{
 	public:
+		// ENGINE
+		typedef std::function<void(double)> tick_func_t;
+		// GENERATOR
 		typedef std::function<float(glm::vec2)> terfunc2d;
 		typedef std::function<float(glm::vec3, float)> terfunc3d;
 		typedef std::function<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
@@ -52,7 +55,9 @@ namespace terragen
 		// terrain colors (terrain ID, color ID, position)
 		color_func_t colors[Biome::CL_MAX];
 		// terrain post-processing function
-		process_func_t process;
+		process_func_t on_process;
+		// terrain tick-function
+		tick_func_t on_tick;
 		
 		// fog settings
 		glm::vec4 fog; // alpha is density

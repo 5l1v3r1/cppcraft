@@ -270,7 +270,7 @@ namespace cppcraft
 					int FIXME_create_some_smoke_n_shits;
 					
 					// create particles using fractionals
-					particleSystem.newParticle(glm::vec3(ddx + 0.5f, ddy + 0.25f, ddz + 0.5f), PARTICLE_M_GENER, 16);
+					//particleSystem.newParticle(glm::vec3(ddx + 0.5f, ddy + 0.25f, ddz + 0.5f), PARTICLE_M_GENER, 16);
 					
 				} // block was removed
 				

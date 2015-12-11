@@ -25,7 +25,6 @@ namespace cppcraft
 		std::mutex inetq;
 		std::mutex netplayers;
 		std::mutex actors;
-		std::mutex particles;
 		
 		void initThreading(WorldManager& worldman);
 		void cleanupThreading();

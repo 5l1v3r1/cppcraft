@@ -1,18 +1,28 @@
 #include "../blocks.hpp"
 
+#include "terrains.hpp"
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "../random.hpp"
+#include "../biomegen/biome.hpp"
 #include "../processing/postproc.hpp"
 #include <glm/gtc/noise.hpp>
+#include <library/bitmap/colortools.hpp>
+#include <library/math/toolbox.hpp>
+
+#include "../../player.hpp"
+#include "../../sector.hpp"
+#include "../../particles.hpp"
+#include "../../tiles.hpp"
 
 using namespace glm;
 using namespace cppcraft;
+using namespace library;
 #define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * float(n))
 
 namespace terragen
 {
-	float getheight_icecap(vec2 p)
+	static float getheight_icecap(vec2 p)
 	{
 		p *= 0.005f;
 		float n1 = glm::simplex(p * 0.5f);
@@ -21,7 +31,7 @@ namespace terragen
 		return 0.3 - n1 * 0.05 - n2 * 0.1;
 	}
 	
-	float getnoise_icecap(vec3 p, float hvalue)
+	static float getnoise_icecap(vec3 p, float hvalue)
 	{
 		/*
 		p.x *= 0.005;
@@ -33,7 +43,7 @@ namespace terragen
 		return p.y - hvalue;
 	}
 	
-	void snow_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
@@ -138,4 +148,66 @@ namespace terragen
 		
 	} // PostProcess::run()
 	
+	void terrain_icecap_init()
+	{
+		int T_ICECAP = 
+		terrains.add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
+		Terrain& terrain = terrains[T_ICECAP];
+		
+		terrain.setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 32);
+		terrain.on_process = icecap_process;
+		
+		// snow particle
+		int P_SNOW = particleSystem.add("snowflake",
+		[] (Particle& p, glm::vec3)
+		{
+			// slow snow
+			p.acc = glm::vec3(0.0f);
+			p.spd = glm::vec3(0.0f, -0.05f, 0.0f);
+			p.ttl = 180;
+		},
+		[] (Particle& p, particle_vertex_t& pv)
+		{
+			pv.u = 16;
+			pv.w = 1 + 1 * tiles.partsX; // (1, 1) = snow particle
+			// determina fade level
+			float fade = p.ttl / 32.0f;
+			fade = (fade > 1.0f) ? 1.0f : fade;
+			// set visibility
+			pv.v1 = fade * 32767;
+			pv.v2 = 0;
+			// snow (white + 100% alpha)
+			pv.c = 0xFFFFFFFF;
+		});
+		
+		terrain.on_tick = 
+		[P_SNOW] (double)
+		{
+			// every time we tick this piece of shit, we create some SNOW YEEEEEEEEEEEEEE
+			for (int i = 0; i < 2; i++)
+			{
+				// create random position relative to player
+				glm::vec3 position(player.pos.x, 0, player.pos.z);
+				
+				// create particle at skylevel + some value
+				Flatland::flatland_t* fs = 
+					sectors.flatland_at(position.x, position.z);
+				if (fs == nullptr) break;
+				
+				// use skylevel as particle base height
+				position.y = fs->skyLevel;
+				// 
+				position += glm::vec3(rndNorm(45), 14 + rndNorm(16), rndNorm(45));
+				
+				// now create particle
+				particleSystem.newParticle(position, P_SNOW);
+			}
+		};
+		
+		terrain.colors[Biome::CL_STONE] = 
+		[] (uint16_t, uint8_t, glm::vec2)
+		{
+			return RGBA8(180, 180, 180, 255);
+		};
+	}
 }

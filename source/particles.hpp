@@ -2,7 +2,12 @@
 #define PARTICLES_HPP
 
 #include <glm/vec3.hpp>
+#include <cstdint>
 #include <deque>
+#include <functional>
+#include <map>
+#include <mutex>
+#include <vector>
 
 using namespace glm;
 
@@ -31,21 +36,40 @@ using namespace glm;
 
 namespace cppcraft
 {
-	class Particle
+	struct particle_vertex_t
 	{
-	public:
+		float x, y, z;
+		int16_t u, w;   // size, texture
+		int16_t v1, v2; // normalized vectors
+		uint32_t c;
+	};
+	
+	struct Particle
+	{
 		bool alive;
-		unsigned char id;
-		short tileID;
+		uint16_t id;
 		
 		int wx, wz;
+		int ttl;
 		glm::vec3 position;
-		unsigned int color;
-		unsigned short TTL;
-		unsigned short fadeTTL;
-		
 		glm::vec3 acc;
 		glm::vec3 spd;
+	};
+	
+	// Particle ID points to this class
+	struct ParticleType
+	{
+		// creation function, called by any of the terrain-tick functions
+		// the vec3 is the players position, with the y value set to groundlevel
+		typedef std::function<void(Particle&, glm::vec3)> create_func_t;
+		// this function is called every tick until ttl reaches zero
+		typedef std::function<void(Particle&, particle_vertex_t&)> tick_func_t;
+		
+		ParticleType(create_func_t cfunc, tick_func_t tfunc)
+			: on_create(cfunc), on_tick(tfunc) {}
+		
+		create_func_t on_create;
+		tick_func_t   on_tick;
 	};
 	
 	class Particles
@@ -53,29 +77,42 @@ namespace cppcraft
 	public:
 		const int MAX_PARTICLES = 1024;
 		
-		struct particle_vertex_t
-		{
-			float x, y, z;
-			short u, w;   // size, texture
-			short v1, v2; // normalized vectors
-			unsigned int c;
-		};
-		
 		// initialize system
 		void init();
 		// one round of updates, as an integrator
-		void update();
+		void update(double timeElapsed);
 		// auto-create a particle
-		void autoCreate();
+		void auto_create();
 		// rendering
 		void renderUpdate();
 		void render(int snapWX, int snapWZ);
+		
+		// add a new named particle type
+		template <typename... Args>
+		int add(const std::string& name, Args... args)
+		{
+			types.emplace_back(args...);
+			int index = types.size()-1;
+			names[name] = index;
+			return index;
+		}
+		ParticleType& operator[] (size_t i)
+		{
+			return types[i];
+		}
+		int operator[] (std::string name)
+		{
+			auto it = names.find(name);
+			if (it == names.end())
+				return -1;
+			return it->second;
+		}
 		
 		// shared thread-unsafe flag that we don't really care about, since
 		// it's pretty much updated every damn time
 		bool updated;
 		
-		int newParticle(glm::vec3 position, short id, int num);
+		// returns -1 if there isnt enough room to create more particles
 		int newParticle(glm::vec3 position, short id);
 		
 	private:
@@ -92,12 +129,15 @@ namespace cppcraft
 		// returns a new particle ID from queue, or -1
 		int newParticleID();
 		
-		int particleExplosion(vec3 position, short id, int count);
-		
 		std::deque<int> deadParticles;
 		Particle* particles;
 		int count;
+		std::mutex mtx;
+		
+		std::map<std::string, size_t> names;
+		std::vector<ParticleType>     types;
 	};
 	extern Particles particleSystem;
 }
+
 #endif

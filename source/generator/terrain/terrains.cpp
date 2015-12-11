@@ -24,12 +24,6 @@ namespace terragen
 	extern float getnoise_grass (vec3 p, float hvalue);
 	
 	static float getheight_shitass(glm::vec2) { return 0.5; }
-	static void process_shitass(gendata_t*, int, int, const int, int) {}
-	
-	static uint16_t T_ICECAP, T_SNOW;
-	static uint16_t T_AUTUMN, T_ISLANDS;
-	static uint16_t T_GRASS,  T_MARSH;
-	static uint16_t T_JUNGLE, T_DESERT;
 	
 	static uint32_t grassyColor(uint16_t, uint8_t, glm::vec2 p)
 	{
@@ -41,38 +35,33 @@ namespace terragen
 		float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
 		return RGBA8(30 + v * 30.0f, 104 + v * 30.0f, 0, 255);
 	}
-	static uint32_t stonyColor(uint16_t t, uint8_t, glm::vec2)
+	static uint32_t stonyColor(uint16_t, uint8_t, glm::vec2)
 	{
-		if (t == T_ICECAP || t == T_SNOW)
-			return RGBA8(180, 180, 180, 255);
-		else if (t == T_DESERT)
-			return RGBA8(128, 80, 80, 255);
-		
 		return RGBA8(128, 128, 128, 255);
 	}
 	
 	void Terrains::init()
 	{
+		const int T_CAVES =
 		add("caves",  "Caves",  getheight_shitass, getnoise_caves);
-		add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
-		add("grass",  "Grasslands", getheight_grass, getnoise_grass);
-		/*
-		add("snow",   "Snow",   getheight_shitass, getnoise_snow);
-		add("autumn", "Autumn", getheight_shitass, getnoise_autumn);
-		add("islands","Islands", getheight_shitass, getnoise_islands);
-		add("marsh",  "Marsh",  getheight_shitass, getnoise_marsh);
-		add("jungle", "Jungle", getheight_shitass, getnoise_jungle);
-		add("desert", "Desert", getheight_shitass, getnoise_desert);
 		
-		T_SNOW    = terrains["snow"];
-		T_AUTUMN  = terrains["autumn"];
-		T_ISLANDS = terrains["islands"];
-		T_MARSH   = terrains["marsh"];
-		T_JUNGLE  = terrains["jungle"];
-		T_DESERT  = terrains["desert"];
-		*/
-		T_ICECAP  = terrains["icecap"];
-		T_GRASS   = terrains["grass"];
+		// fog settings
+		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
+		
+		terrains[T_CAVES].on_tick = 
+		[] (double)
+		{
+			// ... particles here & there
+		};
+		
+		// add T_SNOW
+		extern void terrain_icecap_init();
+		terrain_icecap_init();
+		
+		// add T_GRASS
+		extern void terrain_grass_init();
+		terrain_grass_init();
+		
 		
 		for (size_t t = 0; t < terrains.size(); t++)
 		{
@@ -81,23 +70,7 @@ namespace terragen
 			terrains[t].setColor(Biome::CL_CROSS, grassyColor);
 			terrains[t].setColor(Biome::CL_TREES, treeColor);
 			terrains[t].setColor(Biome::CL_STONE, stonyColor);
-			// default grey-blue atmospheric fog, 32 units height from waterline
-			terrains[t].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 32);
-			// worst processing function
-			terrains[t].process = process_shitass;
 		}
-		
-		// fog settings
-		const int T_CAVES = 0;
-		terrains[T_CAVES ].setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
-		terrains[T_ICECAP].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 32);
-		terrains[T_GRASS ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
-		
-		extern void snow_process(gendata_t*, int x, int z, const int MAX_Y, int zone);
-		terrains[T_ICECAP].process = snow_process;
-		
-		extern void grass_process(gendata_t*, int x, int z, const int MAX_Y, int zone);
-		terrains[T_GRASS].process = grass_process;
 		
 		/*
 		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);

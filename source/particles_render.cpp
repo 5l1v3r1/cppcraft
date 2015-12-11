@@ -5,7 +5,6 @@
 #include "camera.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
-#include "threading.hpp"
 #include "sector.hpp"
 #include "sun.hpp"
 #include "world.hpp"
@@ -17,14 +16,14 @@ namespace cppcraft
 {
 	void Particles::renderUpdate()
 	{
-		mtx.particles.lock();
+		this->mtx.lock();
 		
 		// set snapshots
 		snapRenderCount = renderCount;
 		
 		if (snapRenderCount == 0)
 		{
-			mtx.particles.unlock();
+			this->mtx.unlock();
 			return;
 		}
 		snapWX = currentWX;
@@ -61,9 +60,9 @@ namespace cppcraft
 				// color
 				glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(particle_vertex_t), (GLvoid*) 20);
 			}
-			glBindVertexArray(0);
+			//glBindVertexArray(0);
 		}
-		mtx.particles.unlock();
+		this->mtx.unlock();
 	}
 	
 	void Particles::render(int snapWX, int snapWZ)

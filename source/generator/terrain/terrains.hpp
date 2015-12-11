@@ -31,11 +31,12 @@ namespace terragen
 		}
 		
 		template <typename... Args>
-		void add(const std::string& name, Args&&... args)
+		int add(const std::string& name, Args&&... args)
 		{
 			size_t index = tvec.size();
 			tvec.emplace_back(args...);
 			names[name] = index;
+			return index;
 		}
 		
 		size_t size() const

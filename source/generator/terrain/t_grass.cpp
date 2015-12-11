@@ -5,6 +5,7 @@
 #include "../random.hpp"
 #include "../processing/postproc.hpp"
 #include "helpers.hpp"
+#include "terrains.hpp"
 #include <glm/gtc/noise.hpp>
 
 using namespace glm;
@@ -18,7 +19,7 @@ namespace terragen
 		return x * 0.8 + (std::abs(x)-0.5) * (0.2*2);
 	}
 	
-	float lower_grass(vec2 p)
+	static float lower_grass(vec2 p)
 	{
 		glm::vec2 G(p * 0.01f);
 		
@@ -54,7 +55,7 @@ namespace terragen
 		return s;
 	}
 
-	float cracks(float x, float y, float width, float down_ratio)
+	static float cracks(float x, float y, float width, float down_ratio)
 	{
 		int ix = FASTFLOOR(x); // first find the x block
 		y += noise1u(ix); // randomize the y offset
@@ -81,7 +82,7 @@ namespace terragen
 		return d;
 	}
 
-	float getnoise_grass(vec3 p, float hvalue)
+	static float getnoise_grass(vec3 p, float hvalue)
 	{
 		vec2 P(p.x, p.z); P *= 0.001;
 		
@@ -103,7 +104,7 @@ namespace terragen
 		return p.y - hvalue - depth;
 	}
 	
-	float getheight_grass(vec2 p)
+	static float getheight_grass(vec2 p)
 	{
 		p *= 0.001;
 		vec2 P(p.x, p.y);
@@ -117,7 +118,7 @@ namespace terragen
 		return land + lower_grass(p) * 0.2;
 	}
 	
-	void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+	static void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
@@ -238,6 +239,19 @@ namespace terragen
 		if (skyLevel == 256)
 			skyLevel = 255;
 		gdata->flatl(x, z).skyLevel = skyLevel;
+	}
+	
+	void terrain_grass_init()
+	{
+		const int T_GRASS =
+		terrains.add("grass",  "Grasslands", getheight_grass, getnoise_grass);
 		
+		terrains[T_GRASS].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
+		terrains[T_GRASS].on_process = grass_process;
+		terrains[T_GRASS].on_tick = 
+		[] (double)
+		{
+			// ... particles here & there
+		};
 	}
 }

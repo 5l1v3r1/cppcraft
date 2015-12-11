@@ -64,7 +64,7 @@ namespace terragen
 			uint16_t terrain = gdata->flatl(x, z).terrain;
 			// process terrain using terrain-specific function
 			const int MAX_Y = gdata->flatl(x, z).skyLevel;
-			terrains[terrain].process(gdata, x, z, MAX_Y, zone);
+			terrains[terrain].on_process(gdata, x, z, MAX_Y, zone);
 			
 			// guarantee that the bottom block is hard as adminium
 			gdata->getb(x, 0, z) = Block(_BEDROCK);

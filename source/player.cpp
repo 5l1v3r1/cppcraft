@@ -12,6 +12,7 @@
 #include "sectors.hpp"
 #include "spiders.hpp"
 #include "threading.hpp"
+#include "generator/terrain/terrains.hpp"
 #include <cmath>
 
 using namespace glm;
@@ -98,7 +99,7 @@ namespace cppcraft
 		return plogic.FullySubmerged;
 	}
 	
-	void PlayerClass::handlePlayerTicks()
+	void PlayerClass::handlePlayerTicks(double time)
 	{
 		// acceleration & movement inputs
 		playerPhysics.handleMomentum();
@@ -108,6 +109,10 @@ namespace cppcraft
 		plogic.translatePlayer();
 		// play some sounds
 		plogic.playerSounds();
+		
+		// terrain tick function
+		if (plogic.terrain >= 0)
+		terragen::terrains[plogic.terrain].on_tick(time);
 	}
 	
 	void PlayerClass::handleActions(double frametime)

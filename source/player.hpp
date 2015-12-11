@@ -46,7 +46,7 @@ namespace cppcraft
 		// handle any Joystick
 		void handleJoystick();
 		// then, for each tick passed we run this
-		void handlePlayerTicks();
+		void handlePlayerTicks(double time);
 		// then finally, we finish by running this once
 		void handleActions(double frametime);
 		

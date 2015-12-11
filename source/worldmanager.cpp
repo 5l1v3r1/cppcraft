@@ -6,6 +6,7 @@
 #include "chunks.hpp"
 #include "generator.hpp"
 #include "generator/objectq.hpp"
+#include "generator/terrain/terrain.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "precompq.hpp"
@@ -62,11 +63,11 @@ namespace cppcraft
 					//----------------------------------//
 					//       PLAYER RELATED STUFF       //
 					//----------------------------------//
-					player.handlePlayerTicks();
+					player.handlePlayerTicks(_ticktimer);
 					
 					// handle actors & particles & objects
-					particleSystem.autoCreate();
-					particleSystem.update();
+					particleSystem.auto_create();
+					particleSystem.update(_ticktimer);
 					
 					// handle sound, music & ambience
 					soundman.handleSounds(player.getTerrain());
