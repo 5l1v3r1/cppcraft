@@ -53,19 +53,18 @@ namespace cppcraft
 				
 				// position
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(particle_vertex_t), 0);
-				// data
-				glVertexAttribPointer(1, 2, GL_SHORT, GL_FALSE, sizeof(particle_vertex_t), (GLvoid*) 12);
-				// normalized data
-				glVertexAttribPointer(2, 2, GL_SHORT, GL_TRUE, sizeof(particle_vertex_t),  (GLvoid*) 16);
+				// unnormalized 8-bit channels
+				glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(particle_vertex_t), (GLvoid*) 12);
+				// normalized 8-bit channels (alpha, brightness, offset X, offset Y)
+				glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(particle_vertex_t), (GLvoid*) 16);
 				// color
 				glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(particle_vertex_t), (GLvoid*) 20);
 			}
-			//glBindVertexArray(0);
 		}
 		this->mtx.unlock();
 	}
 	
-	void Particles::render(int snapWX, int snapWZ)
+	void Particles::render(int snapWX, int snapWZ, double timeElapsed)
 	{
 		// start particles shader
 		// BEFORE we potentially exit because there are no particles to render
@@ -74,7 +73,7 @@ namespace cppcraft
 		
 		Shader& shd = shaderman[Shaderman::PARTICLE];
 		shd.bind();
-		shd.sendFloat("daylight", thesun.getRealtimeDaylight());
+		shd.sendFloat("timeElapsed", timeElapsed);
 		
 		if (camera.ref)
 		{
@@ -82,7 +81,7 @@ namespace cppcraft
 			float tz = (this->snapWZ - snapWZ) * Sector::BLOCKS_XZ;
 			
 			glm::mat4 matview = camera.getViewMatrix();
-			matview *= glm::translate(glm::vec3(tx, tz, 0.0f));
+			matview *= glm::translate(glm::vec3(tx, 0.0f, tz));
 			
 			// send view matrix
 			shd.sendMatrix("matview", matview);

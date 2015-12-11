@@ -472,7 +472,7 @@ namespace cppcraft
 		/// update particles ///
 		particleSystem.renderUpdate();
 		/// render particles ///
-		particleSystem.render(snapWX, snapWZ);
+		particleSystem.render(snapWX, snapWZ, renderer.frametick);
 		
 		/// render netplayer nametags ///
 		netplayers.renderNameTags();

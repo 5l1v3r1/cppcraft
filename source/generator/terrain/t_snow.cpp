@@ -14,6 +14,7 @@
 #include "../../sector.hpp"
 #include "../../particles.hpp"
 #include "../../tiles.hpp"
+#include "../../sun.hpp"
 
 using namespace glm;
 using namespace cppcraft;
@@ -174,23 +175,28 @@ namespace terragen
 		},
 		[] (Particle& p, particle_vertex_t& pv)
 		{
-			pv.u = 16;
-			pv.w = 1 + 1 * tiles.partsX; // (1, 1) = snow particle
+			pv.size    = 16;
+			pv.tileID  = 1 + 1 * tiles.partsX; // (1, 1) = snow particle
+			pv.uvscale = 255;
+			pv.shiny   = 128;
+			
 			// determina fade level
 			float fade = p.ttl / 32.0f;
 			fade = (fade > 1.0f) ? 1.0f : fade;
 			// set visibility
-			pv.v1 = fade * 32767;
-			pv.v2 = 0;
+			pv.alpha  = fade * 255;
+			pv.bright = thesun.getRealtimeDaylight() * 255;
+			pv.offsetX = 0;
+			pv.offsetY = 0;
 			// snow (white + 100% alpha)
-			pv.c = 0xFFFFFFFF;
+			pv.color = 0xFFFFFFFF;
 		});
 		
 		terrain.on_tick = 
 		[P_SNOW] (double)
 		{
 			// every time we tick this piece of shit, we create some SNOW YEEEEEEEEEEEEEE
-			for (int i = 0; i < 2; i++)
+			for (int i = 0; i < 5; i++)
 			{
 				// create random position relative to player
 				glm::vec3 position(player.pos.x, 0, player.pos.z);
@@ -203,10 +209,11 @@ namespace terragen
 				// use skylevel as particle base height
 				position.y = fs->skyLevel;
 				// 
-				position += glm::vec3(rndNorm(64), 14 + rndNorm(16), rndNorm(64));
+				position += glm::vec3(rndNorm(64), 14 + rndNorm(20), rndNorm(64));
 				
 				// now create particle
-				particleSystem.newParticle(position, P_SNOW);
+				int I = particleSystem.newParticle(position, P_SNOW);
+				assert(I >= 0);
 			}
 		};
 		

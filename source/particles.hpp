@@ -39,10 +39,19 @@ namespace cppcraft
 	struct particle_vertex_t
 	{
 		float x, y, z;
-		int16_t u, w;   // size, texture
-		int16_t v1, v2; // normalized vectors
-		uint32_t c;
-	};
+		uint8_t size;    // size of particle (0-255)
+		uint8_t tileID;  // tile ID based on texture
+		uint8_t uvscale; // 0-100% texture scale
+		uint8_t shiny;   // 1 = apply shiny magical effect
+		
+		uint8_t alpha;  // translucency value
+		uint8_t bright; // brightness factor (emulating darkness and as a daylight multiplier)
+		uint8_t offsetX; // texture offset X
+		uint8_t offsetY; // texture offset Y
+		
+		uint32_t color;
+		
+	} __attribute__((packed));
 	
 	struct Particle
 	{
@@ -85,7 +94,7 @@ namespace cppcraft
 		void auto_create();
 		// rendering
 		void renderUpdate();
-		void render(int snapWX, int snapWZ);
+		void render(int snapWX, int snapWZ, double time);
 		
 		// add a new named particle type
 		template <typename... Args>

@@ -12,12 +12,14 @@ uniform vec2 screensize;
 uniform float fovRadians;
 
 in vec3 in_vertex;
-in vec2 in_data;
-in vec2 in_normdata;
+in vec4 in_data;
+in vec4 in_normdata;
 in vec4 in_color;
 
 flat out float tileID;
-flat out vec2 out_normdata;
+flat out float uvsize;
+flat out float magic;
+flat out vec4 out_normdata;
 flat out vec4 out_color;
 
 void main(void)
@@ -30,6 +32,8 @@ void main(void)
 	gl_PointSize = max(2.0, in_data.x / 64.0 * screensize.x / projsize.z);
 	
 	tileID = in_data.y;
+	uvsize = in_data.z / 255.0;
+	magic  = in_data.w / 255.0;
 	out_normdata = in_normdata;
 	out_color = in_color;
 }
@@ -39,23 +43,33 @@ void main(void)
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2DArray texture;
-uniform float daylight;
+uniform float timeElapsed;
 
 flat in float tileID;
-flat in vec2 out_normdata;
+flat in float uvsize;
+flat in float magic;
+flat in vec4 out_normdata;
 flat in vec4 out_color;
 
 out vec4 color;
 
 void main(void)
 {
-	color = texture2DArray(texture, vec3(gl_PointCoord.xy, tileID));
+	vec3 texCoord = vec3(gl_PointCoord.xy, tileID);
+	texCoord.xy /= uvsize;          // uvscale
+	texCoord.xy += out_normdata.zw; // (offsetX, offsetY)
+	
+	color = texture2DArray(texture, texCoord);
 	
 	#include "degamma.glsl"
 	
 	color.rgb = mix(color.rgb, out_color.rgb, out_color.a);
-	color.rgb *= min(1.0, out_normdata.y + daylight);
-	color.a *= out_normdata.x;
+	color *= out_normdata.yyyx;
+	
+	// magical strobe
+	vec2 magitex = abs(vec2(0.5) - gl_PointCoord.xy) * 2.0;
+	vec3 magiColor = vec3(0.5) + sin(vec3(magitex.x, timeElapsed*0.03, magitex.y) * 3.0) * 0.5;
+	color.rgb = mix(color.rgb, magiColor, magic);
 	
 	#include "finalcolor.glsl"
 }
