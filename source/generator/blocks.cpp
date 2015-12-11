@@ -311,7 +311,7 @@ namespace terragen
 			solid.minimapColor =
 			[] (const Block&, const Sector&, int, int, int)
 			{
-				return BGRA8(255, 255, 255, 255);
+				return RGBA8(255, 255, 255, 255);
 			};
 			solid.getName = [] (const Block&) { return "Snow Block"; };
 			solid.getTexture =
@@ -319,7 +319,7 @@ namespace terragen
 			{
 				return 1; // (1, 0) snow texture
 			};
-			solid.repeat_y = false;
+			solid.repeat_y = true;
 			solid.shader   = 0;
 			solid.getSound =
 			[] (const Block&)
@@ -327,6 +327,31 @@ namespace terragen
 				return "snow";
 			};
 			_SNOW = d.create("snow_block", solid);
+		}
+		// _ICECUBE
+		{
+			BlockData solid = getSolidBlock();
+			solid.getColorIndex = [] (const Block&) { return Biome::CL_GRASS; };
+			solid.indexColored = true;
+			solid.minimapColor =
+			[] (const Block&, const Sector&, int, int, int)
+			{
+				return RGBA8(80, 200, 250, 255);
+			};
+			solid.getName = [] (const Block&) { return "Ice Block"; };
+			solid.getTexture =
+			[] (const Block&, uint8_t)
+			{
+				return 14 + 13 * tiles.tilesX;
+			};
+			solid.repeat_y = true;
+			solid.shader   = RenderConst::TX_SOLID;
+			solid.getSound =
+			[] (const Block&)
+			{
+				return "stone";
+			};
+			d.create("ice_block", solid);
 		}
 		// _BEACH (sand)
 		{

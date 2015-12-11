@@ -48,6 +48,8 @@ namespace terragen
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 		
+		block_t _ICE = db::getb("ice_block");
+		
 		// count the same block ID until a new one appears
 		int counter = BLOCKS_Y-1;
 		// count current form of dirt/sand etc.
@@ -101,6 +103,10 @@ namespace terragen
 					{
 						// set some bs winter-cross
 					}
+				}
+				if (air && block.getID() == _WATER)
+				{
+					block.setID(_ICE);
 				}
 				// ...
 				lastb = block;
@@ -197,7 +203,7 @@ namespace terragen
 				// use skylevel as particle base height
 				position.y = fs->skyLevel;
 				// 
-				position += glm::vec3(rndNorm(45), 14 + rndNorm(16), rndNorm(45));
+				position += glm::vec3(rndNorm(64), 14 + rndNorm(16), rndNorm(64));
 				
 				// now create particle
 				particleSystem.newParticle(position, P_SNOW);
