@@ -6,10 +6,12 @@
 #include "../processing/postproc.hpp"
 #include "helpers.hpp"
 #include "terrains.hpp"
+#include <library/bitmap/colortools.hpp>
 #include <glm/gtc/noise.hpp>
 
 using namespace glm;
 using namespace cppcraft;
+using namespace library;
 #define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * float(n))
 
 namespace terragen
@@ -245,13 +247,38 @@ namespace terragen
 	{
 		const int T_GRASS =
 		terrains.add("grass",  "Grasslands", getheight_grass, getnoise_grass);
+		Terrain& terrain = terrains[T_GRASS];
 		
-		terrains[T_GRASS].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
-		terrains[T_GRASS].on_process = grass_process;
-		terrains[T_GRASS].on_tick = 
+		terrain.setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
+		terrain.on_process = grass_process;
+		terrain.on_tick = 
 		[] (double)
 		{
 			// ... particles here & there
 		};
-	}
+		
+		// Grass color
+		terrain.setColor(Biome::CL_GRASS,
+		[] (uint16_t, uint8_t, glm::vec2 p)
+		{
+			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
+			return RGBA8(34 + 30 * v, 136, 0, 255);
+		});
+		// Crosses copy the grass color
+		terrain.copyColor(Biome::CL_CROSS, Biome::CL_GRASS);
+		// Trees
+		terrain.setColor(Biome::CL_TREES, 
+		[] (uint16_t, uint8_t, glm::vec2 p)
+		{
+			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
+			return RGBA8(30 + v * 30.0f, 104 + v * 30.0f, 0, 255);
+		});
+		// Stone color
+		terrain.setColor(Biome::CL_STONE, 
+		[] (uint16_t, uint8_t, glm::vec2)
+		{
+			return RGBA8(128, 128, 128, 255);
+		});
+		
+	} // _init();
 }

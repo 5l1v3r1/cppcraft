@@ -22,6 +22,7 @@
 #include "spiders.hpp"
 #include "generator.hpp"
 #include "precompq.hpp"
+#include "generator/terrain/terrains.hpp"
 
 using namespace library;
 
@@ -61,23 +62,6 @@ namespace cppcraft
 	{
 		if (length > source.size()) { return source; }
 		return source.substr(0, length);
-	}
-	
-	std::string terrainToString(int id)
-	{
-		switch (id)
-		{
-		case 0: return "Caves";
-		case 1: return "Icecap";
-		case 2: return "Snow";
-		case 3: return "Autumn";
-		case 4: return "Islands";
-		case 5: return "Grasslands";
-		case 6: return "Marsh";
-		case 7: return "Jungle";
-		case 8: return "Desert";
-		default: return "Unknown terrain";
-		}
 	}
 	
 	void GUIRenderer::render(Renderer& renderer)
@@ -143,7 +127,7 @@ namespace cppcraft
 		if (flat)
 		{
 			debugText += 
-				" T: " + terrainToString(flat->terrain) + "(" + std::to_string(flat->terrain) + 
+				" T: " + terragen::terrains[flat->terrain].name + "(" + std::to_string(flat->terrain) + 
 				") "; // + "skylvl: " + std::to_string(flat->skyLevel);
 		}
 		debugText += " gj: " + std::to_string(Generator::size());

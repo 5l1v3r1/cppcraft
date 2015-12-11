@@ -2,7 +2,7 @@
 
 #include <library/noise/cosnoise.hpp>
 #include <library/noise/simplex1234.h> // snoise1
-#include <library/bitmap/colortools.hpp>
+#include <library/math/toolbox.hpp>
 #include "../biomegen/biome.hpp"
 #include "noise.hpp"
 #include "helpers.hpp"
@@ -23,22 +23,7 @@ namespace terragen
 	extern float getheight_grass(vec2 p);
 	extern float getnoise_grass (vec3 p, float hvalue);
 	
-	static float getheight_shitass(glm::vec2) { return 0.5; }
-	
-	static uint32_t grassyColor(uint16_t, uint8_t, glm::vec2 p)
-	{
-		float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-		return RGBA8(34 + 30 * v, 136, 0, 255);
-	}
-	static uint32_t treeColor(uint16_t, uint8_t, glm::vec2 p)
-	{
-		float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-		return RGBA8(30 + v * 30.0f, 104 + v * 30.0f, 0, 255);
-	}
-	static uint32_t stonyColor(uint16_t, uint8_t, glm::vec2)
-	{
-		return RGBA8(128, 128, 128, 255);
-	}
+	static float getheight_shitass(glm::vec2) { return 0.25f; }
 	
 	void Terrains::init()
 	{
@@ -61,16 +46,6 @@ namespace terragen
 		// add T_GRASS
 		extern void terrain_grass_init();
 		terrain_grass_init();
-		
-		
-		for (size_t t = 0; t < terrains.size(); t++)
-		{
-			// default colors
-			terrains[t].setColor(Biome::CL_GRASS, grassyColor);
-			terrains[t].setColor(Biome::CL_CROSS, grassyColor);
-			terrains[t].setColor(Biome::CL_TREES, treeColor);
-			terrains[t].setColor(Biome::CL_STONE, stonyColor);
-		}
 		
 		/*
 		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);

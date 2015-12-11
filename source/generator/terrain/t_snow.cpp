@@ -204,6 +204,21 @@ namespace terragen
 			}
 		};
 		
+		// Terrain reddish
+		terrain.setColor(Biome::CL_GRASS,
+		[] (uint16_t, uint8_t, glm::vec2)
+		{
+			return RGBA8(106, 106, 0, 255);
+		});
+		// Crosses copy the grass color
+		terrain.copyColor(Biome::CL_CROSS, Biome::CL_GRASS);
+		// Trees
+		terrain.setColor(Biome::CL_TREES, 
+		[] (uint16_t, uint8_t, glm::vec2)
+		{
+			return RGBA8(60, 86, 0, 255);
+		});
+		// Light-gray stones
 		terrain.colors[Biome::CL_STONE] = 
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
