@@ -168,7 +168,7 @@ namespace cppcraft
 		}
 		light_t getOpacity(int ch) const
 		{
-			return (db().opacity >> (ch * 4)) & 0xF;
+			return (db().opacity >> (ch << 2)) & 0xF;
 		}
 		
 		//! returns the texture id for this block, dependent on @face

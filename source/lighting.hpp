@@ -35,7 +35,7 @@ namespace cppcraft
 		static void torchlight(Sector& sector);
 		static void floodInto(int x, int y, int z);
 		static void floodOutof(int x, int y, int z);
-		static void removeLight(int x, int y, int z);
+		static void removeLight(const Block&, int x, int y, int z);
 	};
 }
 

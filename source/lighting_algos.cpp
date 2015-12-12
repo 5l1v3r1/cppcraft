@@ -39,8 +39,8 @@ namespace cppcraft
 		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		//assert(sector.generated());
 		int bx = x & (BLOCKS_XZ-1);
-    int bz = z & (BLOCKS_XZ-1);
-    Block& blk2 = sector(bx, y, bz);
+		int bz = z & (BLOCKS_XZ-1);
+		Block& blk2 = sector(bx, y, bz);
 		
 		// decrease light level based on what we hit
 		level -= lightPenetrate(blk2);

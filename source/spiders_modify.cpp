@@ -89,8 +89,7 @@ namespace cppcraft
 		s[0](bx, by, bz).setID(_AIR);
 		
 		// try to flood this new fancy empty space with light
-		//Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
-		Lighting::removeLight(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		Lighting::removeLight(block, s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
 		
 		// update the mesh, so we can see the change!
 		s->updateAllMeshes();

@@ -73,8 +73,8 @@ namespace terragen
 		float stretch = 1.0 / 12.0;
 		float width = 1.5f;
 		
-		float cosa = cos(lnoise * 0.05);
-		float sina = sin(lnoise * 0.05);
+		float cosa = cos(lnoise * 0.05 + p.y * 0.02);
+		float sina = sin(lnoise * 0.05 + p.y * 0.02);
 		float xx = (cosa * P.x + sina * (P.y + p.y)) * scale;
 		float zz = (cosa * (P.y + p.y) - sina * P.x) * scale;
 		

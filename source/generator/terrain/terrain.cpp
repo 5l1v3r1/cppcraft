@@ -149,7 +149,7 @@ namespace terragen
 		// interpolation grid dimensions
 		static const int ngrid = 4;
 		static const int grid_pfac = BLOCKS_XZ / ngrid;
-		static const int y_step   = 4;
+		static const int y_step = 4;
 		static const int y_points = BLOCKS_Y / y_step + 1;
 		
 		// terrain heightmap

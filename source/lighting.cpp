@@ -184,42 +184,75 @@ namespace cppcraft
 			propagateChannel(x, y, z+1, ch, 5, blk.getChannel(ch)); // -z
 	  }
   }
-  void Lighting::floodOutof(int x, int y, int z)
-  {
-	  // for each neighbor to this block, try to
-	  // propagate our own light outwards
-	  Block& blk = Spiders::getBlock(x, y, z);
-	  
-    const char ch = 1;
-    char lvl = blk.getOpacity(0);
-    blk.setChannel(ch, lvl);
-    
-    propagateChannel(x, y, z, ch, 0, lvl); // +x
-    propagateChannel(x, y, z, ch, 1, lvl); // -x
-    propagateChannel(x, y, z, ch, 2, lvl); // +y
-    propagateChannel(x, y, z, ch, 3, lvl); // -y
-    propagateChannel(x, y, z, ch, 4, lvl); // +z
-    propagateChannel(x, y, z, ch, 5, lvl); // -z
-  }
-  
-  void Lighting::removeLight(int x, int y, int z)
-  {
-	  std::queue<emitter_t> q;
-	  Block& blk = Spiders::getBlock(x, y, z);
-	  
-	  for (char ch  = 0; ch  < Block::CHANNELS; ch++)
-	  for (char dir = 0; dir < 6; dir++)
-	  {
-      emitter_t removed(x, y, z, ch, dir, blk.getChannel(ch));
-      removeChannel(x, y, z, dir, removed, q);
-	  }
-	  
-	  while (!q.empty())
-	  {
-      emitter_t e = q.front();
-      q.pop();
-      //floodInto(e.x, e.y, e.z);
-	  }
-  }
-  
+	
+	void Lighting::floodOutof(int x, int y, int z)
+	{
+		// for each neighbor to this block, try to
+		// propagate our own light outwards
+		Block& blk = Spiders::getBlock(x, y, z);
+		
+		const char ch = 1;
+		char lvl = blk.getOpacity(0);
+		blk.setChannel(ch, lvl);
+		
+		propagateChannel(x, y, z, ch, 0, lvl); // +x
+		propagateChannel(x, y, z, ch, 1, lvl); // -x
+		propagateChannel(x, y, z, ch, 2, lvl); // +y
+		propagateChannel(x, y, z, ch, 3, lvl); // -y
+		propagateChannel(x, y, z, ch, 4, lvl); // +z
+		propagateChannel(x, y, z, ch, 5, lvl); // -z
+	}
+	
+	void Lighting::removeLight(const Block& blk, int srcX, int srcY, int srcZ)
+	{
+		std::queue<emitter_t> q;
+		
+		// the light we will remove
+		assert(blk.isLight());
+		// radius of light
+		uint8_t rad = blk.getOpacity(0);
+		
+		// clear out ALL torchlight in this radius,
+		// and remember all the lights we pass
+		for (int x = srcX - rad; x <= srcX + rad; x++)
+		for (int z = srcZ - rad; z <= srcZ + rad; z++)
+		for (int y = srcY - rad; y <= srcY + rad; y++)
+		{
+			// validate new position
+			if (x < 0 || y < 1 || z < 0 ||
+				x >= sectors.getXZ() * BLOCKS_XZ || 
+				z >= sectors.getXZ() * BLOCKS_XZ ||
+				y >= BLOCKS_Y)  continue;
+			
+			Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
+			//assert(sector.generated());
+			int bx = x & (BLOCKS_XZ-1);
+			int bz = z & (BLOCKS_XZ-1);
+			Block& blk2 = sector(bx, y, bz);
+			
+			if (blk2.isLight())
+			{
+				q.emplace(x, y, z, 1, 0, 0);
+			}
+			else
+			{
+				blk2.setTorchLight(0);
+				if (!sector.isUpdatingMesh())
+					sector.updateAllMeshes();
+			}
+		}
+		
+		// re-flood lights that we crossed by
+		while (!q.empty())
+		{
+			emitter_t e = q.front();
+			q.pop();
+			floodOutof(e.x, e.y, e.z);
+		}
+		
+		// go through all the edges and send rays back inwards (?)
+		//....
+		
+	} // removeLight()
+	
 } // namespace

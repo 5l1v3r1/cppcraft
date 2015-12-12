@@ -414,7 +414,7 @@ namespace terragen
 			fluid.shader = RenderConst::TX_LAVA;
 			fluid.block       = false;
 			fluid.transparent = false;
-			fluid.setLightColor(12, 7, 3);
+			fluid.setLightColor(6, 7, 3);
 			_LAVA = d.create("lava", fluid);
 		}
 		
