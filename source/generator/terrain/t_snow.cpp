@@ -178,7 +178,7 @@ namespace terragen
 			pv.size    = 16;
 			pv.tileID  = 1 + 1 * tiles.partsX; // (1, 1) = snow particle
 			pv.uvscale = 255;
-			pv.shiny   = 128;
+			pv.shiny   = 0;
 			
 			// determina fade level
 			float fade = p.ttl / 32.0f;

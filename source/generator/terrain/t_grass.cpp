@@ -34,26 +34,6 @@ namespace terragen
 		double ghei = (glm::simplex(G*0.4f)+1.0f)*0.5f;
 		s = 0.1 + s*ghei*ghei * 2.5;
 		
-		/*
-		float px = p.x * 0.5;
-		float py = p.y * 0.25;
-		float pz = p.z * 0.5;
-		double dsn4 = (sse_simplex3(px*1.54, py*1.53, pz*1.55)) + 
-					fabs(sse_simplex3(px*3.14, py*3.14, pz*3.35)) * 0.7 + 
-					fabs(sse_simplex3(px*6.74, py*6.94, pz*6.35))* 0.35 + s * s * 3.0;
-		
-		double t = (dsn4 - 0.10);
-		s += t * (1.0 - p.y);
-		//if (t < s) s = t;
-		*/
-		
-		// ultra-scale down density above clouds
-		const float scaledown = 0.9;
-		if (p.y > scaledown) {
-			float dy = (p.y - scaledown) / (1.0 - scaledown);
-			s += dy * dy * 1.0;
-		}
-		
 		return s;
 	}
 

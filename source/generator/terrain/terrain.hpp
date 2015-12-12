@@ -29,8 +29,15 @@ namespace terragen
 		Terrain(const std::string& Name, terfunc2d t2d, terfunc3d t3d)
 			: name(Name), func2d(t2d), func3d(t3d)
 		{
+			// make sure uninitialized terrains don't crash us!
 			for (int i = 0; i < Biome::CL_MAX; i++)
 				colors[i] = justBlack;
+			
+			on_process =
+			[] (gendata_t*, int, int, const int, int) {};
+			
+			on_tick = 
+			[] (double) {};
 		}
 		
 		inline bool hasColor(uint8_t cl) const
