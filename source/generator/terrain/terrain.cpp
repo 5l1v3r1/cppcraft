@@ -185,8 +185,8 @@ namespace terragen
 				hvalue += terrains.get(id[i], p2) * biome.w[i];
 			}
 			
-			// prevent heights beneath waterlevel
-			//hvalue = (hvalue < WATERHEIGHT) ? WATERHEIGHT : hvalue;
+			// prevent invalid heights
+			hvalue = (hvalue > 1.0f) ? 1.0f : hvalue;
 			// set heightmap value
 			heightmap[x][z] = hvalue;
 			int MAX_Y = hvalue * 255.0;

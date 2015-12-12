@@ -89,7 +89,7 @@ namespace terragen
 	static float getheight_grass(vec2 p)
 	{
 		p *= 0.001;
-		vec2 P(p.x, p.y);
+		vec2 P = p;
 		
 		float lnoise = glm::simplex(P * glm::vec2(0.75, 0.7));
 		
@@ -115,7 +115,7 @@ namespace terragen
 		// start counting from top (pretend really high)
 		int skyLevel    = 0;
 		int groundLevel = 0;
-		int air = BLOCKS_Y - MAX_Y; // simple _AIR counter
+		int air = BLOCKS_Y; // simple _AIR counter
 		
 		for (int y = MAX_Y-1; y > 0; y--)
 		{
