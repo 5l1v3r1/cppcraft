@@ -71,8 +71,7 @@ namespace cppcraft
 		beginPropagateSkylight(sx+x, y, sz+z, mask);
       } // y
 	  
-	  // try to enter water and other transparent blocks
-	  // for now, let's jsut use _WATER hardcoded
+	  // try to enter water and other transparent blocks at the skylevel
 	  if (sector(x, sky, z).isTransparent())
 			propagateChannel(sx+x, sky, sz+z, 0, 3, 14);
 	  
@@ -202,6 +201,36 @@ namespace cppcraft
 		propagateChannel(x, y, z, ch, 4, lvl); // +z
 		propagateChannel(x, y, z, ch, 5, lvl); // -z
 	}
+	void Lighting::skyrayDownwards(Sector& sector, int bx, int by, int bz)
+	{
+		int wx = sector.getX()*BLOCKS_XZ + bx;
+		int wz = sector.getZ()*BLOCKS_XZ + bz;
+		
+		for (int y = by; y >= 0; y--)
+		{
+			if (sector(bx, y, bz).isAir())
+			{
+				// promote to queen
+				sector(bx, y, bz).setSkyLight(15);
+				// send out rays on all sides
+				propagateChannel(wx, y, wz, 0, 0, 15); // +x
+				propagateChannel(wx, y, wz, 0, 1, 15); // -x
+				propagateChannel(wx, y, wz, 0, 4, 15); // +z
+				propagateChannel(wx, y, wz, 0, 5, 15); // -z
+			}
+			else
+			{
+				// set new skylevel to this y-value
+				sector.flat()(bx, bz).skyLevel = y;
+				// try to enter below, if its transparent
+				if (sector(bx, y, bz).isTransparent())
+				{
+					propagateChannel(wx, y, wz, 0, 3, 14);
+				}
+				break;
+			}
+		}
+	}
 	
 	void Lighting::removeLight(const Block& blk, int srcX, int srcY, int srcZ)
 	{
@@ -245,7 +274,7 @@ namespace cppcraft
 		// re-flood lights that we crossed by
 		while (!q.empty())
 		{
-			emitter_t e = q.front();
+			const emitter_t& e = q.front();
 			q.pop();
 			floodOutof(e.x, e.y, e.z);
 		}
