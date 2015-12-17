@@ -14,10 +14,10 @@ namespace terragen
 	
 	struct GenObject
 	{
-		GenObject(int X, int Y, int Z, int ID, unsigned int V1)
-			: x(X), y(Y), z(Z), id(ID), var1(V1) {}
+		GenObject(unsigned ID, int X, int Y, int Z, unsigned int V1)
+			: id(ID), x(X), y(Y), z(Z), var1(V1) {}
 		
-		int getID() const
+		unsigned getID() const
 		{
 			return id;
 		}
@@ -30,7 +30,8 @@ namespace terragen
 			return z / BLOCKS_XZ;
 		}
 		
-		int x, y, z, id;
+		unsigned id;
+		int x, y, z;
 		// user-defined
 		unsigned int var1;
 		unsigned int var2;

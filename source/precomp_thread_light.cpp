@@ -45,8 +45,8 @@ namespace cppcraft
 				}
 			}
 			// average light value
-			total = (total > 0) ? total : 1;
-			V /= total;
+			//total = (total > 0) ? total : 1;
+			if (total > 1) V /= total;
 			// apply compound decay
 			V = 255.0f * powf(1.0f - 0.12f, 15 - V);
 			// place channel into RGBA slot

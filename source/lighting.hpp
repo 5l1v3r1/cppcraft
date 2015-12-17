@@ -35,8 +35,9 @@ namespace cppcraft
 		static void skyrayDownwards(Sector& sector, int bx, int by, int bz);
 		static void torchlight(Sector& sector);
 		static void floodInto(int x, int y, int z);
-		static void floodOutof(int x, int y, int z);
+		static void floodOutof(int x, int y, int z, char ch, char lvl);
 		static void removeLight(const Block&, int x, int y, int z);
+		static void removeSkyLight(int x, int y, int z, char lvl);
 	};
 }
 

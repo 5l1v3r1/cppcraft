@@ -50,14 +50,48 @@ namespace cppcraft
 			return false;
 		}
 		// set new block
-		s[0](bx, by, bz) = newblock;
-		// fill in skylight, if its possible
-		Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
-		// for torchlights, we will emit lighting outwards
-		if (newblock.isLight())
+		Block& blk = s[0](bx, by, bz);
+		blk = newblock;
+		// if setting this block changes the skylevel, propagate zero-light down
+		int skylevel = s->flat()(bx, bz).skyLevel;
+		if (by >= skylevel)
 		{
-			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+			// from hero to zero
+			for (int y = by; y >= skylevel; y--)
+				s[0](bx, y, bz).setSkyLight(0);
+			// re-flood skylight down to old skylevel
+			if (s->atmospherics) // only if atmospherics is already finished for this sector
+			for (int y = by; y >= skylevel; y--)
+				Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, y, s->getZ()*BLOCKS_XZ + bz, 15);
+			// set new skylevel
+			s->flat()(bx, bz).skyLevel = by+1;
 		}
+		else
+		{
+			// for all 6 sides of the block we added, theres a possibility that we blocked off light
+			// re-flood light on all sides
+			if (s->atmospherics) // only if atmospherics is already finished for this sector
+				Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, blk.getSkyLight());
+		}
+		
+		// flood skylight into this block from all neighbors
+		if (blk.isTransparent())
+		{
+			Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+		}
+		else
+		{
+			// remove any previous skylight if the block isnt transparent
+			blk.setSkyLight(0);
+		}
+		
+		// for lights, we will flood lighting outwards
+		if (blk.isLight())
+		{
+			blk.setTorchLight(blk.getOpacity(0));
+			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1, blk.getTorchLight());
+		}
+		
 		// update mesh
 		s->updateMeshesAt(by);
 		// write updated sector to disk

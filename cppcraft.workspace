@@ -5,8 +5,11 @@
     <WorkspaceConfiguration Name="Debug" Selected="no">
       <Project Name="client" ConfigName="Debug"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Release" Selected="yes">
+    <WorkspaceConfiguration Name="Release" Selected="no">
       <Project Name="client" ConfigName="Release"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Prof" Selected="yes">
+      <Project Name="client" ConfigName="Prof"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

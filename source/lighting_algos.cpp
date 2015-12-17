@@ -105,6 +105,86 @@ namespace cppcraft
     } // for (level)
   }
   
+  void removeSkylight(int x, int y, int z, char dir, char lvl, std::queue<emitter_t>& q)
+  {
+	while (true)
+	{
+		// move in ray direction
+		switch (dir)
+		{
+		case 0: x++; break;
+		case 1: x--; break;
+		case 2: y++; break;
+		case 3: y--; break;
+		case 4: z++; break;
+		case 5: z--; break;
+		}
+		
+		// validate new position
+		if (x < 0 || y < 1 || z < 0 ||
+			x >= sectors.getXZ() * BLOCKS_XZ || 
+			z >= sectors.getXZ() * BLOCKS_XZ ||
+			y >= BLOCKS_Y) break;
+		
+		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
+		assert(sector.generated());
+		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
+		// no point in doing anything if the block isnt even transparent
+		if (blk2.isTransparent() == false) break;
+		
+		char level2 = blk2.getSkyLight();
+		// exit when we encounter a node with zero or maximum light
+		if (level2 == 0)
+		{
+			break;
+		}
+		else if (level2 >= lvl)
+		{
+			// when the level is same or above, we will use this to refill the removed volume
+			q.emplace(x, y, z, 0, dir, level2);
+			break;
+		}
+		// when the level is lower than our light, we will continue to remove
+		// else: level2 < lvl
+		
+		// set it to zero
+		blk2.setSkyLight(0);
+		
+		// simulate decrease of light level
+		lvl -= 1;
+		if (lvl == 0) break;
+		
+		// make sure the sectors mesh is updated, since something was changed
+		if (!sector.isUpdatingMesh())
+			sector.updateAllMeshes();
+		
+		switch (dir)
+		{
+		case 0: // +x
+		case 1: // -x
+			removeSkylight(x, y, z, 2, lvl, q);
+			removeSkylight(x, y, z, 3, lvl, q);
+			removeSkylight(x, y, z, 4, lvl, q);
+			removeSkylight(x, y, z, 5, lvl, q);
+			break;
+		case 2: // +y
+		case 3: // -y
+			removeSkylight(x, y, z, 0, lvl, q);
+			removeSkylight(x, y, z, 1, lvl, q);
+			removeSkylight(x, y, z, 4, lvl, q);
+			removeSkylight(x, y, z, 5, lvl, q);
+			break;
+		case 4: // +z
+		case 5: // -z
+			removeSkylight(x, y, z, 0, lvl, q);
+			removeSkylight(x, y, z, 1, lvl, q);
+			removeSkylight(x, y, z, 2, lvl, q);
+			removeSkylight(x, y, z, 3, lvl, q);
+			break;
+		}
+	} // level
+  }
+  
   // for each (x, y, z) that has a non-zero level lower than removed.lvl,
   // set them to zero. if the node is also a light source, queue it up,
   // so we can re-propagate its light after removing the @removed lightsource

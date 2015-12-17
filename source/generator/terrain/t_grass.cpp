@@ -164,7 +164,7 @@ namespace terragen
 								if (y + height < 160)
 								{
 									static const int GEN_BASIC_TREE = 0;
-									gdata->objects.emplace_back(wx, y+1, wz, GEN_BASIC_TREE, height);
+									gdata->objects.emplace_back(GEN_BASIC_TREE, wx, y+1, wz, height);
 								}
 							}
 						}
@@ -193,9 +193,10 @@ namespace terragen
 			if (block.getID() == _STONE)
 			{
 				PostProcess::try_deposit(gdata, x, y, z);
-			} // ore deposition
+			}
 			
-			// check if not air or cross
+			
+			// count air
 			if (block.isAir())
 			{
 				air++;
@@ -205,7 +206,7 @@ namespace terragen
 				air = 0;
 				if (skyLevel == 0)
 					skyLevel = y+1;
-				if (block.isTransparent() == false)
+				//if (block.isTransparent() == false)
 				if (groundLevel == 0)
 					groundLevel = y+1;
 			}

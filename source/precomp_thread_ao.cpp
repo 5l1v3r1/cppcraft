@@ -57,6 +57,7 @@ namespace cppcraft
 		logger << Log::INFO << "AO time: " << timer.startNewRound() << Log::ENDL;
 	#endif
 		
+		/*
 		// optimize repeating textures mesh
 		optimizeMesh(precomp, RenderConst::TX_REPEAT, RenderConst::VERTEX_SCALE / Tiles::TILES_PER_BIG_TILE);
 		// optimize normal solids
@@ -65,6 +66,7 @@ namespace cppcraft
 		optimizeMesh(precomp, RenderConst::TX_2SIDED, RenderConst::VERTEX_SCALE);
 		// optimize transparent textures
 		optimizeMesh(precomp, RenderConst::TX_TRANS, RenderConst::VERTEX_SCALE);
+		*/
 		// optimize water & lava meshes
 		optimizeShadedMesh(precomp, RenderConst::TX_WATER);
 		optimizeShadedMesh(precomp, RenderConst::TX_LAVA);

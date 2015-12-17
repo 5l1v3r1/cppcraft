@@ -14,6 +14,7 @@ namespace cppcraft
 	typedef Lighting::emitter_t emitter_t;
 	extern void propagateChannel(int x, int y, int z, char ch, char dir, char level);
 	extern void removeChannel(int x, int y, int z, char dir, emitter_t& removed, std::queue<emitter_t>& q);
+	extern void removeSkylight(int x, int y, int z, char dir, char lvl, std::queue<emitter_t>& q);
 	
 	void Lighting::init()
 	{
@@ -184,16 +185,10 @@ namespace cppcraft
 	  }
   }
 	
-	void Lighting::floodOutof(int x, int y, int z)
+	void Lighting::floodOutof(int x, int y, int z, char ch, char lvl)
 	{
 		// for each neighbor to this block, try to
-		// propagate our own light outwards
-		Block& blk = Spiders::getBlock(x, y, z);
-		
-		const char ch = 1;
-		char lvl = blk.getOpacity(0);
-		blk.setChannel(ch, lvl);
-		
+		// propagate light from ch outwards
 		propagateChannel(x, y, z, ch, 0, lvl); // +x
 		propagateChannel(x, y, z, ch, 1, lvl); // -x
 		propagateChannel(x, y, z, ch, 2, lvl); // +y
@@ -232,6 +227,28 @@ namespace cppcraft
 		}
 	}
 	
+	void Lighting::removeSkyLight(int x, int y, int z, char lvl)
+	{
+		std::queue<emitter_t> q;
+		
+		// remove
+		for (char dir = 0; dir < 6; dir++)
+			removeSkylight(x, y, z, dir, lvl, q);
+		
+		// re-flood lights that we crossed by
+		while (!q.empty())
+		{
+			const emitter_t& e = q.front();
+			// verify that the block we are to refill with still has light
+			Block& blk = Spiders::getBlock(e.x, e.y, e.z);
+			// use the actual skylight for the source, instead of what we had before
+			if (blk.getSkyLight() != 0)
+				floodOutof(e.x, e.y, e.z, e.ch, blk.getSkyLight());
+			q.pop();
+		}
+		
+	} // removeSkyLight()
+	
 	void Lighting::removeLight(const Block& blk, int srcX, int srcY, int srcZ)
 	{
 		std::queue<emitter_t> q;
@@ -261,7 +278,7 @@ namespace cppcraft
 			
 			if (blk2.isLight())
 			{
-				q.emplace(x, y, z, 1, 0, 0);
+				q.emplace(x, y, z, 1, 0, blk2.getOpacity(0));
 			}
 			else
 			{
@@ -276,7 +293,7 @@ namespace cppcraft
 		{
 			const emitter_t& e = q.front();
 			q.pop();
-			floodOutof(e.x, e.y, e.z);
+			floodOutof(e.x, e.y, e.z, e.ch, e.lvl);
 		}
 		
 		// go through all the edges and send rays back inwards (?)

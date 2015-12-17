@@ -23,7 +23,8 @@ namespace gui
 		inventory.create(9, 5);
 		
 		// create default inventory
-		inventory(0, quickbarY) = Item(terragen::_TORCH, 1000, ITT_BLOCK);
+		//inventory(0, quickbarY) = Item(terragen::_TORCH, 1000, ITT_BLOCK);
+		inventory(0, quickbarY) = Item(terragen::_STONE, 1000, ITT_BLOCK);
 		/*
 		inventory(1, quickbarY) = Item(_STONE, 9999, ITT_BLOCK);
 		inventory(2, quickbarY) = Item(_PLANK, 9999, ITT_BLOCK);
