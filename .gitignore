@@ -26,15 +26,6 @@ Debug/cppcraft
 Debug/Worlds/*
 Debug/config.ini
 
-# Archives
+# Other
 *.rar
-
-# CodeLite
-*.workspace.*
-*.tags
-*.db
-*.session
-
-# Edited files
-*~
-.codelite/
+build/
