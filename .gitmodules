@@ -1,0 +1,9 @@
+[submodule "inc/glm"]
+	path = inc/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "library"]
+	path = library
+	url = git@github.com:fwsGonzo/library.git
+[submodule "inc/LuaBridge"]
+	path = inc/LuaBridge
+	url = git@github.com:fwsGonzo/LuaBridge.git
