@@ -6,11 +6,10 @@
 
 namespace terragen
 {
-	class Terrains
-	{
+	class Terrains {
 	public:
 		void init();
-		
+
 		// calls specified terrain function
 		inline float get(int id, const glm::vec2& p)
 		{
@@ -20,7 +19,7 @@ namespace terragen
 		{
 			return tvec[id].func3d(p, hvalue);
 		}
-		
+
 		Terrain& operator[] (int id)
 		{
 			return tvec[id];
@@ -29,7 +28,7 @@ namespace terragen
 		{
 			return names[name];
 		}
-		
+
 		template <typename... Args>
 		int add(const std::string& name, Args&&... args)
 		{
@@ -38,12 +37,12 @@ namespace terragen
 			names[name] = index;
 			return index;
 		}
-		
+
 		size_t size() const
 		{
 			return tvec.size();
 		}
-		
+
 	private:
 		std::vector<Terrain> tvec;
 		std::map<std::string, uint16_t> names;

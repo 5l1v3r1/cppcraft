@@ -26,7 +26,7 @@ namespace terragen
 			return (dz > 0) ? 1 : 0;
 		}
 	}
-	
+
 	// checks if there is a platform for placing something somewhere
 	// check in a square that there is _AIR from y and above
 	// and check that there is solid ground at y-1
@@ -43,7 +43,7 @@ namespace terragen
 				if (block.isTransparent()) return false;
 			}
 		}
-		
+
 		for (int dy = 0; dy < height; dy++)
 		{
 			maxrad = air_rad * air_rad;
@@ -64,7 +64,7 @@ namespace terragen
 	void downSpider(int x, int y, int z, block_t id, int tries)
 	{
 		Block currentBlock = Spiders::getBlock(x, y, z);
-		
+
 		// air, crosses, water
 		if (currentBlock.isTransparent())
 		{
@@ -119,12 +119,12 @@ namespace terragen
 		int dx, dz;
 		float r1 = radius*radx; r1 *= r1;
 		float r2 = radius*radz; r2 *= r2;
-		
+
 		for (dx = -radius; dx <= radius; dx++)
 		for (dz = -radius; dz <= radius; dz++)
 			if (dx*dx / r1 + dz*dz / r2 <= 1)
 				Spiders::setBlock(x+dx, y, z+dz, Block(id));
-		
+
 	}
 	void oellipsoidXY(int x, int y, int z, int radius, float radx, float rady, float stencil, block_t id)
 	{
@@ -132,7 +132,7 @@ namespace terragen
 		float r1 = radius*radx; r1 *= r1;
 		float r2 = radius*rady; r2 *= r2;
 		float r;
-		
+
 		for (dx = -radius; dx <= radius; dx++)
 		for (dy = -radius; dy <= radius; dy++) {
 			r = dx*dx / r1 + dy*dy / r2;
@@ -151,20 +151,20 @@ namespace terragen
 		float radf, lradf, midd, dr;
 		int dx, dy, dz, radxz;
 		int r, l;
-		
+
 		for (dy = lower; dy <= height; dy++)
 		{
-			midd = 1.0 - fabs(dy - midlevel) / (height-midlevel);
+			midd = 1.0 - std::abs(dy - midlevel) / (height-midlevel);
 			midd *= midstrength;
 			if (dy < 0) midd = -dy * understrength;
-			
+
 			r = powf(radius - midd, 2.0);
 			l = powf(inner_rad - midd, 2.0);
-			
+
 			dr = (float)dy / (float)height * (float)radius;
 			radf = r - dr*dr;
 			lradf = l - dr*dr;
-			
+
 			for (dx = -radius; dx <= radius; dx++)
 			for (dz = -radius; dz <= radius; dz++)
 			{
@@ -180,11 +180,11 @@ namespace terragen
 					{
 						Spiders::setBlock(x+dx, y+dy, z+dz, Block(id));
 					}
-					
+
 				} // rad
 			}
-			
-		}	
-		
+
+		}
+
 	}
 }

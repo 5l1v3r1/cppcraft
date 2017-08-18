@@ -3,9 +3,8 @@ project (cppcraft C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined")
-SET(BUILD_SHARED_LIBRARIES OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address -fsanitize=undefined")
+set(BUILD_SHARED_LIBRARIES OFF)
 
 if (UNIX)
   SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")

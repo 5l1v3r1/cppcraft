@@ -2,7 +2,7 @@
 #include "blockdata.hpp"
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 namespace db
@@ -22,7 +22,7 @@ namespace db
 		{
 			return blocks[id];
 		}
-		
+
 		std::size_t create(const std::string& name, const BlockData& data)
 		{
 			// add to registry
@@ -42,7 +42,7 @@ namespace db
 		{
 			return names.size();
 		}
-		
+
 		//
 		static void init();
 		//
@@ -55,17 +55,17 @@ namespace db
 		{
 			return get();
 		}
-		
+
 	private:
 		// name to id conversion
 		// example: cppcraft:dirt
-		std::map<std::string, int> names;
-		
+		std::unordered_map<std::string, int> names;
+
 		// vector of registered blocks
 		// the ID of a block is its index into this vector
 		std::vector<BlockData> blocks;
 	};
-	
+
 	inline int getb(const std::string& name)
 	{
 		return BlockDB::get()[name];
