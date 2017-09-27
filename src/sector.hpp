@@ -20,19 +20,19 @@ namespace cppcraft
 		static const int BLOCKS_Y_SH  = 8;
 		// all parts of sector needs to be rebuilt
 		static const int MESHGEN_ALL = 0xFF;
-		
+
 		static const int GENERATED  = 0x1;
 		static const int GENERATING = 0x2;
-		
+
 		struct sectorblock_t
 		{
 			sectorblock_t() {}
-			
+
 			Block& operator() (int x, int y, int z)
 			{
 				return b[x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y];
 			}
-			
+
 			Block b[BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y];
 			short blocks;
 			short lights;
@@ -42,7 +42,7 @@ namespace cppcraft
 		struct sectordata_t
 		{
 			sectordata_t() {}
-			
+
 			void assign(int bx, int by, int bz, void* data)
 			{
 				uint16_t index = Sector::to_block_index(bx, by, bz);
@@ -58,12 +58,12 @@ namespace cppcraft
 		private:
 			std::map<uint16_t, void*> data;
 		};
-		
+
 		Sector() {}
 		// creates a sector with location (x, y, z)
 		Sector(int x, int z);
 		~Sector();
-		
+
 		// returns the local coordinates for this sector X and Z
 		inline int getX() const
 		{
@@ -76,7 +76,7 @@ namespace cppcraft
 		// returns the world absolute coordinates for this sector X and Z
 		int getWX() const;
 		int getWZ() const;
-		
+
 		// returns true if the sector has been assigned blocks
 		inline bool hasBlocks() const
 		{
@@ -90,33 +90,32 @@ namespace cppcraft
 		{
 			return this->blockpt->lights;
 		}
-		
+
 		// clears everything! and then some!
 		// at least, it used to FeelsBadMan
 		void clear();
-		
-		// returns true if the sector needs mesh regenerated
-		inline bool needsMeshUpdate() const
-		{
+
+		bool isUpdatingMesh() const {
 			return this->meshgen != 0;
 		}
-		
-		
-		bool isUpdatingMesh() const
-		{
-			return this->meshgen != 0;
+		auto meshGenStage() const {
+			return this->meshgen;
 		}
+		// returns true if the sector is surrounded by sectors
+		// that are already properly generated, or on an edge
+		bool isReadyForMeshgen() const;
+
 		// update relevant parts of this sectors mesh
 		void updateAllMeshes();
-		inline void updateMeshesAt(int)
+		void updateMeshesAt(int)
 		{
 			updateAllMeshes();
 		}
-		inline void updateByMask(uint8_t)
+		void updateByMask(uint8_t)
 		{
 			updateAllMeshes();
 		}
-		
+
 		// returns reference to a Block at (x, y, z)
 		inline const Block& operator() (int x, int y, int z) const
 		{
@@ -146,14 +145,14 @@ namespace cppcraft
 		{
 			return _flatl;
 		}
-		
+
 		// distance to another sector (in block units)
 		float distanceTo(const Sector& sector, int bx, int bz) const;
-		
+
 		// torchlight related
 		// counts total lights in chunk AND returns that count
 		int countLights();
-		
+
 		inline sectorblock_t& getBlocks()
 		{
 			return *blockpt;
@@ -163,19 +162,19 @@ namespace cppcraft
 			delete this->blockpt; // out with the old
 			this->blockpt = blocks; // in with the new
 		}
-		
+
 		std::string to_string() const
 		{
 			char buffer[32];
 			int len = snprintf(buffer, 32, "(x=%d, z=%d)", this->getX(), this->getZ());
 			return std::string(buffer, len);
 		}
-		
+
 		static uint16_t to_block_index(int bx, int by, int bz)
 		{
 			return (bx * BLOCKS_XZ + bz) * BLOCKS_XZ + by;
 		}
-		
+
 		inline bool generated() const
 		{
 			return gen_flags & 0x1;
@@ -184,7 +183,7 @@ namespace cppcraft
 		{
 			return gen_flags & 0x2;
 		}
-		
+
 	private:
 		// blocks
 		sectorblock_t* blockpt;
@@ -192,23 +191,23 @@ namespace cppcraft
 		sectordata_t* datasect;
 		// 2d data (just a container!)
 		Flatland _flatl;
-		
+
 		friend class Sectors;
 		friend class Generator;
 		friend class Seamstress;
 		friend class Compressor;
 	public:
 		// 8 bits to signify which parts of sector needs update
-		// when an update is needed, 
+		// when an update is needed,
 		uint8_t meshgen;
 		// true when the generator has generated blocks for this sector
 		uint8_t gen_flags;
 		// non-zero when objects are scheduled directly on this sector
 		uint8_t objects;
-		
+
 		// we flooded this with light, or it needs flooding if the player looks at it?
 		bool atmospherics;
-		
+
 		// grid position
 		short x, z;
 	};

@@ -29,3 +29,4 @@ Debug/config.ini
 # Other
 *.rar
 build/
+Debug/world/world.data
