@@ -5,7 +5,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include "blocks.hpp"
+#include "block.hpp"
 
 namespace library
 {
@@ -16,7 +16,7 @@ namespace cppcraft
 {
 	class Sector;
 	class InventoryItem;
-	
+
 	class PlayerClass
 	{
 	public:
@@ -24,10 +24,10 @@ namespace cppcraft
 		glm::vec3 pos;
 		glm::vec3 snap_pos;
 		int    snapStage;
-		
+
 		// rotation
 		glm::vec2 rot;
-		
+
 		// acceleration
 		glm::vec3 accel;
 		// no-gravity toggle flag
@@ -38,7 +38,7 @@ namespace cppcraft
 		bool changedPosition;
 		// true if player changed camera orientation (head rotation)
 		bool changedRotation;
-		
+
 		void initPlayer();
 		void initInputs(library::WindowClass& scr);
 		// first we run this, to get inputs
@@ -49,9 +49,9 @@ namespace cppcraft
 		void handlePlayerTicks(double time);
 		// then finally, we finish by running this once
 		void handleActions(double frametime);
-		
+
 		bool fullySubmerged() const;
-		
+
 		// handles player rotation by following the input rotation vector
 		void handleRotation();
 		// returns the player look vector
@@ -64,7 +64,7 @@ namespace cppcraft
 		bool busyControls() const;
 	};
 	extern PlayerClass player;
-	
+
 }
 
 #endif

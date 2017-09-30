@@ -1,7 +1,6 @@
 #include "biome.hpp"
 
 #include <library/bitmap/colortools.hpp>
-#include "blocks.hpp"
 
 using namespace library;
 
@@ -26,15 +25,15 @@ namespace cppcraft
 		{ 218, 212,  94 },
 		{ 222, 238, 214 }
 	};
-	
+
 	Biomes::biomecolor_t Biomes::getSpecialColorBGRA(int clid)
 	{
 		return BGRA8(colors16[clid][0], colors16[clid][1], colors16[clid][2], 255);
 	}
-	
+
 	Biomes::biomecolor_t Biomes::getSpecialColorRGBA(int clid)
 	{
 		return RGBA8(colors16[clid][0], colors16[clid][1], colors16[clid][2], 255);
 	}
-	
+
 }

@@ -2,7 +2,7 @@
 
 #include <library/log.hpp>
 #include "biome.hpp"
-#include "blocks.hpp"
+#include "block.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
@@ -20,24 +20,24 @@ namespace cppcraft
 	Channel musicPlayer;
 	Channel ambiencePlayer;
 	Channel underwaterPlayer;
-	
+
 	void Soundman::init()
 	{
 		logger << Log::INFO << "* Initializing sound system" << Log::ENDL;
-		
+
 		// load sounds
 		soundPlaylist();
 		// load music & ambience
 		musicPlaylist();
-		
+
 		sound::Sound::setMasterVolume(0.3);
 		musicPlayer    = sound::Channel(0.0005, 0.2);
 		ambiencePlayer = sound::Channel(0.001,  0.75);
 		underwaterPlayer = sound::Channel(0.01, 0.5);
-		
+
 		logger << Log::INFO << "* Sound system initialized" << Log::ENDL;
 	}
-	
+
 	void Soundman::playSound(const std::string& name, vec3 v)
 	{
 		this->sounds[name].play( v );
@@ -46,40 +46,40 @@ namespace cppcraft
 	{
 		this->sounds[name].play();
 	}
-	
+
 	void Soundman::loadMaterialSound(const std::string& basename)
 	{
 		const int SOUNDS_PER_MAT = 4;
-		
+
 		// load sounds
 		for (int i = 0; i < SOUNDS_PER_MAT; i++)
 		{
 			// create filename
 			std::stringstream ss;
 			ss << "sound/materials/" << basename << (i + 1) << ".ogg";
-			
+
 			sounds[ basename + std::to_string(i) ] = Sound(ss.str());
 		}
 	}
-	
+
 	void Soundman::soundPlaylist()
 	{
 		sounds["door_open"]  = Sound("sound/interaction/door_open.ogg");
 		sounds["door_close"] = Sound("sound/interaction/door_close.ogg");
-		
+
 		sounds["pickup"] = Sound("sound/interaction/pickup.ogg");
 		sounds["place"]  = Sound("sound/interaction/place.ogg");
-		
+
 		sounds["splash"]     = Sound("sound/liquid/splash1.ogg");
 		sounds["splash_big"] = Sound("sound/liquid/splash2.ogg");
-		
+
 		sounds["click_start"]     = Sound("sound/click_start.mp3");
 		sounds["click_end"]     = Sound("sound/click_end.mp3");
-		
+
 		sounds["water"]   = Sound("sound/liquid/water.ogg");
 		sounds["lava"]    = Sound("sound/liquid/lava.ogg");
 		sounds["lavapop"] = Sound("sound/liquid/lavapop.ogg");
-		
+
 		loadMaterialSound("cloth");
 		loadMaterialSound("glass");
 		loadMaterialSound("grass");
@@ -88,9 +88,9 @@ namespace cppcraft
 		loadMaterialSound("snow");
 		loadMaterialSound("stone");
 		loadMaterialSound("wood");
-		
+
 	}
-	
+
 	void Soundman::musicPlaylist()
 	{
 		// background music streams
@@ -100,7 +100,7 @@ namespace cppcraft
 		streams["islands"].load("music/ANW1247_05_Ancient-Times.mp3");
 		streams["jungle"].load("music/ANW1501_06_Denouement.mp3");
 		streams["winter"].load("music/ANW1332_04_Farewell-My-Dear.mp3");
-		
+
 		// ambience streams
 		streams["amb_autumn"].load("music/ambience/autumn.mp3");
 		streams["amb_desert"].load("music/ambience/desert.mp3");
@@ -108,11 +108,11 @@ namespace cppcraft
 		streams["amb_islands"].load("music/ambience/islands.mp3");
 		streams["amb_jungle"].load("music/ambience/jungle.mp3");
 		streams["amb_winter"].load("music/ambience/winter.mp3");
-		
+
 		streams["amb_water"].load("music/ambience/underwater.mp3");
 		streams["amb_caves"].load("music/ambience/cave.mp3");
 	}
-	
+
 	// returns the id of a random song in the playlist
 	void Soundman::handleSounds(int terrain)
 	{
@@ -121,12 +121,12 @@ namespace cppcraft
 		Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);
 		int groundLevel = 0;
 		if (flat != nullptr) groundLevel = flat->groundLevel;
-		
+
 		const int CAVE_DEPTH = 6;
-		
-		bool inCaves = (player.pos.y < groundLevel - CAVE_DEPTH 
+
+		bool inCaves = (player.pos.y < groundLevel - CAVE_DEPTH
 					 && player.pos.y < 64);
-		
+
 		if (gameconf.music)
 		{
 			if (inCaves)
@@ -166,7 +166,7 @@ namespace cppcraft
 			// slowly crossfade in/out streams as needed
 			musicPlayer.integrate();
 		}
-		
+
 		if (gameconf.ambience)
 		{
 			// ambience stream
@@ -178,7 +178,7 @@ namespace cppcraft
 			else
 			{
 				underwaterPlayer.stop();
-				
+
 				if (inCaves)
 				{
 					ambiencePlayer.play(streams["amb_caves"]);
@@ -212,7 +212,7 @@ namespace cppcraft
 					default:
 						ambiencePlayer.stop();
 					}
-					
+
 				} // ambience
 			}
 			// slowly crossfade in/out streams as needed
@@ -220,7 +220,7 @@ namespace cppcraft
 			underwaterPlayer.integrate();
 		}
 	}
-	
+
 	void Soundman::playMaterial(const std::string& sound, int num)
 	{
 		this->sounds[sound + std::to_string(num)].play();
@@ -229,5 +229,5 @@ namespace cppcraft
 	{
 		this->sounds[sound + std::to_string(num)].play(v);
 	}
-	
+
 }

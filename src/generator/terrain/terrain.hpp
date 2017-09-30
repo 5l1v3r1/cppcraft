@@ -5,7 +5,7 @@
 #include <glm/vec4.hpp>
 #include <functional>
 #include "../../common.hpp"
-#include "../../blocks.hpp"
+#include "../../block.hpp"
 #include "../biomegen/biome.hpp"
 
 namespace terragen

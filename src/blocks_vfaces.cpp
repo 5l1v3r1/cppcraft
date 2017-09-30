@@ -1,4 +1,4 @@
-#include "blocks.hpp"
+#include "block.hpp"
 
 #include "blocks_bordered.hpp"
 #include "sectors.hpp"
@@ -14,35 +14,35 @@ namespace cppcraft
 	unsigned short Block::visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const
 	{
 		uint16_t lbx = 0;
-		
+
 		// left side -x
 		lbx |= visibilityComp(bsb(bx-1, by, bz), 32);
-		
+
 		// right side +x
 		lbx |= visibilityComp(bsb(bx+1, by, bz), 16);
-		
+
 		// bottom -y
 		if (by > 0)
 		lbx |= visibilityComp(bsb(bx, by-1, bz), 8);
-		
+
 		// top +y
 		if (by < BLOCKS_Y-1)
 			lbx |= visibilityComp(bsb(bx, by+1, bz), 4);
 		else
 			lbx |= 4;
-		
+
 		// front +z
 		lbx |= visibilityComp(bsb(bx, by, bz-1), 2);
-		
+
 		// back -z
 		lbx |= visibilityComp(bsb(bx, by, bz+1), 1);
 		return lbx;
 	}
-	
+
 	unsigned short Block::visibleFaces(Sector& sector, int bx, int by, int bz) const
 	{
 		uint16_t lbx = 0;
-		
+
 		// left side -x
 		if (bx == 0) // facing = 5
 		{
@@ -56,7 +56,7 @@ namespace cppcraft
 		{
 			lbx |= visibilityComp(sector(bx-1, by, bz), 32);
 		}
-		
+
 		// right side +x
 		if (bx == BLOCKS_XZ-1) // facing = 4
 		{
@@ -70,7 +70,7 @@ namespace cppcraft
 		{
 			lbx |= visibilityComp(sector(bx+1, by, bz), 16);
 		}
-		
+
 		// bottom -y
 		if (likely(by > 0))
 		{
@@ -78,7 +78,7 @@ namespace cppcraft
 			// but we will be adding faces towards the block below
 			lbx |= visibilityComp(sector(bx, by-1, bz), 8);
 		}
-		
+
 		// top +y
 		if (unlikely(by == Sector::BLOCKS_Y-1))
 		{
@@ -89,7 +89,7 @@ namespace cppcraft
 		{
 			lbx |= visibilityComp(sector(bx, by+1, bz), 4);
 		}
-		
+
 		// back -z
 		if (bz == 0)
 		{
@@ -103,7 +103,7 @@ namespace cppcraft
 		{
 			lbx |= visibilityComp(sector(bx, by, bz-1), 2);
 		}
-		
+
 		if (bz == BLOCKS_XZ-1)
 		{
 			if (sector.getZ() < sectors.getXZ()-1)

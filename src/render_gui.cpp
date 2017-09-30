@@ -128,7 +128,7 @@ namespace cppcraft
 		{
 			debugText +=
 				" T: " + terragen::terrains[flat->terrain].name + "(" + std::to_string(flat->terrain) +
-				") "; // + "skylvl: " + std::to_string(flat->skyLevel);
+				") skylvl: " + std::to_string(flat->skyLevel);
 		}
 		debugText += " gen: " + std::to_string(Generator::size());
 		debugText += " prq: " + std::to_string(precompq.size());

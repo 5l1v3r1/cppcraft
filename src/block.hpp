@@ -2,6 +2,7 @@
 #define BLOCKS_HPP
 
 #include <string>
+#include <cassert>
 #include "db/blockdb.hpp"
 
 #define _AIR   0 // air is ignored
@@ -24,19 +25,13 @@ namespace cppcraft
 		typedef uint8_t light_t;
 		static const int CHANNELS = 2;
 
-		// DOES NOTHING on default constructor
 		Block() {}
 		// constructor taking block id as parameter
-		Block(block_t id)
-		{
-			this->blk   = id;
-      this->extra = 0;
-		}
+		Block(block_t id) : blk(id) {}
 		// semi-complete constructor
-		Block(block_t id, bfield_t bitfield)
+		Block(block_t id, block_t bitfield)
 		{
 			this->blk = (id & 0xFFF) | (bitfield << 12);
-      this->extra = 0;
 		}
 
 		// sets/gets the block ID for this block
@@ -51,7 +46,7 @@ namespace cppcraft
 			return this->blk & 0xFFF;
 		}
 		// sets/gets block 4 bits
-		void setBits(bfield_t val)
+		void setBits(block_t val)
 		{
 			// mask out old 4 bits
 			this->blk &= 0xFFF;
@@ -59,7 +54,7 @@ namespace cppcraft
 			this->blk |= val << 12;
 		}
     // returns the 4 extra bits
-		bfield_t getBits() const
+		block_t getBits() const
 		{
 			return this->blk >> 12;
 		}
@@ -82,6 +77,7 @@ namespace cppcraft
 
 		inline void setSkyLight(light_t level)
 		{
+      assert(level < 16);
 			this->light &= 0xF0;
 			this->light |= level;
 		}
@@ -95,6 +91,7 @@ namespace cppcraft
 		}
 		inline void setTorchLight(light_t level)
 		{
+      assert(level < 16);
 			this->light &= 0x0F;
 			this->light |= level << 4;
 		}
@@ -114,7 +111,8 @@ namespace cppcraft
 
 		inline void setChannel(const int ch, const light_t level)
 		{
-			this->light &= ~(0xF << (ch * 4));
+      assert(level < 16);
+		  this->light &= ~(0xF << (ch * 4));
 			this->light |= (level & 0xF) << (ch * 4);
 		}
 		inline light_t getChannel(const int ch) const
@@ -303,11 +301,11 @@ namespace cppcraft
 		}
 
 	private:
-		block_t  blk;
-    bfield_t extra;
-		light_t  light;
+		block_t  blk = 0;
+    bfield_t extra = 0;
+		light_t  light = 0;
 	};
-
+  static_assert(sizeof(Block) == 4, "Raw blocks should be 32-bits");
 }
 
 #endif

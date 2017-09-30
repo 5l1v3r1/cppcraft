@@ -14,7 +14,7 @@ set(SOURCES
     blockmodels_poles.cpp
     blockmodels_stairs.cpp
     blocks_bordered.cpp
-    blocks.cpp
+    block.cpp
     blocks_vfaces.cpp
     camera.cpp
     chat.cpp

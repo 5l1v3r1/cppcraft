@@ -2,7 +2,7 @@
 #define SECTOR_HPP
 
 #include "common.hpp"
-#include "blocks.hpp"
+#include "block.hpp"
 #include "flatland.hpp"
 #include <map>
 

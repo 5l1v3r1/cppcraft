@@ -1,6 +1,5 @@
 #include "lighting.hpp"
 
-#include "blocks.hpp"
 #include "sectors.hpp"
 #include "spiders.hpp"
 #include <queue>
@@ -8,13 +7,13 @@
 namespace cppcraft
 {
 	typedef Lighting::emitter_t emitter_t;
-	
+
   static inline char lightPenetrate(Block& block)
   {
 	if (block.isAir()) return 1;
 	return (block.isTransparent() ? 1 : 16);
   }
-  
+
   void propagateChannel(int x, int y, int z, char ch, char dir, char level)
   {
     while (level > 0)
@@ -29,27 +28,27 @@ namespace cppcraft
 		case 4: z++; break;
 		case 5: z--; break;
 		}
-		
+
 		// validate new position
 		if (x < 0 || y < 1 || z < 0 ||
-			x >= sectors.getXZ() * BLOCKS_XZ || 
+			x >= sectors.getXZ() * BLOCKS_XZ ||
 			z >= sectors.getXZ() * BLOCKS_XZ ||
 			y >= BLOCKS_Y)      break;
-		
+
 		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		//assert(sector.generated());
 		int bx = x & (BLOCKS_XZ-1);
 		int bz = z & (BLOCKS_XZ-1);
 		Block& blk2 = sector(bx, y, bz);
-		
+
 		// decrease light level based on what we hit
 		level -= lightPenetrate(blk2);
-		
+
 		// once level reaches zero we are done, so early exit
 		if (level <= 0) break; // impossible to have a value less than < 0
 		// avoid lowering light values for air
 		if (blk2.getChannel(ch) >= level) break;
-		
+
 		// set new light level
 		blk2.setChannel(ch, level);
 		// make sure the sectors mesh is updated, since something was changed
@@ -104,87 +103,84 @@ namespace cppcraft
 		}
     } // for (level)
   }
-  
+
   void removeSkylight(int x, int y, int z, char dir, char lvl, std::queue<emitter_t>& q)
   {
-	while (true)
-	{
-		// move in ray direction
-		switch (dir)
-		{
-		case 0: x++; break;
-		case 1: x--; break;
-		case 2: y++; break;
-		case 3: y--; break;
-		case 4: z++; break;
-		case 5: z--; break;
-		}
-		
-		// validate new position
-		if (x < 0 || y < 1 || z < 0 ||
-			x >= sectors.getXZ() * BLOCKS_XZ || 
-			z >= sectors.getXZ() * BLOCKS_XZ ||
-			y >= BLOCKS_Y) break;
-		
-		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
-		assert(sector.generated());
-		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
-		// no point in doing anything if the block isnt even transparent
-		if (blk2.isTransparent() == false) break;
-		
-		char level2 = blk2.getSkyLight();
-		// exit when we encounter a node with zero or maximum light
-		if (level2 == 0)
-		{
-			break;
-		}
-		else if (level2 >= lvl)
-		{
-			// when the level is same or above, we will use this to refill the removed volume
-			q.emplace(x, y, z, 0, dir, level2);
-			break;
-		}
-		// when the level is lower than our light, we will continue to remove
-		// else: level2 < lvl
-		
-		// set it to zero
-		blk2.setSkyLight(0);
-		
-		// simulate decrease of light level
-		lvl -= 1;
-		if (lvl == 0) break;
-		
-		// make sure the sectors mesh is updated, since something was changed
-		if (!sector.isUpdatingMesh())
-			sector.updateAllMeshes();
-		
-		switch (dir)
-		{
-		case 0: // +x
-		case 1: // -x
-			removeSkylight(x, y, z, 2, lvl, q);
-			removeSkylight(x, y, z, 3, lvl, q);
-			removeSkylight(x, y, z, 4, lvl, q);
-			removeSkylight(x, y, z, 5, lvl, q);
-			break;
-		case 2: // +y
-		case 3: // -y
-			removeSkylight(x, y, z, 0, lvl, q);
-			removeSkylight(x, y, z, 1, lvl, q);
-			removeSkylight(x, y, z, 4, lvl, q);
-			removeSkylight(x, y, z, 5, lvl, q);
-			break;
-		case 4: // +z
-		case 5: // -z
-			removeSkylight(x, y, z, 0, lvl, q);
-			removeSkylight(x, y, z, 1, lvl, q);
-			removeSkylight(x, y, z, 2, lvl, q);
-			removeSkylight(x, y, z, 3, lvl, q);
-			break;
-		}
-	} // level
+  	while (true)
+  	{
+  		// move in ray direction
+  		switch (dir) {
+  		case 0: x++; break;
+  		case 1: x--; break;
+  		case 2: y++; break;
+  		case 3: y--; break;
+  		case 4: z++; break;
+  		case 5: z--; break;
+  		}
+
+  		// validate new position
+  		if (x < 0 || y < 1 || z < 0 ||
+  			x >= sectors.getXZ() * BLOCKS_XZ ||
+  			z >= sectors.getXZ() * BLOCKS_XZ ||
+  			y >= BLOCKS_Y) break;
+
+  		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
+  		assert(sector.generated());
+  		Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
+  		// no point in doing anything if the block isnt even transparent
+  		if (blk2.isTransparent() == false) break;
+
+  		auto level2 = blk2.getSkyLight();
+  		// exit when we encounter a node with zero or maximum light
+  		if (level2 == 0)
+  		{
+  			break;
+  		}
+  		else if (level2 >= lvl)
+  		{
+  			// when the level is same or above, we will use this to refill the removed volume
+        if (level2 > 1) q.emplace(x, y, z, 0, dir, level2);
+  			break;
+  		}
+  		// the level is lower than our light, we must continue to remove
+
+  		// set it to zero
+  		blk2.setSkyLight(0);
+
+  		// simulate decrease of light level
+  		lvl -= 1;
+  		if (lvl == 0) break;
+
+  		// make sure the sectors mesh is updated, since something was changed
+  		if (!sector.isUpdatingMesh())
+  			   sector.updateAllMeshes();
+
+  		switch (dir) {
+  		case 0: // +x
+  		case 1: // -x
+  			removeSkylight(x, y, z, 2, lvl, q);
+  			removeSkylight(x, y, z, 3, lvl, q);
+  			removeSkylight(x, y, z, 4, lvl, q);
+  			removeSkylight(x, y, z, 5, lvl, q);
+  			break;
+  		case 2: // +y
+  		case 3: // -y
+  			removeSkylight(x, y, z, 0, lvl, q);
+  			removeSkylight(x, y, z, 1, lvl, q);
+  			removeSkylight(x, y, z, 4, lvl, q);
+  			removeSkylight(x, y, z, 5, lvl, q);
+  			break;
+  		case 4: // +z
+  		case 5: // -z
+  			removeSkylight(x, y, z, 0, lvl, q);
+  			removeSkylight(x, y, z, 1, lvl, q);
+  			removeSkylight(x, y, z, 2, lvl, q);
+  			removeSkylight(x, y, z, 3, lvl, q);
+  			break;
+  		}
+  	} // ray
   }
-  
+
   // for each (x, y, z) that has a non-zero level lower than removed.lvl,
   // set them to zero. if the node is also a light source, queue it up,
   // so we can re-propagate its light after removing the @removed lightsource
@@ -200,17 +196,17 @@ namespace cppcraft
 	case 4: z++; break;
 	case 5: z--; break;
 	}
-	
+
 	// validate new position
 	if (x < 0 || y < 1 || z < 0 ||
-		x >= sectors.getXZ() * BLOCKS_XZ || 
+		x >= sectors.getXZ() * BLOCKS_XZ ||
 		z >= sectors.getXZ() * BLOCKS_XZ ||
 		y >= BLOCKS_Y) return;
-	
+
 	Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
 	//assert(sector.generated());
 	Block& blk2 = sector(x & (BLOCKS_XZ-1), y, z & (BLOCKS_XZ-1));
-	
+
 	// exit when we encounter a node with non-zero light
 	// that is less than the level we are removing
 	char level = blk2.getChannel(removed.ch);
@@ -227,12 +223,12 @@ namespace cppcraft
 	{
 		return;
 	}
-	
+
 	// set it to zero
 	blk2.setChannel(removed.ch, 0);
 	// make sure the sectors mesh is updated, since something was changed
 	if (!sector.isUpdatingMesh()) sector.updateAllMeshes();
-	
+
 	switch (dir)
 	{
 	case 0: // +x
@@ -258,5 +254,5 @@ namespace cppcraft
 		break;
 	}
   }
-  
+
 }

@@ -1,7 +1,7 @@
 #include "render_scene.hpp"
 
 #include <library/log.hpp>
-#include "blocks.hpp"
+#include "block.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
 #include <cmath>
@@ -11,7 +11,7 @@ using namespace library;
 namespace cppcraft
 {
 	static const double PI2 = 4 * atan(1) * 2;
-	
+
 	double SceneRenderer::cameraDeviation(double frameCounter, double dtime)
 	{
 		if (playerMoved)
@@ -30,13 +30,13 @@ namespace cppcraft
 			}
 		}
 		else motionTimed = 0.0;
-		
+
 		#define NORMAL_CAMERA_DEV()  deviation = sin(motionTimed) * 0.07;
 		#define LADDER_CAMERA_DEV()  deviation = (motionTimed != 0) ? sin(motionTimed * 1.0) * 0.2 : sin(frameCounter / 20) * 0.1;
-		
+
 		double deviation = 0.0;
 		bool deviating = false;
-		
+
 		if (player.Flying)
 		{
 			// do nothing
@@ -80,9 +80,9 @@ namespace cppcraft
 			NORMAL_CAMERA_DEV();
 			deviating = true;
 		}
-		
+
 		const double lerp = 0.6;
-		
+
 		// when crouching we need to lower camera quite a bit
 		if (plogic.movestate == PMS_Crouch)
 		{
@@ -91,10 +91,10 @@ namespace cppcraft
 			else
 				deviation = -0.25;
 		}
-		
+
 		// interpolate deviation with old
 		deviation = deviation * lerp + lastCameraDeviation * (1.0 - lerp);
-		
+
 		// remember new deviation
 		lastCameraDeviation = deviation;
 		return deviation;

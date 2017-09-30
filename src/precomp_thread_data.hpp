@@ -1,6 +1,6 @@
 #include "renderconst.hpp"
 
-#include "blocks.hpp"
+#include "block.hpp"
 #include "blocks_bordered.hpp"
 #include "common.hpp"
 #include "vertex_block.hpp"

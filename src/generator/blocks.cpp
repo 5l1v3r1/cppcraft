@@ -21,41 +21,41 @@ namespace terragen
 	using cppcraft::Sector;
 	using cppcraft::tiles;
 	using cppcraft::RenderConst;
-	
+
 	block_t _BEDROCK;
 	block_t _STONE;
 	block_t _ORE_COAL;
 	block_t _ORE_IRON;
-	
+
 	block_t _SOIL;
 	block_t _GRASS;
 	block_t _SNOW;
 	block_t _BEACH;
 	block_t _DESERT;
-	
+
 	block_t _MOLTEN;
 	block_t _WATER;
 	block_t _LAVA;
-	
+
 	block_t _WOOD;
 	block_t _LEAF;
 	// the first cross, the grass-thingamajig
 	block_t _C_GRASS;
 	block_t _TORCH;
-	
+
 	static int getDepth(const Sector& sect, int x, int y, int z)
 	{
 		int depth = 0;
 		for (;y > 0; y--)
 		{
 			const Block& b = sect(x, y, z);
-			
+
 			if (!b.isFluid()) return depth;
 			depth++;
 		}
 		return depth;
 	}
-	
+
 	// create a most default solid registry block, then return it
 	static BlockData getSolidBlock()
 	{
@@ -78,7 +78,7 @@ namespace terragen
 		solid.slowing = false;
 		solid.transparentSides = 0; // all of them solid
 		solid.voxelModel = 0;
-		solid.visibilityComp = 
+		solid.visibilityComp =
 		[] (const Block&, const Block& dst, uint16_t mask)
 		{
 			// only add faces towards transparent sides
@@ -107,7 +107,7 @@ namespace terragen
 		fluid.slowing = false;
 		fluid.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		fluid.voxelModel = 0;
-		fluid.visibilityComp = 
+		fluid.visibilityComp =
 		[] (const Block& src, const Block& dst, uint16_t mask)
 		{
 			// if they are both the same ID, we will not add this face
@@ -140,7 +140,7 @@ namespace terragen
 		leaf.slowing = false;
 		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		leaf.voxelModel = 0;
-		leaf.visibilityComp = 
+		leaf.visibilityComp =
 		[] (const Block& src, const Block& dst, uint16_t mask)
 		{
 			// if they are both the same ID, we only add every 2nd face
@@ -179,7 +179,7 @@ namespace terragen
 		blk.slowing = false;
 		blk.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		blk.voxelModel = 0;
-		blk.visibilityComp = 
+		blk.visibilityComp =
 		[] (const Block&, const Block&, uint16_t mask)
 		{
 			return mask; // always draw crosses
@@ -187,12 +187,12 @@ namespace terragen
 		blk.emit = cppcraft::emitCross;
 		return blk;
 	}
-	
+
 	void init_blocks()
 	{
 		BlockDB& d = BlockDB::get();
 		// create some solid block
-		
+
 		// create _BEDROCK
 		{
 			BlockData solid = getSolidBlock();
@@ -269,7 +269,7 @@ namespace terragen
 			_SOIL = d.create("soil_block", solid);
 		}
 		// _SOLIDGRASS
-		
+
 		// _SOILGRASS (green, snow, ...)
 		{
 			BlockData solid = getSolidBlock();
@@ -388,7 +388,7 @@ namespace terragen
 		{
 			BlockData fluid = getFluidBlock();
 			fluid.getColor = [] (const Block&) { return BGRA8(0, 0, 0, 0); };
-			fluid.minimapColor = 
+			fluid.minimapColor =
 			[] (const Block&, const Sector& sect, int x, int y, int z)
 			{
 				float depth = 1.0 - getDepth(sect, x, y, z) / 64.0; // ocean depth
@@ -404,7 +404,7 @@ namespace terragen
 		{
 			BlockData fluid = getFluidBlock();
 			fluid.getColor = [] (const Block&) { return BGRA8(0, 0, 0, 0); };
-			fluid.minimapColor = 
+			fluid.minimapColor =
 			[] (const Block&, const Sector&, int, int, int)
 			{
 				return RGBA8(240, 140, 64, 255);
@@ -417,7 +417,7 @@ namespace terragen
 			fluid.setLightColor(6, 7, 3);
 			_LAVA = d.create("lava", fluid);
 		}
-		
+
 		// _WOOD (brown)
 		{
 			BlockData blk = getSolidBlock();
@@ -490,6 +490,6 @@ namespace terragen
 			blk.voxelModel = 0;
 			_TORCH = d.create("torch", blk);
 		}
-		
+
 	}
 }
