@@ -12,22 +12,6 @@ using namespace library;
 
 namespace cppcraft
 {
-	Sector::Sector(int x, int z)
-	{
-		this->x = x;
-		this->z = z;
-		// initialize blocks
-		this->blockpt  = new sectorblock_t;
-		// optional data section
-		this->datasect = nullptr;
-
-		this->gen_flags = 0;
-		this->atmospherics = false;
-	}
-	Sector::~Sector()
-	{
-		delete this->blockpt;
-	}
 	// returns the world absolute coordinates for this sector X and Z
 	int Sector::getWX() const
 	{
@@ -42,16 +26,13 @@ namespace cppcraft
 	{
 		if (hasBlocks() == false) throw std::string("Sector::countLights(): Sector had no blocks");
 
-		Block* block = blockpt->b;
-		Block* lastBlock = block + BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y;
 		int lights = 0;
-
-		for (; block < lastBlock; block++)
+		for (const Block& block : m_blocks->b)
 		{
-			if (block->isLight()) lights++;
+			if (block.isLight()) lights++;
 		}
 
-		blockpt->lights = lights;
+		m_blocks->lights = lights;
 		return lights;
 	}
 
@@ -77,9 +58,17 @@ namespace cppcraft
 		precompq.add(*this, 0xFF);
 	}
 
-	void Sector::clear()
+  void Sector::clear()
+  {
+    for (auto& bl : m_blocks->b)
+        bl = Block(_AIR, 0, 0, 15);
+    this->gen_flags = GENERATED;
+    this->objects   = 0;
+    this->atmospherics = false;
+  }
+
+	void Sector::regenerate()
 	{
-		// clear many flags, ... bite me
 		gen_flags    = 0;
 		objects      = 0;
 		atmospherics = false;

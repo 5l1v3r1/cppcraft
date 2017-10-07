@@ -5,7 +5,6 @@
 #include "lighting.hpp"
 #include "sectors.hpp"
 #include <assert.h>
-#include <csignal>
 
 using namespace library;
 
@@ -37,7 +36,7 @@ namespace cppcraft
 		if (s == nullptr)
 		{
 			printf("Could not setblock(%d, %d, %d): out of bounds",
-					bx, by, bz);
+					   bx, by, bz);
 			return false;
 		}
 		// if the area isn't loaded we don't have the ability to modify it,
@@ -45,7 +44,7 @@ namespace cppcraft
 		if (s->generated() == false)
 		{
 			printf("Could not setblock(%d, %d, %d): not generated",
-					bx, by, bz);
+					   bx, by, bz);
 			return false;
 		}
 		// set new block
@@ -56,13 +55,15 @@ namespace cppcraft
 		if (by >= skylevel)
 		{
 			// from hero to zero
-			for (int y = by; y >= skylevel; y--)
+			for (int y = skylevel; y <= by; y++) {
 				s[0](bx, y, bz).setSkyLight(0);
+      }
+
 			// re-flood skylight down to old skylevel
       // only if atmospherics is already finished for this sector
 			if (s->atmospherics) {
-			  for (int y = by; y >= skylevel; y--)
-				    Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, y, s->getZ()*BLOCKS_XZ + bz, 15);
+        //printf("Remove skylight from %d to %d\n", skylevel, by);
+		    Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, skylevel, by, s->getZ()*BLOCKS_XZ + bz, 14);
       }
       // set new skylevel?
       s->flat()(bx, bz).skyLevel = by+1;
@@ -76,19 +77,11 @@ namespace cppcraft
 			if (s->atmospherics && level > 1) {
         // only if atmospherics is already finished for this sector
 				Lighting::removeSkyLight(
-            s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, level - 1);
+            s->getX()*BLOCKS_XZ + bx, by, by, s->getZ()*BLOCKS_XZ + bz, level-1);
+        if (!blk.isTransparent()) {
+          assert(blk.getSkyLight() == 0);
+        }
       }
-		}
-
-		// flood skylight into this block from all neighbors
-		if (blk.isTransparent())
-		{
-			Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
-		}
-		else
-		{
-			// remove any previous skylight if the block isnt transparent
-			blk.setSkyLight(0);
 		}
 
 		// for lights, we will flood lighting outwards
@@ -131,12 +124,15 @@ namespace cppcraft
 		}
     else if (block.isTransparent() == false) {
       // try to flood this new fancy empty space with light
-      Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+      Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 0);
     }
 
     // to remove lights we will have to do a more.. thorough job
 		if (block.isLight()) {
 			Lighting::removeLight(block, s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+    }
+    else {
+      Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1);
     }
 
 		// update the mesh, so we can see the change!

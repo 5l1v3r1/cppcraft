@@ -7,8 +7,7 @@
 
 #define _AIR   0 // air is ignored
 
-namespace db
-{
+namespace db {
 	class BlockData;
 }
 
@@ -23,16 +22,21 @@ namespace cppcraft
 	public:
 		typedef uint8_t bfield_t;
 		typedef uint8_t light_t;
+    static const int SKYLIGHT_MAX   = 15;
+    static const int TORCHLIGHT_MAX = 15;
 		static const int CHANNELS = 2;
 
-		Block() {}
+		constexpr Block() {}
 		// constructor taking block id as parameter
-		Block(block_t id) : blk(id) {}
+		constexpr Block(block_t id) : blk(id) {}
 		// semi-complete constructor
-		Block(block_t id, block_t bitfield)
-		{
-			this->blk = (id & 0xFFF) | (bitfield << 12);
-		}
+		constexpr Block(block_t id, block_t bitfield)
+      : blk((id & 0xFFF) | (bitfield << 12)) {}
+    // complete constructor, with lighting
+	  constexpr Block(block_t id, block_t bitfield, bfield_t ex, light_t li)
+      : Block(id, bitfield) {
+      this->extra = ex; this->light = li;
+    }
 
 		// sets/gets the block ID for this block
 		void setID(block_t id)
@@ -75,29 +79,26 @@ namespace cppcraft
 			return *(uint32_t*) this;
 		}
 
-		inline void setSkyLight(light_t level)
-		{
-      assert(level < 16);
-			this->light &= 0xF0;
-			this->light |= level;
+		void setSkyLight(const light_t level) noexcept {
+      this->setChannel(0, level);
 		}
-		inline light_t getSkyLight() const
-		{
-			return this->light & 0xF;
+		light_t getSkyLight() const noexcept {
+			return this->getChannel(0);
 		}
-		inline void removeSkylight()
+    bool isSunSource() const noexcept {
+      return this->getChannel(0) == 15;
+    }
+		void removeSkylight() noexcept
 		{
-			this->light &= 0xF0;
+			this->setChannel(0, 0);
 		}
-		inline void setTorchLight(light_t level)
+		inline void setTorchLight(const light_t level)
 		{
-      assert(level < 16);
-			this->light &= 0x0F;
-			this->light |= level << 4;
+      this->setChannel(1, level);
 		}
 		inline light_t getTorchLight()
 		{
-			return this->light >> 4;
+			return this->getChannel(1);
 		}
 		inline void removeTorchlight()
 		{
@@ -106,14 +107,15 @@ namespace cppcraft
 
 		inline void setLight(light_t sky, light_t torch)
 		{
-			this->light = sky | (torch << 4);
+			setChannel(0, sky);
+      setChannel(1, torch);
 		}
 
 		inline void setChannel(const int ch, const light_t level)
 		{
       assert(level < 16);
 		  this->light &= ~(0xF << (ch * 4));
-			this->light |= (level & 0xF) << (ch * 4);
+			this->light |= level << (ch * 4);
 		}
 		inline light_t getChannel(const int ch) const
 		{
@@ -301,7 +303,7 @@ namespace cppcraft
 		}
 
 	private:
-		block_t  blk = 0;
+		block_t  blk = _AIR;
     bfield_t extra = 0;
 		light_t  light = 0;
 	};

@@ -2,6 +2,10 @@
 
 namespace cppcraft
 {
+  const int Block::SKYLIGHT_MAX;
+  const int Block::TORCHLIGHT_MAX;
+  const int Block::CHANNELS;
+
 	/*
 	short Block::bigFaceById(block_t id, block_t face, block_t facing)
 	{

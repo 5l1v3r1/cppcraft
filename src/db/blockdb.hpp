@@ -7,8 +7,7 @@
 
 namespace db
 {
-	class BlockDB
-	{
+	class BlockDB {
 	public:
 		int operator[] (const std::string& name)
 		{
@@ -43,20 +42,19 @@ namespace db
 			return names.size();
 		}
 
-		//
-		static void init();
-		//
-		static inline BlockDB& get()
+		// get the instance
+		static BlockDB& get()
 		{
 			static BlockDB db;
 			return db;
 		}
-		static inline const BlockDB& cget()
+		static const BlockDB& cget()
 		{
 			return get();
 		}
 
 	private:
+    BlockDB();
 		// name to id conversion
 		// example: cppcraft:dirt
 		std::unordered_map<std::string, int> names;

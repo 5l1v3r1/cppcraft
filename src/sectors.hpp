@@ -6,19 +6,18 @@
 
 namespace cppcraft
 {
-
-	class Sectors
-	{
+	class Sectors {
 	public:
+    Sectors(int xz);
 		~Sectors();
-		
+
 		static const int MAX_SECTORS_XZ_GRIDSIZE = 128;
-		
-		// initializes with axis length, called from World::init()
-		void init(int xz);
+
+		// rebuilds sector grid with @xz radi, called from World::init()
+		void rebuild(int xz);
 		// returns the sector axes length (double the view distance)
 		int getXZ() const { return this->sectors_XZ; }
-		
+
 		// returns a reference to a Sector located at (x, z)
 		inline Sector& operator() (int sx, int sz)
 		{
@@ -28,29 +27,29 @@ namespace cppcraft
 		{
 			return this->getSector(sx, sz)->flat();
 		}
-		
+
 		// returns sector at position (x, z), or null
 		Sector* sectorAt(float x, float z);
 		// returns flatland at (x, z), or GOD HELP US ALL
 		Flatland::flatland_t* flatland_at(int x, int z);
-		
-		// the rectilinear distance from origin, used in sorting by viewdistance 
+
+		// the rectilinear distance from origin, used in sorting by viewdistance
 		// for mesh generation and terrain generation priority list
 		int rectilinearDistance(Sector& sector) const
 		{
 			// simple rectilinear distance (aka manhattan distance)
 			return std::abs(sector.getX() - sectors_XZ / 2) + std::abs(sector.getZ() - sectors_XZ / 2);
 		}
-		
+
 		//! \brief execute lambda on a 3x3 centered around @sector
 		//! the result @bool is only true when all results are true
 		bool on3x3(const Sector& sector, std::function<bool(Sector&)> lambda);
-		
+
 		// updates all sectors, for eg. when sun-position changed
 		void updateAll();
 		// regenerate all sectors, for eg. teleport
 		void regenerateAll();
-		
+
 	private:
 		// returns a pointer to the sector at (x, z)
 		inline Sector* getSector(int x, int z)
@@ -62,7 +61,7 @@ namespace cppcraft
 		{
 			return this->sectors[x * sectors_XZ + z];
 		}
-		
+
 		// Seamless: moves sector (x2, z2) to (x, z)
 		inline void move(int x, int z, int x2, int z2)
 		{
@@ -72,14 +71,13 @@ namespace cppcraft
 			s->x = x;
 			s->z = z;
 		}
-		
+
 		// 3d and 2d data containers
-		Sector**   sectors;
+		Sector**   sectors = nullptr;
 		// sectors XZ-axes size
-		int sectors_XZ;
-		
+		int sectors_XZ = 0;
+
 		friend class Seamless;
-		friend class Spiders;
 	};
 	extern Sectors sectors;
 }

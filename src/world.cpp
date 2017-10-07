@@ -12,18 +12,19 @@ namespace cppcraft
 {
 	// one and only instance of WorldClass
 	World world;
-	
+  Sectors sectors(1);
+
 	void World::init(const std::string& worldFolder)
 	{
 		/// initialize sectors, blocks & flatlands ///
 		// default world folder
 		const std::string DEFAULT_WORLD_FOLDER = "Worlds/test";
-		
+
 		int sectors_xz = config.get("world.viewdist", 48);
-		sectors.init(sectors_xz);
-		
+		sectors.rebuild(sectors_xz);
+
 		/// load world position from folder ///
-		
+
 		// initialize world coordinates centering player in the world
 		worldCoords.x = WORLD_STARTING_X - sectors_xz / 2; //+ 84; //
 		worldCoords.y = 0;
@@ -33,7 +34,7 @@ namespace cppcraft
 		if (worldFolder.size() == 0)
 		{
 			std::string folder = config.get("world", "");
-			
+
 			if (folder.size() == 0)
 				this->folder = DEFAULT_WORLD_FOLDER;
 			else
@@ -43,18 +44,18 @@ namespace cppcraft
 		{
 			this->folder = worldFolder;
 		}
-		
+
 		// initialize internal coordinates
 		world.internal.x = 0;
 		world.internal.y = 0;
 		world.internal.z = 0;
 	}
-	
+
 	void World::load()
 	{
 		std::ifstream ff (worldFolder() + "/world.data", std::ios::in | std::ios::binary);
 		if (!ff) return;
-		
+
 		ff.seekg(0);
 		ff.read( (char*) &worldCoords, sizeof(worldCoords) );
 		ff.read( (char*) &player, sizeof(player) );
@@ -63,12 +64,12 @@ namespace cppcraft
 	{
 		std::ofstream ff (worldFolder() + "/world.data", std::ios::trunc | std::ios::binary);
 		if (!ff) return;
-		
+
 		ff.seekp(0);
 		ff.write( (char*) &worldCoords, sizeof(worldCoords) );
 		ff.write( (char*) &player, sizeof(player) );
 	}
-	
+
 	void World::increaseDelta(int dx, int dz)
 	{
 		internal.x += dx;
@@ -76,7 +77,7 @@ namespace cppcraft
 		internal.z += dz;
 		while (internal.z < 0) internal.z += sectors.getXZ();
 	}
-	
+
 	void World::transitionTo(int wx, int wz)
 	{
 		internal.x = 0;

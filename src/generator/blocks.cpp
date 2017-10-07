@@ -61,22 +61,12 @@ namespace terragen
 	{
 		BlockData solid;
 		solid.blocksMovement = [] (const Block&) { return true; };
-		solid.cross  = false;
 		solid.forwardMovement = [] (const Block&) { return false; };
 		solid.getColor = nullptr;
 		solid.hasActivation = [] (const Block&) { return false; };
-		solid.ladder = false;
-		solid.liquid = false;
-		solid.lowfriction = false;
-		solid.opacity = 0; // not a light
-		solid.block       = true;
-		solid.transparent = false;
 		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		solid.repeat_y = true;
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
 		solid.shader  = 0;
-		solid.slowing = false;
-		solid.transparentSides = 0; // all of them solid
 		solid.voxelModel = 0;
 		solid.visibilityComp =
 		[] (const Block&, const Block& dst, uint16_t mask)
@@ -91,20 +81,13 @@ namespace terragen
 	{
 		BlockData fluid;
 		fluid.blocksMovement = [] (const Block&) { return false; };
-		fluid.cross = false;
 		fluid.forwardMovement = [] (const Block&) { return true; };
 		fluid.hasActivation = [] (const Block&) { return false; };
-		fluid.indexColored = false;
-		fluid.ladder = false;
 		fluid.liquid = true;
-		fluid.lowfriction = false;
-		fluid.opacity = 0; // not a light
 		fluid.block       = false;
 		fluid.transparent = true;
 		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		fluid.repeat_y = true;
 		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
-		fluid.slowing = false;
 		fluid.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		fluid.voxelModel = 0;
 		fluid.visibilityComp =
@@ -123,21 +106,14 @@ namespace terragen
 	{
 		BlockData leaf;
 		leaf.blocksMovement = [] (const Block&) { return true; };
-		leaf.cross = false;
 		leaf.forwardMovement = [] (const Block&) { return false; };
 		leaf.hasActivation = [] (const Block&) { return false; };
-		leaf.indexColored = false;
-		leaf.ladder = false;
-		leaf.liquid = false;
-		leaf.lowfriction = false;
-		leaf.opacity = 0; // not a light
 		leaf.block       = true;
 		leaf.transparent = true;
 		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.repeat_y = false;
 		leaf.shader = RenderConst::TX_2SIDED;
 		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
-		leaf.slowing = false;
 		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		leaf.voxelModel = 0;
 		leaf.visibilityComp =
@@ -163,20 +139,15 @@ namespace terragen
 		blk.hasActivation = [] (const Block&) { return false; };
 		blk.indexColored = true;
 		blk.getColorIndex = [] (const Block&) { return Biome::CL_CROSS; };
-		blk.ladder = false;
-		blk.liquid = false;
-		blk.lowfriction = false;
 		blk.minimapColor =
 		[] (const Block&, const Sector& s, int x, int, int z)
 		{
 			return s.flat()(x, z).fcolor[Biome::CL_CROSS];
 		};
-		blk.opacity = 0; // not a light
 		blk.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		blk.repeat_y = false;
 		blk.shader = RenderConst::TX_CROSS;
 		blk.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
-		blk.slowing = false;
 		blk.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		blk.voxelModel = 0;
 		blk.visibilityComp =

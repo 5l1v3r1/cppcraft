@@ -7,53 +7,44 @@
 
 namespace cppcraft
 {
-	class Flatland
-	{
+	class Flatland {
 	public:
 		static const int FLATCOLORS = 8;
 		typedef uint32_t color_t;
-		
+
 		struct flatland_t
 		{
 			color_t fcolor[FLATCOLORS];
-			uint8_t terrain;
-			uint8_t skyLevel;
-			uint8_t groundLevel;
+			int16_t terrain;
+			int16_t skyLevel;
+			int16_t groundLevel;
 		};
-		
-		Flatland()
-		{
-			this->fdata = nullptr;
-		}
-		
+    typedef std::vector<flatland_t> data_array_t;
+
 		// returns a reference to flatland_t for the 2D location (x, z)
-		inline const flatland_t& operator() (int x, int z) const
+		const flatland_t& operator() (int x, int z) const
 		{
-			return this->fdata[x * BLOCKS_XZ + z];
+			return m_data.at(x * BLOCKS_XZ + z);
 		}
-		inline flatland_t& operator() (int x, int z)
+		flatland_t& operator() (int x, int z)
 		{
-			return this->fdata[x * BLOCKS_XZ + z];
+			return m_data.at(x * BLOCKS_XZ + z);
 		}
-		
+
 		// assigns new data from some source, eg. a terrain generator
-		void assign(flatland_t* new_data)
+		void assign(data_array_t new_data)
 		{
-			assert(new_data != nullptr);
-			delete fdata;     // delete old data
-			fdata = new_data; // assign new
+			m_data = std::move(new_data);
 		}
 		// unassigns the current data, and returns it
-		flatland_t* unassign()
+		data_array_t unassign()
 		{
-			flatland_t* result = fdata;
-			fdata = nullptr;
-			return result;
+			return std::move(m_data);
 		}
-		
+
 	private:
-		flatland_t* fdata;
-		
+		data_array_t m_data;
+
 	public:
 		// the (decompressed) file record size of a flatland-sector
 		static const int FLATLAND_SIZE = BLOCKS_XZ * BLOCKS_XZ * sizeof(flatland_t);

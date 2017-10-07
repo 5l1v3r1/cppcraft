@@ -28,10 +28,10 @@ namespace terragen
 		p *= 0.005f;
 		float n1 = glm::simplex(p * 0.5f);
 		float n2 = glm::simplex(p * 0.15f);
-		
+
 		return 0.3 - n1 * 0.05 - n2 * 0.1;
 	}
-	
+
 	static float getnoise_icecap(vec3 p, float hvalue)
 	{
 		/*
@@ -39,40 +39,40 @@ namespace terragen
 		p.z *= 0.005;
 		float n1 = sfreq2d(p, 0.5);
 		float n2 = sfreq2d(p, 0.15);
-		
+
 		return p.y - 0.3 + n1 * 0.05 + n2 * 0.1;*/
 		return p.y - hvalue;
 	}
-	
+
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
-		
+
 		block_t _ICE = db::getb("ice_block");
-		
+
 		// count the same block ID until a new one appears
 		int counter = BLOCKS_Y-1;
 		// count current form of dirt/sand etc.
 		int soilCounter = 0;
 		// the last block we encountered
 		Block lastb = air_block;
-		
+
 		// start counting from top (pretend really high)
 		int skyLevel    = 0;
 		int groundLevel = 0;
 		int air = BLOCKS_Y - MAX_Y; // simple _AIR counter
-		
+
 		for (int y = MAX_Y-1; y > 0; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
-			
-			// we only count primary blocks produced by generator, 
+
+			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
 			if (block.getID() == _SOIL || block.getID() == _BEACH)
 			{
 				soilCounter++;
-				
+
 				// making stones under water level has priority!
 				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
 				{
@@ -85,7 +85,7 @@ namespace terragen
 				}
 			}
 			else soilCounter = 0;
-			
+
 			// check if ultradifferent
 			if (block.getID() != lastb.getID())
 			{
@@ -96,7 +96,7 @@ namespace terragen
 					///-////////////////////////////////////-///
 					if (block.getID() == _SOIL)
 						block.setID(_SNOW);
-					
+
 					/// terrain specific objects ///
 					// TODO: use poisson disc here
 					float rand = randf(wx, y, wz);
@@ -117,7 +117,7 @@ namespace terragen
 				// how many times we've seen the same block on the way down
 				counter++;
 			}
-			
+
 			//
 			// -== ore deposition ==-
 			//
@@ -125,7 +125,7 @@ namespace terragen
 			{
 				PostProcess::try_deposit(gdata, x, y, z);
 			} // ore deposition
-			
+
 			// check if not air or cross
 			if (block.isAir())
 			{
@@ -140,30 +140,28 @@ namespace terragen
 				if (groundLevel == 0)
 					groundLevel = y+1;
 			}
-			
+
 			// use skylevel to determine when we are below sky
 			block.setLight((skyLevel == 0) ? 15 : 0, 0);
 		} // y
-		
+
 		// set skylevel, groundlevel
 		if (groundLevel == 0)
 			groundLevel = 1;
 		gdata->flatl(x, z).groundLevel = groundLevel;
-		if (skyLevel == 256)
-			skyLevel = 255;
 		gdata->flatl(x, z).skyLevel = skyLevel;
-		
+
 	} // PostProcess::run()
-	
+
 	void terrain_icecap_init()
 	{
-		int T_ICECAP = 
+		int T_ICECAP =
 		terrains.add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
 		Terrain& terrain = terrains[T_ICECAP];
-		
-		terrain.setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 32);
+
+		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);
 		terrain.on_process = icecap_process;
-		
+
 		// snow particle
 		int P_SNOW = particleSystem.add("snowflake",
 		[] (Particle& p, glm::vec3)
@@ -179,7 +177,7 @@ namespace terragen
 			pv.tileID  = 1 + 1 * tiles.partsX; // (1, 1) = snow particle
 			pv.uvscale = 255;
 			pv.shiny   = 0;
-			
+
 			// determina fade level
 			float fade = p.ttl / 32.0f;
 			fade = (fade > 1.0f) ? 1.0f : fade;
@@ -191,8 +189,8 @@ namespace terragen
 			// snow (white + 100% alpha)
 			pv.color = 0xFFFFFFFF;
 		});
-		
-		terrain.on_tick = 
+
+		terrain.on_tick =
 		[P_SNOW] (double)
 		{
 			// every time we tick this piece of shit, we create some SNOW YEEEEEEEEEEEEEE
@@ -200,23 +198,23 @@ namespace terragen
 			{
 				// create random position relative to player
 				glm::vec3 position(player.pos.x, 0, player.pos.z);
-				
+
 				// create particle at skylevel + some value
-				Flatland::flatland_t* fs = 
+				Flatland::flatland_t* fs =
 					sectors.flatland_at(position.x, position.z);
 				if (fs == nullptr) break;
-				
+
 				// use skylevel as particle base height
 				position.y = fs->skyLevel;
-				// 
+				//
 				position += glm::vec3(rndNorm(64), 14 + rndNorm(20), rndNorm(64));
-				
+
 				// now create particle
 				int I = particleSystem.newParticle(position, P_SNOW);
 				assert(I >= 0);
 			}
 		};
-		
+
 		// Terrain reddish
 		terrain.setColor(Biome::CL_GRASS,
 		[] (uint16_t, uint8_t, glm::vec2)
@@ -226,13 +224,13 @@ namespace terragen
 		// Crosses copy the grass color
 		terrain.copyColor(Biome::CL_CROSS, Biome::CL_GRASS);
 		// Trees
-		terrain.setColor(Biome::CL_TREES, 
+		terrain.setColor(Biome::CL_TREES,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
 			return RGBA8(60, 86, 0, 255);
 		});
 		// Light-gray stones
-		terrain.colors[Biome::CL_STONE] = 
+		terrain.colors[Biome::CL_STONE] =
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
 			return RGBA8(180, 180, 180, 255);

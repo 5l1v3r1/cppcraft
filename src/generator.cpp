@@ -54,8 +54,6 @@ namespace cppcraft
 
 	void Generator::init()
 	{
-		// initialize block registry
-		db::BlockDB::init();
 		/// our esteemed generator ///
 		terragen::Generator::init();
 		// load all block data in view
@@ -123,7 +121,7 @@ namespace cppcraft
 			//	sect->getX(), sect->getZ());
 
 			// schedule terrain generator for sector
-			sect->gen_flags |= Sector::GENERATING;
+			sect->add_genflag(Sector::GENERATING);
 
 			// create immutable job data
 			terragen::gendata_t* gdata =

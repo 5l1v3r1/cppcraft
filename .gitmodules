@@ -7,3 +7,6 @@
 [submodule "inc/LuaBridge"]
 	path = inc/LuaBridge
 	url = git@github.com:fwsGonzo/LuaBridge.git
+[submodule "test/Catch"]
+	path = test/Catch
+	url = https://github.com/philsquared/Catch.git
