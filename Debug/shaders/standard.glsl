@@ -32,14 +32,14 @@ void main(void)
 	vec4 position = vec4(in_vertex * VERTEX_SCALE_INV + vtrans, 1.0);
 	position = matview * position;
 	gl_Position = matproj * position;
-	
+
 	v_normals = mat3(matview) * in_normal.xyz;
-	
+
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
-	
+
 	// dotlight
 	#include "worldlight.glsl"
-	
+
   #include "unpack_light.glsl"
 	biomeColor = in_biome;
 }
@@ -77,16 +77,17 @@ void main(void)
 	// read tonecolor from tonemap
 	vec4 tone = texture(tonemap, texCoord);
 	tone.rgb *= biomeColor.rgb;
-	
+
 	// mix diffuse map
 	color = texture(diffuse, texCoord);
 	color.rgb = mix(color.rgb, tone.rgb, tone.a);
 	//color.rgb = biomeColor.rgb;
-	
+  //color.rgb = vec3(0.0);
+
 	#include "degamma.glsl"
 	#include "stdlight.glsl"
 	#include "finalcolor.glsl"
-	
+
 #ifdef VIEW_NORMALS
 	normals = vec4(v_normals, 1.0);
 #endif

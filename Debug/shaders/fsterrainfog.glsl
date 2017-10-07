@@ -13,7 +13,7 @@ void main(void)
 {
 	texCoord = in_vertex;
 	gl_Position = vec4(in_vertex * 2.0 - 1.0, 0.0, 1.0);
-	
+
 	eye_direction = vec3(gl_Position.xy * nearPlaneHalfSize, -1.0);
 }
 #endif
@@ -51,10 +51,10 @@ float fog(in vec3  ray,
 {
 	// fog is strongest at the waterline
 	const float fogY = 64.0;
-	
+
 	// distance in fog
-	float foglen = pow(depth, 0.5);
-	
+	float foglen = depth;
+
 	// how far are we from center of fog?
 	float foglevel = max(0.0, 1.0 - abs(point.y - fogY) / fogHeight);
 	// make S-curve/gradient
@@ -62,7 +62,7 @@ float fog(in vec3  ray,
 	// steeper curve under fog center (fogY)
 	float above = 1.0 - step(point.y, fogY);
 	foglevel = above * foglevel + (1.0 - above) * 1.0;
-	
+
 	return foglevel * foglen;
 }
 
@@ -81,37 +81,32 @@ void main()
 {
 	// base color
 	color = texture2D(terrain, texCoord);
-	
+
 	// reconstruct position from window-space depth
 	vec3 viewPos = eye_direction * linearDepth(texCoord);
 	// viewspace/linear depth
 	float depth = min(1.0, length(viewPos.xyz) / ZFAR);
-	
+
 	// reconstruct view to world coordinates
 	vec4 wpos = vec4(viewPos, 1.0) * matview;
 	// camera->point ray
 	vec3 ray = normalize(wpos.xyz);
 	// to world coordinates
 	wpos.xyz -= worldOffset;
-	
+
 	// volumetric fog
 	float fogAmount = fog(ray, wpos.xyz, depth) * fogData.a;
-	
+
 	// mix in the sun effect
 	const vec3 sunBaseColor = vec3(1.0, 0.8, 0.5);
 	float sunAmount = max(0.0, dot(ray, sunAngle));
 	sunAmount *= 0.5 * depth * daylight * daylight;
 	// subtract from the fog where there is sun
-	fogAmount = max(0.0, fogAmount - sunAmount);
-	
+	//fogAmount = max(0.0, fogAmount - sunAmount);
+
 	// mix in sun glow on terrain only (BEFORE WE ADD SKY)
 	color.rgb = mix(color.rgb, sunBaseColor, sunAmount);
-	
-	// mix in sky to fade out the world (sunglow, mostly)
-	vec3 skyColor = texture(skytexture, texCoord).rgb;
-	float edge = smoothstep(0.75, 1.0, depth);
-	color.rgb = mix(color.rgb, skyColor, edge);
-	
+
 	// final fog color (AFTER sky, and after sun)
 	color.rgb = mix(color.rgb, fogData.rgb, fogAmount);
 	// ... and, use alpha-channel as depth
