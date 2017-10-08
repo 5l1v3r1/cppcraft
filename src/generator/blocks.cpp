@@ -13,8 +13,8 @@ using namespace db;
 namespace cppcraft
 {
 	// most common mesh is the solid cube
-	extern int emitCube(cppcraft::PTD& ptd, int bx, int by, int bz, block_t);
-	extern int emitCross(PTD& ptd, int bx, int by, int bz, block_t);
+	extern void emitCube(cppcraft::PTD& ptd, int bx, int by, int bz, block_t);
+	extern void emitCross(PTD& ptd, int bx, int by, int bz, block_t);
 }
 namespace terragen
 {
@@ -62,7 +62,6 @@ namespace terragen
 		BlockData solid;
 		solid.blocksMovement = [] (const Block&) { return true; };
 		solid.forwardMovement = [] (const Block&) { return false; };
-		solid.getColor = nullptr;
 		solid.hasActivation = [] (const Block&) { return false; };
 		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };

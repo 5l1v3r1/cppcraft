@@ -15,6 +15,8 @@
 
 namespace cppcraft
 {
+  Sectors sectors(0);
+
 	void WorldManager::init(gamestate_t gs, library::WindowClass& gameScreen, std::string& worldFolder)
 	{
 		this->gamestate = gs;
@@ -53,9 +55,6 @@ namespace cppcraft
 
 		// save our stuff!
 		world.save();
-
-		// stop threadpool
-		AsyncPool::stop();
 	}
 
 	void WorldManager::initPlayer()

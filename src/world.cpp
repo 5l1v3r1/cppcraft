@@ -12,7 +12,6 @@ namespace cppcraft
 {
 	// one and only instance of WorldClass
 	World world;
-  Sectors sectors(1);
 
 	void World::init(const std::string& worldFolder)
 	{
@@ -20,7 +19,7 @@ namespace cppcraft
 		// default world folder
 		const std::string DEFAULT_WORLD_FOLDER = "Worlds/test";
 
-		int sectors_xz = config.get("world.viewdist", 48);
+		int sectors_xz = config.get("world.viewdist", 24) * 2;
 		sectors.rebuild(sectors_xz);
 
 		/// load world position from folder ///

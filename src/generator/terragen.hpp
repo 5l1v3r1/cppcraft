@@ -2,9 +2,11 @@
 #include "../sector.hpp"
 #include "../flatlands.hpp"
 #include "biomegen/biome.hpp"
+#include "processing/oregen.hpp"
 #include "object.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <array>
 #include <vector>
 
 namespace cppcraft
@@ -41,7 +43,7 @@ namespace terragen
 
 		Biome::biome_t& getWeights(int x, int z)
 		{
-			return weights[x * (BLOCKS_XZ+1) + z];
+			return weights.at(x * (BLOCKS_XZ+1) + z);
 		}
 		void setWeights(int x, int z, Biome::biome_t& bi)
 		{
@@ -69,19 +71,23 @@ namespace terragen
 
 		/// === working set === ///
 		// where the sector we are generating terrain for is located
-		int wx, wz;
+		const int wx, wz;
 		// same, but in blocks relative to the center of the world
 		int genx, genz;
-		// biome weights are 17x17 because of bilinear interpolation
-		Biome::biome_t weights[(BLOCKS_XZ+1) * (BLOCKS_XZ+1)];
+    // local ore generator
+    OreGen oregen;
 		/// === working set === ///
 
 		/// === results === ///
 		// ALL final results produced from terragen is in sblock and flatl
+    std::vector<GenObject> objects;
+    Flatland flatl;                // 2d data, colors etc.
+  private:
 		std::unique_ptr<Sector::sectorblock_t> sblock = nullptr;
-		Flatland flatl;                // 2d data, colors etc.
-		std::vector<GenObject> objects;
 		/// === results === ///
+
+    // biome weights are 17x17 because of bilinear interpolation
+		std::array<Biome::biome_t, (BLOCKS_XZ+1) * (BLOCKS_XZ+1)> weights;
 	};
 
 	class Generator

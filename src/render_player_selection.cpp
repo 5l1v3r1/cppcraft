@@ -133,62 +133,44 @@ namespace cppcraft
 		if (updated)
 		{
 			// build vertices
-			int vertices = 0;
-			selection_vertex_t* vertexData = nullptr;
+			std::vector<selection_vertex_t> vertices;
 
 			// determine selection mesh
 			if (selection < 6)
 			{
-				// we are to render some cube model, specifically only 1 quad
-				vertices = 4;
-				vertexData = new selection_vertex_t[vertices];
 				// regular cube face
-				if (vertices != blockmodels.selectionCube[model].copyTo(selection, vertexData))
-					throw std::string("PlayerSelection::render(): selection == 6 vertex count mismatch");
+				blockmodels.selectionCube[model].copyTo(selection, vertices);
 			}
 			else if (selection == 6) // cross selection box
 			{
-				vertices = 24;
-				vertexData = new selection_vertex_t[vertices];
 				// cross selection box
-				if (vertices != blockmodels.selecionCross.copyTo(0, vertexData))
-					throw std::string("PlayerSelection::render(): selection == 6 vertex count mismatch");
+				blockmodels.selecionCross.copyTo(0, vertices);
 			}
 			else if (selection == 9) // pole selection box
 			{
-				vertices = 24;
-				vertexData = new selection_vertex_t[vertices];
 				// cross selection box
-				if (vertices != blockmodels.selectionPole.copyTo(0, vertexData))
-					throw std::string("PlayerSelection::render(): selection == 9 vertex count mismatch");
+				blockmodels.selectionPole.copyTo(0, vertices);
 			}
 			else if (selection == 10) // ladders selection box
 			{
-				vertices = 24;
-				vertexData = new selection_vertex_t[vertices];
 				// ladder selection box
-				if (vertices != blockmodels.selectionLadder.copyTo(bits, vertexData))
-					throw std::string("PlayerSelection::render(): selection == 10 vertex count mismatch");
+				blockmodels.selectionLadder.copyTo(bits, vertices);
 			}
 
-
 			// upload only if renderable
-			renderable = (vertices != 0);
+			this->renderable = vertices.empty() == false;
 
-			if (renderable)
+			if (this->renderable)
 			{
 				// upload selection rendering data
-				vao.begin(sizeof(selection_vertex_t), vertices, vertexData);
+				vao.begin(sizeof(selection_vertex_t), vertices.size(), vertices.data());
 				vao.attrib(0, 3, GL_FLOAT, GL_FALSE, offsetof(selection_vertex_t, x));
 				vao.attrib(1, 2, GL_FLOAT, GL_FALSE, offsetof(selection_vertex_t, u));
 				vao.end();
-
-				// cleanup
-				delete[] vertexData;
 			}
 		}
 
-		if (renderable == false) return;
+		if (this->renderable == false) return;
 
 		// enable blending
 		glEnable(GL_BLEND);

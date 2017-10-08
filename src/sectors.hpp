@@ -19,11 +19,11 @@ namespace cppcraft
 		int getXZ() const { return this->sectors_XZ; }
 
 		// returns a reference to a Sector located at (x, z)
-		inline Sector& operator() (int sx, int sz)
+		Sector& operator() (int sx, int sz)
 		{
 			return *this->getSector(sx, sz);
 		}
-		inline Flatland& flatland(int sx, int sz)
+		Flatland& flatland(int sx, int sz)
 		{
 			return this->getSector(sx, sz)->flat();
 		}
@@ -54,12 +54,12 @@ namespace cppcraft
 		// returns a pointer to the sector at (x, z)
 		inline Sector* getSector(int x, int z)
 		{
-			return this->sectors[x * sectors_XZ + z];
+			return this->sectors.at(x * sectors_XZ + z);
 		}
 		// returns a reference to a pointer to a sector, which is ONLY used by Seamless
 		inline Sector*& getSectorRef(int x, int z)
 		{
-			return this->sectors[x * sectors_XZ + z];
+			return this->sectors.at(x * sectors_XZ + z);
 		}
 
 		// Seamless: moves sector (x2, z2) to (x, z)
@@ -73,7 +73,7 @@ namespace cppcraft
 		}
 
 		// 3d and 2d data containers
-		Sector**   sectors = nullptr;
+		std::vector<Sector*> sectors;
 		// sectors XZ-axes size
 		int sectors_XZ = 0;
 

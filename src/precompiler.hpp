@@ -12,17 +12,14 @@
 namespace cppcraft
 {
 	class Sector;
-	class PrecompJob;
-	
-	class Precomp
-	{
+
+	class Precomp {
 	public:
 		static void init();
-		
+
 		/// this constructor MUST be called from main world thread
-		Precomp(Sector* sector, int y0, int y1);
-		~Precomp();
-		
+		explicit Precomp(Sector& sector, int y0, int y1);
+
 		enum jobresult_t
 		{
 			STATUS_NEW,
@@ -30,26 +27,28 @@ namespace cppcraft
 			STATUS_FAILED,
 			STATUS_DONE
 		};
-		
+
 		inline jobresult_t getStatus() const
 		{
 			return status;
 		}
-		
+
 		jobresult_t status;
 		// our source sector (with additional data)
 		bordered_sector_t sector;
-		
+
 		// resulting mesh data
-		vertex_t* datadump;
+		std::vector<vertex_t> datadump;
+    // total amount of vertices for each shader line
+    // DOES NOT EQUAL the size of the vertex datadump
+    // due to terrain optimization stages
+    unsigned short vertices    [RenderConst::MAX_UNIQUE_SHADERS];
+    unsigned short bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
 		// resulting index data
 		//indice_t* indidump;
 		//indice_t indices           [RenderConst::MAX_UNIQUE_SHADERS];
-		
-		unsigned short vertices    [RenderConst::MAX_UNIQUE_SHADERS];
-		unsigned short bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
 	};
-	
+
 }
 
 #endif

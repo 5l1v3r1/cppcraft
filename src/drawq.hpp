@@ -2,76 +2,74 @@
 #define DRAWQ_HPP
 
 #include "renderconst.hpp"
+#include <array>
 #include <vector>
 
-namespace library
-{
+namespace library {
 	class Frustum;
 }
 
 namespace cppcraft
 {
 	class Column;
-	
-	class DrawQueueShaderline
-	{
+
+	class DrawQueueShaderline {
 	public:
 		// adds a column to this draw queue
-		inline void add(Column* cv)
+		void add(Column* cv)
 		{
 			if (this->items < queue.size())
 			{
 				this->queue[this->items] = cv;
 			}
 			else queue.push_back(cv);
-			
+
 			this->items++;
 		}
-		
+
 		// returns the number of items in the current queue
-		inline int count() const
+		int count() const noexcept
 		{
 			return this->items;
 		}
-		
+
 		// "clears" the drawing queue
-		inline void clear()
+		void clear() noexcept
 		{
 			this->items = 0;
 		}
-		
+
 		// returns an element from the draw queue
-		inline Column* get(int index)
+		Column* get(int index)
 		{
-			return this->queue[index];
+			return this->queue.at(index);
 		}
-		
+
 	private:
 		// queue
 		std::vector<Column*> queue;
 		unsigned int items;
-		
 	};
-	
+
 	class DrawQueue
 	{
 	private:
-		DrawQueueShaderline lines[RenderConst::MAX_UNIQUE_SHADERS];
+		std::array<DrawQueueShaderline, RenderConst::MAX_UNIQUE_SHADERS> lines;
 		bool above;
-		
+
 	public:
 		DrawQueue(bool aboveWaterOnly) : above(aboveWaterOnly) {}
-		
+
 		// initialize drawing queue
 		void init();
 		// reset drawing queue (all shaderlines)
 		void reset();
-		
-		inline DrawQueueShaderline& operator[] (int shader)
+
+		DrawQueueShaderline& operator[] (int shader)
 		{
-			return lines[shader];
+			return lines.at(shader);
 		}
-		
+
 		int size() const
 		{
 			int cnt = 0;
@@ -80,12 +78,12 @@ namespace cppcraft
 			return cnt;
 		}
 		int size(int occlusion_status);
-		
+
 		/// octtree-like frustum culling ///
 		// building a new draw queue, but ignoring columns that are too far out
 		// the draw queue deals only with columns
-		static const int visibility_border = 2;
-		
+		static const int VISIBILITY_BORDER = 4;
+
 		struct rendergrid_t
 		{
 			int xstp, ystp, zstp;
@@ -94,7 +92,7 @@ namespace cppcraft
 			float playerY;
 			const library::Frustum* frustum;
 		};
-		
+
 		void uniformGrid(rendergrid_t& rg, int x0, int x1, int z0, int z1, int quant);
 		void gridTesting(rendergrid_t& rg, int x, int z, int axis);
 	};

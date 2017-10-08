@@ -19,6 +19,14 @@ inline int ihash(int x)
 {
 	return hash(x) & INT32_MAX;
 }
+inline int ihash(int x, int y)
+{
+	return hash(x xor ihash(y)) & INT32_MAX;
+}
+inline int ihash(int x, int y, int z)
+{
+	return hash(x xor ihash(y) xor ihash(z)) & INT32_MAX;
+}
 
 inline float randf(int x)
 {

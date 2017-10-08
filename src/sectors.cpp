@@ -13,7 +13,7 @@ namespace cppcraft
 	Sector* Sectors::sectorAt(float x, float z)
 	{
 		if (x >= 0 && x < BLOCKS_XZ * getXZ() &&
-			z >= 0 && z < BLOCKS_XZ * getXZ())
+			  z >= 0 && z < BLOCKS_XZ * getXZ())
 		{
 			return getSectorRef(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		}
@@ -25,56 +25,42 @@ namespace cppcraft
 	{
 		// set number of sectors on X/Z axes
 		this->sectors_XZ = sectors_xz;
-		// allocate sector pointers
-    delete sectors;
-		sectors = new Sector*[sectors_XZ * sectors_XZ];
-		// iterate sectors
+		// clear out any old sectors
+    for (auto* sector : this->sectors) {
+      delete sector;
+    }
+    // rebuild vector
+		sectors = std::vector<Sector*>(this->sectors_XZ * this->sectors_XZ);
+		// iterate and construct sectors
 		for (int x = 0; x < sectors_XZ; x++)
 		for (int z = 0; z < sectors_XZ; z++)
 		{
 			// place pointer to new sector into (x, z)
 			getSectorRef(x, z) = new Sector(x, z);
-
 		} // y, z, x
 	}
 	Sectors::~Sectors()
 	{
-		// iterate sectors
-		for (int x = 0; x < sectors_XZ; x++)
-		for (int z = 0; z < sectors_XZ; z++)
-		{
-			delete getSectorRef(x, z);
-		}
-		delete[] this->sectors;
+    for (auto* sector : this->sectors) {
+      delete sector;
+    }
 	}
 
 	void Sectors::updateAll()
 	{
 		// iterate sectors
-		for (int x = 0; x < sectors_XZ; x++)
-		for (int z = 0; z < sectors_XZ; z++)
-		{
-			Sector& sect = this[0](x, z);
-
-			//! re-schedule all sectors to have the mesh regenerated
-			//! unless they are flagged as having all parts already scheduled
-			sect.updateAllMeshes();
-
-		} // y, z, x
+    for (auto* sector : sectors)
+       sector->updateAllMeshes();
 	}
 	void Sectors::regenerateAll()
 	{
 		// iterate sectors
-		for (int x = 0; x < sectors_XZ; x++)
-		for (int z = 0; z < sectors_XZ; z++)
+    for (auto* sector : sectors)
 		{
-			// get column
-			Sector& sect = this[0](x, z);
 			// clear generated flag and add to generator queue
-			sect.gen_flags &= ~1;
-			Generator::add(sect);
-
-		} // y, z, x
+			sector->gen_flags &= ~1;
+			Generator::add(*sector);
+		}
 	}
 
 	Flatland::flatland_t* Sectors::flatland_at(int x, int z)

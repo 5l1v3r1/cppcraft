@@ -21,7 +21,6 @@
 #include <deque>
 
 using namespace library;
-using namespace ThreadPool;
 
 namespace cppcraft
 {
@@ -32,25 +31,7 @@ namespace cppcraft
 	// multi-threaded shits, mutex for the finished queue
 	// and the list of containers of finished jobs (gendata_t)
 	static std::mutex mtx_genq;
-	static std::deque<terragen::gendata_t*> finished;
-
-	class GeneratorJob
-		: public TPool::TJob
-	{
-	public:
-		GeneratorJob() : TPool::TJob() {}
-
-		void run(void* data)
-		{
-			terragen::gendata_t* gdata = (terragen::gendata_t*) data;
-			terragen::Generator::run(gdata);
-
-			// re-add the data back to the finished queue
-			mtx_genq.lock();
-			finished.push_back(gdata);
-			mtx_genq.unlock();
-		}
-	};
+	static std::deque<std::unique_ptr<terragen::gendata_t>> finished;
 
 	void Generator::init()
 	{
@@ -94,14 +75,15 @@ namespace cppcraft
 		const int dz2 = s2->getZ() - center;
 
 		// euclidian:
-		//return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
+		return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
 		// manhattan:
-		return std::abs(dx1) + std::abs(dz1) > std::abs(dx2) + std::abs(dz2);
+		//return std::abs(dx1) + std::abs(dz1) > std::abs(dx2) + std::abs(dz2);
 	}
 
 	void Generator::run()
 	{
 		// sort by distance from center (radius)
+    // the queue should on average be mostly sorted
 		std::sort(queue.begin(), queue.end(), GenerationOrder);
 
 		// queue from the top of the vector
@@ -123,12 +105,20 @@ namespace cppcraft
 			// schedule terrain generator for sector
 			sect->add_genflag(Sector::GENERATING);
 
-			// create immutable job data
-			terragen::gendata_t* gdata =
-				new terragen::gendata_t(sect->getWX(), sect->getWZ());
+      delegate<void()> func =
+      [wx = sect->getWX(), wz = sect->getWZ()]
+      {
+        // create immutable job data
+  			auto gdata = std::make_unique<terragen::gendata_t> (wx, wz);
+    		terragen::Generator::run(gdata.get());
 
+    		// re-add the data back to the finished queue
+    		mtx_genq.lock();
+    		finished.push_back(std::move(gdata));
+    		mtx_genq.unlock();
+    	};
 			// execute the generator job in background, delete job after its done
-			AsyncPool::sched(new GeneratorJob, gdata, true);
+			AsyncPool::sched(std::move(func));
 		}
 
 		// finished generator jobs
@@ -136,7 +126,7 @@ namespace cppcraft
 		while (!finished.empty())
 		{
 			// retrieve from queue
-			terragen::gendata_t* gdata = finished.front();
+			auto gdata = std::move(finished.front());
 			finished.pop_front();
 			mtx_genq.unlock();
 
@@ -191,8 +181,6 @@ namespace cppcraft
 			#endif
 			}
 
-			// delete the job!
-			delete gdata;
 			// allow more jobs in the async pool
 			AsyncPool::release();
 

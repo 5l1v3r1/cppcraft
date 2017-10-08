@@ -52,7 +52,7 @@ namespace db
 		}
 
 		// place mesh into PTD buffers (indic), returns number of vertices emitted
-		delegate <int(cppcraft::PTD&, int, int, int, uint16_t)> emit = nullptr;
+		delegate <void(cppcraft::PTD&, int, int, int, uint16_t)> emit = nullptr;
 
 		// returns true if the block has an activation function
 		delegate <bool(const Block&)> hasActivation = nullptr;

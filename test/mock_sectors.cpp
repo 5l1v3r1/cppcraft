@@ -11,5 +11,5 @@ using namespace cppcraft;
 TEST_CASE("Sectors class is sane")
 {
   REQUIRE(sectors.getXZ() == 32);
-  
+
 }

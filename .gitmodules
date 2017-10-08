@@ -10,3 +10,6 @@
 [submodule "test/Catch"]
 	path = test/Catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "inc/ThreadPool"]
+	path = inc/ThreadPool
+	url = git@github.com:fwsGonzo/ThreadPool.git

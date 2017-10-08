@@ -12,6 +12,7 @@ include_directories(Catch/include)
 
 set(SOURCES
     test_lighting.cpp
+    test_sector.cpp
     catch.cpp
     mock_generator.cpp
     mock_player.cpp

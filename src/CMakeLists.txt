@@ -159,7 +159,7 @@ if (UNIX)
   #add_library(bass SHARED IMPORTED)
   #set_target_properties(bass PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libbass.so)
 
-  target_link_libraries(cppcraft -static-libgcc -static-libstdc++)
+  target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
   target_link_libraries(cppcraft library -lbass libGLEW.a GL ${GLFW_STATIC_LIBRARIES} ${LUA_STATIC_LIBRARIES})
 endif()
 

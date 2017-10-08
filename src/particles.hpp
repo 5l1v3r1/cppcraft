@@ -43,28 +43,28 @@ namespace cppcraft
 		uint8_t tileID;  // tile ID based on texture
 		uint8_t uvscale; // 0-100% texture scale
 		uint8_t shiny;   // 1 = apply shiny magical effect
-		
+
 		uint8_t alpha;  // translucency value
 		uint8_t bright; // brightness factor (emulating darkness and as a daylight multiplier)
 		uint8_t offsetX; // texture offset X
 		uint8_t offsetY; // texture offset Y
-		
+
 		uint32_t color;
-		
+
 	} __attribute__((packed));
-	
+
 	struct Particle
 	{
 		bool alive;
 		uint16_t id;
-		
+
 		int wx, wz;
 		int ttl;
 		glm::vec3 position;
 		glm::vec3 acc;
 		glm::vec3 spd;
 	};
-	
+
 	// Particle ID points to this class
 	struct ParticleType
 	{
@@ -73,19 +73,19 @@ namespace cppcraft
 		typedef std::function<void(Particle&, glm::vec3)> create_func_t;
 		// this function is called every tick until ttl reaches zero
 		typedef std::function<void(Particle&, particle_vertex_t&)> tick_func_t;
-		
+
 		ParticleType(create_func_t cfunc, tick_func_t tfunc)
 			: on_create(cfunc), on_tick(tfunc) {}
-		
+
 		create_func_t on_create;
 		tick_func_t   on_tick;
 	};
-	
+
 	class Particles
 	{
 	public:
 		const int MAX_PARTICLES = 1024;
-		
+
 		// initialize system
 		void init();
 		// one round of updates, as an integrator
@@ -95,7 +95,7 @@ namespace cppcraft
 		// rendering
 		void renderUpdate();
 		void render(int snapWX, int snapWZ, double time);
-		
+
 		// add a new named particle type
 		template <typename... Args>
 		int add(const std::string& name, Args... args)
@@ -116,33 +116,34 @@ namespace cppcraft
 				return -1;
 			return it->second;
 		}
-		
+
 		// shared thread-unsafe flag that we don't really care about, since
 		// it's pretty much updated every damn time
-		bool updated;
-		
+		bool updated = true;
+
 		// returns -1 if there isnt enough room to create more particles
 		int newParticle(glm::vec3 position, short id);
-		
+
 	private:
-		int snapRenderCount;
+		int snapRenderCount = 0;
 		int snapWX, snapWZ;
-		particle_vertex_t* vertices;
-		unsigned int vao, vbo;
-		
-		int renderCount;
+		particle_vertex_t* vertices = nullptr;
+		unsigned int vao = 0;
+    unsigned int vbo = 0;
+
+		int renderCount = 0;
 		int currentWX, currentWZ;
-		
+
 		void autoCreateFromTerrain(int terrain, glm::vec3& position);
-		
+
 		// returns a new particle ID from queue, or -1
 		int newParticleID();
-		
+
 		std::deque<int> deadParticles;
-		Particle* particles;
-		int count;
+		Particle* particles = nullptr;
+		int count = 0;
 		std::mutex mtx;
-		
+
 		std::map<std::string, size_t> names;
 		std::vector<ParticleType>     types;
 	};

@@ -1,20 +1,17 @@
 #include "blockmodels.hpp"
 
 #include <library/log.hpp>
-#include <cstring>
-
 using namespace library;
 
 namespace cppcraft
 {
 	BlockModels blockmodels;
-	
+
+  // build all common mesh objects
 	void BlockModels::init()
 	{
-		// vertex calculations
-		// builfing mesh objects
 		logger << Log::INFO << "Precomputing vertex data" << Log::ENDL;
-		
+
 		// initialize cube meshes
 		initCubes();
 		// initialize sloped leafs
@@ -36,92 +33,10 @@ namespace cppcraft
 		// initialize playermodel meshes
 		initPlayerMeshes();
 	}
-	
-	Mesh::Mesh()
-	{
-		this->meshdata = nullptr;
-		this->vertices = 0;
-		this->vsize = 0;
-	}
-	Mesh::Mesh(const Mesh& bm)
-	{
-		this->meshdata = bm.meshdata;
-		this->vertices = bm.vertices;
-		this->vsize = bm.vsize;
-	}
-	void Mesh::dispose()
-	{
-		if (meshdata) free (meshdata);
-	}
-	
-	BlockMesh::BlockMesh(int verts)
-	{
-		this->vertices = verts;
-		this->vsize = sizeof(vertex_t);
-		this->meshdata = malloc(vertices * vsize);
-	}
-	
-	SelectionMesh::SelectionMesh(int verts)
-	{
-		this->vertices = verts;
-		this->vsize = sizeof(selection_vertex_t);
-		this->meshdata = malloc(vertices * vsize);
-	}
-	
-	PlayerMesh::PlayerMesh(int verts)
-	{
-		this->vertices = verts;
-		this->vsize = sizeof(player_vertex_t);
-		this->meshdata = malloc(vertices * vsize);
-	}
-	
-	MeshContainer::~MeshContainer()
-	{
-		for (size_t i = 0; i < meshes.size(); i++)
-			meshes[i].dispose();
-	}
-	
-	void MeshContainer::add(const Mesh& bm)
-	{
-		meshes.push_back(bm);
-	}
-	
-	vertex_t& MeshContainer::get(int meshid, int vertex)
-	{
-		return ((vertex_t*) meshes[meshid].getData())[vertex];
-	}
-	
-	int MeshContainer::copyTo(int meshid, void* dest) const
-	{
-		memcpy(dest,	// destination
-			meshes[meshid].getData(), // source
-			meshes[meshid].getTotalBytes() // size
-		);
-		// return the number of vertices we just copied
-		return meshes[meshid].getVertices();
-	}
-	
-	int MeshContainer::copyAll(void* dest) const
-	{
-		int vertices = 0;
-		int tbytes = 0;
-		for (size_t i = 0; i < meshes.size(); i++)
-		{
-			memcpy((char*) dest + tbytes, // destination
-				meshes[i].getData(), // source
-				meshes[i].getTotalBytes() // size
-			);
-			vertices += meshes[i].getVertices();
-			tbytes += meshes[i].getTotalBytes();
-		}
-		// return the number of vertices we just copied
-		return vertices;
-	}
-	
+
 	void BlockModels::extrude(selection_vertex_t& select, float dist, int face)
 	{
-		switch (face)
-		{
+		switch (face) {
 		case 0: // +z
 			select.z += dist;
 			select.x += (select.x < 0.5) ? -dist : dist;
@@ -154,5 +69,5 @@ namespace cppcraft
 			break;
 		}
 	}
-	
+
 }

@@ -10,9 +10,8 @@
 #include "sectors.hpp"
 #include "threadpool.hpp"
 #include <algorithm>
-#include <cassert>
-#include <csignal>
 #include <mutex>
+#include <cassert>
 //#define TIMING
 
 using namespace library;
@@ -21,42 +20,9 @@ namespace cppcraft
 {
 	PrecompQ precompq;
 
-	static std::mutex mtx_avail;
 	// queue of available jobs, waiting to be loaded
-	static std::deque<PrecompJob*> available;
-
-	class PrecompJob : public ThreadPool::TPool::TJob
-	{
-	public:
-		PrecompJob ()
-			: ThreadPool::TPool::TJob()
-		{
-			this->pt = new PrecompThread();
-		}
-
-		void run (void* precomp_in)
-		{
-			Precomp* precomp = (Precomp*) precomp_in;
-
-			// first stage: mesh generation
-			pt->precompile(*precomp);
-			// second stage: AO
-			pt->ambientOcclusion(*precomp);
-
-			/////////////////////////
-			CompilerScheduler::add(precomp);
-			/////////////////////////
-			// re-use this expensive PrecompJob object
-			mtx_avail.lock();
-			available.push_back(this);
-			mtx_avail.unlock();
-			//////////////////////////
-			AsyncPool::release();
-		}
-	private:
-		PrecompThread* pt;
-		std::deque<PrecompJob*> fini;
-	};
+	static std::deque<std::unique_ptr<PrecompThread>> available;
+  static std::mutex mtx_avail;
 
 	void PrecompQ::init()
 	{
@@ -69,7 +35,7 @@ namespace cppcraft
 		//printf("*** PrecompQ: %d available jobs\n", jobCount);
 
 		for (int i = 0; i < jobCount; i++)
-			available.push_back(new PrecompJob);
+			available.push_back(std::make_unique<PrecompThread> ());
 	}
 
 	void PrecompQ::add(Sector& sector, uint8_t parts)
@@ -81,7 +47,6 @@ namespace cppcraft
 		assert(sector.generated() == true);
 		#endif
 
-		//assert(sector.meshgen != 0);
 		if (sector.meshgen != 0) return;
 
 		sector.meshgen |= parts;
@@ -101,22 +66,35 @@ namespace cppcraft
 		if (!job_available() || !AsyncPool::available())
 			return false;
 
+    if (!queue.empty()) {
+      extern bool GenerationOrder(Sector*, Sector*);
+      std::sort(queue.begin(), queue.end(), GenerationOrder);
+    }
+
 		// since we are the only ones that can take stuff
 		// from the available queue, we should be good to just
 		// check if there are any available, and thats it
 		while (!queue.empty())
 		{
-			// find the closest sector to center of world
-			extern bool GenerationOrder(Sector* s1, Sector* s2);
-			auto it = std::max_element(queue.begin(), queue.end(), GenerationOrder);
+			Sector* sector = queue.back();
+      assert(sector != nullptr);
+
+      // -= try to clear out old shite =-
+  		// NOTE: there will always be sectors that cannot be finished
+  		// due to objects begin scheduled and not enough room to build them
+      if (sector->generated() == false || sector->meshgen == 0)
+      {
+        queue.pop_back();
+        continue;
+      }
 
 			// we don't want to start jobs we can't finish
 			// this is also bound to be true at some point,
 			// unless everything completely stopped...
-			if ((*it)->isReadyForMeshgen() && (*it)->objects == 0)
+			if (sector->isReadyForMeshgen() && sector->objects == 0)
 			{
 				// make sure we have proper light
-				bool atmos = sectors.on3x3(**it,
+				bool atmos = sectors.on3x3(*sector,
 				[] (Sector& sect)
 				{
 					// in the future the sector might need finished atmospherics
@@ -143,60 +121,50 @@ namespace cppcraft
 
 				// check again that there are available slots
 				if (!job_available() || !AsyncPool::available())
-					break;
+					   break;
 
 				// finally, we can start the job
-				startJob(*it);
-				queue.erase(it);
+				startJob(*sector);
+        queue.pop_back();
 			}
+      // monitor this number:
+      //printf("PrecompQ size: %zu\n", queue.size());
 
 			// immediately exit while loop, as the sector was not validated
 			break;
 		}
 
-		// -= try to clear out old shite =-
-		// NOTE: there will always be sectors that cannot be finished
-		// due to objects begin scheduled and not enough room to build them
-		for (auto it = queue.begin(); it != queue.end();)
-		{
-			if ((*it)->generated() == false || (*it)->meshgen == 0)
-				queue.erase(it++);
-			else
-				++it;
-		}
-		// -= try to clear out old shite =-
-
 		// always check if time is out
 		return (timer.getTime() > timeOut);
 	}
 
-	void PrecompQ::startJob(Sector* sector)
+	void PrecompQ::startJob(Sector& sector)
 	{
 		// create new Precomp
 		//printf("Precompiler scheduling (%d, %d) size: %lu\n",
 		//	sector->getX(), sector->getZ(), sizeof(Precomp));
-		int y0 = 0;
-		int y1 = BLOCKS_Y;
-		Precomp* precomp = new Precomp(sector, y0, y1);
-		sector->meshgen = 0;
+		sector.meshgen = 0;
 
-		// retrieve an available job
-		mtx_avail.lock();
-		assert(!available.empty());
+    const int y0 = 0;
+    const int y1 = BLOCKS_Y;
+    auto precomp = std::make_unique<Precomp> (sector, y0, y1);
 
-		PrecompJob* job = available.front();
-		available.pop_front();
+    // go go go!
+    AsyncPool::sched(
+      AsyncPool::job_t::make_packed(
+      [pc = std::move(precomp)] () mutable
+      {
+        PrecompThread wset;
+  			// first stage: mesh generation
+  			wset.precompile(*pc);
+  			// second stage: AO
+  			wset.ambientOcclusion(*pc);
 
-		mtx_avail.unlock();
+  			/////////////////////////
+  			CompilerScheduler::add(std::move(pc));
+  			/////////////////////////
 
-		// schedule job
-		// Note that @precomp is the void* parameter!
-		AsyncPool::sched(job, precomp, false);
-	}
-
-	void PrecompQ::schedule(Sector& sector)
-	{
-		this->queue.push_back(&sector);
-		needs_sorting = true;
+  			AsyncPool::release();
+      }));
 	}
 }

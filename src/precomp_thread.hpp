@@ -4,8 +4,10 @@
 #define AMBIENT_OCCLUSION_GRADIENTS
 
 #include "precompiler.hpp"
+#include "precomp_thread_data.hpp"
 #include "renderconst.hpp"
 #include "vertex_block.hpp"
+#include <memory>
 
 namespace cppcraft
 {
@@ -15,10 +17,7 @@ namespace cppcraft
 	class PrecompThread
 	{
 	public:
-		PrecompThread();
-		~PrecompThread();
-
-		PTD* ptd;
+		PTD ptd;
 
 		// stage 2, generating mesh
 		void precompile(Precomp& pc);

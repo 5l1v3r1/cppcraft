@@ -6,7 +6,6 @@
 #include "columns.hpp"
 #include "compiler_scheduler.hpp"
 #include "sectors.hpp"
-#include <string>
 
 using namespace library;
 
@@ -18,20 +17,12 @@ namespace cppcraft
 		// construct all mesh objects
 		blockmodels.init();
 	}
-	
-	Precomp::Precomp(Sector* sect, int y0, int y1)
-		: sector(*sect, y0, y1)
+
+	Precomp::Precomp(Sector& sect, int y0, int y1)
+		: sector(sect, y0, y1)
 	{
 		// this is a new job
 		assert(y1 != 0);
 		this->status   = STATUS_NEW;
-		
-		this->datadump = nullptr;
-		//this->indidump = nullptr;
-	}
-	Precomp::~Precomp()
-	{
-		delete[] this->datadump;
-		//delete[] this->indidump;
 	}
 }

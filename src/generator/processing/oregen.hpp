@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../terragen.hpp"
 #include "../../block.hpp"
 #include <vector>
@@ -10,48 +9,43 @@ namespace terragen
 
 	struct OreInfo
 	{
-		OreInfo(int ID, int Depth, int Max)
-			: id(ID), depth(Depth), max(Max) {}
-
-		block_t id;
-		int depth;
-		int max, count;
+		int  block_id;
+		int  min_depth;
+    int  cluster_min;
+    int  cluster_max;
+		int  max_clusters;
 	};
+  struct OreData
+  {
+    int clusters = 0;
+  };
 
-	class OreGen
-	{
+	class OreGen {
 	public:
-		void add(const OreInfo& oi)
+    static void init();
+
+		static void add(const OreInfo& oi)
 		{
 			ores.push_back(oi);
 		}
-
-		static void init();
-
-		static void reset()
+    static const OreInfo& get(int i)
 		{
-			for (OreInfo& ore : get().ores)
-				ore.count = ore.max;
+			return ores.at(i);
 		}
 		static std::size_t size()
 		{
-			return get().ores.size();
-		}
-		static OreInfo& get(int i)
-		{
-			return get().ores[i];
+			return ores.size();
 		}
 
-		static OreGen& get()
-		{
-			static OreGen og;
-			return og;
-		}
+    OreData& data(int i)
+    {
+      return oredata.at(i);
+    }
+		void deposit(gendata_t* gdata, size_t ore_idx, int x, int y, int z);
 
-		static void deposit(gendata_t* gdata, OreInfo& ore, int x, int y, int z);
-
+    OreGen();
 	private:
-		OreGen() {}
-		std::vector<OreInfo> ores;
+    std::vector<OreData> oredata;
+		static std::vector<OreInfo> ores;
 	};
 }

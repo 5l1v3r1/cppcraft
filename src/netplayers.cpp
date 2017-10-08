@@ -206,20 +206,16 @@ namespace cppcraft
 		// head mesh
 		if (vao.isGood() == false)
 		{
-			int count = blockmodels.skinCubes.totalCount();
-
 			// create ccube and copy all centerCube vertices to ccube
-			player_vertex_t* ccube = new player_vertex_t[count];
+			std::vector<player_vertex_t> ccube;
 			blockmodels.skinCubes.copyAll(ccube);
 
 			// upload data
-			vao.begin(sizeof(player_vertex_t), count, ccube);
+			vao.begin(sizeof(player_vertex_t), ccube.size(), ccube.data());
 			vao.attrib(0, 3, GL_FLOAT, false, offsetof(player_vertex_t, x));
 			vao.attrib(1, 3, GL_BYTE,  true,  offsetof(player_vertex_t, nx));
 			vao.attrib(2, 4, GL_BYTE,  false, offsetof(player_vertex_t, u));
 			vao.end();
-
-			delete[] ccube;
 		}
 
 		// render each player

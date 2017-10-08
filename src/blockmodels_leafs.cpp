@@ -8,14 +8,14 @@ namespace cppcraft
 	{
 		float cube_vertices[6][12] =
 		{
-			{0.0, 0.0, 1.0,  1.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0, 1.0, 1.0},  // +z front 
+			{0.0, 0.0, 1.0,  1.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0, 1.0, 1.0},  // +z front
 			{0.0, 0.0, 0.0,  0.0, 1.0, 0.0,  1.0, 1.0, 0.0,  1.0, 0.0, 0.0},  // -z back
 			{0.0, 1.0, 0.0,  0.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 0.0},  // +y top
 			{0.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 0.0, 1.0,  0.0, 0.0, 1.0},  // -y bottom
 			{1.0, 0.0, 0.0,  1.0, 1.0, 0.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0},  // +x right
 			{0.0, 0.0, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  0.0, 1.0, 0.0}   // -x left
 		};
-		
+
 		float cube_texcoords[6][8] =
 		{
 			{0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0},
@@ -25,29 +25,29 @@ namespace cppcraft
 			{1.0, 0.0,  1.0, 1.0,  0.0, 1.0,  0.0, 0.0},
 			{0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0}
 		};
-		
+
 		signed char cube_normals[6][3] =
 		{
 			{0, 0, 127}, { 0,  0, -128}, // front back
 			{0, 127, 0}, { 0, -128,  0}, // top   bottom
 			{127, 0, 0}, {-128,  0,  0}  // right left
 		};
-		
+
 		const short VERTEX_SCALE = RenderConst::VERTEX_SCALE;
-		
+
 		for (int model = 0; model < 4; model++)
 		{
 			for (int face = 0; face < 6; face++)
 			{
 				BlockMesh bm(4);
-				
+
 				// iterate 4 vertices on quad
 				for (int vert = 0; vert < 4; vert++)
 				{
 					float x = cube_vertices[face][vert * 3 + 0];
 					float y = cube_vertices[face][vert * 3 + 1];
 					float z = cube_vertices[face][vert * 3 + 2];
-					
+
 					switch (model)
 					{
 					case 0: // -z
@@ -63,16 +63,16 @@ namespace cppcraft
 						if (x == 1 && y == 1) y = 0.0;
 						break;
 					}
-					
+
 					bm[vert].x = x * VERTEX_SCALE; // x
 					bm[vert].y = y * VERTEX_SCALE; // y
 					bm[vert].z = z * VERTEX_SCALE; // z
 					bm[vert].face = 0;
-					
+
 					bm[vert].u = cube_texcoords[face][vert * 2 + 0] * VERTEX_SCALE;
 					bm[vert].v = cube_texcoords[face][vert * 2 + 1] * VERTEX_SCALE;
 					bm[vert].w = 0;
-					
+
 					// switch normals
 					if (face == 2)
 					{
@@ -107,12 +107,12 @@ namespace cppcraft
 						bm[vert].ny = cube_normals[face][1]; // ny
 						bm[vert].nz = cube_normals[face][2]; // nz
 					}
-					
+
 				}
 				// add face to sloped leaf model list
-				slopedLeafs[model].add(bm);
+				slopedLeafs[model].push_back(bm);
 			}
 		}
-		
+
 	} // initCubes()
 }

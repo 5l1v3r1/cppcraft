@@ -13,25 +13,25 @@ namespace cppcraft
 	{
 		unsigned char* b1 = (unsigned char*) &c1;
 		unsigned char* b2 = (unsigned char*) &c2;
-		
+
 		int d1 = std::abs(b1[0] - b2[0]);
 		int d2 = std::abs(b1[1] - b2[1]);
 		int d3 = std::abs(b1[2] - b2[2]);
-		
+
 		return (d1 > d2) ? ((d1 > d3) ? d1 : d3) : ((d2 > d3) ? d2 : d3);
 	}
-	
+
 	void optimizeMesh(unsigned short& verts, vertex_t* source, int txsize)
 	{
 		vertex_t* position = source;
 		vertex_t* next     = source + 4;
 		vertex_t* last     = source + verts;
 		//int counter = 0;
-		
+
 		for (; next < last; next += 4)
 		{
 			bool skip = false;
-			
+
 			for (vertex_t* current = source; current <= position; current += 4)
 			{
 				// current has same texture as its next
@@ -45,7 +45,7 @@ namespace cppcraft
 						// next quad has previous quad position (-z)
 						if (next->z + RenderConst::VERTEX_SCALE == current->z)
 						if (next->x == current->x && next->y == current->y)
-						
+
 						// color match
 						if (next[2].light == next[3].light)
 						if (next[0].light == next[1].light)
@@ -53,7 +53,7 @@ namespace cppcraft
 						if (current[0].light == current[1].light)
 						if (next[2].light == current[3].light)
 						if (next[1].light == current[0].light)
-						
+
 						// terrain color match
 						if (next[2].color == next[3].color)
 						if (next[0].color == next[1].color)
@@ -69,7 +69,7 @@ namespace cppcraft
 							// wrap texture coordinates
 							current[0].v -= txsize;
 							current[3].v -= txsize;
-							
+
 							verts -= 4;   // decrease total number of vertices
 							skip = true; break;
 						}
@@ -80,7 +80,7 @@ namespace cppcraft
 						// next quad has previous quad position (-z)
 						if (next->z + RenderConst::VERTEX_SCALE == current->z)
 						if (next->y == current->y && next->x == current->x)
-						
+
 						// color match
 						if (next[0].light == next[3].light)
 						if (next[1].light == next[2].light)
@@ -88,7 +88,7 @@ namespace cppcraft
 						if (current[1].light == current[2].light)
 						if (next[0].light == current[3].light)
 						if (next[1].light == current[2].light)
-						
+
 						// terrain color match
 						if (next[0].color == next[3].color)
 						if (next[1].color == next[2].color)
@@ -105,19 +105,19 @@ namespace cppcraft
 							// wrap texture coordinates
 							current[0].u -= txsize;
 							current[1].u -= txsize;
-							
+
 							verts -= 4;   // decrease total number of vertices
 							skip = true; break;
 						}
 					} // optimize +X faces
-					
+
 					// optimize -X faces
 					else if (current->nx == -128)
 					{
 						// next quad has previous quad position (-z)
 						if (next->z + RenderConst::VERTEX_SCALE == current->z)
 						if (next->y == current->y && next->x == current->x)
-						
+
 						// color match
 						if (next[2].light == next[3].light)
 						if (next[0].light == next[1].light)
@@ -125,7 +125,7 @@ namespace cppcraft
 						if (current[0].light == current[1].light)
 						if (next[2].light == current[3].light)
 						if (next[1].light == current[0].light)
-						
+
 						// terrain color match
 						if (next[2].color == next[3].color)
 						if (next[0].color == next[1].color)
@@ -139,7 +139,7 @@ namespace cppcraft
 							// wrap texture coordinates
 							current[0].u -= txsize;
 							current[3].u -= txsize;
-							
+
 							verts -= 4;   // decrease total number of vertices
 							skip = true; break;
 						}
@@ -150,7 +150,7 @@ namespace cppcraft
 						// next quad has previous quad position (-x)
 						if (next->x + RenderConst::VERTEX_SCALE == current->x)
 						if (next->y == current->y && next->z == current->z)
-						
+
 						// color match
 						if (next[2].light == next[3].light)
 						if (next[0].light == next[1].light)
@@ -158,7 +158,7 @@ namespace cppcraft
 						if (current[0].light == current[1].light)
 						if (next[2].light == current[3].light)
 						if (next[1].light == current[0].light)
-						
+
 						// terrain color match
 						if (next[2].color == next[3].color)
 						if (next[0].color == next[1].color)
@@ -172,7 +172,7 @@ namespace cppcraft
 							// wrap texture coordinates
 							current[0].u -= txsize;
 							current[3].u -= txsize;
-							
+
 							verts -= 4;   // decrease total number of vertices
 							skip = true; break;
 						}
@@ -183,7 +183,7 @@ namespace cppcraft
 						// next quad has previous quad position (-x)
 						if (next->x + RenderConst::VERTEX_SCALE == current->x)
 						if (next->y == current->y && next->z == current->z)
-						
+
 						// color match
 						if (next[0].light == next[3].light)
 						if (next[1].light == next[2].light)
@@ -191,7 +191,7 @@ namespace cppcraft
 						if (current[1].light == current[2].light)
 						if (next[0].light == current[3].light)
 						if (next[1].light == current[2].light)
-						
+
 						// terrain color match
 						if (next[0].color == next[3].color)
 						if (next[1].color == next[2].color)
@@ -205,16 +205,16 @@ namespace cppcraft
 							// wrap texture coordinates
 							current[0].u -= txsize;
 							current[1].u -= txsize;
-							
+
 							verts -= 4;   // decrease total number of vertices
 							skip = true; break;
 						}
 					} // optimize -Z faces
-					
+
 				} // same texture & same normal
-				
+
 			} // next face
-			
+
 			if (skip == false)
 			{
 				// just go to next position, and at the same time copy the entire
@@ -224,19 +224,19 @@ namespace cppcraft
 			}
 			//else counter ++;
 		}
-		
+
 		//if (counter)
 		//logger << Log::INFO << "Optimized faces: " << counter << Log::ENDL;
-		
+
 	} // optimizeMesh()
-	
+
 	void optimizeShaderPlane(unsigned short& verts, vertex_t* source)
 	{
 		// origin quad for each line
 		vertex_t* position = source;
 		vertex_t* next     = source + 4;
 		vertex_t* last     = source + verts;
-		
+
 		for (; next < last; next += 4)
 		{
 			for (vertex_t* current = source; current <= position; current += 4)
@@ -244,12 +244,12 @@ namespace cppcraft
 				// determine that quad points upwards (+y)
 				if (current->nx != 0 || current->ny != 127 || current->nz != 0)
 					continue;
-				
+
 				// now check that the next quad has the same normal
 				//if (current[0].nx != next[0].nx || current[0].ny != next[0].ny || current[0].nz != next[0].nz)
 				if (next->nx != 0 || next->ny != 127 || next->nz != 0)
 					continue;
-				
+
 				// next quad has previous quad position (-z)
 				if (next->z + RenderConst::VERTEX_SCALE == current->z)
 				if (next->x == current->x && next->y == current->y)
@@ -261,19 +261,19 @@ namespace cppcraft
 					if (current[0].light != current[1].light) continue;
 					if (next[2].light != current[3].light) continue;
 					if (next[1].light != current[0].light) continue;
-					
+
 					// now optimize the quad, by extending the position quad,
 					// and effectively removing the next quad
 					// PY: (0, 0) --> (0, 1) --> (1, 1) --> (1, 0)
 					// --> extend v[0] and v[3]
 					current[0].z -= RenderConst::VERTEX_SCALE;
 					current[3].z -= RenderConst::VERTEX_SCALE;
-					
+
 					/*current[0].light = 0 << 24;
 					current[1].light = 0 << 24;
 					current[2].light = 0 << 24;
 					current[3].light = 0 << 24;*/
-					
+
 					verts -= 4;   // decrease total number of vertices
 					goto skipAdvancement;
 				}
@@ -285,48 +285,48 @@ namespace cppcraft
 		skipAdvancement:;
 		}
 	}
-	
+
 	void PrecompThread::optimizeMesh(Precomp& pc, int shaderline, int txsize)
 	{
 		unsigned short verts = pc.vertices[shaderline];
 		if (verts >= 8)
 		{
-			vertex_t* repeat = pc.datadump + pc.bufferoffset[shaderline];
+			vertex_t* repeat = &pc.datadump.at(pc.bufferoffset[shaderline]);
 			// verts is sent by reference
 			cppcraft::optimizeMesh(verts, repeat, txsize);
 			// set final number of vertices
 			pc.vertices[shaderline] = verts;
 		}
 	}
-	
+
 	void PrecompThread::optimizeShadedMesh(Precomp& pc, int shaderline)
 	{
 		static const unsigned short WATER_MAX_VERTS = Sector::BLOCKS_XZ * Sector::BLOCKS_XZ * 4;
-		
+
 		unsigned short verts = pc.vertices[shaderline];
-		vertex_t* water = pc.datadump + pc.bufferoffset[shaderline];
-		
+		vertex_t* water = &pc.datadump.at(pc.bufferoffset[shaderline]);
+
 		if (verts == WATER_MAX_VERTS)
 		{
 			const unsigned long long C = water->light;
-			
+
 			for (int i = 1; i < WATER_MAX_VERTS; i++)
 			{
 				if (water[i].light != C) goto optimizeManuallyShaded;
 			}
-			
+
 			water[0].x = 0;
 			water[0].z = 0;
-			
+
 			water[1].x = 0;
 			water[1].z = RenderConst::VERTEX_SCALE * Sector::BLOCKS_XZ;
-			
+
 			water[2].x = RenderConst::VERTEX_SCALE * Sector::BLOCKS_XZ;
 			water[2].z = RenderConst::VERTEX_SCALE * Sector::BLOCKS_XZ;
-			
+
 			water[3].x = RenderConst::VERTEX_SCALE * Sector::BLOCKS_XZ;
 			water[3].z = 0;
-			
+
 			// set final number of vertices
 			pc.vertices[shaderline] = 4;
 			return;

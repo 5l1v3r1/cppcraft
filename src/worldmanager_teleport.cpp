@@ -15,9 +15,9 @@ using namespace library;
 namespace cppcraft
 {
 	bool teleport_teleport = false;
-	World::world_t teleport_wcoords;
+	World::world_t teleport_wcoords{0, 0, 0};
 	glm::vec3 teleport_xyz;
-	
+
 	void WorldManager::teleport(const World::world_t& coords, const glm::vec3& position)
 	{
 		// center local grid on world coordinate location
@@ -31,42 +31,42 @@ namespace cppcraft
 		// bzzzzzzzzzzzz
 		teleport_teleport = true;
 	}
-	
+
 	void WorldManager::teleportHandler()
 	{
 		if (input.getKey(GLFW_KEY_P) == Input::KEY_PRESSED)
 		{
 			input.hold(GLFW_KEY_P);
-			
+
 			teleport_wcoords.x = World::WORLD_CENTER + 64;
 			teleport_wcoords.z = World::WORLD_CENTER + 64;
-			
+
 			teleport_xyz = player.pos;
 			teleport_teleport = true;
 		}
-		
+
 		if (teleport_teleport == false) return;
 		teleport_teleport = false;
-		
+
 		// flush chunk queue
 		chunks.flushChunks();
 		// finish running jobs
 		///precompq.finish();
 		// clear precomp scheduler
 		CompilerScheduler::reset();
-		
+
 		mtx.sectorseam.lock();
 		{
 			// transition to new location
 			world.transitionTo(teleport_wcoords.x, teleport_wcoords.z);
-			
+
 			// invalidate ALL sectors
 			sectors.regenerateAll();
-			
+
 			// move player to:
 			// center grid, center sector, center block
 			player.pos = teleport_xyz;
-			
+
 			// disable all terrain meshes
 			for (int x = 0; x < sectors.getXZ(); x++)
 			for (int z = 0; z < sectors.getXZ(); z++)
@@ -77,5 +77,5 @@ namespace cppcraft
 		}
 		mtx.sectorseam.unlock();
 	}
-	
+
 }

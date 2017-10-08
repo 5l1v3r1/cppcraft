@@ -8,14 +8,14 @@ namespace cppcraft
 	{
 		float cube_vertices[6][12] =
 		{
-			{0.0, 0.0, 1.0,  1.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0, 1.0, 1.0},  // +z front 
+			{0.0, 0.0, 1.0,  1.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0, 1.0, 1.0},  // +z front
 			{0.0, 0.0, 0.0,  0.0, 1.0, 0.0,  1.0, 1.0, 0.0,  1.0, 0.0, 0.0},  // -z back
 			{0.0, 1.0, 0.0,  0.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 0.0},  // +y top
 			{0.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 0.0, 1.0,  0.0, 0.0, 1.0},  // -y bottom
 			{1.0, 0.0, 0.0,  1.0, 1.0, 0.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0},  // +x right
 			{0.0, 0.0, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  0.0, 1.0, 0.0}   // -x left
 		};
-		
+
 		float cube_texcoords[6][8] =
 		{
 			{0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0},
@@ -25,30 +25,30 @@ namespace cppcraft
 			{1.0, 0.0,  1.0, 1.0,  0.0, 1.0,  0.0, 0.0},
 			{0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0}
 		};
-		
+
 		signed char cube_normals[6][3] =
 		{
 			{0, 0, 127}, { 0,  0, -128}, // front back
 			{0, 127, 0}, { 0, -128,  0}, // top   bottom
 			{127, 0, 0}, {-128,  0,  0}  // right left
 		};
-		
+
 		const short VERTEX_SCALE = RenderConst::VERTEX_SCALE;
-		
+
 		// huge monstrous loop, creating 2 fences, one following X
 		// and the other following Z axis.
 		for (int model = 0; model < 2; model++)
 		{
 			BlockMesh bm(4 * 6 * 4);
 			int index = 0;
-			
+
 			for (int i = 0; i < 6 * 4; i++)
 			for (int vert = 0; vert < 4; vert++)
 			{
 				// 4 cubes, 6 sides
 				int cube = i / 6;
 				int side = i % 6;
-				
+
 				// position (xyz)
 				if (model == 0)
 				{
@@ -74,13 +74,13 @@ namespace cppcraft
 							bm[index].z = VERTEX_SCALE * 3.0 / 8;
 						else
 							bm[index].z = VERTEX_SCALE * 5.0 / 8;
-						
+
 						bm[index].y = cube_vertices[side][vert * 3 + 1] * VERTEX_SCALE; // y
 						break;
 					case 2:
 					case 3: // bands
 						bm[index].x = cube_vertices[side][vert * 3 + 0] * VERTEX_SCALE; // x
-						
+
 						if (cube == 2)
 						{
 							if (cube_vertices[side][vert * 3 + 1] == 0.0) // y
@@ -112,7 +112,7 @@ namespace cppcraft
 							bm[index].x = VERTEX_SCALE * 3.2 / 8;
 						else
 							bm[index].x = VERTEX_SCALE * 4.8 / 8;
-						
+
 						if (cube == 0)
 						{
 							if (cube_vertices[side][vert * 3 + 2] == 0.0) // z
@@ -135,9 +135,9 @@ namespace cppcraft
 							bm[index].x = VERTEX_SCALE * 3.5 / 8;
 						else
 							bm[index].x = VERTEX_SCALE * 4.5 / 8;
-						
+
 						bm[index].z = cube_vertices[side][vert * 3 + 2] * VERTEX_SCALE; // z
-						
+
 						if (cube == 2)
 						{
 							if (cube_vertices[side][vert * 3 + 1] == 0.0) // y
@@ -154,9 +154,9 @@ namespace cppcraft
 						}
 						break;
 					}
-					
+
 				}
-				
+
 				// texcoords (uvw)
 				switch (cube)
 				{
@@ -173,7 +173,7 @@ namespace cppcraft
 							bm[index].u = 0.375 * VERTEX_SCALE;
 						else
 							bm[index].u = 0.625 * VERTEX_SCALE;
-						
+
 						bm[index].v = cube_texcoords[side][vert * 2 + 1] * VERTEX_SCALE; // v
 					}
 					break;
@@ -203,17 +203,17 @@ namespace cppcraft
 					break;
 				}
 				bm[index].w = 0;
-				
+
 				bm[index].nx = cube_normals[side][0]; // nx
 				bm[index].ny = cube_normals[side][1]; // ny
 				bm[index].nz = cube_normals[side][2]; // nz
-				
+
 				index++;
-				
+
 			} // vert
-			
-			fences.add(bm);
-			
+
+			fences.push_back(bm);
+
 		} // model
 	}
 }

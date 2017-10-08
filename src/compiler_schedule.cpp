@@ -3,44 +3,38 @@
 #include <library/log.hpp>
 //#include "compilers.hpp"
 #include "precompiler.hpp"
-#include <vector>
+#include <queue>
 #include <mutex>
 
 using namespace library;
 
 namespace cppcraft
 {
-	std::mutex           mtx_compiler;
-	std::deque<Precomp*> cjobs;
-	
+	static std::mutex mtx_compiler;
+	static std::queue<std::unique_ptr<Precomp>> cjobs;
+
 	// add column to this scheduler
 	// the sector reference is really only for the coordinates (x, cy, z)
-	void CompilerScheduler::add(Precomp* precomp)
+	void CompilerScheduler::add(std::unique_ptr<Precomp> precomp)
 	{
-		mtx_compiler.lock();
-		cjobs.push_back(precomp);
-		mtx_compiler.unlock();
+		std::unique_lock<std::mutex> (mtx_compiler);
+		cjobs.push(std::move(precomp));
 	}
-	
-	Precomp* CompilerScheduler::get()
+
+	std::unique_ptr<Precomp> CompilerScheduler::get()
 	{
-		mtx_compiler.lock();
-		
-		if (cjobs.empty())
-		{
-			mtx_compiler.unlock();
+    std::unique_lock<std::mutex> (mtx_compiler);
+		if (cjobs.empty()) {
 			return nullptr;
 		}
 		// grab next finished job
-		Precomp* result = cjobs.front();
-		cjobs.pop_front();
-		
-		mtx_compiler.unlock();
+		auto result = std::move(cjobs.front());
+		cjobs.pop();
 		return result;
 	}
-	
+
 	void CompilerScheduler::reset()
 	{
-		cjobs.clear();
+    while (!cjobs.empty()) cjobs.pop();
 	}
 }
