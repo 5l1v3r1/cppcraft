@@ -143,7 +143,7 @@ namespace cppcraft
 
 
 		// determine selection
-		std::unique_lock<std::mutex> lock(mtx.playerselection);
+		std::lock_guard<std::mutex> lock(mtx.playerselection);
 
 		// exit if we have no selection
 		if (plogic.hasSelection())

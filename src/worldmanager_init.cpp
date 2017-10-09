@@ -55,6 +55,9 @@ namespace cppcraft
 
 		// save our stuff!
 		world.save();
+
+    // stop threadpool
+    AsyncPool::stop();
 	}
 
 	void WorldManager::initPlayer()

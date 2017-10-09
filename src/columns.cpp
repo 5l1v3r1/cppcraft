@@ -17,6 +17,10 @@ namespace cppcraft
 	// all the columns you'll ever need
 	Columns columns;
 
+  Columns::Columns()
+	{
+		this->height = 1;
+	}
 	void Columns::init()
 	{
 		logger << Log::INFO << "* Initializing columns" << Log::ENDL;
@@ -25,7 +29,7 @@ namespace cppcraft
 		// allocate columns //
 		//////////////////////
 		int num_columns = sectors.getXZ() * sectors.getXZ() * this->height;
-		this->columns = new Column[num_columns]();
+		this->columns.resize(num_columns);
 
 		//////////////////////////////////////////////////////////////
 		// determine if above water and allocate metadata container //
@@ -42,18 +46,6 @@ namespace cppcraft
 		assert(sizeof(vertex_t) == 24);
 		// color should be at 20 bytes
 		assert(offsetof(vertex_t, color) == 20);
-	}
-	Columns::Columns()
-	{
-		this->height = 1;
-	}
-	Columns::~Columns()
-	{
-		int num_columns = sectors.getXZ() * sectors.getXZ() * this->height;
-		for (int i = 0; i < num_columns; i++)
-			columns[i].reset();
-
-		delete[] columns;
 	}
 
 	Column::Column()

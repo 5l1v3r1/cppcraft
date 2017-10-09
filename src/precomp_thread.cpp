@@ -16,19 +16,12 @@ namespace cppcraft
 
 	void PrecompThread::precompile(Precomp& pc)
 	{
-		// zero out faces present
-		for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
-		{
-			ptd.vertices[i].clear();
-		}
-
 		// set sector from precomp
 		ptd.sector = &pc.sector;
 
 		// iterate all (for now)
-		int y0 = pc.sector.y0;
-		int y1 = pc.sector.y1;
-		assert(y1 != 0 && y0 < y1);
+		const int y0 = pc.sector.y0;
+		const int y1 = pc.sector.y1;
 
 		for (int bx = 0;  bx < BLOCKS_XZ; bx++)
 		for (int bz = 0;  bz < BLOCKS_XZ; bz++)
@@ -46,8 +39,6 @@ namespace cppcraft
 			}
 		}
 
-    pc.datadump.clear();
-
 		// count the number of vertices generated
 		size_t total = 0;
 		for (const auto& vec : ptd.vertices) {
@@ -60,7 +51,7 @@ namespace cppcraft
 				      pc.sector.wx, pc.sector.wz);
 			// no vertices, we can exit early, but make sure to
 			// mark the sector as culled
-			pc.status   = Precomp::STATUS_CULLED;
+			pc.status = Precomp::STATUS_CULLED;
 			return;
 		}
 
@@ -73,13 +64,15 @@ namespace cppcraft
 		{
       if (!ptd.vertices[i].empty())
       {
-        std::copy(ptd.vertices[i].begin(), ptd.vertices[i].end(),
-                  std::back_inserter(pc.datadump));
+        pc.datadump.insert(pc.datadump.end(),
+                           ptd.vertices[i].begin(), ptd.vertices[i].end());
       }
       pc.vertices[i] = ptd.vertices[i].size();
       pc.bufferoffset[i] = cnt;
       cnt += ptd.vertices[i].size();
 		}
+
+    assert(pc.datadump.size() == total);
 
 		// set job as done
 		pc.status = Precomp::STATUS_DONE;

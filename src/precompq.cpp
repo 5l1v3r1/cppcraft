@@ -20,22 +20,10 @@ namespace cppcraft
 {
 	PrecompQ precompq;
 
-	// queue of available jobs, waiting to be loaded
-	static std::deque<std::unique_ptr<PrecompThread>> available;
-  static std::mutex mtx_avail;
-
 	void PrecompQ::init()
 	{
 		// initialize precompiler stuff
 		Precomp::init();
-
-		// create all the available jobs
-		int jobCount = config.get("world.jobs", 2);
-		logger << Log::INFO << "* PrecompQ: " << jobCount << " available jobs" << Log::ENDL;
-		//printf("*** PrecompQ: %d available jobs\n", jobCount);
-
-		for (int i = 0; i < jobCount; i++)
-			available.push_back(std::make_unique<PrecompThread> ());
 	}
 
 	void PrecompQ::add(Sector& sector, uint8_t parts)
@@ -53,18 +41,9 @@ namespace cppcraft
 		queue.push_back(&sector);
 	}
 
-	bool PrecompQ::job_available() const
-	{
-		mtx_avail.lock();
-		bool result = !available.empty();
-		mtx_avail.unlock();
-		return result;
-	}
-
 	bool PrecompQ::run(Timer& timer, double timeOut)
 	{
-		if (!job_available() || !AsyncPool::available())
-			return false;
+		if (!AsyncPool::available()) return false;
 
     if (!queue.empty()) {
       extern bool GenerationOrder(Sector*, Sector*);
@@ -120,8 +99,7 @@ namespace cppcraft
 					break;
 
 				// check again that there are available slots
-				if (!job_available() || !AsyncPool::available())
-					   break;
+				if (!AsyncPool::available()) break;
 
 				// finally, we can start the job
 				startJob(*sector);

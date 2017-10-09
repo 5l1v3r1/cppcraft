@@ -21,8 +21,10 @@ namespace cppcraft
 	Precomp::Precomp(Sector& sect, int y0, int y1)
 		: sector(sect, y0, y1)
 	{
-		// this is a new job
 		assert(y1 != 0);
-		this->status   = STATUS_NEW;
+    assert(y0 < y1);
+
+    // this is a new job
+		this->status = STATUS_NEW;
 	}
 }

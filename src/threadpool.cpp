@@ -33,4 +33,9 @@ namespace cppcraft
 	{
 		return free_jobs > 0;
 	}
+
+  void AsyncPool::stop()
+  {
+    threadpool = nullptr;
+  }
 }

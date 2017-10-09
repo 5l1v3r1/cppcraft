@@ -58,7 +58,7 @@ namespace cppcraft
 
 		// recount vertices
     /*
-		cnt = precomp.vertices[0];
+		size_t cnt = precomp.vertices[0];
 		for (int i = 1; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
 		{
 			cnt += precomp.vertices[i];

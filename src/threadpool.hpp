@@ -18,5 +18,7 @@ namespace cppcraft
 
 		//! \brief returns true if there are free slots
 		static bool available();
+
+    static void stop();
 	};
 }

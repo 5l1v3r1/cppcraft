@@ -1,7 +1,6 @@
 #include "compiler_scheduler.hpp"
 
 #include <library/log.hpp>
-//#include "compilers.hpp"
 #include "precompiler.hpp"
 #include <queue>
 #include <mutex>
@@ -11,30 +10,31 @@ using namespace library;
 namespace cppcraft
 {
 	static std::mutex mtx_compiler;
-	static std::queue<std::unique_ptr<Precomp>> cjobs;
+	static std::deque<std::unique_ptr<Precomp>> cjobs;
 
 	// add column to this scheduler
 	// the sector reference is really only for the coordinates (x, cy, z)
 	void CompilerScheduler::add(std::unique_ptr<Precomp> precomp)
 	{
-		std::unique_lock<std::mutex> (mtx_compiler);
-		cjobs.push(std::move(precomp));
+		std::lock_guard<std::mutex> lock(mtx_compiler);
+		cjobs.push_back(std::move(precomp));
 	}
 
 	std::unique_ptr<Precomp> CompilerScheduler::get()
 	{
-    std::unique_lock<std::mutex> (mtx_compiler);
+    std::lock_guard<std::mutex> lock(mtx_compiler);
 		if (cjobs.empty()) {
 			return nullptr;
 		}
 		// grab next finished job
 		auto result = std::move(cjobs.front());
-		cjobs.pop();
+		cjobs.pop_front();
 		return result;
 	}
 
 	void CompilerScheduler::reset()
 	{
-    while (!cjobs.empty()) cjobs.pop();
+    std::lock_guard<std::mutex> lock(mtx_compiler);
+    cjobs.clear();
 	}
 }

@@ -36,8 +36,6 @@ namespace cppcraft
 		// starting a job is actually a little complicated
 		void startJob(Sector& sector);
 
-		bool job_available() const;
-
 		// queue of sectors waiting for mesh generation
 		std::deque<Sector*> queue;
 	};
