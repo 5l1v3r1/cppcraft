@@ -44,6 +44,7 @@ set(SOURCES
     generator/terrain/terrain.cpp
     generator/terrain/terrains.cpp
     generator/terrain/t_grass.cpp
+    generator/terrain/t_jungle.cpp
     generator/terrain/t_snow.cpp
     gui/bordered_frame.cpp
     gui/button.cpp

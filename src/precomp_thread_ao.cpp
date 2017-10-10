@@ -84,8 +84,8 @@ namespace cppcraft
 	}
 	inline unsigned char blockIsOccluder(bordered_sector_t& bs, int x, int y, int z)
 	{
-		if (y == -1) return 1; // mui importante, don't know where else to put it tho
-		if (y == 256) return 0;
+		if (y < 0) return 1; // mui importante, don't know where else to put it tho
+		if (y == BLOCKS_Y) return 0;
 
 		return bs(x, y, z).isBlock() & 1;
 	}

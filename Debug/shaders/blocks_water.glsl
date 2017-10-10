@@ -29,18 +29,18 @@ const float VERTEX_SCALE_INV
 void main(void)
 {
 	vec4 position = vec4(in_vertex.xyz * VERTEX_SCALE_INV + vtrans, 1.0);
-	
+
 	position = matview * position;
 	gl_Position = matproj * position;
-	
+
 	// galactic coordinates
 	vec3 w_vertex  = position.xyz * mat3(matview) - worldOffset;
-	
+
 	// light and eye direction in view space
 	v_pos = -position.xyz;
 	// reflect light in view space using view-normal
 	v_normal = mat3(matview) * in_normal.xyz;
-	
+
   #include "unpack_light.glsl"
 	waterColor = in_biome;
 }
@@ -82,7 +82,7 @@ float getDepth(in vec2 uv)
 {
 	float wsDepth = texture(depthtexture, uv).x;
 	wsDepth = ZNEAR / (ZFAR - wsDepth * (ZFAR - ZNEAR));
-	
+
 	return wsDepth * length(vec3((uv * 2.0 - 1.0) * nearPlaneHalfSize, -1.0));
 }
 
@@ -97,35 +97,35 @@ void main(void)
 	vec2 grad;
 	grad.x = snoise(w_vertex.xz);
 	grad.y = snoise(w_vertex.xz * 0.5);
-	
+
 	vec3 Normal = vec3(0.0, 1.0, 0.0);
-	
+
 	float vertdist = length(v_pos);
-	
+
 	vec3 vNormal = Normal; //mat3(matview) * Normal;
 	#define viewNormal  v_normal
-	
+
 	// normalize inputs (water planes are complex)
 	vec3 vEye   = v_pos / vertdist;
 	vec3 vLight = v_ldir;
 	vec3 vHalf = normalize(vEye + vLight);
-	
+
 	// screenspace tex coords
 	vec2 texCoord = gl_FragCoord.xy / screendata.xy;
 	// normalized distance
 	float dist = vertdist / ZFAR;
-	
+
 	//----- REFRACTION -----
-	
+
 	// wave modulation
 	vec2 refcoord = texCoord + vNormal.xz * 0.005 * (1.0 - dist);
   //+ vec2(sin(frameCounter*0.1 + sin(texCoord.x*60.0)), sin(frameCounter*0.1 + texCoord.y*80.0)*0.25) * 0.001;
-	
+
 	// read underwater, use as base color
 	vec4 underw = texture(underwatermap, refcoord);
 	// read underwater depth
 	float wdepth = getDepth(refcoord) - dist;
-	
+
 	// COSTLY re-read to avoid reading inside terrain
 	wdepth = max(0.0, wdepth);
 	/*if (wdepth < 0.0)
@@ -134,57 +134,58 @@ void main(void)
 	}*/
 	// degamma underwater color
 	underw.rgb = pow(underw.rgb, vec3(1.0 / 2.2));
-	
+
 	// nicer depth, adding a little extra
 	wdepth += 5.0 / ZFAR;
-	
+
 	// above water we want the sky to appear as 100% seafloor
 	const float DEPTH_TRESHOLD = 20.0 / ZFAR;
 	float dep = 1.0 - smoothstep(0.0, DEPTH_TRESHOLD, wdepth);
 	float shallowValue = min(1.0, wdepth * 16.0);
-	
+
 	//----- SEACOLOR -----
-	const vec3 deepWater    = vec3(42, 73, 87) * vec3(1.0 / 255.0);
 	const vec3 shallowWater = vec3(0.35, 0.6, 0.45);
-	
-	// create final water color
-	color = vec4(mix(shallowWater, deepWater, shallowValue), 1.0) * daylight;
-	
+
+	// create primary water color
+  shallowValue *= waterColor.a;
+  color.rgb = mix(shallowWater, waterColor.rgb, shallowValue) * daylight;
+	color.a = 1.0;
+
 	// mix watercolor and refraction/seabed
 	color.rgb = mix(color.rgb, underw.rgb, dep);
-	
+
 	//----- REFLECTIONS -----
-	
+
 #ifdef REFLECTIONS
 	// world/terrain reflection
   vec4 wreflection = texture(reflectionmap, texCoord);
 	wreflection.rgb = pow(wreflection.rgb, vec3(1.0 / 2.2));
-  
+
 	//----- fresnel term -----
 	float fresnel = max(0.0, dot(vEye, viewNormal));
 	fresnel = pow(1.0 - fresnel, 2.0);
-	
+
 	// add reflections to final color
 	color.rgb = mix(color.rgb, wreflection.rgb, fresnel);
 	//color.rgb = vec3(fresnel);
 #endif
-	
+
 	//----- LIGHTING -----
 	#include "lightw.glsl"
-	
+
 	//- sun/specular -//
 	const vec3  SUNCOLOR = vec3(0.9, 0.7, 0.5);
-	
+
 	float shine = max(0.0, dot(vHalf, viewNormal) );
 	float specf = max(0.0, dot(reflect(-vLight, viewNormal), vEye));
-	
+
 	// shiny/specular sun reflection
 	vec3 specular = SUNCOLOR * pow(specf, 20.0) * 1.5 * pow(shine, 8.0);
 	color.rgb += specular * shadow * shadow;
-	
+
 	// final color
 	#include "finalcolor.glsl"
-	
+
 #ifdef VIEW_NORMALS
 	normals = vec4(viewNormal, 1.0);
 #endif

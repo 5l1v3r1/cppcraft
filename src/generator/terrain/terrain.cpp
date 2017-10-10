@@ -153,7 +153,7 @@ namespace terragen
 		static const int y_points = BLOCKS_Y / y_step + 1;
 
 		// terrain heightmap
-		float heightmap[ngrid+1][ngrid+1] ALIGN_AVX;
+		float heightmap[ngrid+2][ngrid+2] ALIGN_AVX;
 		// beach height values
 		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		// noise (terrain density) values
@@ -161,7 +161,32 @@ namespace terragen
 		// 3D caves densities
 		float cave_array[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
 
-		// retrieve data for noise biome interpolation, and heightmap
+    // precalculate heightmap
+    for (int x = 0; x <= ngrid; x++)
+		for (int z = 0; z <= ngrid; z++)
+		{
+			glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
+			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
+
+			// the heightvalue for this position, averaged across terrains
+			float hvalue = 0.0f;
+			for (int i = 0; i < 4; i++)
+			{
+				// NOTE: needed to avoid invalid terrain ids
+				if (biome.w[i] < 0.005f) continue;
+
+				// use ID to get total weighted terrain height
+				hvalue += terrains[biome.b[i]].func2d(p2) * biome.w[i];
+			}
+			// set heightmap value
+			heightmap[x][z] = hvalue; // std::min(1.0f, hvalue);
+    }
+    for (int x = 0; x <= ngrid; x++) {
+      heightmap[ngrid+1][x] = heightmap[ngrid][x];
+      heightmap[x][ngrid+1] = heightmap[x][ngrid];
+    }
+
+		// retrieve data for noise biome interpolation
 		for (int x = 0; x <= ngrid; x++)
 		for (int z = 0; z <= ngrid; z++)
 		{
@@ -171,26 +196,14 @@ namespace terragen
 			// beach height/level variance
 			beachhead[x][z] = glm::simplex(p2 * 0.005f);
 
-			// the heightvalue for this position, averaged across terrains
-			float hvalue = 0.0f;
-			int id[4]{0};
-			for (int i = 0; i < 4; i++)
-			{
-				// NOTE: needed to avoid invalid terrain ids
-				if (biome.w[i] < 0.005f) continue;
-				// determine terrain ID for biome value
-				id[i] = Biome::toTerrain(biome.b[i]);
-
-				// use ID to get total weighted terrain height
-				hvalue += terrains.get(id[i], p2) * biome.w[i];
-			}
-
-			// prevent invalid heights
-			hvalue = (hvalue > 1.0f) ? 1.0f : hvalue;
-			// set heightmap value
-			heightmap[x][z] = hvalue;
-			int MAX_Y = hvalue * 255.0;
+      // height is never lower than waterlevel ?
+      const float HVALUE = heightmap[x][z];
+			int MAX_Y = HVALUE * (BLOCKS_Y-1);
 			MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
+
+      // calculate terrain slope
+      const glm::vec2 slope(heightmap[x+1][z] - heightmap[x][z],
+                            heightmap[x][z+1] - heightmap[x][z]);
 
 			// create unprocessed 3D volume
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
@@ -201,7 +214,7 @@ namespace terragen
 
 				// cave density function
 				float& caves = cave_array[x][z][y / y_step];
-				caves = terrains.get(Biome::T_CAVES, p, hvalue);
+				caves = terrains[Biome::T_CAVES].func3d(p, HVALUE, slope);
 
 				// terrain density functions
 				float& noise = noisearray[x][z][y / y_step];
@@ -213,8 +226,8 @@ namespace terragen
 					if (biome.w[i] < 0.005f) continue;
 					// Note: using @hvalue directly here (the heightmap value)
 					// noise total is terrain (density function) * (weight) for all 4 weights summed
-					noise += terrains.get(id[i], p, hvalue) * biome.w[i];
-
+          auto& terrain = terrains[biome.b[i]];
+					noise += terrain.func3d(p, HVALUE, slope) * biome.w[i];
 				} // weights
 
 			} // for(y)
@@ -237,7 +250,7 @@ namespace terragen
 				// heightmap weights //
 				w0 = mix( heightmap[bx][bz  ], heightmap[bx+1][bz  ], frx );
 				w1 = mix( heightmap[bx][bz+1], heightmap[bx+1][bz+1], frx );
-				int MAX_Y = mix( w0, w1, frz ) * 255.0;
+				int MAX_Y = mix( w0, w1, frz ) * (BLOCKS_Y-1);
 				MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
 				// heightmap weights //
 				// !!! Set skylevel with INTERPOLATED heightmap value !!!

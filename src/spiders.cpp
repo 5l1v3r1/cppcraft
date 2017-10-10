@@ -124,7 +124,7 @@ namespace cppcraft
 	light_value_t Spiders::getLightNow(float x, float y, float z)
 	{
 		if (y <= 0.0f) return 0; // mega-dark
-		if (y >= BLOCKS_Y) return 255;
+		if (y >= BLOCKS_Y) return BLOCKS_Y-1;
 
 		int ix = x, iy = y, iz = z;
 		Sector* sector = Spiders::spiderwrap(ix, iy, iz);

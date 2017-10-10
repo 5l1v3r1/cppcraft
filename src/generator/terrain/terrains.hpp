@@ -10,16 +10,6 @@ namespace terragen
 	public:
 		void init();
 
-		// calls specified terrain function
-		float get(int id, const glm::vec2& p)
-		{
-			return tvec[id].func2d(p);
-		}
-		float get(int id, const glm::vec3& p, float hvalue)
-		{
-			return tvec[id].func3d(p, hvalue);
-		}
-
 		Terrain& operator[] (int id)
 		{
 			return tvec.at(id);

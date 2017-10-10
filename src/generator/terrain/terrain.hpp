@@ -20,7 +20,7 @@ namespace terragen
 		typedef delegate<void(double)> tick_func_t;
 		// GENERATOR
 		typedef delegate<float(glm::vec2)> terfunc2d;
-		typedef delegate<float(glm::vec3, float)> terfunc3d;
+		typedef delegate<float(glm::vec3, float, glm::vec2)> terfunc3d;
 		typedef delegate<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
 		typedef delegate<void(gendata_t*, int, int, const int, int)> process_func_t;
 
@@ -52,12 +52,12 @@ namespace terragen
 		}
 
 		// human-readable name of this terrain
-		std::string name;
+		const std::string name;
 		// 2d terrain function that return a heightvalue for this terrain
 		// index0 is the general overestimated height, and all blocks above this value are written as _AIR
-		terfunc2d func2d;
+		const terfunc2d func2d;
 		// vector of 3d terrain functions, taking in a vector of 2d heightvalues
-		terfunc3d func3d;
+		const terfunc3d func3d;
 
 		// terrain colors (terrain ID, color ID, position)
 		std::array<color_func_t, Biomes::CL_MAX> colors;

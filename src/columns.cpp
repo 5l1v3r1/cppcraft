@@ -12,15 +12,11 @@ using namespace library;
 
 namespace cppcraft
 {
-	const float Column::COLUMN_DEPRESSION = 8.0f;
+	const float Column::COLUMN_DEPRESSION = 16.0f;
 
 	// all the columns you'll ever need
 	Columns columns;
 
-  Columns::Columns()
-	{
-		this->height = 1;
-	}
 	void Columns::init()
 	{
 		logger << Log::INFO << "* Initializing columns" << Log::ENDL;
@@ -28,24 +24,8 @@ namespace cppcraft
 		//////////////////////
 		// allocate columns //
 		//////////////////////
-		int num_columns = sectors.getXZ() * sectors.getXZ() * this->height;
+		const int num_columns = sectors.getXZ() * sectors.getXZ() * getHeight();
 		this->columns.resize(num_columns);
-
-		//////////////////////////////////////////////////////////////
-		// determine if above water and allocate metadata container //
-		//////////////////////////////////////////////////////////////
-		for (int i = 0; i < num_columns; i++)
-		{
-			int y = i % this->height;
-			// the column is above water if the first sector is >= water level
-			columns[i].aboveWater =
-				(y * BLOCKS_Y >= RenderConst::WATER_LEVEL);
-		}
-
-		// should be 24 bytes
-		assert(sizeof(vertex_t) == 24);
-		// color should be at 20 bytes
-		assert(offsetof(vertex_t, color) == 20);
 	}
 
 	Column::Column()
@@ -118,14 +98,13 @@ namespace cppcraft
 		glEnableVertexAttribArray(3);
 		}
 
-		// check for errors
-		#ifdef DEBUG
+#ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
 		{
 			logger << Log::ERR << "Column::upload(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Column::upload(): OpenGL state error");
 		}
-		#endif
+#endif
 
 		if (camera.getFrustum().column(x * BLOCKS_XZ + BLOCKS_XZ / 2,
 									   z * BLOCKS_XZ + BLOCKS_XZ / 2,

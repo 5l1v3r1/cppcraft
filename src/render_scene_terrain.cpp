@@ -50,7 +50,7 @@ namespace cppcraft
 		{
 			// set reflection camera view
 			glm::mat4 matref = camera.getViewMatrix();
-			matref *= glm::translate(glm::vec3(0.f, RenderConst::WATER_LEVEL * 2.0f, 0.f));
+			matref *= glm::translate(glm::vec3(0.f, WATERLEVEL * 2.0f, 0.f));
 			matref *= glm::scale(glm::vec3(1.0f, -1.0f, 1.0f));
 
 			reflectionCamera.setRotationMatrix(extractRotation(matref));
@@ -71,7 +71,7 @@ namespace cppcraft
 
 		static const int safety_border = 2;
 		#define VISIBILITY_BORDER  DrawQueue::VISIBILITY_BORDER
-		
+
 		static const float half_fov = 0.65; // sin(30 * degToRad) = +/- 0.5
 
 		// major direction scheme

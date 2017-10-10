@@ -315,7 +315,7 @@ namespace cppcraft
 		// so we just disable them completely when the player is below it
 		if (gameconf.reflections)
 		{
-			if (playerPos.y >= RenderConst::WATER_LEVEL && drawq[RenderConst::TX_WATER].count() != 0)
+			if (playerPos.y >= WATERLEVEL && drawq[RenderConst::TX_WATER].count() != 0)
 			{
 				reflectionCamera.ref = camera.ref;
 				reflectionCamera.rotated = camera.rotated;
@@ -330,7 +330,7 @@ namespace cppcraft
 				glDepthMask(GL_FALSE);
 
 				// render sky (atmosphere, sun, moon, clouds)
-				skyrenderer.render(reflectionCamera, playerPos.y - RenderConst::WATER_LEVEL, renderer.frametick, 1);
+				skyrenderer.render(reflectionCamera, playerPos.y - WATERLEVEL, renderer.frametick, 1);
 
 				if (gameconf.reflectTerrain)
 				{

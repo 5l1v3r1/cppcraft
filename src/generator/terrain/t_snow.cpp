@@ -19,7 +19,9 @@
 using namespace glm;
 using namespace cppcraft;
 using namespace library;
-#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * float(n))
+inline float sfreq2d(const glm::vec3& v, float n) {
+  return glm::simplex(glm::vec2(v.x, v.z) * n);
+}
 
 namespace terragen
 {
@@ -32,7 +34,7 @@ namespace terragen
 		return 0.3 - n1 * 0.05 - n2 * 0.1;
 	}
 
-	static float getnoise_icecap(vec3 p, float hvalue)
+	static float getnoise_icecap(vec3 p, float hvalue, const vec2& slope)
 	{
 		/*
 		p.x *= 0.005;
@@ -114,7 +116,7 @@ namespace terragen
 			}
 			else
 			{
-				// how many times we've seen the same block on the way down
+				// how many times we've seen the same ID on the way down
 				counter++;
 			}
 
@@ -135,10 +137,9 @@ namespace terragen
 			{
 				air = 0;
 				if (skyLevel == 0)
-					skyLevel = y+1;
-				//if (block.isTransparent() == false)
+					   skyLevel = y+1;
 				if (groundLevel == 0)
-					groundLevel = y+1;
+					   groundLevel = y+1;
 			}
 
 			// use skylevel to determine when we are below sky
@@ -165,7 +166,7 @@ namespace terragen
 		int P_SNOW = particleSystem.add("snowflake",
 		[] (Particle& p, glm::vec3)
 		{
-			// slow snow
+			// slow falling snow
 			p.acc = glm::vec3(0.0f);
 			p.spd = glm::vec3(0.0f, -0.05f, 0.0f);
 			p.ttl = 180;
@@ -178,8 +179,7 @@ namespace terragen
 			pv.shiny   = 0;
 
 			// determina fade level
-			float fade = p.ttl / 32.0f;
-			fade = (fade > 1.0f) ? 1.0f : fade;
+			float fade = std::min(1.0f, p.ttl / 32.0f);
 			// set visibility
 			pv.alpha  = fade * 255;
 			pv.bright = thesun.getRealtimeDaylight() * 255;
@@ -199,8 +199,7 @@ namespace terragen
 				glm::vec3 position(player.pos.x, 0, player.pos.z);
 
 				// create particle at skylevel + some value
-				Flatland::flatland_t* fs =
-					sectors.flatland_at(position.x, position.z);
+				auto* fs = sectors.flatland_at(position.x, position.z);
 				if (fs == nullptr) break;
 
 				// use skylevel as particle base height
@@ -233,5 +232,12 @@ namespace terragen
 		{
 			return RGBA8(180, 180, 180, 255);
 		};
+    // Wasser color
+    terrain.setColor(Biomes::CL_WATER,
+		[] (uint16_t, uint8_t, glm::vec2)
+		{
+			return RGBA8(42, 73, 87, 255);
+		});
+
 	}
 }

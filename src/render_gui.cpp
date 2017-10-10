@@ -23,6 +23,7 @@
 #include "generator.hpp"
 #include "precompq.hpp"
 #include "generator/terrain/terrains.hpp"
+#include "sun.hpp"
 
 using namespace library;
 
@@ -122,6 +123,7 @@ namespace cppcraft
 		textScale *= glm::vec2(1.5, 1.5);
 		std::string debugText;
 		debugText = "fps: " + fps;
+    //debugText += " sunlight: " + std::to_string(thesun.getRealtimeDaylight());
 
 		Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);
 		if (flat)

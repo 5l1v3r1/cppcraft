@@ -17,7 +17,7 @@ using namespace library;
 namespace terragen
 {
 	Terrains terrains;
-	float getnoise_caves(vec3 p, float hvalue);
+	float getnoise_caves(vec3 p, float hvalue, const vec2&);
 	extern float getheight_icecap(vec2 p);
 	extern float getnoise_icecap (vec3 p, float hvalue);
 	extern float getheight_grass(vec2 p);
@@ -47,12 +47,13 @@ namespace terragen
 		extern void terrain_grass_init();
 		terrain_grass_init();
 
+    extern void terrain_jungle_init();
+    terrain_jungle_init();
 		/*
 		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);
 		terrains[T_AUTUMN ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
 		terrains[T_ISLANDS].setFog(glm::vec4(0.4f, 0.5f, 0.8f, 0.40f), 32);
 		terrains[T_MARSH ].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
-		terrains[T_JUNGLE].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
 		terrains[T_DESERT].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
 		*/
 	}
@@ -70,7 +71,7 @@ namespace terragen
 		return 1.0;
 	}
 
-	float getnoise_caves(vec3 p, float hvalue)
+	float getnoise_caves(vec3 p, float hvalue, const vec2&)
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 
@@ -264,52 +265,6 @@ namespace terragen
 
 		// final value + river
 		return n1 + river * 0.04; //fabsf(n2) * 8.0;
-	}
-
-	float getnoise_jungle(vec3 p, float hvalue)
-	{
-		float inv_y = 1.0 - p.y;
-		p.x *= 0.003;
-		p.z *= 0.003;
-
-		const float noise1 = 1.0, noise_rel1 = 1.0 / 5.0;
-		const float noise2 = 8.0, noise_rel2 = 16.0;
-
-		float n1 = sfreq(p, noise1);
-		float n2 = sfreq(p, noise2);
-		float landscape1 = sfreq2d(p, 0.5);
-		float landscape2 = sfreq2d(p, 0.25);
-
-		vec3 npos = p * noise_rel1;
-
-		const float COSN_CURVE = 2.0; // - n2 * n2
-		const float COSN_FAT   = 0.0; // ( (1.0 - p.y) ^ 2.0 ) * 0.25
-		const float COSN_CUTS  = 0.0; // Abs(n2)
-
-		#define COSN_jun  cosnoise(npos,  n1, 0.5, 0.5, COSN_CURVE, COSN_FAT, COSN_CUTS)
-		#define COSN_jun2 cosnoise(npos2, n2, 1.0, 1.0, 3.0, COSN_FAT, COSN_CUTS)
-
-		float ramping = (n1 + 1.0) * 0.5;
-
-		//  compressed
-		n1 = p.y - (fabs(n1-COSN_jun) * 0.75 + ramp(inv_y, 2.0) * 0.25);
-
-		n1 += std::abs(landscape1 * 0.2) - std::abs(landscape2 * 0.2);
-
-		if (n1 < 0.0 && n1 > -0.5)
-		{
-			vec3 npos2 = p * noise_rel2;
-			n1 += ramp(1.0 - n1 / -0.25, 3.0) * (1.0 + COSN_jun2) * ramping * 0.1;
-		}
-
-		// ultra-scale down density above clouds
-		const float scaledown = 0.75;
-		if (p.y > scaledown)
-		{
-			float dy = (p.y - scaledown) / (1.0 - scaledown);
-			n1 += dy * dy * 1.0;
-		}
-		return n1;
 	}
 
 	float getnoise_desert(vec3 p, float hvalue)

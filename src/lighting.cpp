@@ -54,7 +54,7 @@ namespace cppcraft
       // get skylevel .. again
       const int sky = sector.flat()(x, z).skyLevel;
 
-      for (int y = 255; y >= sky; y--)
+      for (int y = BLOCKS_Y-1; y >= sky; y--)
       {
         // propagate skylight outwards, starting with light level 15 (max)
     		char mask = 15;

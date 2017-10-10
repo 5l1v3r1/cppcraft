@@ -16,91 +16,28 @@ using namespace library;
 
 namespace terragen
 {
-	inline float nmix2(float x)
+  static float getnoise_jungle(vec3 p, float hvalue, const vec2& slope)
 	{
-		return x * 0.8 + (std::abs(x)-0.5) * (0.2*2);
+    float slp = fabs(slope.x) + fabs(slope.y);
+    slp = sinf(p.y * 0.2f) * slp * 1.0f;
+		return p.y - hvalue + slp;
 	}
 
-	static float lower_grass(vec2 p)
-	{
-		glm::vec2 G(p * 0.01f);
-
-		float sel = nmix2(glm::simplex(G)) + nmix2(glm::simplex(G*2.1f)) * 0.5f
-				+    nmix2(glm::simplex(G*4.2f))* 0.25f + nmix2(glm::simplex(G*8.f))* 0.125f
-				+	 nmix2(glm::simplex(G*16.f))* 0.125f * 0.5f;
-
-		double s = tanh(sel*1.5f-0.4f) * 0.5f + 0.5f;
-
-		double ghei = (glm::simplex(G*0.4f)+1.0f)*0.5f;
-		s = 0.1 + s*ghei*ghei * 2.5;
-
-		return s;
-	}
-
-	static float cracks(float x, float y, float width, float down_ratio)
-	{
-		int ix = FASTFLOOR(x); // first find the x block
-		y += noise1u(ix); // randomize the y offset
-		int iy = FASTFLOOR(y); // find the y block
-
-		float dx = x - ix - 0.5;
-		float dy = y - iy - 0.5;
-
-		dy = 1.0f - std::abs(dy) * 2;
-		dy = dy*dy*(3 - 2*dy);
-
-		dx = std::abs(dx)*2 / width + (1-dy); if (dx > 1) dx = 1;
-		dx = 1 - dx*dx;
-
-		float d = std::sqrt(dx*dx + dy*dy);
-		float max_depth = noise1u(ix + iy*40501); // crack depth
-
-		d = -max_depth * dx * dy;
-		if (d > 0) d = 0;
-
-		if (noise1u(ix*40501 + iy) > down_ratio)
-			d = -d *0.5;
-
-		return d;
-	}
-
-	static float getnoise_grass(vec3 p, float hvalue, const vec2& slope)
-	{
-		vec2 P(p.x, p.z); P *= 0.001;
-
-		float lnoise = glm::simplex(P * glm::vec2(0.75, 0.7));
-		float scale = 3.7;
-		float stretch = 1.0 / 12.0;
-		float width = 1.5f;
-
-		float cosa = cos(lnoise * 0.05 + p.y * 0.02);
-		float sina = sin(lnoise * 0.05 + p.y * 0.02);
-		float xx = (cosa * P.x + sina * (P.y + p.y)) * scale;
-		float zz = (cosa * (P.y + p.y) - sina * P.x) * scale;
-
-		float noi = simplex(P*vec2(4.f, 4.f))* 0.16f + simplex(P*vec2(8.f, 8.f))* 0.08f +
-					simplex(P*vec2(16.f, 16.f))* 0.04f + simplex(P*vec2(32.f, 32.f))* 0.02f;
-
-		float depth = cracks(xx + noi*0.6, zz * stretch, width - p.y, 0.5f);
-
-		return p.y - hvalue - depth;
-	}
-
-	static float getheight_grass(vec2 p)
+	static float getheight_jungle(vec2 p)
 	{
 		p *= 0.001;
-		vec2 P = p;
-
-		float lnoise = glm::simplex(P * glm::vec2(0.75, 0.7));
+		float lnoise = glm::simplex(p * vec2(0.7, 0.7));
 
 		// 0.3 is land base-height, 0.4 is higher up, 0.2 is underwater
-		float land = 0.32 + lnoise * 0.05;
-		land += simplex(P) * 0.03f + simplex(P*vec2(2.7f, 2.8f)) * 0.02f + simplex(P*vec2(5.8f, 5.6f)) * 0.05f;
+		float land = 0.38 + lnoise * 0.05;
+		land += simplex(p) * 0.03f
+          + simplex(p * vec2(2.7f, 2.8f)) * 0.02f
+          + simplex(p * vec2(5.8f, 5.6f)) * 0.05f;
 
-		return land + lower_grass(p) * 0.2;
+		return land;
 	}
 
-	static void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
@@ -222,13 +159,13 @@ namespace terragen
 		gdata->flatl(x, z).skyLevel = skyLevel;
 	}
 
-	void terrain_grass_init()
+	void terrain_jungle_init()
 	{
 		auto& terrain =
-		terrains.add("grass",  "Grasslands", getheight_grass, getnoise_grass);
+		terrains.add("jungle", "Jungle", getheight_jungle, getnoise_jungle);
 
-		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.7f), 48);
-		terrain.on_process = grass_process;
+    terrain.setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
+		terrain.on_process = process_jungle;
 		terrain.on_tick =
 		[] (double)
 		{
@@ -239,20 +176,20 @@ namespace terragen
 		terrain.setColor(Biomes::CL_GRASS,
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
-			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-			return RGBA8(64 + 30 * v, 106, 20, 255);
+			float v = glm::simplex(p * 0.004f) + glm::simplex(p * 0.008f);
+			return RGBA8(22 + v * 10.0f, 127 - v * 30.0f, 7, 255);
 		});
 		// Trees
 		terrain.setColor(Biomes::CL_TREES_A,
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
-			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-			return RGBA8(100 + v * 40.0f, 80 - v * 80.0f, 0, 255);
+			float v = glm::simplex(p * 0.007f) * glm::simplex(p * 0.005f);
+			return RGBA8(22 + v * 11.0f, 127 + v * 30.0f, 77 + v * 77, 255);
 		});
     terrain.setColor(Biomes::CL_TREES_B,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
-			return RGBA8(30, 104, 0, 255);
+			return RGBA8(50, 124, 20, 255);
 		});
 		// Stone color
 		terrain.setColor(Biomes::CL_STONE,
@@ -264,7 +201,7 @@ namespace terragen
 		terrain.setColor(Biomes::CL_WATER,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
-			return RGBA8(62, 82, 107, 255);
+			return RGBA8(62, 127, 107, 255);
 		});
 
 	} // _init();

@@ -26,9 +26,9 @@ namespace cppcraft
 		void compile(int x, int y, int z, Precomp* pc);
 
 		// flags
-		bool renderable; // is renderable
-		bool hasdata;    // has uploaded gpu data
-		bool aboveWater; // is above the waterline (reflectable)
+		bool renderable = false; // is renderable
+		bool hasdata = false;    // has uploaded gpu data
+		bool aboveWater = true;  // is above the waterline (reflectable)
 
 		unsigned int  vao; // vertex array object
 		unsigned int  vbo; // vertex buffer
@@ -48,12 +48,13 @@ namespace cppcraft
 
 	class Columns {
 	public:
-		Columns();
+    // number of columns on Y-axis
+    static const int HEIGHT = 1;
 		void init();
 
 		inline int getHeight() const
 		{
-			return height;
+			return HEIGHT;
 		}
 
 		// column index operator
@@ -62,15 +63,12 @@ namespace cppcraft
 			x = (x + world.getDeltaX()) % sectors.getXZ();
 			z = (z + world.getDeltaZ()) % sectors.getXZ();
 
-			return columns.at(((x * sectors.getXZ() + z) * height) + y);
+			return columns.at(((x * sectors.getXZ() + z) * HEIGHT) + y);
 		}
 
 	private:
 		std::vector<Column> columns;
-
-		// number of columns on Y-axis
-		int height;
-	};
+  };
 	extern Columns columns;
 
 }

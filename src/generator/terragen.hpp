@@ -45,7 +45,7 @@ namespace terragen
 		{
 			return weights.at(x * (BLOCKS_XZ+1) + z);
 		}
-		void setWeights(int x, int z, Biome::biome_t& bi)
+		void setWeights(int x, int z, const Biome::biome_t& bi)
 		{
 			getWeights(x, z) = bi;
 		}

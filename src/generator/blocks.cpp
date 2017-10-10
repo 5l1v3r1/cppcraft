@@ -358,7 +358,8 @@ namespace terragen
 		// create _WATER
 		{
 			BlockData fluid = getFluidBlock();
-			fluid.getColor = [] (const Block&) { return BGRA8(0, 0, 0, 0); };
+      fluid.getColorIndex = [] (const Block&) { return Biomes::CL_WATER; };
+      fluid.indexColored = true;
 			fluid.minimapColor =
 			[] (const Block&, const Sector& sect, int x, int y, int z)
 			{
