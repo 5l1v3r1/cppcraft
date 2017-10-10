@@ -22,7 +22,8 @@ namespace terragen
 	extern block_t _MOLTEN;
 
 	extern block_t _WOOD;
-	extern block_t _LEAF;
+	extern block_t _LEAF_GREEN;
+  extern block_t _LEAF_COLORED;
 
 	extern block_t _C_GRASS;
 	extern block_t _TORCH;

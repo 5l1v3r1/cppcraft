@@ -3,9 +3,11 @@
 
 #include <cstdint>
 #include <glm/vec2.hpp>
+#include "../../biome.hpp"
 
 namespace terragen
 {
+  using Biomes = ::cppcraft::Biomes;
 	struct gendata_t;
 
 	class Biome {
@@ -23,19 +25,8 @@ namespace terragen
 		static biome_t biomeGen(glm::vec2);
 		static uint16_t toTerrain(uint16_t biome);
 
-		// terrains
+		// constant terrain IDs
 		static const int T_CAVES    = 0;
-
-		// biome color ids
-		static const int CL_STONE  = 0;
-		static const int CL_SOIL   = 1;
-		static const int CL_GRAVEL = 2;
-		static const int CL_SAND   = 3;
-		static const int CL_GRASS  = 4;
-		static const int CL_CROSS  = 5;
-		static const int CL_TREES  = 6;
-		static const int CL_WATER  = 7;
-		static const int CL_MAX    = 8;
 	};
 }
 

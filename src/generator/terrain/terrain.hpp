@@ -3,7 +3,8 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <functional>
+#include <array>
+#include "delegate.hpp"
 #include "../../common.hpp"
 #include "../../block.hpp"
 #include "../biomegen/biome.hpp"
@@ -16,39 +17,30 @@ namespace terragen
 	{
 	public:
 		// ENGINE
-		typedef std::function<void(double)> tick_func_t;
+		typedef delegate<void(double)> tick_func_t;
 		// GENERATOR
-		typedef std::function<float(glm::vec2)> terfunc2d;
-		typedef std::function<float(glm::vec3, float)> terfunc3d;
-		typedef std::function<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
-		typedef std::function<void(gendata_t*, int, int, const int, int)> process_func_t;
+		typedef delegate<float(glm::vec2)> terfunc2d;
+		typedef delegate<float(glm::vec3, float)> terfunc3d;
+		typedef delegate<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
+		typedef delegate<void(gendata_t*, int, int, const int, int)> process_func_t;
 
 		// returns RGBA8(0, 0, 0, 255)
 		static uint32_t justBlack(uint16_t, uint8_t, glm::vec2) { return 255 << 24; }
 
 		Terrain(const std::string& Name, terfunc2d t2d, terfunc3d t3d)
-			: name(Name), func2d(t2d), func3d(t3d)
-		{
-			// make sure uninitialized terrains don't crash us!
-			for (int i = 0; i < Biome::CL_MAX; i++)
-				colors[i] = justBlack;
+			: name(Name), func2d(t2d), func3d(t3d)  {
+        for (auto& color : colors) color = nullptr;
+      }
 
-			on_process =
-			[] (gendata_t*, int, int, const int, int) {};
-
-			on_tick =
-			[] (double) {};
-		}
-
-		inline bool hasColor(uint8_t cl) const
+		bool hasColor(int cl) const noexcept
 		{
 			return colors[cl] != nullptr;
 		}
-		void setColor(uint8_t cl, color_func_t func)
+		void setColor(int cl, color_func_t func) noexcept
 		{
-			colors[cl] = func;
+			colors[cl] = std::move(func);
 		}
-		void copyColor(uint8_t dst, uint8_t src)
+		void copyColor(int dst, int src) noexcept
 		{
 			colors[dst] = colors[src];
 		}
@@ -68,11 +60,11 @@ namespace terragen
 		terfunc3d func3d;
 
 		// terrain colors (terrain ID, color ID, position)
-		color_func_t colors[Biome::CL_MAX];
+		std::array<color_func_t, Biomes::CL_MAX> colors;
 		// terrain post-processing function
-		process_func_t on_process;
+		process_func_t on_process = nullptr;
 		// terrain tick-function
-		tick_func_t on_tick;
+		tick_func_t on_tick = nullptr;
 
 		// fog settings
 		glm::vec4 fog; // alpha is density

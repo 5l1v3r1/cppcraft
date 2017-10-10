@@ -224,9 +224,8 @@ namespace terragen
 
 	void terrain_grass_init()
 	{
-		const int T_GRASS =
+		auto& terrain =
 		terrains.add("grass",  "Grasslands", getheight_grass, getnoise_grass);
-		Terrain& terrain = terrains[T_GRASS];
 
 		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.7f), 48);
 		terrain.on_process = grass_process;
@@ -237,23 +236,26 @@ namespace terragen
 		};
 
 		// Grass color
-		terrain.setColor(Biome::CL_GRASS,
+		terrain.setColor(Biomes::CL_GRASS,
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
 			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
 			return RGBA8(34 + 30 * v, 136, 0, 255);
 		});
-		// Crosses copy the grass color
-		terrain.copyColor(Biome::CL_CROSS, Biome::CL_GRASS);
 		// Trees
-		terrain.setColor(Biome::CL_TREES,
+		terrain.setColor(Biomes::CL_TREES_A,
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
 			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-			return RGBA8(30 + v * 30.0f, 104 + v * 30.0f, 0, 255);
+			return RGBA8(100 + v * 40.0f, 80 - v * 80.0f, 0, 255);
+		});
+    terrain.setColor(Biomes::CL_TREES_B,
+		[] (uint16_t, uint8_t, glm::vec2)
+		{
+			return RGBA8(30, 104, 0, 255);
 		});
 		// Stone color
-		terrain.setColor(Biome::CL_STONE,
+		terrain.setColor(Biomes::CL_STONE,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
 			return RGBA8(128, 128, 128, 255);

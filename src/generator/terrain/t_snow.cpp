@@ -155,9 +155,8 @@ namespace terragen
 
 	void terrain_icecap_init()
 	{
-		int T_ICECAP =
-		terrains.add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
-		Terrain& terrain = terrains[T_ICECAP];
+    auto& terrain =
+		  terrains.add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
 
 		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);
 		terrain.on_process = icecap_process;
@@ -216,21 +215,20 @@ namespace terragen
 		};
 
 		// Terrain reddish
-		terrain.setColor(Biome::CL_GRASS,
+		terrain.setColor(Biomes::CL_GRASS,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
-			return RGBA8(106, 106, 0, 255);
+			return RGBA8(146, 90, 0, 255);
 		});
-		// Crosses copy the grass color
-		terrain.copyColor(Biome::CL_CROSS, Biome::CL_GRASS);
 		// Trees
-		terrain.setColor(Biome::CL_TREES,
+		terrain.setColor(Biomes::CL_TREES_A,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
 			return RGBA8(60, 86, 0, 255);
 		});
+    terrain.copyColor(Biomes::CL_TREES_B, Biomes::CL_TREES_A);
 		// Light-gray stones
-		terrain.colors[Biome::CL_STONE] =
+		terrain.colors[Biomes::CL_STONE] =
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
 			return RGBA8(180, 180, 180, 255);

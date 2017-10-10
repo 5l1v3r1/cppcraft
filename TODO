@@ -1,0 +1,25 @@
+Fix issues with atmospheric voxel lighting
+- More tests
+
+Outsource atmospherics and torchlight to threads
+- Maybe not worth, check timings
+- Create lighting queue
+- Create snapshot of terrain for 3x3 sectors
+- Calculate lighting for center sector
+
+Vein-like ore deposition
+- Use cheapest noise
+- Create varied and SEPARATE ore zones
+- Simulate by disabling terrain
+
+Resolve issues with time
+- Make sure sun integrator is good
+- Ability to fast-forward time using ticks
+- Make sure physics doesn't use global time
+- Make sure renderer uses only global time
+
+World simulation
+- Implement random ticks for each sector (near a player?)
+- Liquid flow simulation
+- Rivers using flow
+- Generate rivers naturally

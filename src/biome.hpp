@@ -30,19 +30,19 @@ namespace cppcraft
 		} terrain_t;
 
 		// biome color ids
-		typedef enum
+		enum biome_color_t
 		{
 			CL_STONE,
 			CL_SOIL,
 			CL_GRAVEL,
 			CL_SAND,
 			CL_GRASS,
-			CL_CROSS,
-			CL_TREES,
+			CL_TREES_A,
+			CL_TREES_B,
 			CL_WATER,
 
 			CL_MAX
-		} biome_color_t;
+		};
 
 		static int idToColorIndex(unsigned short id);
 

@@ -29,7 +29,6 @@ set(SOURCES
     gameconf.cpp
     generator/biomegen/biome.cpp
     generator/biomegen/biomegen.cpp
-    generator/biomegen/colortable.cpp
     generator/blocks.cpp
     generator.cpp
     generator/objectq.cpp
