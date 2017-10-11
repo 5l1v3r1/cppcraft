@@ -107,6 +107,11 @@ void main()
 	// mix in sun glow on terrain only (BEFORE WE ADD SKY)
 	color.rgb = mix(color.rgb, sunBaseColor, sunAmount);
 
+  // mix in sky to fade out the world
+  vec3 skyColor = texture(skytexture, texCoord).rgb;
+  float edge = smoothstep(0.9, 0.99, depth);
+  color.rgb = mix(color.rgb, skyColor, edge);
+
 	// final fog color (AFTER sky, and after sun)
 	color.rgb = mix(color.rgb, fogData.rgb, fogAmount);
 	// ... and, use alpha-channel as depth
