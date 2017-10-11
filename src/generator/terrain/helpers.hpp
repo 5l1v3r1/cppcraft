@@ -8,6 +8,7 @@ namespace terragen
 {
 	extern void  pillars(const glm::vec3& p, float frequency, float& noise);
 	extern float barchans(double x, double y);
+  extern float cracks(float x, float y, float width, float down_ratio);
 
 	inline double noise1u(int x)
 	{

@@ -1,6 +1,7 @@
 #include "../blocks.hpp"
 
 #include "terrains.hpp"
+#include "helpers.hpp"
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "../random.hpp"
@@ -25,25 +26,23 @@ inline float sfreq2d(const glm::vec3& v, float n) {
 
 namespace terragen
 {
-	static float getheight_icecap(vec2 p)
+	static float getheight_icecap(vec2 p, const float UNDER)
 	{
-		p *= 0.005f;
+    return UNDER + 0.1f;
+	}
+  static float getcaves_icecap(vec2 p)
+  {
+    p *= 0.005f;
 		float n1 = glm::simplex(p * 0.5f);
 		float n2 = glm::simplex(p * 0.15f);
 
-		return 0.3 - n1 * 0.05 - n2 * 0.1;
-	}
+		return WATERLEVEL_FLT - n1 * 0.05 - n2 * 0.1;
+  }
 
 	static float getnoise_icecap(vec3 p, float hvalue, const vec2& slope)
 	{
-		/*
-		p.x *= 0.005;
-		p.z *= 0.005;
-		float n1 = sfreq2d(p, 0.5);
-		float n2 = sfreq2d(p, 0.15);
-
-		return p.y - 0.3 + n1 * 0.05 + n2 * 0.1;*/
-		return p.y - hvalue;
+    p *= vec3(0.01f, 1.0f, 0.01f);
+		return p.y - hvalue + 0.1f * (0.5f + 0.5f * glm::simplex(p));
 	}
 
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
@@ -157,10 +156,10 @@ namespace terragen
 	void terrain_icecap_init()
 	{
     auto& terrain =
-		  terrains.add("icecap", "Icecap", getheight_icecap, getnoise_icecap);
+		  terrains.add("icecap", "Icecap",
+      getheight_icecap, getcaves_icecap, getnoise_icecap, icecap_process);
 
 		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);
-		terrain.on_process = icecap_process;
 
 		// snow particle
 		int P_SNOW = particleSystem.add("snowflake",

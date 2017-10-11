@@ -3,13 +3,13 @@
 	url = https://github.com/g-truc/glm.git
 [submodule "library"]
 	path = library
-	url = git@github.com:fwsGonzo/library.git
+	url = https://github.com/fwsGonzo/library.git
 [submodule "inc/LuaBridge"]
 	path = inc/LuaBridge
-	url = git@github.com:fwsGonzo/LuaBridge.git
+	url = https://github.com/fwsGonzo/LuaBridge.git
 [submodule "test/Catch"]
 	path = test/Catch
 	url = https://github.com/philsquared/Catch.git
 [submodule "inc/ThreadPool"]
 	path = inc/ThreadPool
-	url = git@github.com:fwsGonzo/ThreadPool.git
+	url = https://github.com/fwsGonzo/ThreadPool.git

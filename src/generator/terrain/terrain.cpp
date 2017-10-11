@@ -4,9 +4,10 @@
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "terrains.hpp"
-#include <cassert>
 #include <glm/gtc/noise.hpp>
 #include <library/math/toolbox.hpp>
+#include <array>
+#include <cassert>
 
 using namespace cppcraft;
 using namespace library;
@@ -147,55 +148,64 @@ namespace terragen
 	void Terrain::generate(gendata_t* data)
 	{
 		// interpolation grid dimensions
-		static const int ngrid = 4;
-		static const int grid_pfac = BLOCKS_XZ / ngrid;
+		static const int NGRID = 4;
+		static const int grid_pfac = BLOCKS_XZ / NGRID;
 		static const int y_step = 4;
 		static const int y_points = BLOCKS_Y / y_step + 1;
 
-		// terrain heightmap
-		float heightmap[ngrid+1][ngrid+1] ALIGN_AVX;
+		// terrain heightmaps
+		float heightmap_gnd[NGRID+1][NGRID+1] ALIGN_AVX;
+    float heightmap_und[NGRID+1][NGRID+1] ALIGN_AVX;
 		// beach height values
-		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
+		float beachhead[NGRID+1][NGRID+1] ALIGN_AVX;
 		// noise (terrain density) values
-		float noisearray[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
+		float noisearray[NGRID+1][NGRID+1][y_points] ALIGN_AVX;
 		// 3D caves densities
-		float cave_array[ngrid+1][ngrid+1][y_points] ALIGN_AVX;
+		float cave_array[NGRID+1][NGRID+1][y_points] ALIGN_AVX;
 
     // precalculate heightmap
-    for (int x = 0; x <= ngrid; x++)
-		for (int z = 0; z <= ngrid; z++)
+    for (int x = 0; x <= NGRID; x++)
+		for (int z = 0; z <= NGRID; z++)
 		{
-			glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
+			const glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
 			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 
-			// the heightvalue for this position, averaged across terrains
-			float hvalue = 0.0f;
+			// heightvalues for this position, averaged across terrains
+      float hvalue_und = 0.0f;
 			for (int i = 0; i < 4; i++)
 			{
-				// NOTE: needed to avoid invalid terrain ids
 				if (biome.w[i] < 0.005f) continue;
-
-				// use ID to get total weighted terrain height
-				hvalue += terrains[biome.b[i]].func2d(p2) * biome.w[i];
+        hvalue_und += terrains[biome.b[i]].hmap_und(p2) * biome.w[i];
 			}
-			// set heightmap value
-			heightmap[x][z] = hvalue; // std::min(1.0f, hvalue);
+      // set heightmap values
+      heightmap_und[x][z] = std::min(0.9999f, hvalue_und);
+      float hvalue_gnd = 0.0f;
+      for (int i = 0; i < 4; i++)
+			{
+				if (biome.w[i] < 0.005f) continue;
+        hvalue_gnd += terrains[biome.b[i]].hmap_gnd(p2, hvalue_und) * biome.w[i];
+			}
+			// set heightmap values
+			heightmap_gnd[x][z] = std::min(0.9999f, hvalue_gnd);
     }
 
 		// retrieve data for noise biome interpolation
-		for (int x = 0; x <= ngrid; x++)
-		for (int z = 0; z <= ngrid; z++)
+		for (int x = 0; x <= NGRID; x++)
+		for (int z = 0; z <= NGRID; z++)
 		{
-			glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
+			const glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
 			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 
 			// beach height/level variance
 			beachhead[x][z] = glm::simplex(p2 * 0.005f);
 
-      // height is never lower than waterlevel ?
-      const float HVALUE = heightmap[x][z];
-			int MAX_Y = HVALUE * (BLOCKS_Y-1);
-			MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
+      const float HVALUE_UND = heightmap_und[x][z];
+      const int MAX_UND = HVALUE_UND * BLOCKS_Y;
+
+      const float HVALUE_GND = heightmap_gnd[x][z];
+      int MAX_GND = HVALUE_GND * BLOCKS_Y;
+      // we need this to interpolate properly under water
+			MAX_GND = (MAX_GND < WATERLEVEL) ? WATERLEVEL : MAX_GND;
 
       // calculate terrain slope
       const glm::vec2 slope(0.0f, 0.0f);
@@ -203,53 +213,57 @@ namespace terragen
 			// create unprocessed 3D volume
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 
-			for (int y = 0; y < MAX_Y + y_step; y += y_step)
+      for (int y = 0; y < MAX_GND + y_step; y += y_step)
 			{
-				p.y = y / (float)(BLOCKS_Y);
+				p.y = y / float(BLOCKS_Y);
 
-				// cave density function
-				float& caves = cave_array[x][z][y / y_step];
-				caves = terrains[Biome::T_CAVES].func3d(p, HVALUE, slope);
+        // cave density function
+			  float& caves = cave_array[x][z][y / y_step];
+		    caves = terrains[Biome::T_CAVES].func3d(p, HVALUE_UND, slope);
 
-				// terrain density functions
-				float& noise = noisearray[x][z][y / y_step];
-				noise = 0.0f;
+        if (y >= MAX_UND - y_step)
+        {
+  				// terrain density functions
+  				float& noise = noisearray[x][z][y / y_step];
+  				noise = 0.0f;
 
-				for (int i = 0; i < 4; i++)
-				{
-					// low-impact weights BEGONE!
-					if (biome.w[i] < 0.005f) continue;
-					// Note: using @hvalue directly here (the heightmap value)
-					// noise total is terrain (density function) * (weight) for all 4 weights summed
-          auto& terrain = terrains[biome.b[i]];
-					noise += terrain.func3d(p, HVALUE, slope) * biome.w[i];
-				} // weights
-
+  				for (int i = 0; i < 4; i++)
+  				{
+  					// low-impact weights BEGONE!
+  					if (biome.w[i] < 0.005f) continue;
+  					// Note: using @hvalue directly here (the heightmap value)
+  					// noise total is terrain (density function) * (weight) for all 4 weights summed
+            auto& terrain = terrains[biome.b[i]];
+  					noise += terrain.func3d(p, HVALUE_GND, slope) * biome.w[i];
+				  } // weights
+        } // ground level
 			} // for(y)
 		}
 
 		// generating from top to bottom, not including y == 0
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		{
-			float fx = x / float(BLOCKS_XZ) * ngrid;
+			float fx = x / float(BLOCKS_XZ) * NGRID;
 			int bx = fx; // start x
 			float frx = fx - bx;
 
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
-				float fz = z / float(BLOCKS_XZ) * ngrid;
+				float fz = z / float(BLOCKS_XZ) * NGRID;
 				int bz = fz;  // integral
 				float frz = fz - bz;
 
 				float w0, w1;
 				// heightmap weights //
-				w0 = mix( heightmap[bx][bz  ], heightmap[bx+1][bz  ], frx );
-				w1 = mix( heightmap[bx][bz+1], heightmap[bx+1][bz+1], frx );
-				int MAX_Y = mix( w0, w1, frz ) * (BLOCKS_Y-1);
-				MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
+				w0 = mix( heightmap_gnd[bx][bz  ], heightmap_gnd[bx+1][bz  ], frx );
+				w1 = mix( heightmap_gnd[bx][bz+1], heightmap_gnd[bx+1][bz+1], frx );
+				int MAX_GND = mix( w0, w1, frz ) * BLOCKS_Y;
+				MAX_GND = (MAX_GND < WATERLEVEL) ? WATERLEVEL : MAX_GND;
+
+        w0 = mix( heightmap_und[bx][bz  ], heightmap_und[bx+1][bz  ], frx );
+				w1 = mix( heightmap_und[bx][bz+1], heightmap_und[bx+1][bz+1], frx );
+				const int MAX_UND = mix( w0, w1, frz ) * BLOCKS_Y;
 				// heightmap weights //
-				// !!! Set skylevel with INTERPOLATED heightmap value !!!
-				data->flatl(x, z).skyLevel = MAX_Y;
 
 				// beachhead weights //
 				w0 = mix( beachhead[bx][bz  ], beachhead[bx+1][bz  ], frx );
@@ -259,40 +273,46 @@ namespace terragen
 
 				Block* block = &data->getb(x, 0, z);
 
-				for (int y = 0; y < MAX_Y; y++)
+				for (int y = 0; y < MAX_GND; y++)
 				{
 					int   iy  = y / y_step;
 					float fry = (y % y_step) / (float) y_step;
+          float density;
 
-					// density weights //
-					// mix all Y-variants
-					float noise00 = mix( noisearray[bx  ][bz  ][iy], noisearray[bx  ][bz  ][iy+1], fry );
-					float noise10 = mix( noisearray[bx+1][bz  ][iy], noisearray[bx+1][bz  ][iy+1], fry );
-					float noise01 = mix( noisearray[bx  ][bz+1][iy], noisearray[bx  ][bz+1][iy+1], fry );
-					float noise11 = mix( noisearray[bx+1][bz+1][iy], noisearray[bx+1][bz+1][iy+1], fry );
-					// mix all X-variants
-					w0 = mix( noise00, noise10, frx );
-					w1 = mix( noise01, noise11, frx );
-					// final density from Z-variant
-					float density = mix( w0, w1, frz );
-					// density weights //
+          if (y >= MAX_UND)
+          {
+  					// density weights //
+  					// mix all Y-variants
+float noise00 = mix( noisearray[bx  ][bz  ][iy], noisearray[bx  ][bz  ][iy+1], fry );
+float noise10 = mix( noisearray[bx+1][bz  ][iy], noisearray[bx+1][bz  ][iy+1], fry );
+float noise01 = mix( noisearray[bx  ][bz+1][iy], noisearray[bx  ][bz+1][iy+1], fry );
+float noise11 = mix( noisearray[bx+1][bz+1][iy], noisearray[bx+1][bz+1][iy+1], fry );
+  					// mix all X-variants
+  					w0 = mix( noise00, noise10, frx );
+  					w1 = mix( noise01, noise11, frx );
+  					// final density from Z-variant
+  					density = mix( w0, w1, frz );
+  					// density weights //
+          }
+          else {
+            density = -1.0f;
+          }
 
 					if (y <= WATERLEVEL || density < 0.0f)
 					{
-						float caves;
+						float caves = 0.0f;
 						if (density < 0.0f)
 						{
-							noise00 = mix( cave_array[bx  ][bz  ][iy], cave_array[bx  ][bz  ][iy+1], fry );
-							noise10 = mix( cave_array[bx+1][bz  ][iy], cave_array[bx+1][bz  ][iy+1], fry );
-							noise01 = mix( cave_array[bx  ][bz+1][iy], cave_array[bx  ][bz+1][iy+1], fry );
-							noise11 = mix( cave_array[bx+1][bz+1][iy], cave_array[bx+1][bz+1][iy+1], fry );
+float noise00 = mix( cave_array[bx  ][bz  ][iy], cave_array[bx  ][bz  ][iy+1], fry );
+float noise10 = mix( cave_array[bx+1][bz  ][iy], cave_array[bx+1][bz  ][iy+1], fry );
+float noise01 = mix( cave_array[bx  ][bz+1][iy], cave_array[bx  ][bz+1][iy+1], fry );
+float noise11 = mix( cave_array[bx+1][bz+1][iy], cave_array[bx+1][bz+1][iy+1], fry );
 							// caves density (high precision) //
 							w0 = mix( noise00, noise10, frx );
 							w1 = mix( noise01, noise11, frx );
 							caves = mix( w0, w1, frz );
 							// caves density //
-						} else caves = 0.0f;
-
+						}
 						block[y] = getBlock(y / float(BLOCKS_Y), beach, density, caves);
 					}
 					else
@@ -301,12 +321,15 @@ namespace terragen
 					}
 
 				} // y
+
 				// fill the rest with _AIR
-				for (int y = MAX_Y; y < BLOCKS_Y; y++)
+				for (int y = MAX_GND; y < BLOCKS_Y; y++)
 				{
-					new (&block[y]) Block(_AIR);
-					block[y].setLight(15, 0); // default: max skylight
+					new (&block[y]) Block(_AIR, 0, 0, 15);
 				}
+
+        // setting early skylevel to optimize post-processing
+				data->flatl(x, z).skyLevel = MAX_GND;
 
 			} // z
 

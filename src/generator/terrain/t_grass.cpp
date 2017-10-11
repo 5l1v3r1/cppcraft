@@ -37,33 +37,6 @@ namespace terragen
 		return s;
 	}
 
-	static float cracks(float x, float y, float width, float down_ratio)
-	{
-		int ix = FASTFLOOR(x); // first find the x block
-		y += noise1u(ix); // randomize the y offset
-		int iy = FASTFLOOR(y); // find the y block
-
-		float dx = x - ix - 0.5;
-		float dy = y - iy - 0.5;
-
-		dy = 1.0f - std::abs(dy) * 2;
-		dy = dy*dy*(3 - 2*dy);
-
-		dx = std::abs(dx)*2 / width + (1-dy); if (dx > 1) dx = 1;
-		dx = 1 - dx*dx;
-
-		float d = std::sqrt(dx*dx + dy*dy);
-		float max_depth = noise1u(ix + iy*40501); // crack depth
-
-		d = -max_depth * dx * dy;
-		if (d > 0) d = 0;
-
-		if (noise1u(ix*40501 + iy) > down_ratio)
-			d = -d *0.5;
-
-		return d;
-	}
-
 	static float getnoise_grass(vec3 p, float hvalue, const vec2& slope)
 	{
 		vec2 P(p.x, p.z); P *= 0.001;
@@ -86,19 +59,23 @@ namespace terragen
 		return p.y - hvalue - depth;
 	}
 
-	static float getheight_grass(vec2 p)
+	static float getheight_grass(vec2 p, const float UNDER)
 	{
-		p *= 0.001;
-		vec2 P = p;
-
-		float lnoise = glm::simplex(P * glm::vec2(0.75, 0.7));
+    p *= 0.001f;
+		float lnoise = glm::simplex(p * glm::vec2(0.75f, 0.7f));
 
 		// 0.3 is land base-height, 0.4 is higher up, 0.2 is underwater
-		float land = 0.32 + lnoise * 0.05;
-		land += simplex(P) * 0.03f + simplex(P*vec2(2.7f, 2.8f)) * 0.02f + simplex(P*vec2(5.8f, 5.6f)) * 0.05f;
-
-		return land + lower_grass(p) * 0.2;
+		float land = UNDER + 0.1f + lnoise * 0.05f;
+		land += glm::simplex(p) * 0.03f +
+            glm::simplex(p*vec2(2.7f, 2.8f)) * 0.02f +
+            glm::simplex(p*vec2(5.8f, 5.6f)) * 0.05f;
+		return land;
 	}
+  static float getcaves_grass(vec2 p)
+  {
+    p *= 0.001f;
+    return WATERLEVEL_FLT - 0.1f + lower_grass(p) * 0.4f;
+  }
 
 	static void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
@@ -225,10 +202,10 @@ namespace terragen
 	void terrain_grass_init()
 	{
 		auto& terrain =
-		terrains.add("grass",  "Grasslands", getheight_grass, getnoise_grass);
+		terrains.add("grass",  "Grasslands",
+        getheight_grass, getcaves_grass, getnoise_grass, grass_process);
 
 		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.7f), 48);
-		terrain.on_process = grass_process;
 		terrain.on_tick =
 		[] (double)
 		{

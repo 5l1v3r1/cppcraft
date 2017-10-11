@@ -21,7 +21,7 @@ namespace terragen
 		return p.y - hvalue;
 	}
 
-	static float getheight_jungle(vec2 p)
+	static float getheight_jungle(vec2 p, const float UNDER)
 	{
 		p *= 0.001;
 		float lnoise = glm::simplex(p * vec2(0.7, 0.7));
@@ -34,6 +34,10 @@ namespace terragen
 
 		return land;
 	}
+  static float getcaves_jungle(vec2 p)
+  {
+    return WATERLEVEL_FLT;
+  }
 
 	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
@@ -160,10 +164,10 @@ namespace terragen
 	void terrain_jungle_init()
 	{
 		auto& terrain =
-		terrains.add("jungle", "Jungle", getheight_jungle, getnoise_jungle);
+		terrains.add("jungle", "Jungle",
+        getheight_jungle, getcaves_jungle, getnoise_jungle, process_jungle);
 
     terrain.setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
-		terrain.on_process = process_jungle;
 		terrain.on_tick =
 		[] (double)
 		{

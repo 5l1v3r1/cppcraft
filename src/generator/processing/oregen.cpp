@@ -8,8 +8,8 @@ namespace terragen
 
 	void OreGen::init()
 	{
-		OreGen::add({db::getb("ore_coal"), 255, 4,  8, 80});
-		OreGen::add({db::getb("ore_iron"), 200, 8, 16, 40});
+		OreGen::add({db::getb("ore_coal"), 255, 6, 16, 80});
+		OreGen::add({db::getb("ore_iron"), 200, 4,  8, 40});
 	}
 
   OreGen::OreGen()

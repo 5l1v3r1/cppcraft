@@ -1,7 +1,7 @@
 #include "vertex_block.hpp"
 #include "vertex_selection.hpp"
 #include "vertex_player.hpp"
-
+#include <cstddef>
 #include <vector>
 
 namespace cppcraft

@@ -23,12 +23,14 @@ namespace terragen
 	extern float getheight_grass(vec2 p);
 	extern float getnoise_grass (vec3 p, float hvalue);
 
-	static float getheight_shitass(glm::vec2) { return 0.25f; }
+	static float getheight_shitass(glm::vec2, float) { return 0.25f; }
+  static float getcaves_shitass(glm::vec2) { return 0.25f; }
 
 	void Terrains::init()
 	{
 		auto& terrain =
-		  this->add("caves",  "Caves",  getheight_shitass, getnoise_caves);
+		  this->add("caves",  "Caves",
+      getheight_shitass, getcaves_shitass, getnoise_caves, nullptr);
 
 		// fog settings
 		terrain.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
