@@ -18,9 +18,7 @@ namespace terragen
 {
   static float getnoise_jungle(vec3 p, float hvalue, const vec2& slope)
 	{
-    float slp = fabs(slope.x) + fabs(slope.y);
-    slp = sinf(p.y * 0.2f) * slp * 1.0f;
-		return p.y - hvalue + slp;
+		return p.y - hvalue;
 	}
 
 	static float getheight_jungle(vec2 p)

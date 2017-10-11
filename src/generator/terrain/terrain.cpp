@@ -153,7 +153,7 @@ namespace terragen
 		static const int y_points = BLOCKS_Y / y_step + 1;
 
 		// terrain heightmap
-		float heightmap[ngrid+2][ngrid+2] ALIGN_AVX;
+		float heightmap[ngrid+1][ngrid+1] ALIGN_AVX;
 		// beach height values
 		float beachhead[ngrid+1][ngrid+1] ALIGN_AVX;
 		// noise (terrain density) values
@@ -181,10 +181,6 @@ namespace terragen
 			// set heightmap value
 			heightmap[x][z] = hvalue; // std::min(1.0f, hvalue);
     }
-    for (int x = 0; x <= ngrid; x++) {
-      heightmap[ngrid+1][x] = heightmap[ngrid][x];
-      heightmap[x][ngrid+1] = heightmap[x][ngrid];
-    }
 
 		// retrieve data for noise biome interpolation
 		for (int x = 0; x <= ngrid; x++)
@@ -202,8 +198,7 @@ namespace terragen
 			MAX_Y = (MAX_Y < WATERLEVEL) ? WATERLEVEL : MAX_Y;
 
       // calculate terrain slope
-      const glm::vec2 slope(heightmap[x+1][z] - heightmap[x][z],
-                            heightmap[x][z+1] - heightmap[x][z]);
+      const glm::vec2 slope(0.0f, 0.0f);
 
 			// create unprocessed 3D volume
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
