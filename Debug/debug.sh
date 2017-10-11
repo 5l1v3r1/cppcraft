@@ -7,4 +7,4 @@ else
     make -j
 fi
 popd
-gdb ../build/cppcraft
+../build/cppcraft
