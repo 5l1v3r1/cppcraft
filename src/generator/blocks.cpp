@@ -13,6 +13,10 @@ using namespace db;
 
 namespace terragen
 {
+  // the essential blocks
+  block_t STONE_BLOCK, SOIL_BLOCK, BEACH_BLOCK, WATER_BLOCK;
+  block_t BEDROCK, MOLTEN_BLOCK, LAVA_BLOCK;
+
 	using cppcraft::Sector;
 	using cppcraft::tiles;
 	using cppcraft::RenderConst;
@@ -353,5 +357,13 @@ namespace terragen
 			db.assign("torch", blk);
 		}
 
+    // initialize common blocks
+    BEDROCK      = db::getb("bedrock");
+    STONE_BLOCK  = db::getb("stone");
+    SOIL_BLOCK   = db::getb("soil_block");
+    BEACH_BLOCK  = db::getb("beach");
+    WATER_BLOCK  = db::getb("water");
+    MOLTEN_BLOCK = db::getb("molten_stone");
+    LAVA_BLOCK   = db::getb("lava");
 	}
 }

@@ -2,7 +2,7 @@
 #define SECTORS_HPP
 
 #include "sector.hpp"
-#include <functional>
+#include "delegate.hpp"
 
 namespace cppcraft
 {
@@ -43,7 +43,7 @@ namespace cppcraft
 
 		//! \brief execute lambda on a 3x3 centered around @sector
 		//! the result @bool is only true when all results are true
-		bool on3x3(const Sector& sector, std::function<bool(Sector&)> lambda);
+		bool on3x3(const Sector& sector, delegate<bool(Sector&)> lambda);
 
 		// updates all sectors, for eg. when sun-position changed
 		void updateAll();

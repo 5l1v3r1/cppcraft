@@ -40,11 +40,8 @@ namespace terragen
 
 	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
-    const block_t stone_id = db::getb("stone");
-    const block_t beach_id = db::getb("beach");
-    const block_t soil_id  = db::getb("soil_block");
-    const block_t grass_id = db::getb("grass_block");
-    const block_t cross_grass_id = db::getb("cross_grass");
+    const block_t GRASS_BLOCK = db::getb("grass_block");
+    const block_t CROSS_GRASS_ID = db::getb("cross_grass");
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
@@ -66,18 +63,18 @@ namespace terragen
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
-			if (block.getID() == soil_id || block.getID() == beach_id)
+			if (block.getID() == SOIL_BLOCK || block.getID() == BEACH_BLOCK)
 			{
 				soilCounter++;
 
 				// making stones under water level has priority!
 				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
 				{
-					block.setID(stone_id);
+					block.setID(STONE_BLOCK);
 				}
 				else if (soilCounter > PostProcess::STONE_CONV_OVERW)
 				{
-					block.setID(stone_id);
+					block.setID(STONE_BLOCK);
 				}
 			}
 			else soilCounter = 0;
@@ -90,9 +87,9 @@ namespace terragen
 					///-////////////////////////////////////-///
 					///- create objects, and litter crosses -///
 					///-////////////////////////////////////-///
-					if (block.getID() == soil_id)
+					if (block.getID() == SOIL_BLOCK)
 					{
-						block.setID(grass_id);
+						block.setID(GRASS_BLOCK);
 
 						// TODO: use poisson disc here
 						float rand = randf(wx, y, wz);
@@ -116,7 +113,7 @@ namespace terragen
 							// note: this is an inverse of the otreeHuge noise
 							if (glm::simplex(p * 0.005f) > 0.0)
 							{
-								gdata->getb(x, y+1, z).setID(cross_grass_id);
+								gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
 							}
 						}
 					}
@@ -133,7 +130,7 @@ namespace terragen
 			//
 			// -== ore deposition ==-
 			//
-			if (block.getID() == stone_id) {
+			if (block.getID() == STONE_BLOCK) {
 				PostProcess::try_deposit(gdata, x, y, z);
 			}
 

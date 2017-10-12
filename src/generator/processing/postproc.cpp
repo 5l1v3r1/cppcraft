@@ -48,8 +48,6 @@ namespace terragen
 		int zone = library::Voronoi::getid(p.x * 0.01, p.y * 0.01,
 				   library::Voronoi::vor_chebyshev); // distance function
 
-    const block_t BEDROCK = db::getb("bedrock");
-
 		/// go go go gø go go go ///
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		for (int z = 0; z < BLOCKS_XZ; z++)

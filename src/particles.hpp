@@ -1,10 +1,10 @@
 #ifndef PARTICLES_HPP
 #define PARTICLES_HPP
 
+#include "delegate.hpp"
 #include <glm/vec3.hpp>
 #include <cstdint>
 #include <deque>
-#include <functional>
 #include <map>
 #include <mutex>
 #include <vector>
@@ -70,9 +70,9 @@ namespace cppcraft
 	{
 		// creation function, called by any of the terrain-tick functions
 		// the vec3 is the players position, with the y value set to groundlevel
-		typedef std::function<void(Particle&, glm::vec3)> create_func_t;
+		typedef delegate<void(Particle&, glm::vec3)> create_func_t;
 		// this function is called every tick until ttl reaches zero
-		typedef std::function<void(Particle&, particle_vertex_t&)> tick_func_t;
+		typedef delegate<void(Particle&, particle_vertex_t&)> tick_func_t;
 
 		ParticleType(create_func_t cfunc, tick_func_t tfunc)
 			: on_create(cfunc), on_tick(tfunc) {}

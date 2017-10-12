@@ -81,7 +81,7 @@ namespace cppcraft
 		return &flatland(fx, fz)(bx, bz);
 	}
 
-	bool Sectors::on3x3(const Sector& sect, std::function<bool(Sector&)> func)
+	bool Sectors::on3x3(const Sector& sect, delegate<bool(Sector&)> func)
 	{
 		int x0 = sect.getX()-1; x0 = (x0 >= 0) ? x0 : 0;
 		int x1 = sect.getX()+1; x1 = (x1 < getXZ()) ? x1 : getXZ()-1;

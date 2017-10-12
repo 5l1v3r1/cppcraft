@@ -2,7 +2,7 @@
 
 #include "../common.hpp"
 #include "../block.hpp"
-#include <functional>
+#include "delegate.hpp"
 #include <vector>
 
 namespace terragen
@@ -44,7 +44,7 @@ namespace terragen
 	class ObjectDB
 	{
 	public:
-		typedef std::function<void(GenObject&, int, int)> object_gen_func;
+		typedef delegate<void(GenObject&, int, int)> object_gen_func;
 
 		std::size_t add(object_gen_func&& func)
 		{
