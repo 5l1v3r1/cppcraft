@@ -7,36 +7,37 @@
 #include "helpers.hpp"
 #include "terrains.hpp"
 #include <library/bitmap/colortools.hpp>
+#include <library/noise/cosnoise.hpp>
 #include <glm/gtc/noise.hpp>
 
 using namespace glm;
 using namespace cppcraft;
 using namespace library;
-#define sfreq2d(v, n) glm::simplex(glm::vec2(v.x, v.z) * float(n))
 
 namespace terragen
 {
+  static const float COSN_HEIGHT = 0.2f;
   static float getnoise_jungle(vec3 p, float hvalue, const vec2& slope)
 	{
-		return p.y - hvalue;
+    vec3 N = p * vec3(0.01f, 8.0f, 0.01f);
+    float n1 = glm::simplex(N);
+		return p.y - hvalue +
+      0.5f * COSN_HEIGHT * (1.0f + cosnoise(N, n1, 1.0f, 1.0f, 1.0 + fabsf(n1), 1.0f, 0.0f));
 	}
 
 	static float getheight_jungle(vec2 p, const float UNDER)
 	{
-		p *= 0.001;
-		float lnoise = glm::simplex(p * vec2(0.7, 0.7));
-
-		// 0.3 is land base-height, 0.4 is higher up, 0.2 is underwater
-		float land = 0.38 + lnoise * 0.05;
+    return UNDER + COSN_HEIGHT;
+	}
+  static float getcaves_jungle(vec2 p)
+  {
+    p *= 0.001f;
+		float land = glm::simplex(p * vec2(0.7f, 0.7f)) * 0.05f;
 		land += simplex(p) * 0.03f
           + simplex(p * vec2(2.7f, 2.8f)) * 0.02f
           + simplex(p * vec2(5.8f, 5.6f)) * 0.05f;
 
-		return land;
-	}
-  static float getcaves_jungle(vec2 p)
-  {
-    return WATERLEVEL_FLT;
+		return WATERLEVEL_FLT - 0.05f + land;
   }
 
 	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)

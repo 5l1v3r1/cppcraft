@@ -20,29 +20,28 @@
 using namespace glm;
 using namespace cppcraft;
 using namespace library;
-inline float sfreq2d(const glm::vec3& v, float n) {
-  return glm::simplex(glm::vec2(v.x, v.z) * n);
-}
 
 namespace terragen
 {
+  static const float ICECAP_HEIGHT = 0.025f;
+
 	static float getheight_icecap(vec2 p, const float UNDER)
 	{
-    return UNDER + 0.1f;
+    return UNDER + ICECAP_HEIGHT;
 	}
   static float getcaves_icecap(vec2 p)
   {
     p *= 0.005f;
 		float n1 = glm::simplex(p * 0.5f);
-		float n2 = glm::simplex(p * 0.15f);
+		float n2 = powf(fabsf(glm::simplex(p * 0.04f)), 2.0f);
 
-		return WATERLEVEL_FLT - n1 * 0.05 - n2 * 0.1;
+		return WATERLEVEL_FLT - n1 * 0.0f + n2 * 0.2f;
   }
 
 	static float getnoise_icecap(vec3 p, float hvalue, const vec2& slope)
 	{
-    p *= vec3(0.01f, 1.0f, 0.01f);
-		return p.y - hvalue + 0.1f * (0.5f + 0.5f * glm::simplex(p));
+    p *= vec3(0.005f, 1.0f, 0.005f);
+		return p.y - hvalue + ICECAP_HEIGHT * powf(fabsf(glm::simplex(p)), 0.85f);
 	}
 
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
