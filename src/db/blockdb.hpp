@@ -11,7 +11,7 @@ namespace db
 	public:
 		int operator[] (const std::string& name)
 		{
-			return names[name];
+			return names.at(name);
 		}
 		const BlockData& operator[] (int id) const
 		{
@@ -22,21 +22,21 @@ namespace db
 			return blocks[id];
 		}
 
-		std::size_t create(const std::string& name, const BlockData& data)
+		BlockData& create(std::string name = "")
 		{
+      // get ID
+			const std::size_t ID = blocks.size();
 			// add to registry
-			blocks.push_back(data);
-			// get ID
-			std::size_t ID = blocks.size()-1;
+			blocks.emplace_back(ID);
 			// associate name with ID
-			names[name] = ID;
-			// return ID
-			return ID;
+			if (!name.empty()) assign(name, blocks.back());
+			return blocks.back();
 		}
-		BlockData clone(std::size_t index) const
-		{
-			return blocks[index];
-		}
+    void assign(const std::string& name, const BlockData& bd)
+    {
+      names.emplace(std::piecewise_construct,
+          std::forward_as_tuple(name), std::forward_as_tuple(bd.getID()));
+    }
 		std::size_t size() const
 		{
 			return names.size();

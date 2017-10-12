@@ -42,7 +42,8 @@ namespace cppcraft
 		}
     if (total != 0) {
 		   // apply compound decay
-		   return 255.0f * powf(1.0f - 0.12f, 15.0f - (float) V / total);
+       float lv = (float) V / total;
+		   return 255.0f * powf(0.88f, 15.0f - lv);
     }
     return 0;
 	}

@@ -46,10 +46,14 @@ namespace terragen
 
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
+    const block_t stone_id = db::getb("stone");
+    const block_t beach_id = db::getb("beach");
+    const block_t soil_id  = db::getb("soil_block");
+    const block_t snow_id  = db::getb("snow_block");
+    const block_t ice_id   = db::getb("ice_block");
+    const block_t water_id = db::getb("water");
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
-
-		block_t _ICE = db::getb("ice_block");
 
 		// count the same block ID until a new one appears
 		int counter = BLOCKS_Y-1;
@@ -69,19 +73,19 @@ namespace terragen
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
-			if (block.getID() == _SOIL || block.getID() == _BEACH)
+			if (block.getID() == soil_id || block.getID() == beach_id)
 			{
 				soilCounter++;
 
 				// making stones under water level has priority!
 				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
 				{
-					block.setID(_STONE);
+					block.setID(stone_id);
 				}
-				else if (block.getID() != _BEACH)
+				else if (block.getID() != beach_id)
 				{
 					// from soil to full-snow
-					block.setID(_SNOW);
+					block.setID(snow_id);
 				}
 			}
 			else soilCounter = 0;
@@ -94,8 +98,8 @@ namespace terragen
 					///-////////////////////////////////////-///
 					///- create objects, and litter crosses -///
 					///-////////////////////////////////////-///
-					if (block.getID() == _SOIL)
-						block.setID(_SNOW);
+					if (block.getID() == soil_id)
+						    block.setID(snow_id);
 
 					/// terrain specific objects ///
 					// TODO: use poisson disc here
@@ -105,9 +109,9 @@ namespace terragen
 						// set some bs winter-cross
 					}
 				}
-				if (air && block.getID() == _WATER)
+				if (air && block.getID() == water_id)
 				{
-					block.setID(_ICE);
+					block.setID(ice_id);
 				}
 				// ...
 				lastb = block;
@@ -121,14 +125,13 @@ namespace terragen
 			//
 			// -== ore deposition ==-
 			//
-			if (block.getID() == _STONE)
+			if (block.getID() == stone_id)
 			{
 				PostProcess::try_deposit(gdata, x, y, z);
 			} // ore deposition
 
 			// check if not air or cross
-			if (block.isAir())
-			{
+			if (block.isAir()) {
 				air++;
 			}
 			else

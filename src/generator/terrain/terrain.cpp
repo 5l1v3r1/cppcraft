@@ -21,6 +21,19 @@ namespace terragen
 		return a * (1.0 - level) + b * level;
 	}
 
+  block_t stone_id, soil_id, beach_id, water_id;
+  block_t molten_id, lava_id;
+
+  void Terrain::init()
+  {
+    stone_id = db::getb("stone");
+    soil_id  = db::getb("soil_block");
+    beach_id = db::getb("beach");
+    water_id = db::getb("water");
+    molten_id = db::getb("molten_stone");
+    lava_id  = db::getb("lava");
+  }
+
 	// produces basic blocks based on some input properties
 	// such as world y-value, the variable beach-height, density of the point and whether we are inside caves
 	Block Terrain::getBlock(float y, float in_beachhead, float density, float caves)
@@ -60,7 +73,7 @@ namespace terragen
 				if (caves + cavetresh < cave_lower)
 				{
 					// lower caves
-					if (y < lava_height) return _LAVA;
+					if (y < lava_height) return lava_id;
 					return _AIR;
 				}
 
@@ -81,12 +94,12 @@ namespace terragen
 							return _MOLTEN;
 					}*/
 
-					return _STONE;
+					return stone_id;
 				}
 
 				// soil deposits underground =)
 				if (density < soil_lower)
-					return _SOIL;
+					return soil_id;
 
 				// tone down sand the higher up we get
 				if (y >= WATERHEIGHT)
@@ -96,12 +109,12 @@ namespace terragen
 					deltay *= deltay;
 
 					if (deltay > 1.0 - (density / soil_lower) )
-						return _SOIL;
+						return soil_id;
 				}
 
 				// remaining density = sand
 				// pp will turn into oceanfloor with water pressure
-				return _BEACH;
+				return beach_id;
 			}
 			else if (y <= WATERHEIGHT + beachhead + lower_to_upper)
 			{
@@ -116,9 +129,9 @@ namespace terragen
 
 				// tone down soil deposits the higher up we get
 				if (density < stone_upper * (1.0 - deltay) + stone_lower * deltay)
-					return _STONE;
+					return stone_id;
 
-				return _SOIL;
+				return soil_id;
 			}
 
 			// upper hemisphere, dense
@@ -127,15 +140,15 @@ namespace terragen
 				return _AIR;
 
 			if (density < stone_upper)
-				return _STONE;
+				return stone_id;
 
-			return _SOIL;
+			return soil_id;
 		}
 		else
 		{
 			// lower hemisphere, dense
 			if (y < WATERHEIGHT)
-				return _WATER;
+				return water_id;
 
 			// upper hemisphere, clear
 			return _AIR;

@@ -15,41 +15,41 @@ namespace terragen
 	using cppcraft::sectors;
 	using cppcraft::Sector;
 	using cppcraft::world;
-	
+
 	bool isHouse(int cellX, int cellZ)
 	{
 		// random is based on world position
 		int random = rand2d(cellX * BLOCKS_XZ, cellZ * BLOCKS_XZ);
 		if ((random & 3) == 0) return false;
-		
+
 		// p is based on position relative to world center
-		glm::vec2 p((cellX - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ, 
+		glm::vec2 p((cellX - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ,
 					(cellZ - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ);
-		
-		int v = library::Voronoi::getid(p.x * 0.01, p.y * 0.01, 
+
+		int v = library::Voronoi::getid(p.x * 0.01, p.y * 0.01,
 				library::Voronoi::vor_chebyshev); // distance function
 		return (v & 15) == 0;
 	}
-	
+
 	void basic_house(GenObject& obj, int worldX, int worldZ)
 	{
 		return;
 		int random = rand2d(obj.x, obj.z);
-		
+
 		if (obj.y <= 64) return; // immediately avoid water
 		if ((random & 3) == 0) return; // discard half the houses
-		
-		Block base(db::getb("patterned_stone")); // _STONEPATTERN
-		Block brwood(db::getb("brown_wood"));    // _WOODBROWN
-		Block plank(db::getb("plank"));          // _PLANK
-		Block dirtsoil(_SOIL);                   // _GREENSOIL
-		Block gravel2(db::getb("gravel"));       // _GRAVEL2
-		
+
+		Block base(db::getb("patterned_stone"));
+		Block brwood(db::getb("brown_wood"));
+		Block plank(db::getb("plank"));
+		Block dirtsoil(db::getb("grass_block"));
+		Block gravel2(db::getb("gravel"));
+
 		// local coordinates
 		int x = obj.x - worldX + 7;
 		int y = obj.y;
 		int z = obj.z - worldZ + 7;
-		
+
 		// validate field
 		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		int h1 = sector.flat()(0, 0).groundLevel;
@@ -61,11 +61,11 @@ namespace terragen
 		if (std::abs(h2-h3) > 2) return;
 		if (std::abs(h3-h4) > 2) return;
 		if (std::abs(h4-h1) > 2) return;
-		
+
 		const int height = 6;
 		int radX = 3 + (random >> 2 & 3);
 		int radZ = 4 + (random >> 4 & 1);
-		
+
 		int houseType = (random >> 8) & 3;
 		if (houseType < 2)
 		{
@@ -74,7 +74,7 @@ namespace terragen
 			for (int dy = 0; dy <= height; dy++)
 			{
 				int fx = x + dx; int fy = y + dy; int fz = z + dz;
-				
+
 				if (dx == -radX || dx == radX || dz == -radZ || dz == radZ || dy == 0 || dy == height)
 				{
 					if (dy == 0)
@@ -112,12 +112,12 @@ namespace terragen
 				Spiders::removeBlock(x+dx, y, z+dz);
 			}
 		}
-		
+
 		int x0 = 7 - radX;
 		int x1 = 7 + radX + 1;
 		int z0 = 7 - radZ;
 		int z1 = 7 + radZ + 1;
-		
+
 		// create roads
 		x &= ~(BLOCKS_XZ-1);
 		z &= ~(BLOCKS_XZ-1);
@@ -125,19 +125,19 @@ namespace terragen
 		// remember that (wx, wz) is an offset from center of world
 		int cellX = obj.x / BLOCKS_XZ;
 		int cellZ = obj.z / BLOCKS_XZ;
-		
+
 		bool roadPX = isHouse(cellX+1, cellZ);
 		bool roadNX = isHouse(cellX-1, cellZ);
 		bool roadPZ = isHouse(cellX, cellZ+1);
 		bool roadNZ = isHouse(cellX, cellZ-1);
-		
+
 		// if both sides of an axis have roads, then
 		// ALL sides have roads, except when 3 sides are on
 		roadPX = roadPX || (roadPZ && roadNZ && !roadNX);
 		roadNX = roadNX || (roadPZ && roadNZ && !roadPX);
 		roadPZ = roadPZ || (roadPX && roadNX && !roadNZ);
 		roadNZ = roadNZ || (roadPX && roadNX && !roadPZ);
-		
+
 		if (roadPX)
 		{
 			// create road towards +x

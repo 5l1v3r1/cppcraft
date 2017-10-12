@@ -31,6 +31,8 @@ namespace terragen
 		if (lowrad < min_rad) return;
 		if (height < 1) return;
 
+    const block_t LEAF_ID = db::getb("leaf_green");
+    const block_t WOOD_ID = db::getb("wood_brown");
 		float toprad = min_rad;
 
 		const float extraleaf = 4.0f;
@@ -76,8 +78,9 @@ namespace terragen
 
 				float blobsize = 0.5 + ((height + extraleaf) - startrad) * 0.25;
 
-				ocircleXZstencil(gx+x, gy+y, gz+z, leafrad * blobsize + randf(gx+x, gy+y, gz+z) * 2.0,
-								_LEAF_GREEN, leaf_stencil);
+				ocircleXZstencil(gx+x, gy+y, gz+z,
+                         leafrad * blobsize + randf(gx+x, gy+y, gz+z) * 2.0,
+								         LEAF_ID, leaf_stencil);
 			}
 
 			bool makebranch = false;
@@ -102,7 +105,7 @@ namespace terragen
 			if (y <= height)
 			{
 				// branch trunk
-				ocircleXZ(gx+x, gy+y, gz+z, currad, _WOOD);
+				ocircleXZ(gx+x, gy+y, gz+z, currad, WOOD_ID);
 			}
 		}
 	}

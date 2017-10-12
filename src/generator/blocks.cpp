@@ -1,7 +1,8 @@
 #include "blocks.hpp"
 
 #include "biomegen/biome.hpp"
-#include "../precomp_thread_data.hpp"
+#include "../db/blockdata.hpp"
+#include "../renderconst.hpp"
 #include "../sector.hpp"
 #include "../tiles.hpp"
 #include <library/bitmap/colortools.hpp>
@@ -10,39 +11,11 @@
 using namespace library;
 using namespace db;
 
-namespace cppcraft
-{
-	// most common mesh is the solid cube
-	extern void emitCube(cppcraft::PTD& ptd, int bx, int by, int bz, block_t);
-	extern void emitCross(PTD& ptd, int bx, int by, int bz, block_t);
-}
 namespace terragen
 {
 	using cppcraft::Sector;
 	using cppcraft::tiles;
 	using cppcraft::RenderConst;
-
-	block_t _BEDROCK;
-	block_t _STONE;
-	block_t _ORE_COAL;
-	block_t _ORE_IRON;
-
-	block_t _SOIL;
-	block_t _GRASS;
-	block_t _SNOW;
-	block_t _BEACH;
-	block_t _DESERT;
-
-	block_t _MOLTEN;
-	block_t _WATER;
-	block_t _LAVA;
-
-	block_t _WOOD;
-	block_t _LEAF_GREEN;
-  block_t _LEAF_COLORED;
-	// the first cross, the grass-thingamajig
-	block_t _C_GRASS;
-	block_t _TORCH;
 
 	static int getDepth(const Sector& sect, int x, int y, int z)
 	{
@@ -57,116 +30,14 @@ namespace terragen
 		return depth;
 	}
 
-	// create a most default solid registry block, then return it
-	static BlockData getSolidBlock()
-	{
-		BlockData solid;
-		solid.blocksMovement = [] (const Block&) { return true; };
-		solid.forwardMovement = [] (const Block&) { return false; };
-		solid.hasActivation = [] (const Block&) { return false; };
-		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
-		solid.shader  = 0;
-		solid.voxelModel = 0;
-		solid.visibilityComp =
-		[] (const Block&, const Block& dst, uint16_t mask)
-		{
-			// only add faces towards transparent sides
-			return mask & dst.getTransparentSides();
-		};
-		solid.emit = cppcraft::emitCube;
-		return solid;
-	}
-	static BlockData getFluidBlock()
-	{
-		BlockData fluid;
-		fluid.blocksMovement = [] (const Block&) { return false; };
-		fluid.forwardMovement = [] (const Block&) { return true; };
-		fluid.hasActivation = [] (const Block&) { return false; };
-		fluid.liquid = true;
-		fluid.block       = false;
-		fluid.transparent = true;
-		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
-		fluid.transparentSides = BlockData::SIDE_ALL; // none of them solid
-		fluid.voxelModel = 0;
-		fluid.visibilityComp =
-		[] (const Block& src, const Block& dst, uint16_t mask)
-		{
-			// if they are both the same ID, we will not add this face
-			if (src.getID() == dst.getID())
-				return 0;
-			// otherwise, business as usual, only add towards transparent sides
-			return mask & dst.getTransparentSides();
-		};
-		fluid.emit = cppcraft::emitCube;
-		return fluid;
-	}
-	static BlockData getLeafBlock()
-	{
-		BlockData leaf;
-		leaf.blocksMovement = [] (const Block&) { return true; };
-		leaf.forwardMovement = [] (const Block&) { return false; };
-		leaf.hasActivation = [] (const Block&) { return false; };
-		leaf.block       = true;
-		leaf.transparent = true;
-		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		leaf.repeat_y = false;
-		leaf.shader = RenderConst::TX_2SIDED;
-		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
-		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
-		leaf.voxelModel = 0;
-		leaf.visibilityComp =
-		[] (const Block& src, const Block& dst, uint16_t mask)
-		{
-			// if they are both the same ID, we only add every 2nd face
-			if (src.getID() == dst.getID())
-				return mask & (1 + 4 + 32);
-			// otherwise, business as usual, only add towards transparent sides
-			return mask & dst.getTransparentSides();
-		};
-		leaf.emit = cppcraft::emitCube;
-		return leaf;
-	}
-	static BlockData getCross()
-	{
-		BlockData blk;
-		blk.cross       = true;  // is indeed a cross
-		blk.block       = false; // no AO
-		blk.transparent = true;  // transparent as fuck
-		blk.blocksMovement = [] (const Block&) { return false; };
-		blk.forwardMovement = [] (const Block&) { return true; };
-		blk.hasActivation = [] (const Block&) { return false; };
-		blk.indexColored = true;
-		blk.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
-		blk.minimapColor =
-		[] (const Block&, const Sector& s, int x, int, int z)
-		{
-			return s.flat()(x, z).fcolor[Biomes::CL_GRASS];
-		};
-		blk.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		blk.repeat_y = false;
-		blk.shader = RenderConst::TX_CROSS;
-		blk.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
-		blk.transparentSides = BlockData::SIDE_ALL; // none of them solid
-		blk.voxelModel = 0;
-		blk.visibilityComp =
-		[] (const Block&, const Block&, uint16_t mask)
-		{
-			return mask; // always draw crosses
-		};
-		blk.emit = cppcraft::emitCross;
-		return blk;
-	}
-
 	void init_blocks()
 	{
-		BlockDB& d = BlockDB::get();
+		auto& db = db::BlockDB::get();
 		// create some solid block
 
 		// create _BEDROCK
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(48, 48, 48, 255); };
@@ -174,22 +45,22 @@ namespace terragen
 			solid.getTexture = [] (const Block&, uint8_t) { return 2 + 5 * tiles.tilesX; };
 			solid.getSound = [] (const Block&) { return "stone"; };
 			solid.shader = RenderConst::TX_SOLID;
-			_BEDROCK = d.create("bedrock", solid);
+			db.assign("bedrock", solid);
 		}
 		// create _STONE
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
 			solid.getName = [] (const Block&) { return "Stone"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 3; };
 			solid.getSound = [] (const Block&) { return "stone"; };
-			_STONE = d.create("stone", solid);
+			db.assign("stone", solid);
 		}
 		// create _ORE_COAL
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
@@ -197,11 +68,11 @@ namespace terragen
 			solid.getTexture = [] (const Block&, uint8_t) { return 4 + 3 * tiles.tilesX; };
 			solid.getSound = [] (const Block&) { return "stone"; };
 			solid.shader = RenderConst::TX_SOLID;
-			_ORE_COAL = d.create("ore_coal", solid);
+			db.assign("ore_coal", solid);
 		}
 		// create _ORE_IRON
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
@@ -209,11 +80,11 @@ namespace terragen
 			solid.getTexture = [] (const Block&, uint8_t) { return 3 + 3 * tiles.tilesX; };
 			solid.getSound = [] (const Block&) { return "stone"; };
 			solid.shader = RenderConst::TX_SOLID;
-			_ORE_IRON = d.create("ore_iron", solid);
+			db.assign("ore_iron", solid);
 		}
 		// create _MOLTEN stones
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
 			solid.indexColored = true;
 			solid.minimapColor =
@@ -225,11 +96,11 @@ namespace terragen
 			solid.getTexture = [] (const Block&, uint8_t) { return 15 * tiles.tilesX + 13; };
 			solid.shader = RenderConst::TX_SOLID;
 			solid.getSound = [] (const Block&) { return "stone"; };
-			_MOLTEN = d.create("moltenstone", solid);
+			db.assign("molten_stone", solid);
 		}
 		// create _SOIL
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(97, 57, 14, 255); };
@@ -237,13 +108,13 @@ namespace terragen
 			solid.getTexture = [] (const Block&, uint8_t) { return 2; };
 			solid.shader   = 0;
 			solid.getSound = [] (const Block&) { return "grass"; };
-			_SOIL = d.create("soil_block", solid);
+			db.assign("soil_block", solid);
 		}
 		// _SOLIDGRASS
 
 		// _SOILGRASS (green, snow, ...)
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
 			solid.indexColored = true;
 			solid.minimapColor =
@@ -272,11 +143,11 @@ namespace terragen
 				else
 					return "grass";
 			};
-			_GRASS = d.create("grass_block", solid);
+			db.assign("grass_block", solid);
 		}
 		// _SNOW
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
 			solid.indexColored = true;
 			solid.minimapColor =
@@ -297,11 +168,11 @@ namespace terragen
 			{
 				return "snow";
 			};
-			_SNOW = d.create("snow_block", solid);
+			db.assign("snow_block", solid);
 		}
 		// _ICECUBE
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
 			solid.indexColored = true;
 			solid.minimapColor =
@@ -322,11 +193,11 @@ namespace terragen
 			{
 				return "stone";
 			};
-			d.create("ice_block", solid);
+			db.assign("ice_block", solid);
 		}
 		// _BEACH (sand)
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColor = [] (const Block&) { return 8; };
 			solid.indexColored = false;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
@@ -337,11 +208,11 @@ namespace terragen
 				return 3 + 1 * tiles.bigTilesX; // (3, 1) beach sand texture
 			};
 			solid.getSound = [] (const Block&) { return "sand"; };
-			_BEACH = d.create("beach", solid);
+			db.assign("beach", solid);
 		}
 		// _DESERT (sand)
 		{
-			BlockData solid = getSolidBlock();
+			auto& solid = BlockData::createSolid();
 			solid.getColorIndex = [] (const Block&) { return Biomes::CL_SAND; };
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
@@ -353,11 +224,11 @@ namespace terragen
 			};
 			solid.shader = RenderConst::TX_REPEAT; // TX_REPEAT uses bigtiles
 			solid.getSound = [] (const Block&) { return "sand"; };
-			_DESERT = d.create("desert", solid);
+			db.assign("desert", solid);
 		}
 		// create _WATER
 		{
-			BlockData fluid = getFluidBlock();
+			auto& fluid = BlockData::createFluid();
       fluid.getColorIndex = [] (const Block&) { return Biomes::CL_WATER; };
       fluid.indexColored = true;
 			fluid.minimapColor =
@@ -370,11 +241,11 @@ namespace terragen
 			fluid.getName = [] (const Block&) { return "Water"; };
 			fluid.getTexture = [] (const Block&, uint8_t) { return 0; };
 			fluid.shader = RenderConst::TX_WATER;
-			_WATER = d.create("water", fluid);
+			db.assign("water", fluid);
 		}
 		// create _LAVA
 		{
-			BlockData fluid = getFluidBlock();
+			auto& fluid = BlockData::createFluid();
 			fluid.getColor = [] (const Block&) { return BGRA8(0, 0, 0, 0); };
 			fluid.minimapColor =
 			[] (const Block&, const Sector&, int, int, int)
@@ -387,12 +258,12 @@ namespace terragen
 			fluid.block       = false;
 			fluid.transparent = false;
 			fluid.setLightColor(6, 7, 3);
-			_LAVA = d.create("lava", fluid);
+			db.assign("lava", fluid);
 		}
 
 		// _WOOD (brown)
 		{
-			BlockData blk = getSolidBlock();
+			auto& blk = BlockData::createSolid();
 			blk.getColor = [] (const Block&) { return 0; };
 			blk.indexColored = false;
 			blk.minimapColor =
@@ -409,11 +280,11 @@ namespace terragen
 			blk.repeat_y = false;
 			blk.shader   = RenderConst::TX_SOLID;
 			blk.getSound = [] (const Block&) { return "wood"; };
-			_WOOD = d.create("wood_brown", blk);
+			db.assign("wood_brown", blk);
 		}
 		// create _LEAF
 		{
-			BlockData blk = getLeafBlock();
+			auto& blk = BlockData::createLeaf();
 			blk.getColorIndex = [] (const Block&) { return Biomes::CL_TREES_A; };
 			blk.indexColored = true;
 			blk.minimapColor =
@@ -429,10 +300,10 @@ namespace terragen
 			};
 			blk.shader = RenderConst::TX_TRANS;
 			blk.getSound = [] (const Block&) { return "cloth"; };
-			_LEAF_COLORED = d.create("leaf_colored", blk);
+			db.assign("leaf_colored", blk);
 		}
     {
-			BlockData blk = getLeafBlock();
+			auto& blk = BlockData::createLeaf();
 			blk.getColorIndex = [] (const Block&) { return Biomes::CL_TREES_B; };
 			blk.indexColored = true;
 			blk.minimapColor =
@@ -448,11 +319,11 @@ namespace terragen
 			};
 			blk.shader = RenderConst::TX_TRANS;
 			blk.getSound = [] (const Block&) { return "cloth"; };
-			_LEAF_GREEN = d.create("leaf_green", blk);
+			db.assign("leaf_green", blk);
 		}
 		// create _C_GRASS
 		{
-			BlockData blk = getCross();
+			auto& blk = BlockData::createCross();
 			blk.getName = [] (const Block&) { return "Grass"; };
 			blk.getTexture =
 			[] (const Block&, uint8_t)
@@ -462,11 +333,11 @@ namespace terragen
 			blk.transparent = true;
 			blk.block = false;
 			blk.getSound = nullptr;
-			_C_GRASS = d.create("cross_grass", blk);
+			db.assign("cross_grass", blk);
 		}
 		// create _TORCH
 		{
-			BlockData blk = getCross();
+			auto& blk = BlockData::createCross();
 			blk.getName = [] (const Block&) { return "Torch"; };
 			blk.getTexture =
 			[] (const Block&, uint8_t)
@@ -479,7 +350,7 @@ namespace terragen
 			blk.setLightColor(13, 11, 8);
 			//blk.setLightColor(0, 15, 0);
 			blk.voxelModel = 0;
-			_TORCH = d.create("torch", blk);
+			db.assign("torch", blk);
 		}
 
 	}

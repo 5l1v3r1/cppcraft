@@ -1,5 +1,3 @@
-#include "../blocks.hpp"
-
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "../random.hpp"
@@ -42,6 +40,11 @@ namespace terragen
 
 	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
 	{
+    const block_t stone_id = db::getb("stone");
+    const block_t beach_id = db::getb("beach");
+    const block_t soil_id  = db::getb("soil_block");
+    const block_t grass_id = db::getb("grass_block");
+    const block_t cross_grass_id = db::getb("cross_grass");
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
@@ -63,18 +66,18 @@ namespace terragen
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
-			if (block.getID() == _SOIL || block.getID() == _BEACH)
+			if (block.getID() == soil_id || block.getID() == beach_id)
 			{
 				soilCounter++;
 
 				// making stones under water level has priority!
 				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
 				{
-					block.setID(_STONE);
+					block.setID(stone_id);
 				}
 				else if (soilCounter > PostProcess::STONE_CONV_OVERW)
 				{
-					block.setID(_STONE);
+					block.setID(stone_id);
 				}
 			}
 			else soilCounter = 0;
@@ -87,9 +90,9 @@ namespace terragen
 					///-////////////////////////////////////-///
 					///- create objects, and litter crosses -///
 					///-////////////////////////////////////-///
-					if (block.getID() == _SOIL)
+					if (block.getID() == soil_id)
 					{
-						block.setID(_GRASS);
+						block.setID(grass_id);
 
 						// TODO: use poisson disc here
 						float rand = randf(wx, y, wz);
@@ -113,7 +116,7 @@ namespace terragen
 							// note: this is an inverse of the otreeHuge noise
 							if (glm::simplex(p * 0.005f) > 0.0)
 							{
-								gdata->getb(x, y+1, z).setID(_C_GRASS);
+								gdata->getb(x, y+1, z).setID(cross_grass_id);
 							}
 						}
 					}
@@ -130,25 +133,22 @@ namespace terragen
 			//
 			// -== ore deposition ==-
 			//
-			if (block.getID() == _STONE)
-			{
+			if (block.getID() == stone_id) {
 				PostProcess::try_deposit(gdata, x, y, z);
 			}
 
-
 			// count air
-			if (block.isAir())
-			{
+			if (block.isAir()) {
 				air++;
 			}
 			else
 			{
 				air = 0;
 				if (skyLevel == 0)
-					skyLevel = y+1;
+					   skyLevel = y+1;
 				//if (block.isTransparent() == false)
 				if (groundLevel == 0)
-					groundLevel = y+1;
+					   groundLevel = y+1;
 			}
 
 			// use skylevel to determine when we are below sky
@@ -157,7 +157,7 @@ namespace terragen
 
 		// set skylevel, groundlevel
 		if (groundLevel == 0)
-			groundLevel = 1;
+			   groundLevel = 1;
 		gdata->flatl(x, z).groundLevel = groundLevel;
 		gdata->flatl(x, z).skyLevel = skyLevel;
 	}

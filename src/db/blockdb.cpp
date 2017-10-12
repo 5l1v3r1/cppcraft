@@ -1,5 +1,17 @@
 #include "blockdb.hpp"
 #include <cassert>
+#include "../biome.hpp"
+#include "../renderconst.hpp"
+#include "../sector.hpp"
+#include "../tiles.hpp"
+
+namespace cppcraft
+{
+	// most common mesh is the solid cube
+	extern void emitCube(cppcraft::PTD& ptd, int bx, int by, int bz, block_t);
+	extern void emitCross(PTD& ptd, int bx, int by, int bz, block_t);
+}
+using namespace cppcraft;
 
 namespace db
 {
@@ -8,27 +20,122 @@ namespace db
 		// make sure nothing started adding blocks earlier on...
     assert(this->names.empty());
 
-		BlockData air;
+		BlockData& air = this->create("air");
+    // the first Block *MUST* be _AIR
+		assert(air.getID() == 0);
+
 		air.block       = false;
 		air.transparent = true;
-
 		air.blocksMovement = [] (const Block&) { return false; };
 		air.forwardMovement = [] (const Block&) { return true; };
 		air.getColor = [] (const Block&) { return 255; };
 		air.getName  = [] (const Block&) { return "Air"; };
 		air.getTexture = [] (const Block&, uint8_t) { return 255; };
-		air.hasActivation = [] (const Block&) { return false; };
-		air.indexColored  = true;
-		air.minimapColor = [] (const Block&, const Sector&, int, int, int) { return 255; };
-		air.opacity = 0; // not a light
 		// you can never hit or select _AIR
 		air.physicalHitbox3D = [] (const Block&, float, float, float) { return false; };
 		air.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
 		air.transparentSides = BlockData::SIDE_ALL;
-		air.getSound = nullptr;
-		air.tick_function = nullptr;
+	}
 
-    // the first Block *MUST* be _AIR
-		assert(this->create("air", air) == 0);
+  // create a most default solid registry block, then return it
+	BlockData& BlockData::createSolid()
+	{
+		BlockData& solid = BlockDB::get().create();
+		solid.blocksMovement = [] (const Block&) { return true; };
+		solid.forwardMovement = [] (const Block&) { return false; };
+		solid.hasActivation = [] (const Block&) { return false; };
+		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
+		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
+		solid.shader  = 0;
+		solid.voxelModel = 0;
+		solid.visibilityComp =
+		[] (const Block&, const Block& dst, uint16_t mask)
+		{
+			// only add faces towards transparent sides
+			return mask & dst.getTransparentSides();
+		};
+		solid.emit = cppcraft::emitCube;
+		return solid;
+	}
+	BlockData& BlockData::createFluid()
+	{
+    BlockData& fluid = BlockDB::get().create();
+		fluid.blocksMovement = [] (const Block&) { return false; };
+		fluid.forwardMovement = [] (const Block&) { return true; };
+		fluid.hasActivation = [] (const Block&) { return false; };
+		fluid.liquid = true;
+		fluid.block       = false;
+		fluid.transparent = true;
+		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
+		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
+		fluid.transparentSides = BlockData::SIDE_ALL; // none of them solid
+		fluid.voxelModel = 0;
+		fluid.visibilityComp =
+		[] (const Block& src, const Block& dst, uint16_t mask)
+		{
+			// if they are both the same ID, we will not add this face
+			if (src.getID() == dst.getID())
+				return 0;
+			// otherwise, business as usual, only add towards transparent sides
+			return mask & dst.getTransparentSides();
+		};
+		fluid.emit = cppcraft::emitCube;
+		return fluid;
+	}
+	BlockData& BlockData::createLeaf()
+	{
+    BlockData& leaf = BlockDB::get().create();
+		leaf.blocksMovement = [] (const Block&) { return true; };
+		leaf.forwardMovement = [] (const Block&) { return false; };
+		leaf.hasActivation = [] (const Block&) { return false; };
+		leaf.block       = true;
+		leaf.transparent = true;
+		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
+		leaf.repeat_y = false;
+		leaf.shader = RenderConst::TX_2SIDED;
+		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
+		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
+		leaf.voxelModel = 0;
+		leaf.visibilityComp =
+		[] (const Block& src, const Block& dst, uint16_t mask)
+		{
+			// if they are both the same ID, we only add every 2nd face
+			if (src.getID() == dst.getID())
+				return mask & (1 + 4 + 32);
+			// otherwise, business as usual, only add towards transparent sides
+			return mask & dst.getTransparentSides();
+		};
+		leaf.emit = cppcraft::emitCube;
+		return leaf;
+	}
+	BlockData& BlockData::createCross()
+	{
+    BlockData& blk = BlockDB::get().create();
+		blk.cross       = true;  // is indeed a cross
+		blk.block       = false; // no AO
+		blk.transparent = true;  // transparent as fuck
+		blk.blocksMovement = [] (const Block&) { return false; };
+		blk.forwardMovement = [] (const Block&) { return true; };
+		blk.hasActivation = [] (const Block&) { return false; };
+		blk.indexColored = true;
+		blk.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
+		blk.minimapColor =
+		[] (const Block&, const Sector& s, int x, int, int z)
+		{
+			return s.flat()(x, z).fcolor[Biomes::CL_GRASS];
+		};
+		blk.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
+		blk.repeat_y = false;
+		blk.shader = RenderConst::TX_CROSS;
+		blk.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
+		blk.transparentSides = BlockData::SIDE_ALL; // none of them solid
+		blk.voxelModel = 0;
+		blk.visibilityComp =
+		[] (const Block&, const Block&, uint16_t mask)
+		{
+			return mask; // always draw crosses
+		};
+		blk.emit = cppcraft::emitCross;
+		return blk;
 	}
 }

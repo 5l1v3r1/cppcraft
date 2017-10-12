@@ -15,7 +15,7 @@ using namespace library;
 namespace terragen
 {
 	ObjectDB objectDB;
-	
+
 	void Generator::init()
 	{
 		// initialize various stuff
@@ -30,22 +30,22 @@ namespace terragen
 		objectDB.add(basic_house);
 		extern void jungle_tree(GenObject& obj, int worldX, int worldZ);
 		objectDB.add(jungle_tree);
-		// cølørs
+		// initialize subsystems
 		Biome::init();
-		// åres
+    Terrain::init();
 		PostProcess::init();
 	}
-	
+
 	void Generator::run(gendata_t* data)
 	{
 		//printf("Generating terrain metadata for (%d, %d)\n",
 		//	data->wx, data->wz);
 		Biome::run(data);
 		//printf("Done\n");
-		
+
 		// having the terrain weights, we can now generate blocks
 		Terrain::generate(data);
-		
+
 		// having generated the terrain, we can now reprocess and finish the terrain
 		// calculate some basic lighting too, by following the sky down to the ground
 		PostProcess::run(data);

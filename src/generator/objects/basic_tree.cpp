@@ -14,8 +14,9 @@ namespace terragen
 
 	void basic_tree(GenObject& obj, int worldX, int worldZ)
 	{
-		const Block   trunk(_WOOD);
-		const block_t leafs = (obj.var1 & 1) ? _LEAF_COLORED : _LEAF_GREEN;
+		const Block   trunk(db::getb("wood_brown"));
+		const block_t leafs = 
+        (obj.var1 & 1) ? db::getb("leaf_colored") : db::getb("leaf_green");
 
 		// local coordinates
 		int x = obj.x - worldX;

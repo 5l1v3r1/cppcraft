@@ -77,127 +77,7 @@ namespace terragen
     return WATERLEVEL_FLT - 0.1f + lower_grass(p) * 0.4f;
   }
 
-	static void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
-	{
-		const int wx = gdata->wx * BLOCKS_XZ + x;
-		const int wz = gdata->wz * BLOCKS_XZ + z;
-
-		// count the same block ID until a new one appears
-		int counter = BLOCKS_Y-1;
-		// count current form of dirt/sand etc.
-		int soilCounter = 0;
-		// the last block we encountered
-		Block lastb = air_block;
-
-		// start counting from top (pretend really high)
-		int skyLevel    = 0;
-		int groundLevel = 0;
-		int air = BLOCKS_Y; // simple _AIR counter
-
-		for (int y = MAX_Y-1; y > 0; y--)
-		{
-			Block& block = gdata->getb(x, y, z);
-
-			// we only count primary blocks produced by generator,
-			// which are specifically greensoil & sandbeach
-			if (block.getID() == _SOIL || block.getID() == _BEACH)
-			{
-				soilCounter++;
-
-				// making stones under water level has priority!
-				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
-				{
-					block.setID(_STONE);
-				}
-				else if (soilCounter > PostProcess::STONE_CONV_OVERW)
-				{
-					block.setID(_STONE);
-				}
-			}
-			else soilCounter = 0;
-
-			// check if ultradifferent
-			if (block.getID() != lastb.getID())
-			{
-				if (air > 8)
-				{
-					///-////////////////////////////////////-///
-					///- create objects, and litter crosses -///
-					///-////////////////////////////////////-///
-					if (block.getID() == _SOIL)
-					{
-						block.setID(_GRASS);
-
-						// TODO: use poisson disc here
-						float rand = randf(wx, y, wz);
-						glm::vec2 p = gdata->getBaseCoords2D(x, z);
-
-						/// terrain specific objects ///
-						if (rand < 0.05 && air > 16)
-						{
-							if (glm::simplex(p * 0.005f) < -0.2)
-							{
-								unsigned height = 5 + randf(wx, y-1, wz) * 3;
-								if (y + height < 160)
-								{
-									static const int GEN_BASIC_TREE = 0;
-									gdata->objects.emplace_back(GEN_BASIC_TREE, wx, y+1, wz, height);
-								}
-							}
-						}
-						else if (rand > 0.75)
-						{
-							// note: this is an inverse of the otreeHuge noise
-							if (glm::simplex(p * 0.005f) > 0.0)
-							{
-								gdata->getb(x, y+1, z).setID(_C_GRASS);
-							}
-						}
-					}
-				}
-				// ...
-				lastb = block;
-			}
-			else
-			{
-				// how many times we've seen the same block on the way down
-				counter++;
-			}
-
-			//
-			// -== ore deposition ==-
-			//
-			if (block.getID() == _STONE)
-			{
-				PostProcess::try_deposit(gdata, x, y, z);
-			}
-
-
-			// count air
-			if (block.isAir())
-			{
-				air++;
-			}
-			else
-			{
-				air = 0;
-				if (skyLevel == 0)
-					skyLevel = y+1;
-				//if (block.isTransparent() == false)
-				if (groundLevel == 0)
-					groundLevel = y+1;
-			}
-
-			// use skylevel to determine when we are below sky
-			block.setLight((skyLevel == 0) ? 15 : 0, 0);
-		} // y
-
-		// set skylevel, groundlevel
-		if (groundLevel == 0)
-			groundLevel = 1;
-		gdata->flatl(x, z).groundLevel = groundLevel;
-		gdata->flatl(x, z).skyLevel = skyLevel;
-	}
+	static void grass_process(gendata_t*, int x, int z, const int Y, int zone);
 
 	void terrain_grass_init()
 	{
@@ -245,4 +125,128 @@ namespace terragen
 		});
 
 	} // _init();
+
+  void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+	{
+    const block_t stone_id = db::getb("stone");
+    const block_t beach_id = db::getb("beach");
+    const block_t soil_id  = db::getb("soil_block");
+    const block_t grass_id = db::getb("grass_block");
+    const block_t cross_grass_id = db::getb("cross_grass");
+		const int wx = gdata->wx * BLOCKS_XZ + x;
+		const int wz = gdata->wz * BLOCKS_XZ + z;
+
+		// count the same block ID until a new one appears
+		int counter = BLOCKS_Y-1;
+		// count current form of dirt/sand etc.
+		int soilCounter = 0;
+		// the last block we encountered
+		Block lastb = air_block;
+
+		// start counting from top (pretend really high)
+		int skyLevel    = 0;
+		int groundLevel = 0;
+		int air = BLOCKS_Y; // simple _AIR counter
+
+		for (int y = MAX_Y-1; y > 0; y--)
+		{
+			Block& block = gdata->getb(x, y, z);
+
+			// we only count primary blocks produced by generator,
+			// which are specifically greensoil & sandbeach
+			if (block.getID() == soil_id || block.getID() == beach_id)
+			{
+				soilCounter++;
+
+				// making stones under water level has priority!
+				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
+				{
+					block.setID(stone_id);
+				}
+				else if (soilCounter > PostProcess::STONE_CONV_OVERW)
+				{
+					block.setID(stone_id);
+				}
+			}
+			else soilCounter = 0;
+
+			// check if ultradifferent
+			if (block.getID() != lastb.getID())
+			{
+				if (air > 8)
+				{
+					///-////////////////////////////////////-///
+					///- create objects, and litter crosses -///
+					///-////////////////////////////////////-///
+					if (block.getID() == soil_id)
+					{
+						block.setID(grass_id);
+
+						// TODO: use poisson disc here
+						float rand = randf(wx, y, wz);
+						glm::vec2 p = gdata->getBaseCoords2D(x, z);
+
+						/// terrain specific objects ///
+						if (rand < 0.05 && air > 16)
+						{
+							if (glm::simplex(p * 0.005f) < -0.2)
+							{
+								unsigned height = 5 + randf(wx, y-1, wz) * 3;
+								if (y + height < 160)
+								{
+									static const int GEN_BASIC_TREE = 0;
+									gdata->objects.emplace_back(GEN_BASIC_TREE, wx, y+1, wz, height);
+								}
+							}
+						}
+						else if (rand > 0.75)
+						{
+							// note: this is an inverse of the otreeHuge noise
+							if (glm::simplex(p * 0.005f) > 0.0) {
+								gdata->getb(x, y+1, z).setID(cross_grass_id);
+							}
+						}
+					}
+				}
+				// ...
+				lastb = block;
+			}
+			else
+			{
+				// how many times we've seen the same block on the way down
+				counter++;
+			}
+
+			//
+			// -== ore deposition ==-
+			//
+			if (block.getID() == stone_id) {
+				PostProcess::try_deposit(gdata, x, y, z);
+			}
+
+			// count air
+			if (block.isAir()) {
+				air++;
+			}
+			else
+			{
+				air = 0;
+				if (skyLevel == 0)
+					skyLevel = y+1;
+				//if (block.isTransparent() == false)
+				if (groundLevel == 0)
+					groundLevel = y+1;
+			}
+
+			// use skylevel to determine when we are below sky
+			block.setLight((skyLevel == 0) ? 15 : 0, 0);
+		} // y
+
+		// set skylevel, groundlevel
+		if (groundLevel == 0)
+			 groundLevel = 1;
+		gdata->flatl(x, z).groundLevel = groundLevel;
+		gdata->flatl(x, z).skyLevel = skyLevel;
+	}
+
 }

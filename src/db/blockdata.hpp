@@ -19,24 +19,26 @@ namespace db
 	public:
 		static const int SIDE_ALL = 63;
 
+    int getID() const noexcept { return id; }
+
 		// tick function
 		delegate <void (Block&)> tick_function = nullptr;
 
 		// returns true if the block emits light
-		bool isLight() const {
+		bool isLight() const noexcept {
 			return opacity != 0;
 		}
 		void setLightColor(int r, int g, int b) {
 			opacity = (r & 0xF) + ((g & 0xF) << 4) + ((b & 0xF) << 8);
 		}
 
-		bool isTerrainColored() const {
+		bool isTerrainColored() const noexcept {
 			return indexColored;
 		}
 		// returns the color index used, if applicable
 		delegate <int(const Block&)> getColorIndex = nullptr;
 
-		bool isColored() const {
+		bool isColored() const noexcept {
 			return !indexColored;
 		}
 		// returns the color used, if applicable
@@ -47,7 +49,7 @@ namespace db
 
 		// returns true if the block has a special hand-held model
 		// eg. crosses, door, ladder
-		bool isVoxelModel() const {
+		bool isVoxelModel() const noexcept {
 			return voxelModel != 0;
 		}
 
@@ -102,5 +104,15 @@ namespace db
 
 		//
 		delegate <std::string(const Block&)> getSound = nullptr;
+
+    // boiler plate reduction
+    static BlockData& createSolid();
+    static BlockData& createFluid();
+    static BlockData& createLeaf();
+    static BlockData& createCross();
+
+    BlockData(int ID) : id(ID) {}
+  private:
+    const int id;
 	};
 }
