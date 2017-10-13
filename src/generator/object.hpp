@@ -3,7 +3,8 @@
 #include "../common.hpp"
 #include "../block.hpp"
 #include "delegate.hpp"
-#include <vector>
+#include <map>
+#include <string>
 
 namespace terragen
 {
@@ -12,53 +13,49 @@ namespace terragen
 	using cppcraft::Block;
 	using cppcraft::Sector;
 
-	struct GenObject
+	struct SchedObject
 	{
-		GenObject(unsigned ID, int X, int Y, int Z, unsigned int V1)
-			: id(ID), x(X), y(Y), z(Z), var1(V1) {}
+		SchedObject(std::string gname, int X, int Y, int Z, int64_t D)
+			: name(gname), x(X), y(Y), z(Z), data(D) {}
 
-		unsigned getID() const
-		{
-			return id;
-		}
-		int getWX() const
-		{
+		int getWX() const {
 			return x / BLOCKS_XZ;
 		}
-		int getWZ() const
-		{
+		int getWZ() const {
 			return z / BLOCKS_XZ;
 		}
 
-		unsigned id;
-		int x, y, z;
-		// user-defined
-		unsigned int var1;
-		unsigned int var2;
-		// used to determine if we can generate this object yet
-		unsigned short sizeX, sizeZ;
-		// used to create different objects (eg. different world seeds)
-		unsigned int seed;
+		const std::string name;
+		const int x, y, z;
+    // whatever you want it to be
+    const int64_t data;
 	};
 
-	class ObjectDB
-	{
-	public:
-		typedef delegate<void(GenObject&, int, int)> object_gen_func;
+  struct GenObject
+  {
+    typedef delegate<void(SchedObject&, int, int)> callback_t;
 
-		std::size_t add(object_gen_func&& func)
-		{
-			objects.emplace_back(func);
-			return objects.size()-1;
-		}
+    GenObject(callback_t F, int S) : func(F), size(S) {}
+    callback_t func;
+    uint16_t   size;
+  };
 
-		object_gen_func& operator [] (int i)
+	struct ObjectDB
+  {
+    template <typename... Args>
+    void add(const std::string& name, Args&&... args) {
+      objects.emplace(std::piecewise_construct,
+                      std::forward_as_tuple(name),
+                      std::forward_as_tuple(std::forward<Args>(args)...));
+    }
+
+		GenObject& operator[] (const std::string& name)
 		{
-			return objects[i];
+			return objects.at(name);
 		}
 
 	private:
-		std::vector<object_gen_func> objects;
+		std::map<std::string, GenObject> objects;
 	};
 	extern ObjectDB objectDB;
 }

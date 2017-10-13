@@ -64,6 +64,15 @@ namespace terragen
 			return (*sblock)(x, y, z);
 		}
 
+    // schedule object for creation
+    template <typename... Args>
+    void add_object(Args&&... args) {
+        objects.emplace_back(std::forward<Args>(args)...);
+    }
+    const auto& get_objects() const {
+      return objects;
+    }
+
 		auto unassignBlocks()
 		{
 			return std::move(sblock);
@@ -80,9 +89,9 @@ namespace terragen
 
 		/// === results === ///
 		// ALL final results produced from terragen is in sblock and flatl
-    std::vector<GenObject> objects;
     Flatland flatl;                // 2d data, colors etc.
   private:
+    std::vector<SchedObject> objects;
 		std::unique_ptr<Sector::sectorblock_t> sblock = nullptr;
 		/// === results === ///
 

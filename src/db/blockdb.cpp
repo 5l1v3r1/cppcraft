@@ -92,7 +92,7 @@ namespace db
 		leaf.transparent = true;
 		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.repeat_y = false;
-		leaf.shader = RenderConst::TX_2SIDED;
+		leaf.shader = RenderConst::TX_TRANS;
 		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		leaf.voxelModel = 0;
@@ -101,7 +101,7 @@ namespace db
 		{
 			// if they are both the same ID, we only add every 2nd face
 			if (src.getID() == dst.getID())
-				return mask & (1 + 4 + 32);
+				  return mask & (1 + 4 + 32);
 			// otherwise, business as usual, only add towards transparent sides
 			return mask & dst.getTransparentSides();
 		};

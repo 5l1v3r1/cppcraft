@@ -31,7 +31,7 @@ namespace terragen
 		return (v & 15) == 0;
 	}
 
-	void basic_house(GenObject& obj, int worldX, int worldZ)
+	void basic_house(SchedObject& obj, int worldX, int worldZ)
 	{
 		return;
 		int random = rand2d(obj.x, obj.z);

@@ -21,9 +21,9 @@ namespace cppcraft
 		// all the blocks
 		bordered_sector_t* sector = nullptr;
 
-		int shader;
+		int shader = 0;
 		// special properties of big tiles
-		bool repeat_y;
+		bool repeat_y = false;
 		static const int REPEAT_FACTOR;
 
     auto& current() {

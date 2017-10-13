@@ -42,8 +42,8 @@ namespace cppcraft
     // total amount of vertices for each shader line
     // DOES NOT EQUAL the size of the vertex datadump
     // due to terrain optimization stages
-    unsigned short vertices    [RenderConst::MAX_UNIQUE_SHADERS];
-    unsigned short bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
+    uint32_t vertices    [RenderConst::MAX_UNIQUE_SHADERS];
+    uint32_t bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
 		// resulting index data
 		//indice_t* indidump;
 		//indice_t indices           [RenderConst::MAX_UNIQUE_SHADERS];

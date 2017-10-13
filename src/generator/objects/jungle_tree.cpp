@@ -49,6 +49,7 @@ namespace terragen
 		{
 			jitter = 2.5; min_jitter = 0.2;
 			height *= 0.25;
+      if (height < 1) return;
 		}
 
 		const float interpolback = 0.95;
@@ -87,7 +88,8 @@ namespace terragen
 
 			if (y > height * 0.4)
 			{
-				makebranch = (std::abs(jitter_x) < min_branch_jitter || std::abs(jitter_z) < min_branch_jitter);
+				makebranch = (std::abs(jitter_x) < min_branch_jitter
+                   || std::abs(jitter_z) < min_branch_jitter);
 			}
 
 			// re-jitter
@@ -110,14 +112,14 @@ namespace terragen
 		}
 	}
 
-	void jungle_tree(GenObject& obj, int worldX, int worldZ)
+	void jungle_tree(SchedObject& obj, int worldX, int worldZ)
 	{
 		// local coordinates
 		int gx = obj.x - worldX;
 		int gy = obj.y;
 		int gz = obj.z - worldZ;
 		// height of tree
-		int height = obj.var1;
+		int height = obj.data;
 
 		if (coretest(gx, gy, gz, 1, 1, height) == false) return;
 		int lowrad = (height / 40) * 3;

@@ -149,24 +149,12 @@ namespace cppcraft
 				dest.meshgen      = 0; // make sure its added to meshgen
 				dest.gen_flags    = Sector::GENERATED;
 				// we just generated this, it couldnt possibly have any objects scheduled for it? could it?
-				dest.objects      = gdata->objects.size();
+				dest.objects      = gdata->get_objects().size();
 				dest.atmospherics = false;
 
 				// add all the objects from this sector to object queue
-				if (!gdata->objects.empty())
-					terragen::ObjectQueue::add(gdata->objects);
-
-				int worldX = sectors(0, 0).getWX() * BLOCKS_XZ;
-				int worldZ = sectors(0, 0).getWZ() * BLOCKS_XZ;
-
-				for (terragen::GenObject& obj : gdata->objects)
-				{
-					int sectX = (obj.x - worldX) / BLOCKS_XZ;
-					int sectZ = (obj.z - worldZ) / BLOCKS_XZ;
-
-					if (sectX != dest.getX() || sectZ != dest.getZ())
-						assert(0);
-				}
+				if (dest.objects != 0)
+					terragen::ObjectQueue::add(gdata->get_objects());
 
 				// add it to the minimap!!!
 				minimap.addSector(dest);

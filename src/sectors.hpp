@@ -41,9 +41,9 @@ namespace cppcraft
 			return std::abs(sector.getX() - sectors_XZ / 2) + std::abs(sector.getZ() - sectors_XZ / 2);
 		}
 
-		//! \brief execute lambda on a 3x3 centered around @sector
+		//! \brief execute lambda on a NxN square centered around @sector
 		//! the result @bool is only true when all results are true
-		bool on3x3(const Sector& sector, delegate<bool(Sector&)> lambda);
+    bool onNxN(const Sector&, int size, delegate<bool(Sector&)> lambda);
 
 		// updates all sectors, for eg. when sun-position changed
 		void updateAll();

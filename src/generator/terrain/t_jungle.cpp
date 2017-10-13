@@ -100,11 +100,10 @@ namespace terragen
 						{
 							if (glm::simplex(p * 0.005f) < -0.2)
 							{
-								unsigned height = 5 + randf(wx, y-1, wz) * 3;
-								if (y + height < 160)
+								unsigned height = 40 + randf(wx, y-1, wz) * 15;
+								if (y + height < WATERLEVEL + 64)
 								{
-									static const int GEN_BASIC_TREE = 0;
-									gdata->objects.emplace_back(GEN_BASIC_TREE, wx, y+1, wz, height);
+									gdata->add_object("jungle_tree", wx, y+1, wz, height);
 								}
 							}
 						}

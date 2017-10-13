@@ -11,8 +11,7 @@
 #ifdef TIMING
 #include <mutex>
 #include <library/timing/timer.hpp>
-
-std::mutex timingMutex;
+static std::mutex timingMutex;
 #endif
 
 using namespace library;
@@ -21,22 +20,22 @@ namespace cppcraft
 {
 	void PrecompThread::ambientOcclusion(Precomp& precomp)
 	{
-	#ifdef TIMING
+#ifdef TIMING
 		timingMutex.lock();
 
 		Timer timer;
 		timer.startNewRound();
-	#endif
+#endif
 
 		// ambient occlusion processing stage
-	#ifdef AMBIENT_OCCLUSION_GRADIENTS
+#ifdef AMBIENT_OCCLUSION_GRADIENTS
 		ambientOcclusionGradients(precomp.sector,
             precomp.datadump.data(), precomp.datadump.size());
-	#endif
+#endif
 
-	#ifdef TIMING
+#ifdef TIMING
 		logger << Log::INFO << "AO time: " << timer.startNewRound() << Log::ENDL;
-	#endif
+#endif
 
 		/*
 		// optimize repeating textures mesh
@@ -52,9 +51,9 @@ namespace cppcraft
 		//optimizeShadedMesh(precomp, RenderConst::TX_WATER);
 		//optimizeShadedMesh(precomp, RenderConst::TX_LAVA);
 
-	#ifdef TIMING
+#ifdef TIMING
 		logger << Log::INFO << "Optimize time: " << timer.startNewRound() << Log::ENDL;
-	#endif
+#endif
 
 		// recount vertices
     /*
@@ -67,10 +66,10 @@ namespace cppcraft
 		createIndices(precomp, cnt);
 		*/
 
-	#ifdef TIMING
+#ifdef TIMING
 		logger << Log::INFO << "Indexing time: " << timer.startNewRound() << Log::ENDL;
 		timingMutex.unlock();
-	#endif
+#endif
 
 		// set result
 		precomp.status = Precomp::STATUS_DONE;

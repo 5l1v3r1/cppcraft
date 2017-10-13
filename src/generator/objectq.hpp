@@ -6,24 +6,23 @@
 
 namespace terragen
 {
-	class ObjectQueue
-	{
+	class ObjectQueue {
 	public:
-		static void add(const std::vector<GenObject>& queue)
+		static void add(const std::vector<SchedObject>& queue)
 		{
 			for (auto& obj : queue)
 				get().objects.push_back(obj);
 		}
-		
+
 		static void run()
 		{
 			get().run_internal();
 		}
 		static ObjectQueue& get();
-		
+
 	private:
 		void run_internal();
-		
-		std::list<GenObject> objects;
+
+		std::list<SchedObject> objects;
 	};
 }

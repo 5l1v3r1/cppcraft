@@ -81,12 +81,12 @@ namespace cppcraft
 		return &flatland(fx, fz)(bx, bz);
 	}
 
-	bool Sectors::on3x3(const Sector& sect, delegate<bool(Sector&)> func)
+	bool Sectors::onNxN(const Sector& sect, int size, delegate<bool(Sector&)> func)
 	{
-		int x0 = sect.getX()-1; x0 = (x0 >= 0) ? x0 : 0;
-		int x1 = sect.getX()+1; x1 = (x1 < getXZ()) ? x1 : getXZ()-1;
-		int z0 = sect.getZ()-1; z0 = (z0 >= 0) ? z0 : 0;
-		int z1 = sect.getZ()+1; z1 = (z1 < getXZ()) ? z1 : getXZ()-1;
+		int x0 = sect.getX()-size; x0 = (x0 >= 0) ? x0 : 0;
+		int x1 = sect.getX()+size; x1 = (x1 < getXZ()) ? x1 : getXZ()-1;
+		int z0 = sect.getZ()-size; z0 = (z0 >= 0) ? z0 : 0;
+		int z1 = sect.getZ()+size; z1 = (z1 < getXZ()) ? z1 : getXZ()-1;
 
 		for (int x = x0; x <= x1; x++)
 		for (int z = z0; z <= z1; z++)

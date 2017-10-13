@@ -302,7 +302,6 @@ namespace terragen
 			{
 				return 15 + 0 * tiles.tilesX;
 			};
-			blk.shader = RenderConst::TX_TRANS;
 			blk.getSound = [] (const Block&) { return "cloth"; };
 			db.assign("leaf_colored", blk);
 		}
@@ -321,7 +320,6 @@ namespace terragen
 			{
 				return 15 + 0 * tiles.tilesX;
 			};
-			blk.shader = RenderConst::TX_TRANS;
 			blk.getSound = [] (const Block&) { return "cloth"; };
 			db.assign("leaf_green", blk);
 		}

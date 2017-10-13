@@ -191,8 +191,7 @@ namespace terragen
 								unsigned height = 5 + randf(wx, y-1, wz) * 3;
 								if (y + height < 160)
 								{
-									static const int GEN_BASIC_TREE = 0;
-									gdata->objects.emplace_back(GEN_BASIC_TREE, wx, y+1, wz, height);
+									gdata->add_object("basic_tree", wx, y+1, wz, height);
 								}
 							}
 						}

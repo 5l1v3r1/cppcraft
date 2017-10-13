@@ -89,7 +89,7 @@ namespace terragen
 
 	void ocircleXZ(int x, int y, int z, int radius, block_t id)
 	{
-		int maxrad = radius*radius;
+		const int maxrad = radius*radius;
 		for (int dx = -radius; dx <= radius; dx++)
 		for (int dz = -radius; dz <= radius; dz++)
 		{
@@ -99,7 +99,7 @@ namespace terragen
 	}
 	void ocircleXZstencil(int gx, int gy, int gz, int rad, block_t id, float chance)
 	{
-		int maxrad = rad * rad;
+		const int maxrad = rad * rad;
 		for (int x = -rad; x <= rad; x++)
 		for (int z = -rad; z <= rad; z++)
 		{

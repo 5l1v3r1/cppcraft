@@ -47,7 +47,7 @@ namespace cppcraft
 
 	bool Sector::isReadyForMeshgen() const
 	{
-		return sectors.on3x3(*this,
+		return sectors.onNxN(*this, 1, // 3x3
 		[] (Sector& sect)
 		{
 			return sect.generated();

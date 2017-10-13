@@ -73,7 +73,7 @@ namespace cppcraft
 			if (sector->isReadyForMeshgen() && sector->objects == 0)
 			{
 				// make sure we have proper light
-				bool atmos = sectors.on3x3(*sector,
+				bool atmos = sectors.onNxN(*sector, 1, // 3x3
 				[] (Sector& sect)
 				{
 					// in the future the sector might need finished atmospherics

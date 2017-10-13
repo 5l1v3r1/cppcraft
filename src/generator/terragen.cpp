@@ -24,12 +24,12 @@ namespace terragen
 		// make sure the terrain function list is populated
 		terrains.init();
 		// first objects
-		extern void basic_tree(GenObject&, int, int);
-		objectDB.add(basic_tree);
-		extern void basic_house(GenObject&, int, int);
-		objectDB.add(basic_house);
-		extern void jungle_tree(GenObject& obj, int worldX, int worldZ);
-		objectDB.add(jungle_tree);
+		extern void basic_tree(SchedObject&, int, int);
+		objectDB.add("basic_tree", basic_tree, 1);
+    extern void jungle_tree(SchedObject&, int, int);
+		objectDB.add("jungle_tree", jungle_tree, 5);
+		extern void basic_house(SchedObject&, int, int);
+		objectDB.add("basic_house", basic_house, 1);
 		// initialize subsystems
 		Biome::init();
     Terrain::init();
