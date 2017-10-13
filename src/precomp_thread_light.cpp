@@ -24,7 +24,6 @@ namespace cppcraft
                                  int x3, int y3, int z3,
                                  int x4, int y4, int z4)
 	{
-    return 255;
 		// TODO: calculate the actual light values...
 		Block* bl[4];
 		bl[0] = &sector->get(x1, y1, z1);

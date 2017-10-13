@@ -31,7 +31,7 @@ namespace terragen
 		if (lowrad < min_rad) return;
 		if (height < 1) return;
 
-    const block_t LEAF_ID = db::getb("leaf_green");
+    const block_t LEAF_ID = db::getb("leaf_colored");
     const block_t WOOD_ID = db::getb("wood_brown");
 		float toprad = min_rad;
 

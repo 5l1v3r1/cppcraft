@@ -188,7 +188,7 @@ namespace terragen
     terrain.setColor(Biomes::CL_TREES_B,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
-			return RGBA8(50, 124, 20, 255);
+			return RGBA8(50, 84, 20, 255);
 		});
 		// Stone color
 		terrain.setColor(Biomes::CL_STONE,

@@ -1,6 +1,9 @@
 #include "objectq.hpp"
 
 #include "../sectors.hpp"
+#include "../spiders.hpp"
+#include <library/timing/timer.hpp>
+using namespace library;
 
 namespace terragen
 {
@@ -52,9 +55,18 @@ namespace terragen
 				// check if it is surrounded by generated sectors
 				if (validateSector(sector, size))
 				{
-					//printf("Generating object %d at (%d, %d)\n", obj.getID(), sectX, sectZ);
+          Timer timer;
+          int64_t placed_before = cppcraft::Spiders::total_blocks_placed();
 					// generate object
 					db_obj.func(obj, worldX, worldZ);
+          // verify that object didnt spend too much time
+          double time_spent = timer.getTime();
+          if (time_spent > 0.01) {
+            int64_t diff = cppcraft::Spiders::total_blocks_placed() - placed_before;
+            printf("Time spent generating %s: %f (%ld blocks)\n",
+                   obj.name.c_str(), time_spent, diff);
+            assert(0 && "Object took too long");
+          }
 					// ..... and remove from queue
 					it = objects.erase(it);
 					// reduce the object count on sector (FIXME)

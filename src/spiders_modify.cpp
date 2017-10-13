@@ -5,8 +5,9 @@
 #include "lighting.hpp"
 #include "sectors.hpp"
 #include <assert.h>
-
 using namespace library;
+
+static int64_t total_blocks_placed = 0;
 
 namespace cppcraft
 {
@@ -47,6 +48,7 @@ namespace cppcraft
 					   bx, by, bz);
 			return false;
 		}
+    ::total_blocks_placed++;
 		// set new block
 		Block& blk = s[0](bx, by, bz);
 		blk = newblock;
@@ -63,7 +65,8 @@ namespace cppcraft
       // only if atmospherics is already finished for this sector
 			if (s->atmospherics) {
         //printf("Remove skylight from %d to %d\n", skylevel, by);
-		    Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, skylevel, by, s->getZ()*BLOCKS_XZ + bz, 14);
+		    //Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, skylevel, by, s->getZ()*BLOCKS_XZ + bz, 14);
+        s->atmospherics = false;
       }
       // set new skylevel?
       s->flat()(bx, bz).skyLevel = by+1;
@@ -191,4 +194,8 @@ namespace cppcraft
 			}
 		}
 	}
+
+  int64_t Spiders::total_blocks_placed() noexcept {
+    return ::total_blocks_placed;
+  }
 }
