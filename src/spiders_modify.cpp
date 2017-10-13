@@ -78,11 +78,9 @@ namespace cppcraft
 			// re-flood light on all sides
 			if (s->atmospherics && level > 1) {
         // only if atmospherics is already finished for this sector
-				Lighting::removeSkyLight(
-            s->getX()*BLOCKS_XZ + bx, by, by, s->getZ()*BLOCKS_XZ + bz, level-1);
-        if (!blk.isTransparent()) {
-          assert(blk.getSkyLight() == 0);
-        }
+        s->atmospherics = false;
+				//Lighting::removeSkyLight(
+        //    s->getX()*BLOCKS_XZ + bx, by, by, s->getZ()*BLOCKS_XZ + bz, level-1);
       }
 		}
 
