@@ -65,7 +65,6 @@ namespace terragen
             int64_t diff = cppcraft::Spiders::total_blocks_placed() - placed_before;
             printf("Time spent generating %s: %f (%ld blocks)\n",
                    obj.name.c_str(), time_spent, diff);
-            assert(0 && "Object took too long");
           }
 					// ..... and remove from queue
 					it = objects.erase(it);

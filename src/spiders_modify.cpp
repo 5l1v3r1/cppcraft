@@ -27,7 +27,6 @@ namespace cppcraft
 
 		// write updated sector to disk
 		//chunks.addSector(*s);
-
 		return true;
 	}
 
