@@ -7,6 +7,8 @@
 #include <deque>
 #include <queue>
 using namespace library;
+//#define TIMING
+static const int MAX_REMOVALS = 800;
 
 namespace cppcraft
 {
@@ -52,21 +54,27 @@ namespace cppcraft
       }
       lreque.pop_front();
       removals++;
-      if (removals >= 1000) break;
+      if (removals >= MAX_REMOVALS) break;
     }
-    int sources = 0;
 		// re-flood edge values that were encountered
+#ifdef TIMING
+    int sources = 0;
+#endif
 		while (!lrefill.empty())
 		{
 			const emitter_t& e = lrefill.front();
       auto lvl = Spiders::getBlock(e.x, e.y, e.z).getSkyLight();
       floodOutof(e.x, e.y, e.z, 0, lvl);
 			lrefill.pop();
+#ifdef TIMING
       sources++;
+#endif
 		}
 
+#ifdef TIMING
     printf("Light correction took %f secs, %d removals %d sources\n",
             timer.getTime(), removals, sources);
+#endif
   }
 
 }
