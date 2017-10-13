@@ -1,7 +1,8 @@
 #include "lighting.hpp"
 
-#include "sector.hpp"
+#include "sectors.hpp"
 #include "spiders.hpp"
+#include "world.hpp"
 #include <library/timing/timer.hpp>
 #include <deque>
 #include <queue>
@@ -29,33 +30,43 @@ namespace cppcraft
   void Lighting::handleDeferred()
   {
     if (lreque.empty()) return;
-    std::queue<emitter_t> q;
     Timer timer;
+    std::queue<Lighting::emitter_t>  lrefill;
 
     // remove all light all scheduled locations
+    int removals = 0;
     while (lreque.empty() == false)
     {
       auto& loc = lreque.front();
-      for (int y = loc.y1; y <= loc.y2; y++) {
-        // start rays in all 6 directions
-  		  for (char dir = 0; dir < 6; dir++)
-  			   removeSkylight(loc.x, y, loc.z, dir, loc.lvl, q);
+      // calculate local coordinates, and validate
+      int x = loc.x - world.getWX() * BLOCKS_XZ;
+      int z = loc.z - world.getWZ() * BLOCKS_XZ;
+      if (x >= 0 && z >= 0 && x < sectors.getXZ() * BLOCKS_XZ
+                           && z < sectors.getXZ() * BLOCKS_XZ)
+      {
+        for (int y = loc.y1; y <= loc.y2; y++) {
+          // start rays in all 6 directions
+    		  for (char dir = 0; dir < 6; dir++)
+    			   removeSkylight(x, y, z, dir, loc.lvl, lrefill);
+        }
       }
       lreque.pop_front();
+      removals++;
+      if (removals >= 1000) break;
     }
-    size_t total = 0;
+    int sources = 0;
 		// re-flood edge values that were encountered
-		while (!q.empty())
+		while (!lrefill.empty())
 		{
-			const emitter_t& e = q.front();
+			const emitter_t& e = lrefill.front();
       auto lvl = Spiders::getBlock(e.x, e.y, e.z).getSkyLight();
       floodOutof(e.x, e.y, e.z, 0, lvl);
-			q.pop();
-      total++;
+			lrefill.pop();
+      sources++;
 		}
 
-    printf("Light correction took %f secs, %d sources\n",
-            timer.getTime(), total);
+    printf("Light correction took %f secs, %d removals %d sources\n",
+            timer.getTime(), removals, sources);
   }
 
 }
