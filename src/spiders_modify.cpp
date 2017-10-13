@@ -61,11 +61,9 @@ namespace cppcraft
       }
 
 			// re-flood skylight down to old skylevel
-      // only if atmospherics is already finished for this sector
 			if (s->atmospherics) {
-        //printf("Remove skylight from %d to %d\n", skylevel, by);
-		    //Lighting::removeSkyLight(s->getX()*BLOCKS_XZ + bx, skylevel, by, s->getZ()*BLOCKS_XZ + bz, 14);
-        s->atmospherics = false;
+        // only if atmospherics is already finished for this sector
+        Lighting::deferredRemove(*s, bx, skylevel, by, bz, 15-1);
       }
       // set new skylevel?
       s->flat()(bx, bz).skyLevel = by+1;
@@ -78,9 +76,7 @@ namespace cppcraft
 			// re-flood light on all sides
 			if (s->atmospherics && level > 1) {
         // only if atmospherics is already finished for this sector
-        s->atmospherics = false;
-				//Lighting::removeSkyLight(
-        //    s->getX()*BLOCKS_XZ + bx, by, by, s->getZ()*BLOCKS_XZ + bz, level-1);
+        Lighting::deferredRemove(*s, bx, by, by, bz, level-1);
       }
 		}
 

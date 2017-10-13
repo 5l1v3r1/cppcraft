@@ -40,6 +40,11 @@ namespace cppcraft
 		static void removeSkyLight(int x, int y1, int y2, int z, char lvl);
 
     static void propagateChannel(int x, int y, int z, int ch, char dir, char level);
+
+    //
+    static void deferredRemove(Sector& sector, int x, int y1, int y2, int z, char lv);
+    //
+    static void handleDeferred();
 	};
 }
 

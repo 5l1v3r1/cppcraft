@@ -55,8 +55,9 @@ set(SOURCES
     gui/progress.cpp
     gui/window.cpp
     items.cpp
-    lighting_algos.cpp
     lighting.cpp
+    lighting_algos.cpp
+    light_correction.cpp
     main.cpp
     meshes/vemitcross.cpp
     meshes/vemitter.cpp
