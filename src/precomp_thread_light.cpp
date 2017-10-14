@@ -44,7 +44,7 @@ namespace cppcraft
        const float lv = (float) V / total;
        float factor = 1.0f - 1.5f * std::min( (float) y1 , (float) WATERLEVEL ) / (float) BLOCKS_Y;
        float light = powf(0.88f, (15.0f - lv) * factor);
-       return 50 + 205.0f * light;
+       return 25 + 230.0f * light;
     }
     return 0;
 	}

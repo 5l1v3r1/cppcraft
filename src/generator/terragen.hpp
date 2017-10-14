@@ -103,6 +103,7 @@ namespace terragen
 	{
 	public:
 		static void init();
+    static void init_objects();
 		static void run(gendata_t* data);
 	};
 }

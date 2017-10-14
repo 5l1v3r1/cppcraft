@@ -21,6 +21,8 @@ namespace db
 
     int getID() const noexcept { return id; }
 
+    bool isCross() const noexcept { return cross; }
+
 		// tick function
 		delegate <void (Block&)> tick_function = nullptr;
 

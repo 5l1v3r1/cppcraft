@@ -92,11 +92,14 @@ namespace terragen
 						block.setID(GRASS_BLOCK);
 
 						// TODO: use poisson disc here
-						float rand = randf(wx, y, wz);
-						glm::vec2 p = gdata->getBaseCoords2D(x, z);
+						const float rand = randf(wx, y, wz);
+            const glm::vec2 p = gdata->getBaseCoords2D(x, z);
 
 						/// terrain specific objects ///
-						if (rand < 0.05 && air > 16)
+            if (rand < 0.01) {
+              gdata->add_object("volumetric_fill", wx, y+1, wz, WATER_BLOCK);
+            }
+						else if (rand < 0.05 && air > 16)
 						{
 							if (glm::simplex(p * 0.005f) < -0.2)
 							{
@@ -107,10 +110,10 @@ namespace terragen
 								}
 							}
 						}
-						else if (rand > 0.75)
+						else if (rand > 0.65)
 						{
-							// note: this is an inverse of the otreeHuge noise
-							if (glm::simplex(p * 0.005f) > 0.0)
+							// note: this is an inverse of the forest noise
+							if (glm::simplex(p * 0.005f) > -0.1)
 							{
 								gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
 							}
@@ -183,7 +186,7 @@ namespace terragen
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
 			float v = glm::simplex(p * 0.007f) * glm::simplex(p * 0.005f);
-			return RGBA8(22 + v * 11.0f, 127 + v * 30.0f, 77 + v * 77, 255);
+			return RGBA8(62 + v * 32.0f, 127 + v * 30.0f, 37 + v * 37, 255);
 		});
     terrain.setColor(Biomes::CL_TREES_B,
 		[] (uint16_t, uint8_t, glm::vec2)

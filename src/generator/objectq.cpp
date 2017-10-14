@@ -2,6 +2,7 @@
 
 #include "../sectors.hpp"
 #include "../spiders.hpp"
+#include "../world.hpp"
 #include <library/timing/timer.hpp>
 using namespace library;
 
@@ -33,13 +34,13 @@ namespace terragen
 	{
 		if (objects.empty()) return;
 
-		int worldX = sectors(0, 0).getWX() * BLOCKS_XZ;
-		int worldZ = sectors(0, 0).getWZ() * BLOCKS_XZ;
+		int worldX = cppcraft::world.getWX() * BLOCKS_XZ;
+		int worldZ = cppcraft::world.getWZ() * BLOCKS_XZ;
 
 		for (auto it = objects.begin(); it != objects.end(); ++it)
 		{
 			auto& obj = *it;
-      auto& db_obj = objectDB[obj.name];
+      const auto& db_obj = objectDB[obj.name];
 
 			const int sectX = (obj.x - worldX) / BLOCKS_XZ;
 			const int sectZ = (obj.z - worldZ) / BLOCKS_XZ;
@@ -56,15 +57,18 @@ namespace terragen
 				if (validateSector(sector, size))
 				{
           Timer timer;
-          int64_t placed_before = cppcraft::Spiders::total_blocks_placed();
+          const int64_t placed_before = cppcraft::Spiders::total_blocks_placed();
+          // convert object coordinates to local grid
+          obj.x -= worldX;
+          obj.z -= worldZ;
 					// generate object
-					db_obj.func(obj, worldX, worldZ);
+					db_obj.func(obj);
           // verify that object didnt spend too much time
           double time_spent = timer.getTime();
           if (time_spent > 0.01) {
             int64_t diff = cppcraft::Spiders::total_blocks_placed() - placed_before;
-            printf("Time spent generating %s: %f (%ld blocks)\n",
-                   obj.name.c_str(), time_spent, diff);
+            printf("*** Object %s took %f seconds to generate (%ld blocks)\n",
+                   obj.name, time_spent, diff);
           }
 					// ..... and remove from queue
 					it = objects.erase(it);

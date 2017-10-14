@@ -36,9 +36,11 @@ set(SOURCES
     generator/objects/basic_tree.cpp
     generator/objects/helpers.cpp
     generator/objects/jungle_tree.cpp
+    generator/objects/volumetrics.cpp
     generator/processing/oregen.cpp
     generator/processing/postproc.cpp
     generator/terragen.cpp
+    generator/terragen_objects.cpp
     generator/terrain/helpers.cpp
     generator/terrain/noise.cpp
     generator/terrain/terrain.cpp

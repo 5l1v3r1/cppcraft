@@ -1,11 +1,9 @@
+Implement light correction queue
+- Remove skylight from all sources
+- Refill after removing all
+
 Fix issues with atmospheric voxel lighting
 - More tests
-
-Outsource atmospherics and torchlight to threads
-- Maybe not worth, check timings
-- Create lighting queue
-- Create snapshot of terrain for 3x3 sectors
-- Calculate lighting for center sector
 
 Vein-like ore deposition
 - Use cheapest noise
@@ -23,3 +21,13 @@ World simulation
 - Liquid flow simulation
 - Rivers using flow
 - Generate rivers naturally
+
+Outsource atmospherics and torchlight to threads
+- Maybe not worth, check timings
+- Create lighting queue
+- Create snapshot of terrain for 3x3 sectors
+- Calculate lighting for center sector
+
+Rewrite to SDL2 over a weekend
+- May be annoying to create the new windowing code
+- Dump BASS

@@ -3,7 +3,6 @@
 #include "terrain/terrain.hpp"
 #include "terrain/terrains.hpp"
 #include "processing/postproc.hpp"
-#include "object.hpp"
 #include <stdio.h>
 #include <cassert>
 
@@ -14,22 +13,15 @@ using namespace library;
 
 namespace terragen
 {
-	ObjectDB objectDB;
-
 	void Generator::init()
 	{
-		// initialize various stuff
+		// initialize basic blocks
 		extern void init_blocks();
 		init_blocks();
 		// make sure the terrain function list is populated
 		terrains.init();
-		// first objects
-		extern void basic_tree(SchedObject&, int, int);
-		objectDB.add("basic_tree", basic_tree, 1);
-    extern void jungle_tree(SchedObject&, int, int);
-		objectDB.add("jungle_tree", jungle_tree, 5);
-		extern void basic_house(SchedObject&, int, int);
-		objectDB.add("basic_house", basic_house, 1);
+		// basic objects
+    Generator::init_objects();
 		// initialize subsystems
 		Biome::init();
     Terrain::init();

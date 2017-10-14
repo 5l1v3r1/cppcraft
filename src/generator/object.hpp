@@ -15,7 +15,7 @@ namespace terragen
 
 	struct SchedObject
 	{
-		SchedObject(std::string gname, int X, int Y, int Z, int64_t D)
+		SchedObject(const char* gname, int X, int Y, int Z, int64_t D)
 			: name(gname), x(X), y(Y), z(Z), data(D) {}
 
 		int getWX() const {
@@ -25,15 +25,15 @@ namespace terragen
 			return z / BLOCKS_XZ;
 		}
 
-		const std::string name;
-		const int x, y, z;
+		const char* name;
+		int x, y, z;
     // whatever you want it to be
     const int64_t data;
 	};
 
   struct GenObject
   {
-    typedef delegate<void(SchedObject&, int, int)> callback_t;
+    typedef delegate<void(const SchedObject&)> callback_t;
 
     GenObject(callback_t F, int S) : func(F), size(S) {}
     callback_t func;
@@ -43,19 +43,19 @@ namespace terragen
 	struct ObjectDB
   {
     template <typename... Args>
-    void add(const std::string& name, Args&&... args) {
+    void add(const char* name, Args&&... args) {
       objects.emplace(std::piecewise_construct,
                       std::forward_as_tuple(name),
                       std::forward_as_tuple(std::forward<Args>(args)...));
     }
 
-		GenObject& operator[] (const std::string& name)
+		GenObject& operator[] (const char* name)
 		{
 			return objects.at(name);
 		}
 
 	private:
-		std::map<std::string, GenObject> objects;
+		std::map<const char*, GenObject> objects;
 	};
 	extern ObjectDB objectDB;
 }

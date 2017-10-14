@@ -244,7 +244,7 @@ namespace cppcraft
 			return !isCross();
 		}
 		// we are allowed to overwrite crosses, fluids and air by default
-		bool overwriteable() const
+		bool triviallyOverwriteable() const
 		{
 			return isCross() || isFluid() || isAir();
 		}

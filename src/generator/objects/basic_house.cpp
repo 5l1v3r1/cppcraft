@@ -31,7 +31,7 @@ namespace terragen
 		return (v & 15) == 0;
 	}
 
-	void basic_house(SchedObject& obj, int worldX, int worldZ)
+	void basic_house(const SchedObject& obj)
 	{
 		return;
 		int random = rand2d(obj.x, obj.z);
@@ -45,10 +45,10 @@ namespace terragen
 		Block dirtsoil(db::getb("grass_block"));
 		Block gravel2(db::getb("gravel"));
 
-		// local coordinates
-		int x = obj.x - worldX + 7;
+		// local coordinates (centered on sector)
+		int x = obj.x + BLOCKS_XZ / 2;
 		int y = obj.y;
-		int z = obj.z - worldZ + 7;
+		int z = obj.z + BLOCKS_XZ / 2;
 
 		// validate field
 		Sector& sector = sectors(x / BLOCKS_XZ, z / BLOCKS_XZ);

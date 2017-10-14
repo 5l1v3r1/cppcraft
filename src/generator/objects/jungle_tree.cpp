@@ -112,18 +112,14 @@ namespace terragen
 		}
 	}
 
-	void jungle_tree(SchedObject& obj, int worldX, int worldZ)
+	void jungle_tree(const SchedObject& obj)
 	{
-		// local coordinates
-		int gx = obj.x - worldX;
-		int gy = obj.y;
-		int gz = obj.z - worldZ;
 		// height of tree
-		int height = obj.data;
+		const int height = obj.data;
 
-		if (coretest(gx, gy, gz, 1, 1, height) == false) return;
-		int lowrad = (height / 40) * 3;
+		if (coretest(obj.x, obj.y, obj.z, 1, 1, height) == false) return;
+		const int lowrad = (height / 40) * 3;
 
-		ingenJungleBranch(gx, gy, gz, height, lowrad, true);
+		ingenJungleBranch(obj.x, obj.y, obj.z, height, lowrad, true);
 	}
 }

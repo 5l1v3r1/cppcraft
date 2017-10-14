@@ -12,16 +12,16 @@ namespace terragen
 	using cppcraft::Spiders;
 	using cppcraft::Sector;
 
-	void basic_tree(SchedObject& obj, int worldX, int worldZ)
+	void basic_tree(const SchedObject& obj)
 	{
 		const Block   trunk(db::getb("wood_brown"));
-		const block_t leafs =
+		const block_t LEAF_ID =
         (obj.data & 1) ? db::getb("leaf_colored") : db::getb("leaf_green");
 
 		// local coordinates
-		int x = obj.x - worldX;
-		int y = obj.y;
-		int z = obj.z - worldZ;
+		const int x = obj.x;
+		const int y = obj.y;
+		const int z = obj.z;
 		// height of tree
 		int height = obj.data;
 
@@ -50,8 +50,8 @@ namespace terragen
 
 				Block& block = Spiders::getBlock(fx, fy, fz);
 				// set ID to leaf, preserve light
-				if (block.overwriteable())
-					block.setID( leafs );
+				if (block.triviallyOverwriteable())
+					   block.setID(LEAF_ID);
 			}
 		}
 	}

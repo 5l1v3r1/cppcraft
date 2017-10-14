@@ -9,7 +9,7 @@ namespace db
 {
 	class BlockDB {
 	public:
-		int operator[] (const std::string& name)
+		int operator[] (const char* name)
 		{
 			return names.at(name);
 		}
@@ -22,17 +22,17 @@ namespace db
 			return blocks[id];
 		}
 
-		BlockData& create(std::string name = "")
+		BlockData& create(const char* name = nullptr)
 		{
       // get ID
 			const std::size_t ID = blocks.size();
 			// add to registry
 			blocks.emplace_back(ID);
 			// associate name with ID
-			if (!name.empty()) assign(name, blocks.back());
+			if (name != nullptr) assign(name, blocks.back());
 			return blocks.back();
 		}
-    void assign(const std::string& name, const BlockData& bd)
+    void assign(const char* name, const BlockData& bd)
     {
       names.emplace(std::piecewise_construct,
           std::forward_as_tuple(name), std::forward_as_tuple(bd.getID()));
@@ -57,14 +57,14 @@ namespace db
     BlockDB();
 		// name to id conversion
 		// example: cppcraft:dirt
-		std::unordered_map<std::string, int> names;
+		std::unordered_map<const char*, int> names;
 
 		// vector of registered blocks
 		// the ID of a block is its index into this vector
 		std::vector<BlockData> blocks;
 	};
 
-	inline int getb(const std::string& name)
+	inline int getb(const char* name)
 	{
 		return BlockDB::get()[name];
 	}
