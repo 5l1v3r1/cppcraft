@@ -9,26 +9,6 @@ namespace cppcraft
 	public:
 		typedef uint32_t biomecolor_t;
 
-		// terrains
-		typedef enum
-		{
-			T_CAVES,
-			T_ICECAP,
-			T_SNOW,
-			T_AUTUMN,
-			T_ISLANDS,
-			T_GRASS,
-			T_MARSH,
-			T_JUNGLE,
-			T_DESERT,
-
-			T_TERRAINS, // number of general terrains
-
-			// special terrains
-			T_MUSHROOMS = 100
-
-		} terrain_t;
-
 		// biome color ids
 		enum biome_color_t
 		{

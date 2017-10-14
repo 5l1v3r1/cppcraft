@@ -135,33 +135,8 @@ namespace cppcraft
 			}
 			else
 			{
-				// set music stream by terrain
-				switch (terrain)
-				{
-				case Biomes::T_AUTUMN:
-					musicPlayer.play(streams["autumn"]);
-					break;
-				case Biomes::T_DESERT:
-					musicPlayer.play(streams["desert"]);
-					break;
-				case Biomes::T_MUSHROOMS:
-				case Biomes::T_GRASS:
-					musicPlayer.play(streams["forest"]);
-					break;
-				case Biomes::T_ISLANDS:
-					musicPlayer.play(streams["islands"]);
-					break;
-				case Biomes::T_MARSH:
-				case Biomes::T_JUNGLE:
-					musicPlayer.play(streams["jungle"]);
-					break;
-				case Biomes::T_ICECAP:
-				case Biomes::T_SNOW:
-					musicPlayer.play(streams["winter"]);
-					break;
-				default:
-					musicPlayer.stop();
-				}
+        //musicPlayer.play(streams[terrain.getMusic()]);
+        musicPlayer.stop();
 			}
 			// slowly crossfade in/out streams as needed
 			musicPlayer.integrate();
@@ -185,34 +160,9 @@ namespace cppcraft
 				}
 				else
 				{
-					// by terrain
-					switch (terrain)
-					{
-					case Biomes::T_AUTUMN:
-						ambiencePlayer.play(streams["amb_autumn"]);
-						break;
-					case Biomes::T_DESERT:
-						ambiencePlayer.play(streams["amb_desert"]);
-						break;
-					case Biomes::T_MUSHROOMS:
-					case Biomes::T_GRASS:
-						ambiencePlayer.play(streams["amb_forest"]);
-						break;
-					case Biomes::T_ISLANDS:
-						ambiencePlayer.play(streams["amb_islands"]);
-						break;
-					case Biomes::T_MARSH:
-					case Biomes::T_JUNGLE:
-						ambiencePlayer.play(streams["amb_jungle"]);
-						break;
-					case Biomes::T_ICECAP:
-					case Biomes::T_SNOW:
-						ambiencePlayer.play(streams["amb_winter"]);
-						break;
-					default:
-						ambiencePlayer.stop();
-					}
-
+          // by terrain
+          //ambiencePlayer.play(streams[terrain.getMusic()]);
+					ambiencePlayer.stop();
 				} // ambience
 			}
 			// slowly crossfade in/out streams as needed

@@ -36,6 +36,7 @@ set(SOURCES
     generator/objects/basic_tree.cpp
     generator/objects/helpers.cpp
     generator/objects/jungle_tree.cpp
+    generator/objects/mushrooms.cpp
     generator/objects/volumetrics.cpp
     generator/processing/oregen.cpp
     generator/processing/postproc.cpp

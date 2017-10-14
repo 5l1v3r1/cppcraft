@@ -9,7 +9,7 @@ using namespace cppcraft;
 
 namespace terragen
 {
-  bool discover(int x, int y, int z, int64_t id)
+  bool Volumetrics::discover(int x, int y, int z, int64_t id)
   {
   	const int DISCOVERIES = 8;
   	const int LEVELS = 4;
@@ -52,7 +52,7 @@ namespace terragen
   		if (blk.getID() == mat || !blk.triviallyOverwriteable())
   		{
   			if (dy != y && blk.getID() != mat && travel > 0)
-  			{	// don't fill at (or over) own starting height and avoid water!
+  			{	// don't fill at (or over) own starting height and avoid own mat
   				fillDown(x+1, dy+1, z, mat, depth, travel);
   				fillDown(x-1, dy+1, z, mat, depth, travel);
   				fillDown(x, dy+1, z+1, mat, depth, travel);

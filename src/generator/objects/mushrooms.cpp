@@ -1,213 +1,292 @@
 #include "mushrooms.hpp"
 
-#include "blocks.hpp"
-#include "generator.h"
+#include "../blocks.hpp"
+#include "../object.hpp"
+#include "../random.hpp"
+#include "../../spiders.hpp"
+#include "../../biome.hpp"
+#include "../../renderconst.hpp"
+#include "../../tiles.hpp"
 #include "helpers.hpp"
-#include "random.hpp"
+#include <library/bitmap/colortools.hpp>
 #include <cstdlib>
 #include <cmath>
 
-void omushHood(int x, int y, int z, int radius, block_t mat_top, block_t mat_top2, block_t mat_inside)
+using namespace cppcraft;
+using namespace library;
+
+namespace terragen
 {
-	float stretch_y = 0.75;
-	float ofs_y     = (float)radius * 0.5;
-	float hoodradix = (float)radius * 0.9;
+  using BlockData = db::BlockData;
+  static const int TYPE_CORE     = 0;
+  static const int TYPE_CORE_TOP = 16;
+  static const int TYPE_TOP   = 32;
+  static const int TYPE_EDGE  = 48;
+  static const int TYPE_SPECK = 64;
+  static const int TYPE_UNDER = 80;
 
-	float rad, fdx, fdy, fdz;
+  inline void shroom_set_type(Block& blk, int type) {
+    blk.setExtra(blk.getExtra() | type);
+  }
 
-	// block with special from 0 to 15
-	block mat; mat.id = 0; mat.facing = 0;
-	mat.special = randf(x, y-11, z) * 16;
-	// chance for speckle dot material
-	const float speckle_chance = 0.05;
-
-	for (int dx = -radius; dx <= radius; dx++)
-	{
-		for (int dz = -radius; dz <= radius; dz++)
+  void Mushroom::init()
+  {
+    auto& db = db::BlockDB::get();
+    // the mushroom block
 		{
-			for (int dy = -4; dy <= radius; dy++)
+			auto& blk = BlockData::createSolid();
+			blk.getColor = [] (const Block& blk) {
+        return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
+      };
+			blk.indexColored = false;
+			blk.minimapColor =
+			[] (const Block& blk, const Sector&, int, int, int)
 			{
-				fdx = (float)(dx * dx);
-				fdy = (float)dy + ofs_y; fdy *= fdy;
-				fdz = (float)(dz * dz);
-
-				rad = sqrtf( fdx + fdy + fdz );
-				if (rad <= radius)
-				{
-					if (rad >= radius * 0.95)
-					{
-						mat.id = mat_top;
-						if (randf(x+dx, y+dy, z+dz) < speckle_chance) mat.id = mat_top2;
-					}
-					else
-					{
-						mat.id = mat_inside;
-					}
-
-					if (rad > hoodradix)
-					{
-						setb(x+dx, y - (radius * (1.0 - stretch_y)) + dy * stretch_y, z+dz, mat, true);
-					}
-
-				} // rad <= radius
-
-			} // dy
-		} // dz
-	} // dx
-
-}
-
-void omWildShroom(int x, int y, int z, int height)
-{
-	float lowrad = randf(x, z, y) * 4 + 8;
-	float toprad = lowrad * 0.4;
-	float currad = 0;
-
-	//! we want a good radius of 4 for a good platform to stand on
-	if (coretest(x, y, z, 2, 3, height) == false) return;
-
-	const float jitter = 2.0;
-	const float interpolback = 0.05;
-	float jitter_x = (randf(x+1, y, z-1) - 0.5) * jitter;
-	float jitter_z = (randf(x-1, y, z+1) - 0.5) * jitter;
-
-	float dx = x, dz = z;
-	int dy;
-
-	for (dy = 0; dy <= height; dy++)
-	{
-		currad = 1.0 - (float)dy / (float)height;
-		currad *= currad;
-		currad = lowrad * currad + toprad * (1.0 - currad);
-
-		dx += jitter_x;  jitter_x *= 1.0 - interpolback;
-		dz += jitter_z;  jitter_z *= 1.0 - interpolback;
-
-		if (dy == 0)
-			ocircleXZroots( (int)dx, y + dy, (int)dz, currad, _GIANTSHROOMCORE);
-		else
-			ocircleXZ( (int)dx, y + dy, (int)dz, currad, _GIANTSHROOMCORE);
-
-	}
-
-	// create hood
-	toprad = (int)(currad * 10);
-
-	omushHood((int)dx, y+height-1, (int)dz, toprad, _GIANTSHROOMTOP, _GIANTSHROOMTOPSPECLE, _GIANTSHROOMUNDERTOP);
-
-} // omWildShroom
-
-void omStrangeShroom(int x, int y, int z, int height)
-{
-	float lowrad = (float)height / 2.8;
-	float toprad = lowrad * 0.4;
-	float currad = 0;
-
-	//! we want a good radius of 3 for a good platform to stand on
-	if (coretest(x, y, z, 2, 3, height) == false) return;
-
-	const float jitter = 1.0;
-	const float interpolback = 0.05;
-	float jitter_x = randf(x+3, y+5, z-4) * jitter - jitter * 0.5;
-	float jitter_z = randf(x-5, y-3, z+7) * jitter - jitter * 0.5;
-
-	float dx = x, dz = z;
-	int dy;
-	for (dy = 0; dy <= height; dy++)
-	{
-		currad = powf((float)(height - dy) / (float)height, 2.5);
-		currad = toprad * (1.0 - currad) + lowrad * currad;
-
-		dx += jitter_x;  jitter_x *= interpolback;
-		dz += jitter_z;  jitter_z *= interpolback;
-
-		// shroom core
-		if (dy == 0)
-		{
-			ocircleXZroots( (int)dx, y + dy, (int)dz, currad, _GIANTSHROOMCORE);
-		}
-		else
-		{
-			ocircleXZ( (int)dx, y + dy, (int)dz, currad, _GIANTSHROOMCORE);
-		}
-	}
-
-	float rad_y = height * 0.4;
-	int rad_xz = height;
-	float inner_rad, shiftup;
-	float dist;
-
-	const float speckle_chance = 0.05;
-
-	// the block material used
-	block mat; mat.id = 0; mat.facing = 0;
-	mat.special = randf(x, y-11, z) * 16;
-
-	const float shift_strength       = 3.0;
-	const float shift_top_slope      = 0.5;
-	const float shift_top_startslope = 0.0;
-	const float shift_pos_slope      = 0.85;
-	const float shift_pos_startslope = 0.0;
-	const float shift_pos_cap        = rad_y * 0.5;
-
-	int hx, hz;
-	for (dy = -rad_xz; dy <= rad_xz; dy++)
-	{
-
-		for (hx = -rad_xz; hx <= rad_xz; hx++)
-		{
-			for (hz = -rad_xz; hz <= rad_xz; hz++)
+				return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
+			};
+			blk.getName = [] (const Block&) { return "Mushroom Block"; };
+			blk.getTexture =
+			[] (const Block& blk, uint8_t face)
 			{
-				inner_rad = sqrtf( hx*hx + hz*hz );
-				shiftup = (inner_rad - rad_y) * shift_strength;
+        int type = blk.getExtra() & 0xF0;
+        // core
+        if (type == TYPE_CORE) return 13 + 9 * tiles.tilesX;
+        // core_top
+        if (type == TYPE_CORE_TOP) return 14 + 9 * tiles.tilesX;
+        // top
+        if (type == TYPE_TOP) return 13 + 8 * tiles.tilesX;
+        // speck
+        if (type == TYPE_SPECK) return 14 + 8 * tiles.tilesX;
+        // edge
+        if (type == TYPE_EDGE) {
+          if (face == 3) return 15 + 9 * tiles.tilesX;
+          return 15 + 8 * tiles.tilesX;
+        }
+        // under
+        if (type == TYPE_UNDER) return 15 + 9 * tiles.tilesX;
+        return 0;
+			};
+			blk.repeat_y = true;
+			blk.shader   = RenderConst::TX_SOLID;
+      blk.getSound = [] (const Block&) { return "cloth"; };
+			db.assign("mushroom_block", blk);
+		}
 
-				if (shiftup < shift_top_startslope)
-				{
-					shiftup = shift_top_startslope - powf(fabsf(shiftup - shift_top_startslope), shift_top_slope);
-				}
-				if (shiftup > shift_pos_startslope)
-				{
-					shiftup = shift_pos_startslope + powf(shiftup - shift_pos_startslope, shift_pos_slope);
-				}
-				if (shiftup > shift_pos_cap) shiftup = shift_pos_cap;
+  }
 
-				shiftup += dy;
+  static void
+  omushHood(int x, int y, int z, const int radius, block_t ID)
+  {
+  	float stretch_y = 0.75f;
+  	float ofs_y     = (float)radius * 0.5f;
+  	float hoodradix = (float)radius * 0.9f;
 
-				dist = sqrtf( hx*hx*0.35 + hz*hz*0.35 + shiftup*shiftup );
+  	float rad, fdx, fdy, fdz;
 
-				if (dist <= rad_y)
-				{
-					if (dy < -rad_y)
-					{
-						mat.id = _GIANTSHROOMTOPEDGE;
-					}
-					else if (dist > rad_y - 2)
-					{
-						if (inner_rad < rad_y && dy < 0)
-						{	// undertop
-							mat.id = _GIANTSHROOMUNDERTOP;
-						}
-						else if (randf(dx+hx, y+dy, dz+hz) < speckle_chance)
-						{	// specled top
-							mat.id = _GIANTSHROOMTOPSPECLE;
-						}
-						else
-						{	// top
-							mat.id = _GIANTSHROOMTOP;
-						}
-					}
-					else
-					{	// inside
-						mat.id = _GIANTSHROOMUNDERTOP;
-					}
+  	// block with special from 0 to 15
+    const Block copy(ID, 0, randf(x, y-11, z) * 16);
+  	// chance for speckle dot material
+  	const float speckle_chance = 0.05f;
 
-					setb((int)dx + hx, y+dy + height, (int)dz + hz, mat, true);
+  	for (int dx = -radius; dx <= radius; dx++)
+  	{
+  		for (int dz = -radius; dz <= radius; dz++)
+  		{
+  			for (int dy = -4; dy <= radius; dy++)
+  			{
+  				fdx = (float)(dx * dx);
+  				fdy = (float)dy + ofs_y; fdy *= fdy;
+  				fdz = (float)(dz * dz);
 
-				} // inside bell radius
+  				rad = sqrtf( fdx + fdy + fdz );
+  				if (rad <= radius)
+  				{
+            Block mat(copy);
+  					if (rad >= radius * 0.95f)
+  					{
+  						if (randf(x+dx, y+dy, z+dz) < speckle_chance) {
+                shroom_set_type(mat, TYPE_TOP);
+              } else {
+                shroom_set_type(mat, TYPE_SPECK);
+              }
+  					}
+  					else
+  					{
+              shroom_set_type(mat, TYPE_UNDER);
+  					}
 
-			} // hz
-		} // hx
+  					if (rad > hoodradix)
+  					{
+              float bell = radius * (1.0f - stretch_y);
+              Spiders::setBlock(x+dx, y - bell + dy * stretch_y, z+dz, mat);
+  					}
 
-	} // dy
+  				} // rad <= radius
 
-} // omStrangeShroom
+  			} // dy
+  		} // dz
+  	} // dx
+
+  }
+
+  void Mushroom::wild_shroom(const SchedObject& obj)
+  {
+    const block_t SHROOM_BLOCK = db::getb("mushroom_block");
+
+    const int height = obj.data;
+  	const float lowrad = randf(obj.x, obj.z, obj.y) * 4 + 8;
+  	float toprad = lowrad * 0.4f;
+  	float currad = 0;
+
+  	//! we want a good radius of 4 for a good platform to stand on
+  	if (coretest(obj.x, obj.y, obj.z, 2, 3, height) == false) return;
+
+  	const float jitter = 2.0f;
+  	const float interpolback = 0.05f;
+  	float jitter_x = (randf(obj.x+1, obj.y, obj.z-1) - 0.5f) * jitter;
+  	float jitter_z = (randf(obj.x-1, obj.y, obj.z+1) - 0.5f) * jitter;
+
+  	float dx = obj.x, dz = obj.z;
+
+  	for (int dy = 0; dy <= height; dy++)
+  	{
+  		currad = 1.0f - (float)dy / (float)height;
+  		currad *= currad;
+  		currad = lowrad * currad + toprad * (1.0f - currad);
+
+  		dx += jitter_x;  jitter_x *= 1.0f - interpolback;
+  		dz += jitter_z;  jitter_z *= 1.0f - interpolback;
+
+      Block mat_core(SHROOM_BLOCK, 0, TYPE_CORE);
+  		if (dy == 0)
+  			ocircleXZroots( (int)dx, obj.y + dy, (int)dz, currad, mat_core);
+  		else {
+        if (dy == height) shroom_set_type(mat_core, TYPE_CORE_TOP);
+  			ocircleXZ( (int)dx, obj.y + dy, (int)dz, currad, mat_core);
+      }
+  	}
+
+  	// create hood
+  	toprad = (int)(currad * 10);
+
+  	omushHood((int)dx, obj.y+height-1, (int)dz, toprad, SHROOM_BLOCK);
+
+  } // omWildShroom
+
+  void Mushroom::strange_shroom(const SchedObject& obj)
+  {
+    const block_t SHROOM_BLOCK = db::getb("mushroom_block");
+
+    const int height = obj.data;
+  	const float lowrad = (float)height / 2.8f;
+  	const float toprad = lowrad * 0.4f;
+  	float currad = 0;
+
+  	//! we want a good radius of 3 for a good platform to stand on
+  	if (coretest(obj.x, obj.y, obj.z, 2, 3, height) == false) return;
+
+  	const float jitter = 1.0f;
+  	const float interpolback = 0.05f;
+  	float jitter_x = randf(obj.x+3, obj.y+5, obj.z-4) * jitter - jitter * 0.5f;
+  	float jitter_z = randf(obj.x-5, obj.y-3, obj.z+7) * jitter - jitter * 0.5f;
+
+  	float dx = obj.x, dz = obj.z;
+  	for (int dy = 0; dy <= height; dy++)
+  	{
+  		currad = powf((float)(height - dy) / (float)height, 2.5f);
+  		currad = toprad * (1.0f - currad) + lowrad * currad;
+
+  		dx += jitter_x;  jitter_x *= interpolback;
+  		dz += jitter_z;  jitter_z *= interpolback;
+
+  		// shroom core
+  		if (dy == 0)
+  		{
+        Block mat_core(SHROOM_BLOCK, 0, TYPE_CORE);
+  			ocircleXZroots( (int)dx, obj.y + dy, (int)dz, currad, mat_core);
+  		}
+  		else
+  		{
+        Block mat_core(SHROOM_BLOCK, 0, (dy != height) ? TYPE_CORE : TYPE_CORE_TOP);
+  			ocircleXZ( (int)dx, obj.y + dy, (int)dz, currad, mat_core);
+  		}
+  	}
+
+  	float rad_y = height * 0.4f;
+  	int rad_xz = height;
+  	float inner_rad, shiftup;
+  	float dist;
+
+  	const float speckle_chance = 0.05f;
+
+  	// the block material used
+  	const Block copy(SHROOM_BLOCK, 0, randf(obj.x, obj.y-11, obj.z) * 16);
+
+  	const float shift_strength       = 3.0f;
+  	const float shift_top_slope      = 0.5f;
+  	const float shift_top_startslope = 0.0f;
+  	const float shift_pos_slope      = 0.85f;
+  	const float shift_pos_startslope = 0.0f;
+  	const float shift_pos_cap        = rad_y * 0.5f;
+
+  	for (int dy = -rad_xz; dy <= rad_xz; dy++)
+  	{
+  		for (int hx = -rad_xz; hx <= rad_xz; hx++)
+  		{
+  			for (int hz = -rad_xz; hz <= rad_xz; hz++)
+  			{
+  				inner_rad = sqrtf( hx*hx + hz*hz );
+  				shiftup = (inner_rad - rad_y) * shift_strength;
+
+  				if (shiftup < shift_top_startslope)
+  				{
+  					shiftup = shift_top_startslope - powf(fabsf(shiftup - shift_top_startslope), shift_top_slope);
+  				}
+  				if (shiftup > shift_pos_startslope)
+  				{
+  					shiftup = shift_pos_startslope + powf(shiftup - shift_pos_startslope, shift_pos_slope);
+  				}
+  				if (shiftup > shift_pos_cap) shiftup = shift_pos_cap;
+
+  				shiftup += dy;
+
+  				dist = sqrtf( hx*hx*0.35 + hz*hz*0.35 + shiftup*shiftup );
+
+  				if (dist <= rad_y)
+  				{
+            Block mat(copy);
+  					if (dy < -rad_y)
+  					{
+              shroom_set_type(mat, TYPE_EDGE);
+  					}
+  					else if (dist > rad_y - 2)
+  					{
+  						if (inner_rad < rad_y && dy < 0)
+  						{	// undertop
+                shroom_set_type(mat, TYPE_UNDER);
+  						}
+  						else if (randf(dx+hx, obj.y+dy, dz+hz) < speckle_chance)
+  						{	// speckled top
+                shroom_set_type(mat, TYPE_SPECK);
+  						}
+  						else
+  						{	// top
+                shroom_set_type(mat, TYPE_TOP);
+  						}
+  					}
+  					else
+  					{	// inside
+              shroom_set_type(mat, TYPE_UNDER);
+  					}
+
+            Spiders::setBlock((int)dx + hx, obj.y+dy + height, (int)dz + hz, mat);
+  				} // inside bell radius
+
+  			} // hz
+  		} // hx
+
+  	} // dy
+
+  } // omStrangeShroom
+
+} // terragen

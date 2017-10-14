@@ -61,19 +61,20 @@ namespace terragen
 		return true;
 	}
 
-	void downSpider(int x, int y, int z, block_t id, int tries)
+  static void
+	downSpider(int x, int y, int z, Block blk, int tries)
 	{
 		Block currentBlock = Spiders::getBlock(x, y, z);
 
 		// air, crosses, water
 		if (currentBlock.isTransparent())
 		{
-			if (tries--) downSpider(x, y-1, z, id, tries);
-			Spiders::setBlock(x, y, z, Block(id));
+			if (tries--) downSpider(x, y-1, z, blk, tries);
+			Spiders::setBlock(x, y, z, blk);
 		}
 	}
 
-	void ocircleXZroots(int x, int y, int z, int radius, block_t id)
+	void ocircleXZroots(int x, int y, int z, int radius, Block blk)
 	{
 		int dx, dz, r = radius*radius;
 		for (dx = -radius; dx <= radius; dx++)
@@ -81,23 +82,23 @@ namespace terragen
 		{
 			if (dx*dx + dz*dz <= r)
 			{
-				Spiders::setBlock(x+dx, y, z+dz, Block(id));
-				downSpider(x+dx, y-1, z+dz, id, 6);
+				Spiders::setBlock(x+dx, y, z+dz, blk);
+				downSpider(x+dx, y-1, z+dz, blk, 6);
 			}
 		}
 	}
 
-	void ocircleXZ(int x, int y, int z, int radius, block_t id)
+	void ocircleXZ(int x, int y, int z, int radius, Block blk)
 	{
 		const int maxrad = radius*radius;
 		for (int dx = -radius; dx <= radius; dx++)
 		for (int dz = -radius; dz <= radius; dz++)
 		{
 			if (dx*dx + dz*dz <= maxrad)
-				Spiders::setBlock(x+dx, y, z+dz, Block(id));
+				Spiders::setBlock(x+dx, y, z+dz, blk);
 		}
 	}
-	void ocircleXZstencil(int gx, int gy, int gz, int rad, block_t id, float chance)
+	void ocircleXZstencil(int gx, int gy, int gz, int rad, Block blk, float chance)
 	{
 		const int maxrad = rad * rad;
 		for (int x = -rad; x <= rad; x++)
@@ -108,13 +109,13 @@ namespace terragen
 			{
 				if (randf(gx+x, gy, gz+z) < chance)
 				{
-					Spiders::setBlock(gx + x, gy, gz + z, Block(id));
+					Spiders::setBlock(gx + x, gy, gz + z, blk);
 				}
 			}
 		}
 	}
 
-	void oellipsoidXZ(int x, int y, int z, int radius, float radx, float radz, block_t id)
+	void oellipsoidXZ(int x, int y, int z, int radius, float radx, float radz, Block blk)
 	{
 		int dx, dz;
 		float r1 = radius*radx; r1 *= r1;
@@ -123,10 +124,11 @@ namespace terragen
 		for (dx = -radius; dx <= radius; dx++)
 		for (dz = -radius; dz <= radius; dz++)
 			if (dx*dx / r1 + dz*dz / r2 <= 1)
-				Spiders::setBlock(x+dx, y, z+dz, Block(id));
+				Spiders::setBlock(x+dx, y, z+dz, blk);
 
 	}
-	void oellipsoidXY(int x, int y, int z, int radius, float radx, float rady, float stencil, block_t id)
+	void oellipsoidXY(int x, int y, int z, int radius, float radx, float rady,
+                    float stencil, Block blk)
 	{
 		int dx, dy;
 		float r1 = radius*radx; r1 *= r1;
@@ -138,15 +140,19 @@ namespace terragen
 			r = dx*dx / r1 + dy*dy / r2;
 			if (r <= 1) {
 				if (r < 0.65)
-					Spiders::setBlock(x+dx, y+dy, z, Block(id));
+					Spiders::setBlock(x+dx, y+dy, z, blk);
 				else if (randf(x+dx, y+dy, z+613) < stencil)
 				// always passes with stencil = 1.0, never passes with 0.0
-					Spiders::setBlock(x+dx, y+dy, z, Block(id));
+					Spiders::setBlock(x+dx, y+dy, z, blk);
 			}
 		}
 	}
 
-	void obell(int x, int y, int z, block_t id, int lower, int height, int radius, int inner_rad, int midlevel, float midstrength, float understrength, float stencilchance)
+	void obell(int x, int y, int z, Block blk,
+             int lower, int height,
+             int radius, int inner_rad,
+             int midlevel, float midstrength,
+             float understrength, float stencilchance)
 	{
 		float radf, lradf, midd, dr;
 		int dx, dy, dz, radxz;
@@ -174,11 +180,11 @@ namespace terragen
 					if (stencilchance < 1.0 && radxz >= radf-8)
 					{
 						if (randf(x+dx, y+dy, z+dz) < stencilchance)
-							Spiders::setBlock(x+dx, y+dy, z+dz, Block(id));
+							Spiders::setBlock(x+dx, y+dy, z+dz, blk);
 					}
 					else
 					{
-						Spiders::setBlock(x+dx, y+dy, z+dz, Block(id));
+						Spiders::setBlock(x+dx, y+dy, z+dz, blk);
 					}
 
 				} // rad

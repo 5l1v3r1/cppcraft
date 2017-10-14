@@ -96,8 +96,8 @@ namespace terragen
             const glm::vec2 p = gdata->getBaseCoords2D(x, z);
 
 						/// terrain specific objects ///
-            if (rand < 0.01) {
-              gdata->add_object("volumetric_fill", wx, y+1, wz, WATER_BLOCK);
+            if (rand < 0.00025 && air > 25) {
+              gdata->add_object("mushroom_huge", wx, y+1, wz, 25);
             }
 						else if (rand < 0.05 && air > 16)
 						{

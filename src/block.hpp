@@ -32,6 +32,9 @@ namespace cppcraft
 		// semi-complete constructor
 		constexpr Block(block_t id, block_t bitfield)
       : blk((id & 0xFFF) | (bitfield << 12)) {}
+    // constructor with id and 4 + 8 bits
+	  constexpr Block(block_t id, block_t bitfield, bfield_t ex)
+      : Block(id, bitfield) { this->extra = ex; }
     // complete constructor, with lighting
 	  constexpr Block(block_t id, block_t bitfield, bfield_t ex, light_t li)
       : Block(id, bitfield) {
