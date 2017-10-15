@@ -46,7 +46,7 @@ namespace db
 		solid.hasActivation = [] (const Block&) { return false; };
 		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
-		solid.shader  = 0;
+    solid.shader = RenderConst::TX_SOLID;
 		solid.voxelModel = 0;
 		solid.visibilityComp =
 		[] (const Block&, const Block& dst, uint16_t mask)

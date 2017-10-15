@@ -48,7 +48,6 @@ namespace terragen
 			solid.getName = [] (const Block&) { return "Bedrock"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 2 + 5 * tiles.tilesX; };
 			solid.getSound = [] (const Block&) { return "stone"; };
-			solid.shader = RenderConst::TX_SOLID;
 			db.assign("bedrock", solid);
 		}
 		// create _STONE
@@ -60,6 +59,7 @@ namespace terragen
 			solid.getName = [] (const Block&) { return "Stone"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 3; };
 			solid.getSound = [] (const Block&) { return "stone"; };
+      solid.shader = RenderConst::TX_REPEAT;
 			db.assign("stone", solid);
 		}
 		// create _ORE_COAL
@@ -96,7 +96,6 @@ namespace terragen
 			};
 			solid.getName = [] (const Block&) { return "Molten Stone"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 15 * tiles.tilesX + 13; };
-			solid.shader = RenderConst::TX_SOLID;
 			solid.getSound = [] (const Block&) { return "stone"; };
 			db.assign("molten_stone", solid);
 		}
@@ -108,7 +107,7 @@ namespace terragen
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(97, 57, 14, 255); };
 			solid.getName = [] (const Block&) { return "Dirt"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 2; };
-			solid.shader   = 0;
+      solid.shader = RenderConst::TX_REPEAT;
 			solid.getSound = [] (const Block&) { return "grass"; };
 			db.assign("soil_block", solid);
 		}
@@ -136,7 +135,7 @@ namespace terragen
 				return b.getBits() + 1 * tiles.bigTilesX; // (0, 1) grass->soil side texture
 			};
 			solid.repeat_y = false;
-			solid.shader   = 0;
+      solid.shader = RenderConst::TX_REPEAT;
 			solid.getSound =
 			[] (const Block& b)
 			{
@@ -164,7 +163,7 @@ namespace terragen
 				return 1; // (1, 0) snow texture
 			};
 			solid.repeat_y = true;
-			solid.shader   = 0;
+      solid.shader = RenderConst::TX_REPEAT;
 			solid.getSound =
 			[] (const Block&)
 			{
@@ -189,7 +188,6 @@ namespace terragen
 				return 14 + 13 * tiles.tilesX;
 			};
 			solid.repeat_y = true;
-			solid.shader   = RenderConst::TX_SOLID;
 			solid.getSound =
 			[] (const Block&)
 			{
@@ -204,11 +202,8 @@ namespace terragen
 			solid.indexColored = false;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
 			solid.getName = [] (const Block&) { return "Sand"; };
-			solid.getTexture =
-			[] (const Block&, uint8_t)
-			{
-				return 3 + 1 * tiles.bigTilesX; // (3, 1) beach sand texture
-			};
+			solid.getTexture = [] (const Block&, uint8_t) { return 3 + 1 * tiles.bigTilesX; };
+      solid.shader = RenderConst::TX_REPEAT;
 			solid.getSound = [] (const Block&) { return "sand"; };
 			db.assign("beach", solid);
 		}
@@ -219,12 +214,8 @@ namespace terragen
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
 			solid.getName = [] (const Block&) { return "Desert Sand"; };
-			solid.getTexture =
-			[] (const Block&, uint8_t)
-			{
-				return 2 + 1 * tiles.bigTilesX; // (2, 1) desert sand texture
-			};
-			solid.shader = RenderConst::TX_REPEAT; // TX_REPEAT uses bigtiles
+			solid.getTexture = [] (const Block&, uint8_t) { return 2 + 1 * tiles.bigTilesX; };
+			solid.shader = RenderConst::TX_REPEAT;
 			solid.getSound = [] (const Block&) { return "sand"; };
 			db.assign("desert", solid);
 		}
@@ -280,7 +271,6 @@ namespace terragen
 				return 0 + 7 * tiles.tilesX;
 			};
 			blk.repeat_y = false;
-			blk.shader   = RenderConst::TX_SOLID;
 			blk.getSound = [] (const Block&) { return "wood"; };
 			db.assign("wood_brown", blk);
 		}
