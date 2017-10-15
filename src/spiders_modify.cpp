@@ -33,17 +33,17 @@ namespace cppcraft
 	bool Spiders::setBlock(int bx, int by, int bz, const Block& newblock)
 	{
 		Sector* s = spiderwrap(bx, by, bz);
-		if (s == nullptr)
+		if (UNLIKELY(s == nullptr))
 		{
-			printf("Could not setblock(%d, %d, %d): out of bounds",
+			printf("Could not setblock(%d, %d, %d): out of bounds\t",
 					   bx, by, bz);
 			return false;
 		}
 		// if the area isn't loaded we don't have the ability to modify it,
 		// only the server can do that on-the-fly anyways
-		if (s->generated() == false)
+		if (UNLIKELY(s->generated() == false))
 		{
-			printf("Could not setblock(%d, %d, %d): not generated",
+			printf("Could not setblock(%d, %d, %d): not generated\t",
 					   bx, by, bz);
 			return false;
 		}
@@ -81,7 +81,7 @@ namespace cppcraft
 		}
 
 		// for lights, we will flood lighting outwards
-		if (blk.isLight())
+		if (UNLIKELY(blk.isLight()))
 		{
 			blk.setTorchLight(blk.getOpacity(0));
 			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1, blk.getTorchLight());

@@ -96,10 +96,7 @@ namespace terragen
             const glm::vec2 p = gdata->getBaseCoords2D(x, z);
 
 						/// terrain specific objects ///
-            if (rand < 0.00025 && air > 24) {
-              gdata->add_object("mushroom_huge", wx, y+1, wz, 20);
-            }
-						else if (rand < 0.05 && air > 16)
+						if (rand < 0.05 && air > 16)
 						{
 							if (glm::simplex(p * 0.005f) < -0.2)
 							{

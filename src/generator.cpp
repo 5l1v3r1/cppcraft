@@ -18,7 +18,6 @@
 #include "generator/objectq.hpp"
 #include <algorithm>
 #include <cstring>
-#include <deque>
 
 using namespace library;
 
@@ -27,7 +26,7 @@ namespace cppcraft
 	unsigned int g_fres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 	unsigned int g_compres[Chunks::CHUNK_SIZE][Chunks::CHUNK_SIZE];
 
-	static std::vector<Sector*> queue;
+	std::deque<Sector*> Generator::queue;
 	// multi-threaded shits, mutex for the finished queue
 	// and the list of containers of finished jobs (gendata_t)
 	static std::mutex mtx_genq;
@@ -49,19 +48,6 @@ namespace cppcraft
 		}
 	}
 
-	void Generator::add(Sector& sector)
-	{
-		if (sector.generating())
-			return;
-
-		queue.push_back(&sector);
-	}
-
-	int Generator::size()
-	{
-		return queue.size();
-	}
-
 	// the queue of vectors that needs terrain (blocks)
 	// we will be using this comparison function to sort
 	// the sectors by distance from center
@@ -75,7 +61,7 @@ namespace cppcraft
 		const int dz2 = s2->getZ() - center;
 
 		// euclidian:
-		return (dx1*dx1 + dz1*dz1) > (dx2*dx2 + dz2*dz2);
+		return (dx1*dx1 + dz1*dz1) < (dx2*dx2 + dz2*dz2);
 		// manhattan:
 		//return std::abs(dx1) + std::abs(dz1) > std::abs(dx2) + std::abs(dz2);
 	}
@@ -90,20 +76,13 @@ namespace cppcraft
 		while (!queue.empty() && AsyncPool::available())
 		{
 			// because its a vector internally, we pop from the back
-			Sector* sect = queue.back();
-			queue.pop_back();
-
-			if (sect->generating())
-			{
-				printf("Generator: Already generating (%d, %d)\n", sect->getX(), sect->getZ());
-				continue;
-			}
+			Sector* sect = queue.front();
+			queue.pop_front();
+      // if the sector is no longer needed to be generated, go to next
+      if (sect->generating() == false) continue;
 
 			//printf("Generating sector (%d, %d)\n",
 			//	sect->getX(), sect->getZ());
-
-			// schedule terrain generator for sector
-			sect->add_genflag(Sector::GENERATING);
 
       delegate<void()> func =
       [wx = sect->getWX(), wz = sect->getWZ()]

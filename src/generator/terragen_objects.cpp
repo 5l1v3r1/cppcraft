@@ -18,7 +18,7 @@ namespace terragen
     objectDB.add("jungle_tree", jungle_tree, 5);
     objectDB.add("basic_house", basic_house, 1);
     objectDB.add("mushroom_wild", &Mushroom::wild_shroom, 1);
-    objectDB.add("mushroom_huge", &Mushroom::strange_shroom, 2);
+    objectDB.add("mushroom_huge", &Mushroom::huge_shroom, 3);
     objectDB.add("volumetric_fill", &Volumetrics::job_fill, 1);
   }
 

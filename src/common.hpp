@@ -15,3 +15,6 @@ namespace cppcraft
 
 	typedef uint16_t light_value_t;
 }
+
+#define LIKELY(x)    __builtin_expect(!!(x), 1)
+#define UNLIKELY(x)  __builtin_expect(!!(x), 0)

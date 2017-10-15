@@ -55,7 +55,7 @@ namespace cppcraft
 		// check if there are any available, and thats it
 		while (!queue.empty())
 		{
-			Sector* sector = queue.back();
+			Sector* sector = queue.front();
       assert(sector != nullptr);
 
       // -= try to clear out old shite =-
@@ -63,7 +63,7 @@ namespace cppcraft
   		// due to objects begin scheduled and not enough room to build them
       if (sector->generated() == false || sector->meshgen == 0)
       {
-        queue.pop_back();
+        queue.pop_front();
         continue;
       }
 
@@ -103,7 +103,7 @@ namespace cppcraft
 
 				// finally, we can start the job
 				startJob(*sector);
-        queue.pop_back();
+        queue.pop_front();
 			}
       // monitor this number:
       //printf("PrecompQ size: %zu\n", queue.size());

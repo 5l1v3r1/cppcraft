@@ -105,9 +105,9 @@ namespace terragen
   					if (rad >= radius * 0.95f)
   					{
   						if (randf(x+dx, y+dy, z+dz) < speckle_chance) {
-                shroom_set_type(mat, TYPE_TOP);
-              } else {
                 shroom_set_type(mat, TYPE_SPECK);
+              } else {
+                shroom_set_type(mat, TYPE_TOP);
               }
   					}
   					else
@@ -129,7 +129,7 @@ namespace terragen
 
   }
 
-  void Mushroom::wild_shroom(const SchedObject& obj)
+  void Mushroom::huge_shroom(const SchedObject& obj)
   {
     const block_t SHROOM_BLOCK = db::getb("mushroom_block");
 
@@ -167,13 +167,11 @@ namespace terragen
   	}
 
   	// create hood
-  	toprad = (int)(currad * 10);
+  	const int RAD = (int)(currad * 8);
+  	omushHood((int)dx, obj.y+height-1, (int)dz, RAD, SHROOM_BLOCK);
+  }
 
-  	omushHood((int)dx, obj.y+height-1, (int)dz, toprad, SHROOM_BLOCK);
-
-  } // omWildShroom
-
-  void Mushroom::strange_shroom(const SchedObject& obj)
+  void Mushroom::wild_shroom(const SchedObject& obj)
   {
     const block_t SHROOM_BLOCK = db::getb("mushroom_block");
 
@@ -287,6 +285,6 @@ namespace terragen
 
   	} // dy
 
-  } // omStrangeShroom
+  }
 
 } // terragen
