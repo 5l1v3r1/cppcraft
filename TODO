@@ -1,9 +1,16 @@
 Implement light correction queue
-- Remove skylight from all sources
-- Refill after removing all
+- [x] Remove skylight from all sources
+- [x] Refill after removing all
 
 Fix issues with atmospheric voxel lighting
 - More tests
+
+Implement connected textures
+- [x] Make optional
+- [x] Pass 3x3 array of blocks or block IDs to each texture function
+- [x] 3x3 array is on the same plane as the source block
+- [x] Array[4] is the source block and the center
+- Add example for how it works
 
 Vein-like ore deposition
 - Use cheapest noise
@@ -21,12 +28,6 @@ World simulation
 - Liquid flow simulation
 - Rivers using flow
 - Generate rivers naturally
-
-Outsource atmospherics and torchlight to threads
-- Maybe not worth, check timings
-- Create lighting queue
-- Create snapshot of terrain for 3x3 sectors
-- Calculate lighting for center sector
 
 Rewrite to SDL2 over a weekend
 - May be annoying to create the new windowing code
