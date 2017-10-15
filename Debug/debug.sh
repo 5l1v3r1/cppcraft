@@ -2,9 +2,9 @@
 set -e
 pushd ../build
 if [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
-    mingw32-make -j
+    mingw32-make -j8
 else
-    make -j
+    make -j8
 fi
 popd
 ../build/cppcraft
