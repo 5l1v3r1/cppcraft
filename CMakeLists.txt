@@ -33,6 +33,8 @@ include_directories(inc)
 include_directories(inc/glm)
 include_directories(inc/LuaBridge/Source/LuaBridge)
 include_directories(library/include)
+include_directories(network/tacopie/includes)
 
 add_subdirectory(library)
+add_subdirectory(network)
 add_subdirectory(src)

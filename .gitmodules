@@ -13,3 +13,6 @@
 [submodule "inc/ThreadPool"]
 	path = inc/ThreadPool
 	url = https://github.com/fwsGonzo/ThreadPool.git
+[submodule "tacopie"]
+	path = network/tacopie
+	url = https://github.com/Cylix/tacopie.git
