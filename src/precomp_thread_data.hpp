@@ -30,6 +30,14 @@ namespace cppcraft
       return vertices.at(shader);
     }
 
+    int16_t getConnectedTexture(const Block& blk, int bx, int by, int bz, int face) const
+    {
+      if (blk.hasTexture()) return blk.getTexture(face);
+      return getConnectedTexture(bx, by, bz, face);
+    }
+    // the real deal
+    int16_t getConnectedTexture(int bx, int by, int bz, int face) const;
+
 		//! returns the terrain color @index for (bx, bz)
 		uint32_t getColor(int bx, int bz, int index)
 		{

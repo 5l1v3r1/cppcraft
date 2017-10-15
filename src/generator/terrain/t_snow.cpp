@@ -154,7 +154,7 @@ namespace terragen
 	void terrain_icecap_init()
 	{
     auto& terrain =
-		  terrains.add("icecap", "Icecap",
+		  terrains.add("icecap", "Icecap", Biome::biome_t{50.0f, -8.0f},
       getheight_icecap, getcaves_icecap, getnoise_icecap, icecap_process);
 
 		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);

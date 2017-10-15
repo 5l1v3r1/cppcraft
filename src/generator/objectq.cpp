@@ -68,7 +68,7 @@ namespace terragen
           if (time_spent > 0.01) {
             int64_t diff = cppcraft::Spiders::total_blocks_placed() - placed_before;
             printf("*** Object %s took %f seconds to generate (%ld blocks)\n",
-                   obj.name, time_spent, diff);
+                   obj.name.c_str(), time_spent, diff);
           }
 					// ..... and remove from queue
 					it = objects.erase(it);

@@ -34,11 +34,6 @@ namespace cppcraft
 				vtx[3].u = bx * ptd.REPEAT_FACTOR;       // 0, 1
 				vtx[3].v = 3 * ptd.REPEAT_FACTOR;
 			}
-
-			vtx->w   = block.getTexture(0);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
 		else
 		{
@@ -47,11 +42,11 @@ namespace cppcraft
 				vtx[i].u += bx << RenderConst::VERTEX_SHL;
 				vtx[i].v += by << RenderConst::VERTEX_SHL;
 			}
-			vtx->w   = block.getTexture(0);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
+    vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 0);
+    vtx[1].w = vtx->w;
+    vtx[2].w = vtx->w;
+    vtx[3].w = vtx->w;
 
 		if (block.db().isTerrainColored())
 		{
@@ -61,7 +56,7 @@ namespace cppcraft
 			vtx[2].color = ptd.getColor(bx+1, bz+1, index); // 3
 			vtx[3].color = ptd.getColor(bx  , bz+1, index); // 2
 		}
-		else
+		else if (block.db().getColor != nullptr)
 		{
 			vtx[0].color = block.db().getColor(block);
 			vtx[3].color = vtx[2].color = vtx[1].color = vtx[0].color;
@@ -101,11 +96,6 @@ namespace cppcraft
 				vtx[3].u = (1 + bx) * ptd.REPEAT_FACTOR; // 1, 0
 				vtx[3].v = 2 * ptd.REPEAT_FACTOR;
 			}
-
-			vtx->w   = block.getTexture(1);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
 		else
 		{
@@ -114,11 +104,11 @@ namespace cppcraft
 				vtx[i].u += bx << RenderConst::VERTEX_SHL;
 				vtx[i].v += by << RenderConst::VERTEX_SHL;
 			}
-			vtx->w   = block.getTexture(1);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
+    vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 1);
+    vtx[1].w = vtx->w;
+    vtx[2].w = vtx->w;
+    vtx[3].w = vtx->w;
 
 		if (block.db().isTerrainColored())
 		{
@@ -128,7 +118,7 @@ namespace cppcraft
 			vtx[2].color = ptd.getColor(bx+1, bz, index); // 1
 			vtx[3].color = ptd.getColor(bx+1, bz, index); // 1
 		}
-		else
+    else if (block.db().getColor != nullptr)
 		{
 			vtx[0].color = block.db().getColor(block);
 			vtx[3].color = vtx[2].color = vtx[1].color = vtx[0].color;
@@ -150,19 +140,15 @@ namespace cppcraft
 		{
 			vtx[0].u = bx * ptd.REPEAT_FACTOR; // 0, 0
 			vtx[0].v = bz * ptd.REPEAT_FACTOR;
-			vtx[0].w = block.getTexture(2);
 
 			vtx[1].u = bx * ptd.REPEAT_FACTOR; // 0, 1
 			vtx[1].v = (1 + bz) * ptd.REPEAT_FACTOR;
-			vtx[1].w = vtx[0].w;
 
 			vtx[2].u = (1 + bx) * ptd.REPEAT_FACTOR; // 1, 1
 			vtx[2].v = (1 + bz) * ptd.REPEAT_FACTOR;
-			vtx[2].w = vtx[0].w;
 
 			vtx[3].u = (1 + bx) * ptd.REPEAT_FACTOR; // 1, 0
 			vtx[3].v = bz * ptd.REPEAT_FACTOR;
-			vtx[3].w = vtx[0].w;
 		}
 		else
 		{
@@ -171,11 +157,11 @@ namespace cppcraft
 				vtx[i].u += bx << RenderConst::VERTEX_SHL;
 				vtx[i].v += bz << RenderConst::VERTEX_SHL;
 			}
-			vtx[0].w = block.getTexture(2);
-			vtx[1].w = vtx[0].w;
-			vtx[2].w = vtx[0].w;
-			vtx[3].w = vtx[0].w;
 		}
+    vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 2);
+    vtx[1].w = vtx[0].w;
+    vtx[2].w = vtx[0].w;
+    vtx[3].w = vtx[0].w;
 
 		if (block.db().isTerrainColored())
 		{
@@ -185,7 +171,7 @@ namespace cppcraft
 			vtx[2].color = ptd.getColor(bx+1, bz+1, index); // 3
 			vtx[3].color = ptd.getColor(bx+1, bz  , index); // 1
 		}
-		else
+    else if (block.db().getColor != nullptr)
 		{
 			vtx[0].color = block.db().getColor(block);
 			vtx[3].color = vtx[2].color = vtx[1].color = vtx[0].color;
@@ -207,19 +193,15 @@ namespace cppcraft
 			// {1,1,  0,1,  0,0,  1,0}
 			vtx[0].u = bx * ptd.REPEAT_FACTOR; // 0, 0
 			vtx[0].v = bz * ptd.REPEAT_FACTOR;
-			vtx[0].w = block.getTexture(3);
 
 			vtx[1].u = (1 + bx) * ptd.REPEAT_FACTOR;       // 1, 0
 			vtx[1].v = bz * ptd.REPEAT_FACTOR;
-			vtx[1].w = vtx[0].w;
 
 			vtx[2].u = (1 + bx) * ptd.REPEAT_FACTOR;       // 1, 1
 			vtx[2].v = (1 + bz) * ptd.REPEAT_FACTOR;
-			vtx[2].w = vtx[0].w;
 
 			vtx[3].u = bx * ptd.REPEAT_FACTOR; // 0, 1
 			vtx[3].v = (1 + bz) * ptd.REPEAT_FACTOR;
-			vtx[3].w = vtx[0].w;
 		}
 		else
 		{
@@ -228,11 +210,11 @@ namespace cppcraft
 				vtx[i].u += bx << RenderConst::VERTEX_SHL;
 				vtx[i].v += bz << RenderConst::VERTEX_SHL;
 			}
-			vtx->w   = block.getTexture(3);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
+    vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 3);
+    vtx[1].w = vtx->w;
+    vtx[2].w = vtx->w;
+    vtx[3].w = vtx->w;
 
 		if (block.db().isTerrainColored())
 		{
@@ -242,7 +224,7 @@ namespace cppcraft
 			vtx[2].color = ptd.getColor(bx+1, bz+1, index); // 3
 			vtx[3].color = ptd.getColor(bx  , bz+1, index); // 2
 		}
-		else
+    else if (block.db().getColor != nullptr)
 		{
 			vtx[0].color = block.db().getColor(block);
 			vtx[3].color = vtx[2].color = vtx[1].color = vtx[0].color;
@@ -285,11 +267,6 @@ namespace cppcraft
 				vtx[3].u = bz * ptd.REPEAT_FACTOR;       // 0, 0
 				vtx[3].v = 2  * ptd.REPEAT_FACTOR;
 			}
-
-			vtx->w   = block.getTexture(4);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
 		else
 		{
@@ -298,11 +275,11 @@ namespace cppcraft
 				vtx[i].u += bz << RenderConst::VERTEX_SHL;
 				vtx[i].v += by << RenderConst::VERTEX_SHL;
 			}
-			vtx->w   = block.getTexture(4);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
+    vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 4);
+    vtx[1].w = vtx->w;
+    vtx[2].w = vtx->w;
+    vtx[3].w = vtx->w;
 
 		if (block.db().isTerrainColored())
 		{
@@ -312,7 +289,7 @@ namespace cppcraft
 			vtx[2].color = ptd.getColor(bx+1, bz+1, index); // 3
 			vtx[3].color = ptd.getColor(bx+1, bz+1, index); // 3
 		}
-		else
+    else if (block.db().getColor != nullptr)
 		{
 			vtx[0].color = block.db().getColor(block);
 			vtx[3].color = vtx[2].color = vtx[1].color = vtx[0].color;
@@ -352,11 +329,6 @@ namespace cppcraft
 				vtx[3].u = bz * ptd.REPEAT_FACTOR;       // 0, 1
 				vtx[3].v = 3 * ptd.REPEAT_FACTOR;
 			}
-
-			vtx->w   = block.getTexture(5);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
 		else
 		{
@@ -365,11 +337,11 @@ namespace cppcraft
 				vtx[i].u += bz << RenderConst::VERTEX_SHL;
 				vtx[i].v += by << RenderConst::VERTEX_SHL;
 			}
-			vtx->w   = block.getTexture(5);
-			vtx[1].w = vtx->w;
-			vtx[2].w = vtx->w;
-			vtx[3].w = vtx->w;
 		}
+    vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 5);
+    vtx[1].w = vtx->w;
+    vtx[2].w = vtx->w;
+    vtx[3].w = vtx->w;
 
 		if (block.db().isTerrainColored())
 		{
@@ -379,7 +351,7 @@ namespace cppcraft
 			vtx[2].color = ptd.getColor(bx, bz+1, index); // 2
 			vtx[3].color = ptd.getColor(bx, bz  , index); // 0
 		}
-		else
+    else if (block.db().getColor != nullptr)
 		{
 			vtx[0].color = block.db().getColor(block);
 			vtx[3].color = vtx[2].color = vtx[1].color = vtx[0].color;

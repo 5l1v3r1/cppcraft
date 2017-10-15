@@ -96,8 +96,8 @@ namespace terragen
             const glm::vec2 p = gdata->getBaseCoords2D(x, z);
 
 						/// terrain specific objects ///
-            if (rand < 0.00025 && air > 25) {
-              gdata->add_object("mushroom_huge", wx, y+1, wz, 25);
+            if (rand < 0.00025 && air > 24) {
+              gdata->add_object("mushroom_huge", wx, y+1, wz, 20);
             }
 						else if (rand < 0.05 && air > 16)
 						{
@@ -164,7 +164,7 @@ namespace terragen
 	void terrain_jungle_init()
 	{
 		auto& terrain =
-		terrains.add("jungle", "Jungle",
+		terrains.add("jungle", "Jungle", Biome::biome_t{350.0f, 25.0f},
         getheight_jungle, getcaves_jungle, getnoise_jungle, process_jungle);
 
     terrain.setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);

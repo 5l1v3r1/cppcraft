@@ -11,10 +11,10 @@
 
 namespace terragen
 {
+  using cppcraft::Block;
 	struct gendata_t;
 
-	class Terrain
-	{
+	class Terrain {
 	public:
 		// ENGINE
 		typedef delegate<void(double)> tick_func_t;
@@ -28,12 +28,13 @@ namespace terragen
 		// returns RGBA8(0, 0, 0, 255)
 		static uint32_t justBlack(uint16_t, uint8_t, glm::vec2) { return 255 << 24; }
 
-		Terrain(const std::string& Name,
+		Terrain(const std::string& Name, Biome::biome_t coord,
             ground_func_t  gnd,  // ground level
             under_func_t   und,  // caves level
             terfunc3d      t3d,  // terrain density (caves <-> ground)
             process_func_t proc) // terrain post-processing function
-			: name(Name), hmap_gnd(gnd), hmap_und(und), func3d(t3d), on_process(proc)
+			: name(Name), biome {coord},
+        hmap_gnd(gnd), hmap_und(und), func3d(t3d), on_process(proc)
     {
       for (auto& color : colors) color = nullptr;
     }
@@ -56,6 +57,8 @@ namespace terragen
 
 		// human-readable name of this terrain
 		const std::string name;
+    // terrain location (biome)
+    const Biome::biome_t biome;
 		// 2d terrain function that return a heightvalue for this terrain
     const ground_func_t hmap_gnd;
     const under_func_t  hmap_und;
@@ -74,7 +77,7 @@ namespace terragen
 		uint16_t fog_height;
 		uint16_t fog_start;
 
-		static cppcraft::Block getBlock(float y, float in_beachhead, float density, float caves);
+		static Block getBlock(float y, float in_beachhead, float density, float caves);
 		static void generate(gendata_t* gdata);
     static void init();
 	};

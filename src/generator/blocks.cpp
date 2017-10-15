@@ -71,7 +71,6 @@ namespace terragen
 			solid.getName = [] (const Block&) { return "Coal Ore"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 4 + 3 * tiles.tilesX; };
 			solid.getSound = [] (const Block&) { return "stone"; };
-			solid.shader = RenderConst::TX_SOLID;
 			db.assign("ore_coal", solid);
 		}
 		// create _ORE_IRON
@@ -83,7 +82,6 @@ namespace terragen
 			solid.getName = [] (const Block&) { return "Iron Ore"; };
 			solid.getTexture = [] (const Block&, uint8_t) { return 3 + 3 * tiles.tilesX; };
 			solid.getSound = [] (const Block&) { return "stone"; };
-			solid.shader = RenderConst::TX_SOLID;
 			db.assign("ore_iron", solid);
 		}
 		// create _MOLTEN stones
@@ -355,7 +353,7 @@ namespace terragen
 			db.assign("torch", blk);
 		}
 
-    // initialize common blocks
+    // initialize essential blocks
     BEDROCK      = db::getb("bedrock");
     STONE_BLOCK  = db::getb("stone");
     SOIL_BLOCK   = db::getb("soil_block");

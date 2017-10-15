@@ -38,6 +38,56 @@ namespace cppcraft
 
 		} // if (facing)
 
-	} // precompile_block()
+	} // process_block()
+
+  int16_t PTD::getConnectedTexture(int bx, int by, int bz, int face) const
+  {
+    connected_textures_t ct;
+    // assume connected
+    switch (face) {
+      case 0: // +z
+      case 1: // -z
+        ct.blocks[0] = sector->get(bx-1, by-1, bz);
+        ct.blocks[1] = sector->get(bx  , by-1, bz);
+        ct.blocks[2] = sector->get(bx+1, by-1, bz);
+        ct.blocks[3] = sector->get(bx-1, by  , bz);
+        ct.blocks[4] = sector->get(bx  , by  , bz);
+        ct.blocks[5] = sector->get(bx+1, by  , bz);
+        ct.blocks[6] = sector->get(bx-1, by+1, bz);
+        ct.blocks[7] = sector->get(bx  , by+1, bz);
+        ct.blocks[8] = sector->get(bx+1, by+1, bz);
+        break;
+      case 2: // +y
+      case 3: // -y
+        ct.blocks[0] = sector->get(bx-1, by, bz-1);
+        ct.blocks[1] = sector->get(bx  , by, bz-1);
+        ct.blocks[2] = sector->get(bx+1, by, bz-1);
+        ct.blocks[3] = sector->get(bx-1, by, bz);
+        ct.blocks[4] = sector->get(bx  , by, bz);
+        ct.blocks[5] = sector->get(bx+1, by, bz);
+        ct.blocks[6] = sector->get(bx-1, by, bz+1);
+        ct.blocks[7] = sector->get(bx  , by, bz+1);
+        ct.blocks[8] = sector->get(bx+1, by, bz+1);
+        break;
+      case 4: // +x
+      case 5: // -x
+        ct.blocks[0] = sector->get(bx, by-1, bz-1);
+        ct.blocks[1] = sector->get(bx, by  , bz-1);
+        ct.blocks[2] = sector->get(bx, by+1, bz-1);
+        ct.blocks[3] = sector->get(bx, by-1, bz);
+        ct.blocks[4] = sector->get(bx, by  , bz);
+        ct.blocks[5] = sector->get(bx, by+1, bz);
+        ct.blocks[6] = sector->get(bx, by-1, bz+1);
+        ct.blocks[7] = sector->get(bx, by  , bz+1);
+        ct.blocks[8] = sector->get(bx, by+1, bz+1);
+        break;
+    default:
+      throw std::out_of_range("Invalid face in PTD::getConnectedTexture");
+      break;
+    }
+    const auto& self = ct.blocks[4].db();
+    assert(self.getConnectedTexture != nullptr);
+    return self.getConnectedTexture(ct, face);
+  }
 
 }

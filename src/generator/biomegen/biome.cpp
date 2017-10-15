@@ -9,12 +9,6 @@
 
 namespace terragen
 {
-	uint16_t Biome::toTerrain(uint16_t biome)
-	{
-		// T_CAVES is index 0, avoid that:
-		return 1 + (terrains.size() - 1) * float(biome) / 21.0f;
-	}
-
 	RGB mixColor(const RGB& a, const RGB& b, float mixlevel)
 	{
 		RGB c;
@@ -48,11 +42,7 @@ namespace terragen
 			bool skip_colors = (x == BLOCKS_XZ || z == BLOCKS_XZ);
 
 			// generate terrain weights
-			biome_t biome = biomeGen(p * cppcraft::BIOME_SCALE); // see common.hpp
-      // convert biome id to terrain id
-      for (int i = 0; i < 4; i++) {
-          biome.b[i] = toTerrain(biome.b[i]);
-      }
+			auto biome = biomeGen(p * cppcraft::BIOME_SCALE); // see common.hpp
 			// remember weights for terrain generator stage
 			gdata->setWeights(x, z, biome);
 
@@ -62,12 +52,10 @@ namespace terragen
 			float    bigw = 0.0f;
 			uint16_t bigt = 0;
 
-			for (int i = 0; i < 4; i++)
+			for (auto& value : biome)
 			{
-        const float weight = biome.w[i];
-				if (weight < 0.005f) continue;
-
-        const int terrain = biome.b[i];
+        const int   terrain = value.first;
+        const float weight  = value.second;
 
 				// determine strongest weight, and use that for terrain-id
 				// in all later generator stages

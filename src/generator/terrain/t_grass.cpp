@@ -82,7 +82,7 @@ namespace terragen
 	void terrain_grass_init()
 	{
 		auto& terrain =
-		terrains.add("grass",  "Grasslands",
+		terrains.add("grass",  "Grasslands", Biome::biome_t{150.0f, 15.0f},
         getheight_grass, getcaves_grass, getnoise_grass, grass_process);
 
 		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.7f), 48);

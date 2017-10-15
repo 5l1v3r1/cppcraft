@@ -8,12 +8,14 @@ namespace cppcraft
 	class Block;
 	class Sector;
 	class PTD;
+  struct connected_textures_t;
 }
 
 namespace db
 {
 	using cppcraft::Block;
 	using cppcraft::Sector;
+  using cppcraft::connected_textures_t;
 
 	class BlockData {
 	public:
@@ -69,6 +71,7 @@ namespace db
 
 		// returns the texture value for @block
 		delegate <short(const Block&, uint8_t face)> getTexture = nullptr;
+    delegate <short(const connected_textures_t&, uint8_t face)> getConnectedTexture = nullptr;
 		//! returns the non-zero facing mask @facing, if determined visible
 		//! first block is source, second is the block we are checking against
 		delegate <uint16_t(const Block&, const Block&, uint16_t)> visibilityComp = nullptr;

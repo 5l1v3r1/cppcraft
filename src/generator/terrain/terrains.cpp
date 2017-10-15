@@ -17,6 +17,7 @@ using namespace library;
 namespace terragen
 {
 	Terrains terrains;
+  Terrains cave_terrains;
 	float getnoise_caves(vec3 p, float hvalue, const vec2&);
 	extern float getheight_icecap(vec2 p);
 	extern float getnoise_icecap (vec3 p, float hvalue);
@@ -29,7 +30,7 @@ namespace terragen
 	void Terrains::init()
 	{
 		auto& terrain =
-		  this->add("caves",  "Caves",
+		  cave_terrains.add("caves", "Caves", Biome::biome_t{1.0f, 1.0f},
       getheight_shitass, getcaves_shitass, getnoise_caves, nullptr);
 
 		// fog settings

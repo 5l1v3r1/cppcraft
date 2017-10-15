@@ -43,10 +43,9 @@ namespace cppcraft
 	FBO fboResolveColor;
 	FBO fogFBO, finalFBO;
 
-	void SceneRenderer::init(Renderer& renderer)
+	SceneRenderer::SceneRenderer(Renderer& renderer)
 	{
 		// initialize members
-		this->lastTime = 0.0;
 		this->snapPlayerPos = player.pos;
 
 		// initialize terrain renderer

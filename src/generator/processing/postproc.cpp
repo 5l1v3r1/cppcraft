@@ -54,6 +54,7 @@ namespace terragen
 		{
 			// terrain ID
 			auto tid = gdata->flatl(x, z).terrain;
+      //printf("Generating for terrain %d\n", tid);
 			// process terrain using terrain-specific function
 			const int MAX_Y = gdata->flatl(x, z).skyLevel;
 			terrains[tid].on_process(gdata, x, z, MAX_Y, zone);

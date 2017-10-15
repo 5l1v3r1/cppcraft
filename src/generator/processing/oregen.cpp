@@ -5,13 +5,11 @@
 namespace terragen
 {
   std::vector<OreInfo> OreGen::ores;
-  block_t STONE_ID = 0;
 
 	void OreGen::init()
 	{
 		OreGen::add({db::getb("ore_coal"), 255, 6, 16, 80});
 		OreGen::add({db::getb("ore_iron"), 200, 4,  8, 40});
-    STONE_ID = db::getb("stone");
 	}
 
   OreGen::OreGen()
@@ -30,7 +28,7 @@ namespace terragen
 		for (int i = 0; i < count; i++)
 		{
 			Block& block = gdata->getb(x, y, z);
-			if (block.getID() != STONE_ID) return;
+			if (block.getID() != STONE_BLOCK) return;
 
 			block.setID(ore.block_id);
 

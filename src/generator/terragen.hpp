@@ -41,11 +41,11 @@ namespace terragen
 		gendata_t(const gendata_t&) = delete;
 		gendata_t& operator= (const gendata_t&) = delete;
 
-		Biome::biome_t& getWeights(int x, int z)
+		auto& getWeights(int x, int z)
 		{
 			return weights.at(x * (BLOCKS_XZ+1) + z);
 		}
-		void setWeights(int x, int z, const Biome::biome_t& bi)
+		void setWeights(int x, int z, const Biome::result_t& bi)
 		{
 			getWeights(x, z) = bi;
 		}
@@ -96,7 +96,7 @@ namespace terragen
 		/// === results === ///
 
     // biome weights are 17x17 because of bilinear interpolation
-		std::array<Biome::biome_t, (BLOCKS_XZ+1) * (BLOCKS_XZ+1)> weights;
+		std::array<Biome::result_t, (BLOCKS_XZ+1) * (BLOCKS_XZ+1)> weights;
 	};
 
 	class Generator

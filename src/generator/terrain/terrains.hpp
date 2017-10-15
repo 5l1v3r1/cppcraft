@@ -1,14 +1,14 @@
 #pragma once
 
 #include "terrain.hpp"
-#include <deque>
+#include <vector>
 #include <map>
 
 namespace terragen
 {
 	class Terrains {
 	public:
-		void init();
+		static void init();
 
 		Terrain& operator[] (int id)
 		{
@@ -33,9 +33,12 @@ namespace terragen
 			return tvec.size();
 		}
 
+    const auto& get() const { return tvec; }
+
 	private:
-		std::deque<Terrain> tvec;
+		std::vector<Terrain> tvec;
 		std::map<std::string, int> names;
 	};
 	extern Terrains terrains;
+  extern Terrains cave_terrains;
 }

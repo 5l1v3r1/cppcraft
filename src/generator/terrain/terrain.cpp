@@ -172,22 +172,20 @@ namespace terragen
 		for (int z = 0; z <= NGRID; z++)
 		{
 			const glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
-			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
+			const auto& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 
 			// heightvalues for this position, averaged across terrains
       float hvalue_und = 0.0f;
-			for (int i = 0; i < 4; i++)
+			for (const auto& v : biome)
 			{
-				if (biome.w[i] < 0.005f) continue;
-        hvalue_und += terrains[biome.b[i]].hmap_und(p2) * biome.w[i];
+        hvalue_und += terrains[v.first].hmap_und(p2) * v.second;
 			}
       // set heightmap values
       heightmap_und[x][z] = std::min(0.9999f, hvalue_und);
       float hvalue_gnd = 0.0f;
-      for (int i = 0; i < 4; i++)
+      for (const auto& v : biome)
 			{
-				if (biome.w[i] < 0.005f) continue;
-        hvalue_gnd += terrains[biome.b[i]].hmap_gnd(p2, hvalue_und) * biome.w[i];
+        hvalue_gnd += terrains[v.first].hmap_gnd(p2, hvalue_und) * v.second;
 			}
 			// set heightmap values
 			heightmap_gnd[x][z] = std::min(0.9999f, hvalue_gnd);
@@ -198,7 +196,7 @@ namespace terragen
 		for (int z = 0; z <= NGRID; z++)
 		{
 			const glm::vec2 p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
-			Biome::biome_t& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
+			const auto& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 
 			// beach height/level variance
 			beachhead[x][z] = glm::simplex(p2 * 0.005f);
@@ -223,7 +221,7 @@ namespace terragen
 
         // cave density function
 			  float& caves = cave_array[x][z][y / y_step];
-		    caves = terrains[Biome::T_CAVES].func3d(p, HVALUE_UND, slope);
+		    caves = cave_terrains[Biome::T_CAVES].func3d(p, HVALUE_UND, slope);
 
         if (y >= MAX_UND - y_step)
         {
@@ -231,14 +229,12 @@ namespace terragen
   				float& noise = noisearray[x][z][y / y_step];
   				noise = 0.0f;
 
-  				for (int i = 0; i < 4; i++)
+  				for (auto& value : biome)
   				{
-  					// low-impact weights BEGONE!
-  					if (biome.w[i] < 0.005f) continue;
   					// Note: using @hvalue directly here (the heightmap value)
   					// noise total is terrain (density function) * (weight) for all 4 weights summed
-            auto& terrain = terrains[biome.b[i]];
-  					noise += terrain.func3d(p, HVALUE_GND, slope) * biome.w[i];
+            auto& terrain = terrains[value.first];
+  					noise += terrain.func3d(p, HVALUE_GND, slope) * value.second;
 				  } // weights
         } // ground level
 			} // for(y)

@@ -11,6 +11,8 @@
 #include <cstring>
 using namespace library;
 
+#define PRINT(fmt, ...)  /** **/
+
 namespace terragen
 {
 	void Generator::init()
@@ -19,27 +21,32 @@ namespace terragen
 		extern void init_blocks();
 		init_blocks();
 		// make sure the terrain function list is populated
-		terrains.init();
+		Terrains::init();
 		// basic objects
     Generator::init_objects();
 		// initialize subsystems
-		Biome::init();
     Terrain::init();
 		PostProcess::init();
 	}
 
 	void Generator::run(gendata_t* data)
 	{
-		//printf("Generating terrain metadata for (%d, %d)\n",
-		//	data->wx, data->wz);
+		PRINT("Generating terrain metadata for (%d, %d)\n",
+			     data->wx, data->wz);
 		Biome::run(data);
-		//printf("Done\n");
+		PRINT("Done\n");
 
+    PRINT("Generating terrain data for (%d, %d)\n",
+			     data->wx, data->wz);
 		// having the terrain weights, we can now generate blocks
 		Terrain::generate(data);
+    PRINT("Done\n");
 
+    PRINT("Post-processing terrain for (%d, %d)\n",
+			     data->wx, data->wz);
 		// having generated the terrain, we can now reprocess and finish the terrain
 		// calculate some basic lighting too, by following the sky down to the ground
 		PostProcess::run(data);
+    PRINT("Done\n");
 	}
 }

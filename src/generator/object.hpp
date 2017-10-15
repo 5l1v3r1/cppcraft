@@ -15,7 +15,7 @@ namespace terragen
 
 	struct SchedObject
 	{
-		SchedObject(const char* gname, int X, int Y, int Z, int64_t D)
+		SchedObject(const std::string& gname, int X, int Y, int Z, int64_t D)
 			: name(gname), x(X), y(Y), z(Z), data(D) {}
 
 		int getWX() const {
@@ -25,7 +25,7 @@ namespace terragen
 			return z / BLOCKS_XZ;
 		}
 
-		const char* name;
+		const std::string name;
 		int x, y, z;
     // whatever you want it to be
     const int64_t data;
@@ -49,13 +49,13 @@ namespace terragen
                       std::forward_as_tuple(std::forward<Args>(args)...));
     }
 
-		GenObject& operator[] (const char* name)
+		GenObject& operator[] (const std::string& name)
 		{
 			return objects.at(name);
 		}
 
 	private:
-		std::map<const char*, GenObject> objects;
+		std::map<std::string, GenObject> objects;
 	};
 	extern ObjectDB objectDB;
 }

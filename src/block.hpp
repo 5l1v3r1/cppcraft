@@ -1,6 +1,7 @@
 #ifndef BLOCKS_HPP
 #define BLOCKS_HPP
 
+#include <array>
 #include <string>
 #include <cassert>
 #include "db/blockdb.hpp"
@@ -17,6 +18,7 @@ namespace cppcraft
 
 	class Sector;
 	struct bordered_sector_t;
+  struct connected_textures_t;
 
 	class Block {
 	public:
@@ -174,8 +176,10 @@ namespace cppcraft
 		}
 
 		//! returns the texture id for this block, dependent on @face
-		short getTexture(uint8_t face) const
-		{
+    bool hasTexture() const {
+      return db().getTexture != nullptr;
+    }
+		short getTexture(uint8_t face) const {
 			return db().getTexture(*this, face);
 		}
 		//! returns the dynamic minimap color for this block, depending on custom algorithm
@@ -311,6 +315,12 @@ namespace cppcraft
 		light_t  light = 0;
 	};
   static_assert(sizeof(Block) == 4, "Raw blocks should be 32-bits");
+
+  // a 3x3 array of nearby blocks with the origin in center
+  struct connected_textures_t {
+    std::array<Block, 9> blocks;
+    inline Block& self() { return blocks[4]; }
+  };
 }
 
 #endif
