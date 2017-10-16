@@ -28,6 +28,7 @@ namespace cppcraft
     const bool fullscreen = config.get("render.fullscreen", false);
     const bool vsync      = config.get("render.vsync", false);
     const int refreshrate = config.get("render.refresh", 0);
+    const bool MAXIMIZE = config.get("window.maximize", false);
     const int SW = config.get("window.width", 1280);
     const int SH = config.get("window.height", 720);
     const int WX = config.get("window.x", 128);
@@ -37,11 +38,14 @@ namespace cppcraft
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
+    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    if (MAXIMIZE) flags |= SDL_WINDOW_MAXIMIZED;
+
 		// open SDL window
     m_window = SDL_CreateWindow(title.c_str(),
             (WX > 0) ? WX : SDL_WINDOWPOS_CENTERED,
             (WY > 0) ? WY : SDL_WINDOWPOS_CENTERED,
-            SW, SH, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+            SW, SH, flags);
     assert(m_window);
 
     // SDL renderer
