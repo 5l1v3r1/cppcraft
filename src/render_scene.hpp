@@ -3,6 +3,7 @@
  *
  *
 **/
+#pragma once
 #include <glm/vec3.hpp>
 
 namespace cppcraft
@@ -13,8 +14,7 @@ namespace cppcraft
 	class SkyRenderer;
 	class WorldManager;
 
-	class SceneRenderer
-	{
+	class SceneRenderer {
 	public:
 		SceneRenderer(Renderer& renderer);
 		void render(Renderer& renderer);

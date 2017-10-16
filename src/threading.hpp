@@ -7,16 +7,14 @@
 namespace cppcraft
 {
 	class WorldManager;
-	
-	class ThreadingClass
-	{
+
+	class ThreadingClass {
 	public:
-		bool terminate;
-		int threading;
-		
+		bool terminate = false;
+
 		// world manager thread
 		std::thread worldman;
-		
+
 		// mutexes
 		std::mutex sectorseam;
 		std::mutex playermove;
@@ -25,12 +23,12 @@ namespace cppcraft
 		std::mutex inetq;
 		std::mutex netplayers;
 		std::mutex actors;
-		
+
 		void initThreading(WorldManager& worldman);
 		void cleanupThreading();
 	};
 	extern ThreadingClass mtx;
-	
+
 }
 
 #endif

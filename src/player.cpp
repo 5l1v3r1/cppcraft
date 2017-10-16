@@ -21,13 +21,13 @@ namespace cppcraft
 {
 	// player object
 	PlayerClass player;
-	
+
 	void PlayerClass::initPlayer()
 	{
 		plogic.movestate = PMS_Normal;
 		plogic.sector = nullptr;
 		plogic.block = &air_block;
-		
+
 		plogic.Falling = false;
 		plogic.FullySubmerged = plogic.PS_None;
 		plogic.freefall = false;
@@ -35,28 +35,28 @@ namespace cppcraft
 		plogic.Slowfall = false;
 		plogic.Ladderized = false;
 		//plogic.jetpacking = false;
-		
+
 		this->Flying = false;
-		
+
 		// initialize block selection system
 		plogic.selection = playerselect_t();
-		
+
 		// initialize action/interaction system
 		paction.init();
-		
+
 		// misc
 		plogic.terrain = 0;
 		plogic.light   = 0;
-		
+
 		// acceleration
 		this->accel = vec3(0.0f);
 		// rotation
 		this->rot = vec2(0.0f);
-		
+
 		player.snapStage = 0;
 		player.snap_pos = vec3(0.0f);
 	}
-	
+
 	int PlayerClass::getTerrain() const
 	{
 		return plogic.terrain;
@@ -65,40 +65,40 @@ namespace cppcraft
 	{
 		return chatbox.isOpen() || gui::menu.guiOpen();
 	}
-	
+
 	glm::vec3 PlayerClass::getLookVector() const
 	{
 		float dx =  sinf(player.rot.y) * cosf(player.rot.x);
 		float dy = 		                -sinf(player.rot.x);
 		float dz = -cosf(player.rot.y) * cosf(player.rot.x);
-		
+
 		return glm::vec3(dx, dy, dz);
 	}
-	
+
 	block_t PlayerClass::getBlockFacing() const
 	{
 		vec2 sightXZ( sinf(player.rot.y), -cosf(player.rot.y) );
-		
+
 		block_t facing = 0;
-		
+
 		if (sightXZ.x < -0.707) // left
 			facing = 2;
 		else if (sightXZ.x > 0.707) // right
 			facing = 3;
-		
+
 		if (sightXZ.y < -0.707) // front -> back
 			facing = 0;
 		else if (sightXZ.y > 0.707) // back -> front
 			facing = 1;
-		
+
 		return facing;
 	}
-	
+
 	bool PlayerClass::fullySubmerged() const
 	{
 		return plogic.FullySubmerged;
 	}
-	
+
 	void PlayerClass::handlePlayerTicks(double time)
 	{
 		// acceleration & movement inputs
@@ -109,12 +109,12 @@ namespace cppcraft
 		plogic.translatePlayer();
 		// play some sounds
 		plogic.playerSounds();
-		
+
 		// terrain tick function
 		if (plogic.terrain >= 0)
 		terragen::terrains[plogic.terrain].on_tick(time);
 	}
-	
+
 	void PlayerClass::handleActions(double frametime)
 	{
 		// if the player has moved from his snapshot, we need to synch with renderer
@@ -125,46 +125,46 @@ namespace cppcraft
 			const double net_change = 0.01;
 			player.changedPosition = distance(snap_pos, pos) > net_change;
 			snap_pos = pos;
-			
+
 			// true if the player is moving (on purpose)
 			// used to modulate player camera giving the effect of movement
 			JustMoved = (plogic.Moved == true) && (plogic.freefall == false || plogic.Ladderized);
 			//logger << "JustMoved: " << JustMoved << Log::ENDL;
-			
+
 		}
 		mtx.playermove.unlock();
-		
+
 		// get player skylight & torchlight
 		// NOTE: we are using snap_pos for this, since its closest to the render position
 		plogic.light = Spiders::getLightNow(snap_pos.x, snap_pos.y, snap_pos.z);
-		
+
 		// handle player selection, actions and building
 		paction.handle(frametime);
 	}
-	
+
 	void PlayerClass::handleRotation()
 	{
 		if (keyconf.joy_enabled)
 		{
 			float dx = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_xrot]);
 			float dy = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_yrot]);
-			
-			input.addRotation(vec2(dx, dy) * keyconf.joy_speed);
+
+			input.add_rotation(vec2(dx, dy) * keyconf.joy_speed);
 		}
-		
+
 		// measure closeness
-		float dx = fabsf(player.rot.x - input.getRotation().x);
-		float dy = fabsf(player.rot.y - input.getRotation().y);
-		
+		float dx = fabsf(player.rot.x - input.rotation().x);
+		float dy = fabsf(player.rot.y - input.rotation().y);
+
 		// rotate if too far apart (NOTE: possible bug with calculating angle distance)
 		player.changedRotation = (dx > 0.0001 || dy > 0.0001);
 		if (player.changedRotation)
 		{
 			// set new rotation, and update camera
-			player.rot = input.getRotation();
+			player.rot = input.rotation();
 			camera.recalc  = true; // rebuild visibility set
 			camera.rotated = true; // resend all rotation matrices
 		}
 	}
-	
+
 }

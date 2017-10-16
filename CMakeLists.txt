@@ -10,13 +10,13 @@ set(BUILD_SHARED_LIBRARIES OFF)
 
 
 if (UNIX)
+  set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+  find_package(GLEW REQUIRED glew)
+  find_package(SDL2 REQUIRED)
+  include_directories(${GLEW_STATIC_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
+  link_directories("${GLEW_STATIC_LIBRARY_DIRS}")
+
   include(FindPkgConfig)
-
-  pkg_check_modules(GLEW REQUIRED glew)
-  pkg_check_modules(GLFW REQUIRED glfw3)
-  include_directories("${GLEW_STATIC_INCLUDE_DIRS} ${GLFW_STATIC_INCLUDE_DIRS}")
-  link_directories("${GLEW_STATIC_LIBRARY_DIRS} ${GLFW_STATIC_LIBRARY_DIRS}")
-
   pkg_check_modules(LUA REQUIRED lua-5.3)
   include_directories("${LUA_STATIC_INCLUDE_DIRS}")
   link_directories("${LUA_STATIC_LIBRARY_DIRS}")
@@ -34,6 +34,12 @@ include_directories(inc/glm)
 include_directories(inc/LuaBridge/Source/LuaBridge)
 include_directories(library/include)
 include_directories(network/tacopie/includes)
+
+
+set(SDL2PP_WITH_IMAGE ON)
+set(SDL2PP_WITH_MIXER ON)
+set(SDL2PP_WITH_TTF ON)
+add_subdirectory(ext/libSDL2pp)
 
 add_subdirectory(library)
 add_subdirectory(network)

@@ -1,9 +1,7 @@
 #include "player_actions.hpp"
 
 #include "player_inputs.hpp"
-#include <GL/glfw3.h>
-
-using namespace library;
+#include <SDL.h>
 
 namespace cppcraft
 {
@@ -13,7 +11,7 @@ namespace cppcraft
 		int result = 99;
 		bool trigger_left = false;
 		bool trigger_right = false;
-		
+
 		if (keyconf.joy_enabled)
 		{
 			if (keyconf.joy_dual_axis_mining)
@@ -27,9 +25,9 @@ namespace cppcraft
 				trigger_right = keyconf.jaxis[keyconf.joy_axis_mine] > 0.5;
 			}
 		}
-		
+
 		// left mouse button
-		if (input.getMouse(keyconf.mouse_btn_place) || trigger_left)
+		if (input.mouse_button(keyconf.mouse_btn_place) || trigger_left)
 		{
 			if (lock_hand_axes == false)
 			{
@@ -37,7 +35,7 @@ namespace cppcraft
 				result = 0; // place/add block
 			}
 		}
-		else if (input.getMouse(keyconf.mouse_btn_mine) || trigger_right)
+		else if (input.mouse_button(keyconf.mouse_btn_mine) || trigger_right)
 		{
 			if (lock_hand_axes == false)
 			{
@@ -50,7 +48,7 @@ namespace cppcraft
 			lock_hand_axes = false;
 			result = 3;
 		}
-		
+
 		/// perform some action determined by inputs above ///
 		switch (result)
 		{
@@ -68,14 +66,14 @@ namespace cppcraft
 			minimizer = -1; // CRC
 			action = PA_Mineblock;
 			break;
-			
+
 		case 99: // do nothing
 			break;
-			
+
 		default:
 			// cancel stuff
 			cancelDig();
 		}
 	}
-	
+
 }

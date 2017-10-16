@@ -5,6 +5,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <SDL2pp/Window.hh>
 #include "block.hpp"
 
 namespace library
@@ -17,8 +18,7 @@ namespace cppcraft
 	class Sector;
 	class InventoryItem;
 
-	class PlayerClass
-	{
+	class PlayerClass {
 	public:
 		// position
 		glm::vec3 pos;
@@ -40,7 +40,7 @@ namespace cppcraft
 		bool changedRotation;
 
 		void initPlayer();
-		void initInputs(library::WindowClass& scr);
+		void initInputs(SDL2pp::Window&);
 		// first we run this, to get inputs
 		void handleInputs();
 		// handle any Joystick

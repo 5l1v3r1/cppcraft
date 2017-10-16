@@ -14,6 +14,7 @@
 #include "threading.hpp"
 #include "worldmanager.hpp"
 #include <string>
+#include <SDL.h>
 
 const std::string configFile = "config.ini";
 const std::string logFile    = "cppcraft.log";
@@ -23,6 +24,12 @@ using namespace cppcraft;
 
 int main(int argc, char* argv[])
 {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
+  {
+    printf("Failed to initialize SDL2!\n");
+    return EXIT_FAILURE;
+  }
+
 	// start logging to file
 	//logger.open(logFile);
 	logger << Log::INFO << "Starting up..." << Log::ENDL;
@@ -42,27 +49,27 @@ int main(int argc, char* argv[])
 	gameconf.init();
 
 	// initialize renderer
-	Renderer renderer;
+	std::unique_ptr<Renderer> renderer = nullptr;
 	try
 	{
-		renderer.create("test window");
+		renderer.reset(new Renderer("test window"));
 	}
-	catch (std::string errorstring)
+	catch (std::exception& error)
 	{
-		logger.write(Log::ERR, errorstring);
+    logger.write(Log::ERR, error.what());
 		logger.write(Log::ERR, "Failed to initialize renderer... Exiting.");
 		return EXIT_FAILURE;
 	}
 
 	// initialize game/world manager
-	WorldManager worldman;
+	std::unique_ptr<WorldManager> worldman = nullptr;
 	try
 	{
-		worldman.init(WorldManager::GS_RUNNING, renderer.getScreen(), wfolder);
+		worldman.reset(new WorldManager(WorldManager::GS_RUNNING, renderer->window(), wfolder));
 	}
-	catch (std::string errorstring)
+  catch (std::exception& error)
 	{
-		logger.write(Log::ERR, errorstring);
+    logger.write(Log::ERR, error.what());
 		logger.write(Log::ERR, "Failed to initialize renderer... Exiting.");
 		return EXIT_FAILURE;
 	}
@@ -70,11 +77,11 @@ int main(int argc, char* argv[])
 	try
 	{
 		// prepare renderer
-		renderer.prepare();
+		renderer->prepare();
 	}
-	catch (std::string errorstring)
+  catch (std::exception& error)
 	{
-		logger.write(Log::ERR, errorstring);
+		logger.write(Log::ERR, error.what());
 		logger.write(Log::ERR, "Failed to prepare renderer... Exiting.");
 		return EXIT_FAILURE;
 	}
@@ -82,26 +89,27 @@ int main(int argc, char* argv[])
 	try
 	{
 		// load player location
-		worldman.initPlayer();
+		worldman->initPlayer();
 	}
-	catch (std::string errorstring)
+	catch (std::exception& error)
 	{
-		logger.write(Log::ERR, errorstring);
+		logger.write(Log::ERR, error.what());
 		logger.write(Log::ERR, "Failed to initialize player... Exiting.");
 		return EXIT_FAILURE;
 	}
 
 	// start world manager thread
-	mtx.initThreading(worldman);
+	mtx.initThreading(*worldman);
 
 	logger << Log::INFO << "* Starting renderer..." << Log::ENDL;
 	// get stuck in rendering-loop
-	renderer.renderloop();
+	renderer->renderloop();
 	//////////////////////////////
 
 	logger << Log::INFO << "Ending..." << Log::ENDL;
 	// cleanup
 	mtx.cleanupThreading();
 
+  SDL_Quit();
 	return EXIT_SUCCESS;
 }

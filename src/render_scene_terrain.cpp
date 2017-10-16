@@ -347,7 +347,7 @@ namespace cppcraft
 		textureman.bind(2, Textureman::T_SKYBOX);
 
 		// bind standard shader
-		handleSceneUniforms(renderer.frametick,
+		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::STD_BLOCKS],
 							location,
 							loc_vtrans,
@@ -388,7 +388,7 @@ namespace cppcraft
 				glDisable(GL_CULL_FACE);
 
 				// change shader-set
-				handleSceneUniforms(renderer.frametick,
+				handleSceneUniforms(renderer.time(),
 									shaderman[Shaderman::CULLED_BLOCKS],
 									location,
 									loc_vtrans,
@@ -403,7 +403,7 @@ namespace cppcraft
 				textureman[Textureman::T_DIFFUSE].setWrapMode(GL_CLAMP_TO_EDGE);
 
 				// change shader-set
-				handleSceneUniforms(renderer.frametick,
+				handleSceneUniforms(renderer.time(),
 									shaderman[Shaderman::ALPHA_BLOCKS],
 									location,
 									loc_vtrans,
@@ -456,7 +456,7 @@ namespace cppcraft
 		glm::vec3  position(-1);
 
 		// bind standard shader
-		handleSceneUniforms(renderer.frametick,
+		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::BLOCKS_REFLECT],
 							location,
 							loc_vtrans,
@@ -530,7 +530,7 @@ namespace cppcraft
 		if (this->isUnderwater())
 		{
 			// underwater shader-set
-			handleSceneUniforms(renderer.frametick,
+			handleSceneUniforms(renderer.time(),
 								shaderman[Shaderman::BLOCKS_DEPTH],
 								location,
 								loc_vtrans,
@@ -573,7 +573,7 @@ namespace cppcraft
 					// <-- safe to increase step from this
 
 					// water shader-set
-					handleSceneUniforms(renderer.frametick,
+					handleSceneUniforms(renderer.time(),
 										shaderman[Shaderman::BLOCKS_WATER],
 										location,
 										loc_vtrans,
@@ -593,7 +593,7 @@ namespace cppcraft
 
 					textureman.bind(2, Textureman::T_MAGMA);
 					// lava shader-set
-					handleSceneUniforms(renderer.frametick,
+					handleSceneUniforms(renderer.time(),
 										shaderman[Shaderman::BLOCKS_LAVA],
 										location,
 										loc_vtrans,

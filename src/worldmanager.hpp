@@ -5,20 +5,18 @@
 #include <glm/vec3.hpp>
 #include <string>
 
-namespace library
-{
-	class WindowClass;
+namespace SDL2pp {
+	class Window;
 }
 
 namespace cppcraft
 {
 	class Chunks;
 	class PrecompQ;
-	
-	class WorldManager
-	{
+
+	class WorldManager {
 	public:
-		typedef enum
+		enum gamestate_t
 		{
 			GS_INIT,
 			GS_INTRO,
@@ -26,31 +24,29 @@ namespace cppcraft
 			GS_RUNNING,
 			GS_PAUSED,
 			GS_DEATH,
-			
+
 			GS_EXIT
-			
-		} gamestate_t;
-		
-		// initializer
-		void init(gamestate_t, library::WindowClass& scr, std::string& folder);
+		};
+
+		WorldManager(gamestate_t, SDL2pp::Window&, const std::string& folder);
 		void exit();
 		void initPlayer();
 		// running thread function
 		void submain();
 		void main();
-		
+
 		void teleport(const World::world_t& coords, const glm::vec3& position);
 		void teleportHandler();
-		
+
 		gamestate_t getState() const noexcept
 		{
 			return this->gamestate;
 		}
-		
+
 	private:
 		gamestate_t gamestate;
 	};
-	
+
 }
 
 #endif

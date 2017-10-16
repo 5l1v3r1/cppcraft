@@ -34,7 +34,7 @@ namespace cppcraft
 	void GUIRenderer::init(Renderer& renderer)
 	{
 		width  = 1.0;
-		height = 1.0 / renderer.getScreen().getAspect();
+		height = 1.0 / renderer.aspect();
 
 		// orthographic projection
 		ortho = ortho2dMatrix(width, height, 0.0f, 2.0f);
@@ -107,7 +107,7 @@ namespace cppcraft
 
 		font.print(glm::vec3(0.01, 0.01, 0.0), textScale, "cppcraft v0.1", false);
 
-		std::string fps = std::to_string(renderer.getFPS());
+		std::string fps = std::to_string(renderer.fps());
 
 		if (fps.size() > 4)
 			fps = str_front(fps, 4);

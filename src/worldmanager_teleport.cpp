@@ -8,7 +8,7 @@
 #include "compiler_scheduler.hpp"
 #include "sectors.hpp"
 #include "threading.hpp"
-#include <GL/glfw3.h>
+#include <SDL.h>
 
 using namespace library;
 
@@ -34,9 +34,9 @@ namespace cppcraft
 
 	void WorldManager::teleportHandler()
 	{
-		if (input.getKey(GLFW_KEY_P) == Input::KEY_PRESSED)
+		if (input.key(SDL_SCANCODE_P) == Input::KEY_PRESSED)
 		{
-			input.hold(GLFW_KEY_P);
+			input.hold(SDL_SCANCODE_P);
 
 			teleport_wcoords.x = World::WORLD_CENTER + 64;
 			teleport_wcoords.z = World::WORLD_CENTER + 64;

@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <library/opengl/camera.hpp>
+#include "renderman.hpp"
 
 namespace cppcraft
 {
@@ -23,7 +24,7 @@ namespace cppcraft
 		int  needsupd; // update render list
 		int  cameraViewSectors;
 
-		void init(library::WindowClass& wnd);
+		void init(Renderer& wnd);
 
 		int getGridsize() const { return this->gridsize; }
 		const glm::mat4& getProjectionLong() const

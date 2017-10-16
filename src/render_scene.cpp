@@ -109,11 +109,11 @@ namespace cppcraft
 
 			// initialize reflection camera to be the same as regular camera,
 			// except it will be mirrored on Y-axis from water-plane level
-			reflectionCamera.init(renderer.gamescr);
+			reflectionCamera.init(renderer);
 		}
 
 		// initialize some shaders with (late) texture sizes
-		glm::vec3 sceneSize = glm::vec3(sceneTex.getWidth(), sceneTex.getHeight(), renderer.getScreen().getAspect());
+		glm::vec3 sceneSize = glm::vec3(sceneTex.getWidth(), sceneTex.getHeight(), renderer.aspect());
 
 		shaderman[Shaderman::BLOCKS_WATER].bind();
 		shaderman[Shaderman::BLOCKS_WATER].sendVec3("screendata", sceneSize);
@@ -158,7 +158,7 @@ namespace cppcraft
 		/////////////////////////////////////////
 		///   render atmosphere, moon, etc.   ///
 		/////////////////////////////////////////
-		skyrenderer.render(camera, -playerPos.y, renderer.frametick, underwater ? 2 : 0);
+		skyrenderer.render(camera, -playerPos.y, renderer.time(), underwater ? 2 : 0);
 
 		// copy sky to scene
 		skyFBO.blitTo(sceneFBO,
@@ -184,10 +184,10 @@ namespace cppcraft
 				//------------------------------------//
 
 				double WEIGHT = 1.0;
-        if (renderer.FPS > 0.0) {
-          WEIGHT = std::min(1.0, 0.15 / (renderer.FPS / 120.0));
+        if (renderer.fps() > 0.0) {
+          WEIGHT = std::min(1.0, 0.15 / (renderer.fps() / 120.0));
         }
-				//logger << Log::INFO << WEIGHT << " <-- " << 120.0 / renderer.FPS << Log::ENDL;
+				//logger << Log::INFO << WEIGHT << " <-- " << 120.0 / renderer.fps << Log::ENDL;
 
 				// calculate distance to where we should be
 				float dist = distance(snapPlayerPos, player.snap_pos);
@@ -250,10 +250,10 @@ namespace cppcraft
 			minimap.update(playerPos.x, playerPos.z);
 
 			/// set player positions ///
-			netplayers.positionSnapshots(snapWX, snapWZ, renderer.dtime);
+			netplayers.positionSnapshots(snapWX, snapWZ, renderer.delta_time());
 
 			/// camera deviations ///
-			double camDev = cameraDeviation(renderer.frametick, renderer.dtime);
+			double camDev = cameraDeviation(renderer.time(), renderer.delta_time());
 			// modulate playerY when delta is high enough
 			playerPos.y += camDev;
 			// update frustum if there was a change
@@ -329,7 +329,7 @@ namespace cppcraft
 				glDepthMask(GL_FALSE);
 
 				// render sky (atmosphere, sun, moon, clouds)
-				skyrenderer.render(reflectionCamera, playerPos.y - WATERLEVEL, renderer.frametick, 1);
+				skyrenderer.render(reflectionCamera, playerPos.y - WATERLEVEL, renderer.time(), 1);
 
 				if (gameconf.reflectTerrain)
 				{
@@ -376,7 +376,7 @@ namespace cppcraft
 		glEnable(GL_CULL_FACE);
 
 		// render networked players
-		netplayers.renderPlayers(renderer.frametick, renderer.dtime);
+		netplayers.renderPlayers(renderer.time(), renderer.delta_time());
 
 		// render player selection
 		renderPlayerSelection();
@@ -441,7 +441,7 @@ namespace cppcraft
 		// --> inputs  T_SCENEBUFFER (or T_FINALBUFFER)
 		// --> outputs T_RENDERBUFFER
 		fogFBO.bind();
-		screenspace.terrainFog(renderer.frametick);
+		screenspace.terrainFog(renderer.time());
 
 		if (gameconf.distance_blur)
 		{
@@ -474,7 +474,7 @@ namespace cppcraft
 		/// update particles ///
 		particleSystem.renderUpdate();
 		/// render particles ///
-		particleSystem.render(snapWX, snapWZ, renderer.frametick);
+		particleSystem.render(snapWX, snapWZ, renderer.time());
 
 		/// render netplayer nametags ///
 		netplayers.renderNameTags();

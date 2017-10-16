@@ -18,13 +18,13 @@ using namespace library;
 namespace cppcraft
 {
 	Shaderman shaderman;
-	
+
 	template <typename R>
 	std::string toString(R x)
 	{
 		return static_cast<std::ostringstream*>( &(std::ostringstream() << x) )->str();
 	}
-	
+
 	std::string tokenizer(std::string text)
 	{
 		if (text == "const int TX_REPEAT")
@@ -76,26 +76,26 @@ namespace cppcraft
 		{
 			text = (gameconf.reflections) ? text : "";
 		}
-		
+
 		return text;
 	}
-	
-	void Shaderman::init(WindowClass& gamescr, const Camera& camera)
+
+	void Shaderman::init(Renderer& renderer, const Camera& camera)
 	{
 		logger << Log::INFO << "* Loading & processing shaders" << Log::ENDL;
-		
+
 		// "constant" data
-		glm::vec3 vecScreen(gamescr.getWidth(), gamescr.getHeight(), gamescr.getAspect());
-		glm::vec3 vecSuperScreen(gamescr.getWidth() * gameconf.supersampling, gamescr.getHeight() * gameconf.supersampling, gamescr.getAspect());
-		
+		glm::vec3 vecScreen(renderer.width(), renderer.height(), renderer.aspect());
+		glm::vec3 vecSuperScreen(renderer.width() * gameconf.supersampling, renderer.height() * gameconf.supersampling, renderer.aspect());
+
 		// load and initialize all shaders
 		std::vector<std::string> linkstage;
-		
+
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_normal");
 		linkstage.emplace_back("in_texture");
 		linkstage.emplace_back("in_biome");
-		
+
 		// block shaders
 		for (int i = 0; i < 8; i++)
 		{
@@ -126,9 +126,9 @@ namespace cppcraft
 				shaders[BLOCKS_DEPTH] = Shader("shaders/blocks_depth.glsl", tokenizer, linkstage);
 				break;
 			}
-			
+
 			int sbase = (int)STD_BLOCKS;
-			
+
 			// projection matrix
 			shaders[sbase + i].sendMatrix("matproj", camera.getProjection());
 			// texture units
@@ -136,7 +136,7 @@ namespace cppcraft
 			shaders[sbase + i].sendInteger("tonemap", 1);
 			shaders[sbase + i].sendInteger("skymap", 2);
 		}
-		
+
 		// extra textures for water
 		shaders[BLOCKS_WATER].bind();
 		shaders[BLOCKS_WATER].sendInteger("underwatermap", 0);
@@ -144,175 +144,175 @@ namespace cppcraft
 		shaders[BLOCKS_WATER].sendInteger("reflectionmap", 2);
 		// near plane half size
 		shaders[BLOCKS_WATER].sendVec2("nearPlaneHalfSize", camera.getNearPlaneHalfSize());
-		
+
 		// extra textures for lava
 		shaders[BLOCKS_LAVA].bind();
 		shaders[BLOCKS_LAVA].sendInteger("lavatex", 2);
-		
+
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_normal");
 		linkstage.emplace_back("in_texture");
-		
+
 		shaders[PLAYERMODEL] = Shader("shaders/players.glsl", tokenizer, linkstage);
 		shaders[PLAYERMODEL].sendMatrix("matproj", camera.getProjection());
 		shaders[PLAYERMODEL].sendInteger("texture", 0);
-		
+
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_texture");
-		
+
 		// player selection shaders
 		shaders[SELECTION] = Shader("shaders/selection.glsl", tokenizer, linkstage);
 		shaders[SELECTION].sendInteger("diffuse", 0);
-		
+
 		shaders[SELECTION_MINING] = Shader("shaders/selection_mine.glsl", tokenizer, linkstage);
 		shaders[SELECTION_MINING].sendInteger("diffuse", 0);
-		
+
 		// voxel shaders
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_normal");
 		linkstage.emplace_back("in_color");
-		
+
 		shaders[VOXEL] = Shader("shaders/playerhand_voxel.glsl", tokenizer, linkstage);
-		
-		
+
+
 		// particles
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_data");
 		linkstage.emplace_back("in_normdata");
 		linkstage.emplace_back("in_color");
-		
+
 		shaders[PARTICLE] = Shader("shaders/particles.glsl", tokenizer, linkstage);
 		shaders[PARTICLE].sendInteger("texture", 0);
 		shaders[PARTICLE].sendMatrix("matproj", camera.getProjection());
 		shaders[PARTICLE].sendVec2("screensize", glm::vec2(vecScreen));
-		
+
 		// atmospherics shader
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
-		
+
 		shaders[ATMOSPHERE] = Shader("shaders/atmosphere.glsl", tokenizer, linkstage);
 		shaders[ATMOSPHERE].sendInteger("skymap",  0);
 		shaders[ATMOSPHERE].sendInteger("starmap", 1);
 		shaders[ATMOSPHERE].sendMatrix("matproj", camera.getProjection());
-		
+
 		// sun shader
 		shaders[SUN] = Shader("shaders/sun.glsl", tokenizer, linkstage);
 		shaders[SUN].sendMatrix("matproj", camera.getProjection());
 		shaders[SUN].sendInteger("texture", 0);
-		
+
 		// projected sun shader
 		shaders[SUNPROJ] = Shader("shaders/sunproj.glsl", tokenizer, linkstage);
 		shaders[SUNPROJ].sendMatrix("matproj", camera.getProjection());
 		shaders[SUNPROJ].sendInteger("texture", 0);
 		shaders[SUNPROJ].sendInteger("depth",   1);
-		
+
 		// moon shader
 		shaders[MOON] = Shader("shaders/moon.glsl", tokenizer, linkstage);
 		shaders[MOON].sendMatrix("matproj", camera.getProjection());
 		shaders[MOON].sendInteger("texture", 0);
-		
+
 		// clouds shader
 		shaders[CLOUDS] = Shader("shaders/clouds.glsl", tokenizer, linkstage);
 		shaders[CLOUDS].sendMatrix("matproj", camera.getProjectionLong());
 		shaders[CLOUDS].sendInteger("cloudstex", 0);
-		
+
 		// screenspace fog shader
 		shaders[FSTERRAINFOG] = Shader("shaders/fsterrainfog.glsl", tokenizer, linkstage);
 		shaders[FSTERRAINFOG].sendInteger("terrain",      0);
 		shaders[FSTERRAINFOG].sendInteger("skytexture",   1);
 		shaders[FSTERRAINFOG].sendInteger("depthtexture", 2);
-		
+
 		// near plane half size
 		shaders[FSTERRAINFOG].sendVec2("nearPlaneHalfSize", camera.getNearPlaneHalfSize());
 		// screen size
 		shaders[FSTERRAINFOG].sendVec2("screenSize", glm::vec2(vecScreen));
-		
+
 		// screenspace terrain shader
 		shaders[FSTERRAIN] = Shader("shaders/fsterrain.glsl", tokenizer, linkstage);
 		shaders[FSTERRAIN].sendInteger("terrain",     0);
 		shaders[FSTERRAIN].sendVec2("offset", glm::vec2(1.0f) / glm::vec2(vecScreen));
-		
+
 		// supersampling (downsampler) shader
 		shaders[SUPERSAMPLING] = Shader("shaders/supersample.glsl", tokenizer, linkstage);
 		shaders[SUPERSAMPLING].sendInteger("colorbuffer", 0);
 		shaders[SUPERSAMPLING].sendInteger("samples",     gameconf.supersampling);
 		shaders[SUPERSAMPLING].sendVec2("offsets",        glm::vec2(1.0f) / glm::vec2(vecSuperScreen));
-		
+
 		// lensflare
 		shaders[LENSFLARE] = Shader("shaders/lensflare.glsl", tokenizer, linkstage);
-		
+
 		shaders[LENSFLARE].sendInteger("LowBlurredSunTexture",  0);
 		shaders[LENSFLARE].sendInteger("HighBlurredSunTexture", 1);
 		shaders[LENSFLARE].sendInteger("DirtTexture", 2);
-		
+
 		shaders[LENSFLARE].sendFloat("Dispersal", 0.2);
 		shaders[LENSFLARE].sendFloat("HaloWidth", 0.5);
 		shaders[LENSFLARE].sendFloat("Intensity", 2.5);
 		shaders[LENSFLARE].sendVec3("Distortion", glm::vec3(0.95f, 0.97f, 1.0f));
-		
+
 		// blur shaders
 		shaders[BLUR] = Shader("shaders/blur.glsl", nullptr, linkstage);
 		shaders[BLUR].sendInteger("blurTexture", 0);
 		shaders[BLUR].sendInteger("Width", 4);
 		//shaders[GAUSS] = Shader("shaders/blurGaussian.glsl", nullptr, linkstage);
 		//shaders[GAUSS].sendInteger("texture", 0);
-		
+
 		// screenspace postprocessing shader
 		shaders[POSTPROCESS] = Shader("shaders/screenspace.glsl", tokenizer, linkstage);
 		shaders[POSTPROCESS].sendInteger("terrain",   0);
 		shaders[POSTPROCESS].sendInteger("lensflare", 1);
-		
+
 		// minimap shader
 		shaders[MINIMAP] = Shader("shaders/minimap.glsl", tokenizer, linkstage);
 		shaders[MINIMAP].sendInteger("texture", 0);
-		
+
 		// Player hand shader
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_normal");
 		linkstage.emplace_back("in_texture");
-		
+
 		shaders[PLAYERHAND] = Shader("shaders/playerhand.glsl", tokenizer, linkstage);
 		shaders[PLAYERHAND].sendInteger("texture", 0);
 		shaders[PLAYERHAND].sendMatrix("matproj", camera.getProjection());
-		
+
 		// playerhand held-item, re-using meshobjects
 		shaders[PHAND_HELDITEM] = Shader("shaders/playerhand_helditem.glsl", tokenizer, linkstage);
 		shaders[PHAND_HELDITEM].sendInteger("texture", 0);
 		shaders[PHAND_HELDITEM].sendMatrix("matproj", camera.getProjection());
-		
+
 		// Multi-purpose GUI shader
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_texture");
 		linkstage.emplace_back("in_color");
-		
+
 		shaders[GUI] = Shader("shaders/gui.glsl", tokenizer, linkstage);
 		shaders[GUI].sendInteger("texture", 0);
-		
+
 		// GUI menuitem shader
 		shaders[MENUITEM] = Shader("shaders/gui_item.glsl", tokenizer, linkstage);
 		shaders[MENUITEM].sendInteger("texture", 0);
-		
+
 		// compass shader
 		shaders[COMPASS] = Shader("shaders/compass.glsl", tokenizer, linkstage);
 		shaders[COMPASS].sendInteger("texture", 0);
-		
+
 		// color-only shader
 		linkstage.clear();
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_color");
-		
+
 		shaders[GUI_COLOR] = Shader("shaders/gui_color.glsl", tokenizer, linkstage);
 	}
-	
+
 	Shader& Shaderman::operator[] (shaderlist_t shader)
 	{
 		return shaders[shader];
 	}
-	
+
 }

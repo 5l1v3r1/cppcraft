@@ -1,5 +1,6 @@
 #include "worldmanager.hpp"
 
+#include <SDL2pp/Window.hh>
 #include "chunks.hpp"
 #include "items.hpp"
 #include "lighting.hpp"
@@ -17,7 +18,10 @@ namespace cppcraft
 {
   Sectors sectors(0);
 
-	void WorldManager::init(gamestate_t gs, library::WindowClass& gameScreen, std::string& worldFolder)
+	WorldManager::WorldManager(
+      gamestate_t gs,
+      SDL2pp::Window& window,
+      const std::string& worldFolder)
 	{
 		this->gamestate = gs;
 		// initalize world
@@ -46,7 +50,7 @@ namespace cppcraft
 		soundman.init();
 
 		// initialize keyboard / joystick input
-		player.initInputs(gameScreen);
+		player.initInputs(window);
 	}
 	void WorldManager::exit()
 	{

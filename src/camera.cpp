@@ -17,7 +17,7 @@ namespace cppcraft
 	cppcraft::Camera camera;
 	cppcraft::Camera reflectionCamera;
 
-	void Camera::init(WindowClass& wnd)
+	void Camera::init(Renderer& renderer)
 	{
 		logger << Log::INFO << "* Initializing frustum" << Log::ENDL;
 
@@ -40,10 +40,10 @@ namespace cppcraft
 		this->znear = 0.136;
 		this->zfar  = cameraViewSectors * Sector::BLOCKS_XZ;
 
-		setProjection(this->FOV, wnd.getAspect(), this->znear, this->zfar);
+		setProjection(this->FOV, renderer.aspect(), this->znear, this->zfar);
 
 		// long projection matrix
-		matproj_long = perspectiveMatrix(this->FOV, wnd.getAspect(), this->znear, this->zfar * 1.6);
+		matproj_long = perspectiveMatrix(this->FOV, renderer.aspect(), this->znear, this->zfar * 1.6);
 	}
 
 	void Camera::setWorldOffset(double posX, double posY, double posZ)

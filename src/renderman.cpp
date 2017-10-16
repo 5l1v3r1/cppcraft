@@ -1,14 +1,14 @@
 #include "renderman.hpp"
 
 #include <library/log.hpp>
-#include <library/opengl/opengl.hpp>
 #include <library/timing/timer.hpp>
-
+#include <SDL2pp/SDL2pp.hh>
 #include "camera.hpp"
 #include "compilers.hpp"
 #include "drawq.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
+#include "player_inputs.hpp"
 #include "render_fs.hpp"
 #include "render_gui.hpp"
 #include "render_scene.hpp"
@@ -19,52 +19,41 @@
 #include "threading.hpp"
 #include <cmath>
 #include <deque>
-//#define DEBUG
 
 using namespace library;
 
 namespace cppcraft
 {
-	Renderer::Renderer()
+	Renderer::Renderer(const std::string& title)
 	{
-		this->frametick = 0.0;
-		this->dtime = 1.0;
-	}
-  // just so we can see scene renderer
-  Renderer::~Renderer() {
-    delete sceneRenderer;
-  }
+    const bool fullscreen = config.get("render.fullscreen", false);
+    const bool vsync      = config.get("render.vsync", false);
+    const int refreshrate = config.get("render.refresh", 0);
+    const int SW = config.get("window.width", 1280);
+    const int SH = config.get("window.height", 720);
+    const int WX = config.get("window.x", 128);
+    const int WY = config.get("window.y", 128);
 
-	void Renderer::create(std::string windowTitle)
-	{
-		WindowConfig wndconf;
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
-		wndconf.title = windowTitle;
-		wndconf.fullscreen  = config.get("opengl.fullscreen", false);
-		if (wndconf.fullscreen)
-		{
-			wndconf.SW = config.get("screen.width", 1280);
-			wndconf.SH = config.get("screen.height", 720);
-			wndconf.refreshrate = config.get("opengl.refresh", 0);
-		}
-		else
-		{
-			wndconf.SW = config.get("window.width", 1280);
-			wndconf.SH = config.get("window.height", 720);
-		}
-		wndconf.multisample = 0;
-		wndconf.vsync     = config.get("opengl.vsync", true);
-		wndconf.depthbits = 24;
-		wndconf.stencbits =  0;
+		// open SDL window
+    m_window.reset(new SDL2pp::Window(title,
+            (WX > 0) ? WX : SDL_WINDOWPOS_CENTERED,
+            (WY > 0) ? WY : SDL_WINDOWPOS_CENTERED,
+            SW, SH, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
 
-		// open a GLFW ogl context window
-		gamescr.open(wndconf);
+    // SDL renderer
+    m_renderer.reset(new SDL2pp::Renderer(*m_window, -1,
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE));
 
-		// move window if we are not fullscreen
-		if (wndconf.fullscreen == false)
-		{
-			gamescr.setPosition(config.get("window.x", 64), config.get("window.y", 64));
-		}
+    const auto ogl = library::OpenGL(false);
+    assert(ogl.supportsVBO);
+    assert(ogl.supportsVAO);
+    assert(ogl.supportsFramebuffers);
+    assert(ogl.supportsShaders);
+    assert(ogl.supportsTextureArrays);
 
 		// enable custom point sprites
 		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -76,12 +65,12 @@ namespace cppcraft
 		glDisable(GL_PRIMITIVE_RESTART);
 		glPrimitiveRestartIndex(65535);
 
-		if (OpenGL::checkError())
-		{
+#ifdef OPENGL_DO_CHECKS
+		if (OpenGL::checkError()) {
 			logger << Log::ERR << "Renderer::init(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
-			throw std::string("Renderer::init(): General openGL error");
+			throw std::runtime_error("Renderer::init(): General openGL error");
 		}
-
+#endif
 	}
 
 	void Renderer::prepare()
@@ -92,22 +81,22 @@ namespace cppcraft
 		Compilers::init();
 
 		// initialize camera
-		camera.init(gamescr);
+		camera.init(*this);
 		// init tile sizes
 		tiles.init();
 		// initialize sun, and lens textures at half-size
 		thesun.init(SunClass::SUN_DEF_ANGLE);
 
 		// initialize screenspace blur, lensflare & crepuscular beams
-		screenspace.init(gamescr);
+		screenspace.init(*this);
 
 		// initialize texture manager
-		textureman.init(gamescr);
+		textureman.init(*this);
 		// initialize shader manager
-		shaderman.init(gamescr, camera);
+		shaderman.init(*this, camera);
 
 		// initialize scene renderer
-		sceneRenderer = new SceneRenderer(*this);
+		m_scene.reset(new SceneRenderer(*this));
 
 		// initialize gui renderer
 		rendergui.init(*this);
@@ -129,7 +118,7 @@ namespace cppcraft
 		this->scene_elements = 0;
 
 		// render scene
-		sceneRenderer->render(*this);
+		m_scene->render(*this);
 
 		#ifdef TIMING
 		logger << Log::INFO << "Time spent rendering: " << timer.getDeltaTime() * 1000.0 << Log::ENDL;
@@ -139,19 +128,18 @@ namespace cppcraft
 		this->scene_elements = drawq.size();
 
 		// post processing
-		screenspace.render(gamescr, this->frametick, sceneRenderer->isUnderwater());
+		screenspace.render(*this, m_scene->isUnderwater());
 		// gui
 		rendergui.render(*this);
 
-		#ifdef DEBUG
-		if (OpenGL::checkError())
-		{
-			throw std::string("Renderer::render(): OpenGL state error after rendering frame");
+#ifdef OPENGL_DO_CHECKS
+		if (OpenGL::checkError()) {
+			throw std::runtime_error("Renderer::render(): OpenGL state error after rendering frame");
 		}
-		#endif
+#endif
 
 		// flip burgers
-		glfwSwapBuffers(gamescr.window());
+		renderer().Present();
 
 		// disable stuff
 		camera.rotated = false;
@@ -174,11 +162,11 @@ namespace cppcraft
 
 		this->FPS = 0.0;
 
-		while (glfwWindowShouldClose(gamescr.window()) == 0 && mtx.terminate == false)
+		while (mtx.terminate == false)
 		{
 			/// variable delta frame timing ///
 			double t0 = t1;
-			t1 = glfwGetTime();
+			t1 = SDL_GetTicks() / 1000.0;
 
 			dtime = (t1 - t0) / render_granularity;
 
@@ -205,18 +193,21 @@ namespace cppcraft
 			render(dtime);
 
 			// poll for events
-			glfwPollEvents();
+      SDL_Event event;
+      while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT) {
+          mtx.terminate = true;
+        }
+        else {
+          input.handle(event);
+        }
+      }
 
 			// interpolate player rotation and signals camera refresh
 			player.handleRotation();
 
 		} // rendering loop
-
-		// close main window
-		gamescr.close();
-
-		// cleanup GLFW / threading (whenever that happens)
-		glfwTerminate();
 	}
 
 }
