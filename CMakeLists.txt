@@ -8,11 +8,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2 -march=native")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=thread")
 set(BUILD_SHARED_LIBRARIES OFF)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if (UNIX)
-  set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
   find_package(GLEW REQUIRED glew)
-  find_package(SDL2 REQUIRED)
+  find_package(SDL2 REQUIRED sdl2)
   include_directories(${GLEW_STATIC_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
   link_directories("${GLEW_STATIC_LIBRARY_DIRS}")
 
