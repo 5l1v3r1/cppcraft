@@ -27,9 +27,6 @@ namespace cppcraft
 
 	void SceneRenderer::initTerrain()
 	{
-		// initialize flatland 3d textures
-		//flatlands.initTextures();
-
 		// initialize column drawing queue
 		drawq.init();
 
@@ -181,26 +178,19 @@ namespace cppcraft
 		// reset after 2nd run
 		else if (camera.needsupd == 2) camera.needsupd = 0;
 
-		Column* cv;    // queue: shaderline --> mesh index
-		GLuint  occlusion_result;
-
 		// update and compress the draw queue
 		// by counting visible entries for each shader line, and re-adding as we go
 		for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
 		{
-			// number of columns in each draw queue
-			int count = drawq[i].count();
-			// clear, which does only 1 thing: set count = 0
-			drawq[i].clear();
+      size_t items = 0;
 
 			// loop through this shader line
-			for (int j = 0; j < count; j++)
+			for (auto* cv : drawq[i])
 			{
-				cv = drawq[i].get(j);
-
 				// get/set occlusion status
 				if (cv->occluded[i] == 1)
 				{
+          GLuint occlusion_result;
 					glGetQueryObjectuiv(cv->occlusion[i], GL_QUERY_RESULT_AVAILABLE, &occlusion_result);
 
 					if (occlusion_result)
@@ -227,16 +217,16 @@ namespace cppcraft
 				{
 					// add to new position, effectively compressing
 					// and linearizing queue internally
-					drawq[i].add(cv);
+          drawq[i][items++] = cv;
 				}
-
 			}
+      drawq[i].resize(items);
 
 		} // next shaderline
 
 	} // sort render queue
 
-	void renderColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
+	void SceneRenderer::renderColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
 	{
 		// make sure we don't resend same position again
 		// around 10k+ skips per second with axis=64
@@ -261,17 +251,14 @@ namespace cppcraft
 		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
 	}
 
-	void renderColumnSet(int i, glm::vec3& position, GLint loc_vtrans)
+	void SceneRenderer::renderColumnSet(int i, glm::vec3& position, GLint loc_vtrans)
 	{
 		if (camera.needsupd)
 		{
 			// render and count visible samples
-			for (int j = 0; j < drawq[i].count(); j++)
+      for(auto* cv : drawq[i])
 			{
-				Column* cv = drawq[i].get(j);
-
-				switch (cv->occluded[i])
-				{
+				switch (cv->occluded[i]) {
 				case 0:
 					// start counting samples passed
 					glBeginQuery(GL_ANY_SAMPLES_PASSED, cv->occlusion[i]);
@@ -295,10 +282,9 @@ namespace cppcraft
 		else
 		{
 			// direct render
-			for (int j = 0; j < drawq[i].count(); j++)
+			for (auto* column : drawq[i])
 			{
-				Column* cv = drawq[i].get(j);
-				renderColumn(cv, i, position, loc_vtrans);
+				renderColumn(column, i, position, loc_vtrans);
 			}
 		}
 	}
@@ -366,8 +352,7 @@ namespace cppcraft
 
 		for (int i = 0; i < (int) RenderConst::TX_WATER; i++)
 		{
-			switch (i)
-			{
+			switch (i) {
 			case RenderConst::TX_REPEAT: // repeatable solids (most terrain)
 
 				// big repeatable textures
@@ -410,7 +395,7 @@ namespace cppcraft
 									position, renderCam);
 
 				// safe to increase step from this -->
-				if (drawq[i].count() == 0) continue;
+				if (drawq[i].size() == 0) continue;
 				// <-- safe to increase step from this
 
 				// set texrange
@@ -500,9 +485,8 @@ namespace cppcraft
 			}
 
 			// direct render
-			for (int j = 0; j < reflectionq[i].count(); j++)
+      for (auto* cv : reflectionq[i])
 			{
-				Column* cv = reflectionq[i].get(j);
 				renderReflectedColumn(cv, i, position, loc_vtrans);
 			}
 		} // next shaderline
@@ -569,7 +553,7 @@ namespace cppcraft
 				case RenderConst::TX_WATER:
 
 					// safe to increase step from this -->
-					if (drawq[i].count() == 0) continue;
+					if (drawq[i].size() == 0) continue;
 					// <-- safe to increase step from this
 
 					// water shader-set
@@ -588,7 +572,7 @@ namespace cppcraft
 				case RenderConst::TX_LAVA:
 
 					// safe to increase step from this -->
-					if (drawq[i].count() == 0) continue;
+					if (drawq[i].size() == 0) continue;
 					// <-- safe to increase step from this
 
 					textureman.bind(2, Textureman::T_MAGMA);

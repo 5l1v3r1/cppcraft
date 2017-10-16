@@ -13,48 +13,11 @@ namespace cppcraft
 {
 	class Column;
 
-	class DrawQueueShaderline {
-	public:
-		// adds a column to this draw queue
-		void add(Column* cv)
-		{
-			if (this->items < queue.size())
-			{
-				this->queue[this->items] = cv;
-			}
-			else queue.push_back(cv);
-
-			this->items++;
-		}
-
-		// returns the number of items in the current queue
-		int count() const noexcept
-		{
-			return this->items;
-		}
-
-		// "clears" the drawing queue
-		void clear() noexcept
-		{
-			this->items = 0;
-		}
-
-		// returns an element from the draw queue
-		Column* get(int index)
-		{
-			return this->queue.at(index);
-		}
-
-	private:
-		// queue
-		std::vector<Column*> queue;
-		unsigned int items;
-	};
-
 	class DrawQueue
 	{
 	private:
-		std::array<DrawQueueShaderline, RenderConst::MAX_UNIQUE_SHADERS> lines;
+    typedef std::vector<Column*> drawq_shaderline_t;
+		std::array<drawq_shaderline_t, RenderConst::MAX_UNIQUE_SHADERS> lines;
 		bool above;
 
 	public:
@@ -63,18 +26,19 @@ namespace cppcraft
 		// initialize drawing queue
 		void init();
 		// reset drawing queue (all shaderlines)
-		void reset();
+		void reset()
+    {
+      for (auto& vec : lines) vec.clear();
+    }
 
-		DrawQueueShaderline& operator[] (int shader)
-		{
+		auto& operator[] (int shader) {
 			return lines.at(shader);
 		}
 
 		int size() const
 		{
-			int cnt = 0;
-			for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
-				cnt += lines[i].count();
+			size_t cnt = 0;
+			for (auto& vec : lines) cnt += vec.size();
 			return cnt;
 		}
 		int size(int occlusion_status);

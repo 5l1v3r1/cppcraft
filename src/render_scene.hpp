@@ -9,6 +9,7 @@
 namespace cppcraft
 {
 	class Camera;
+  class Column;
 	class DrawQueue;
 	class Renderer;
 	class SkyRenderer;
@@ -54,6 +55,9 @@ namespace cppcraft
 		void renderScene(Renderer& renderer, cppcraft::Camera& camera);
 		void renderReflectedScene(Renderer& renderer, cppcraft::Camera& camera);
 		void renderSceneWater(Renderer& renderer);
+
+    void renderColumn(Column*, int i, glm::vec3& position, int loc_vtrans);
+    void renderColumnSet(int i, glm::vec3& position, int loc_vtrans);
 
 		friend class SkyRenderer;
 		friend class GUIRenderer;

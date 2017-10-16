@@ -159,7 +159,7 @@ namespace cppcraft
 						cv.pos.x = x * BLOCKS_XZ;
 						cv.pos.z = z * BLOCKS_XZ;
 
-						for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
+						for (size_t i = 0; i < lines.size(); i++)
 						{
 							if (cv.vertices[i] != 0)
 							{
@@ -172,7 +172,7 @@ namespace cppcraft
 								}
 
 								// add to draw queue
-								this[0][i].add(&cv);
+                lines[i].push_back(&cv);
 							}
 
 						} // while i < shaders

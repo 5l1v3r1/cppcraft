@@ -318,7 +318,7 @@ namespace cppcraft
 		// so we just disable them completely when the player is below it
 		if (gameconf.reflections)
 		{
-			if (playerPos.y >= WATERLEVEL && drawq[RenderConst::TX_WATER].count() != 0)
+			if (playerPos.y >= WATERLEVEL && drawq[RenderConst::TX_WATER].size() != 0)
 			{
 				reflectionCamera.ref = camera.ref;
 				reflectionCamera.rotated = camera.rotated;
