@@ -3,9 +3,9 @@
 #include <library/log.hpp>
 #include "camera.hpp"
 #include "chat.hpp"
+#include "game.hpp"
 #include "gui/menu.hpp"
 #include "player_actions.hpp"
-#include "player_inputs.hpp"
 #include "player_logic.hpp"
 #include "player_physics.hpp"
 #include "renderconst.hpp"
@@ -149,19 +149,19 @@ namespace cppcraft
 			float dx = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_xrot]);
 			float dy = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_yrot]);
 
-			input.add_rotation(vec2(dx, dy) * keyconf.joy_speed);
+			game.input().add_rotation(vec2(dx, dy) * keyconf.joy_speed);
 		}
 
 		// measure closeness
-		float dx = fabsf(player.rot.x - input.rotation().x);
-		float dy = fabsf(player.rot.y - input.rotation().y);
+		float dx = fabsf(player.rot.x - game.input().rotation().x);
+		float dy = fabsf(player.rot.y - game.input().rotation().y);
 
 		// rotate if too far apart (NOTE: possible bug with calculating angle distance)
 		player.changedRotation = (dx > 0.0001 || dy > 0.0001);
 		if (player.changedRotation)
 		{
 			// set new rotation, and update camera
-			player.rot = input.rotation();
+			player.rot = game.input().rotation();
 			camera.recalc  = true; // rebuild visibility set
 			camera.rotated = true; // resend all rotation matrices
 		}

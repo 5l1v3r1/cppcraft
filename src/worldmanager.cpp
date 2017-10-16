@@ -4,6 +4,7 @@
 #include <library/timing/timer.hpp>
 #include <library/sleep.hpp>
 #include "chunks.hpp"
+#include "game.hpp"
 #include "generator.hpp"
 #include "generator/objectq.hpp"
 #include "lighting.hpp"
@@ -13,7 +14,7 @@
 #include "seamless.hpp"
 #include "soundman.hpp"
 #include "sun.hpp"
-#include "threading.hpp"
+//#include "threading.hpp"
 #include "world.hpp"
 
 using namespace library;
@@ -37,7 +38,7 @@ namespace cppcraft
 		double _ticktimer = localTime;
 
 		// world manager main loop
-		while (mtx.terminate == false)
+		while (game.is_terminating() == false)
 		{
 			// fixed timestep
 			localTime = timer.getTime();

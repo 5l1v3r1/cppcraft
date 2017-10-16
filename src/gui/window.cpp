@@ -2,7 +2,7 @@
 
 #include <library/opengl/opengl.hpp>
 #include <library/bitmap/colortools.hpp>
-#include "../player_inputs.hpp"
+#include "../game.hpp"
 #include "../textureman.hpp"
 #include "../shaderman.hpp"
 #include "bordered_frame.hpp"
@@ -74,14 +74,14 @@ namespace gui
 
 	void Window::open()
 	{
-		input.grab(false);
-		input.mouse_show(true);
+		game.input().grab(false);
+		game.input().mouse_show(true);
 		menu.wnd = this;
 	}
 	void Window::close()
 	{
-		input.grab(true);
-		input.mouse_show(false);
+		game.input().grab(true);
+		game.input().mouse_show(false);
 		menu.wnd = nullptr;
 	}
 }

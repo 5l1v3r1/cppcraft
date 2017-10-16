@@ -2,8 +2,8 @@
 
 #include "chunks.hpp"
 #include "columns.hpp"
+#include "game.hpp"
 #include "player.hpp"
-#include "player_inputs.hpp"
 #include "precompq.hpp"
 #include "compiler_scheduler.hpp"
 #include "sectors.hpp"
@@ -34,9 +34,9 @@ namespace cppcraft
 
 	void WorldManager::teleportHandler()
 	{
-		if (input.key(SDL_SCANCODE_P) == Input::KEY_PRESSED)
+		if (game.input().key(SDL_SCANCODE_P) == Input::KEY_PRESSED)
 		{
-			input.hold(SDL_SCANCODE_P);
+			game.input().hold(SDL_SCANCODE_P);
 
 			teleport_wcoords.x = World::WORLD_CENTER + 64;
 			teleport_wcoords.z = World::WORLD_CENTER + 64;

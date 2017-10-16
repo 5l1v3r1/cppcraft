@@ -2,8 +2,7 @@
 
 #include <library/bitmap/colortools.hpp>
 #include <library/opengl/oglfont.hpp>
-#include <library/opengl/input.hpp>
-#include "player_inputs.hpp"
+#include "game.hpp"
 #include "renderman.hpp"
 #include "shaderman.hpp"
 #include <glm/gtx/transform.hpp>
@@ -219,7 +218,7 @@ namespace cppcraft
 		// render typing box
 		if (chatOpen)
 		{
-			std::string ctext = input.text() + ((((int) renderer.time() / 50) % 2 == 0) ? "_" : " ");
+			std::string ctext = game.input().text() + ((((int) renderer.time() / 50) % 2 == 0) ? "_" : " ");
 			std::string now = timeString(currentTime());
 
 			const std::string nickname = "**FIXME**";

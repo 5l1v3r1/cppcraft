@@ -2,12 +2,11 @@
 
 #include <library/log.hpp>
 #include "chat.hpp"
+#include "game.hpp"
 #include "gameconf.hpp"
 #include "gui/menu.hpp"
 #include "player_inputs.hpp"
 #include "player_logic.hpp"
-#include "renderman.hpp"
-#include "sectors.hpp"
 #include "sun.hpp"
 #include "threading.hpp"
 #include <SDL.h>
@@ -20,7 +19,6 @@ using namespace library;
 namespace cppcraft
 {
 	keyconf_t keyconf;
-	Input     input;
 
   bool Input::mouse_button(int v)
   {
@@ -44,6 +42,7 @@ namespace cppcraft
   }
   void Input::grab(bool grabbed)
   {
+    SDL_SetWindowGrab(this->m_window, (grabbed) ? SDL_TRUE : SDL_FALSE);
     SDL_SetRelativeMouseMode((grabbed) ? SDL_TRUE : SDL_FALSE);
   }
 
@@ -67,10 +66,11 @@ namespace cppcraft
         break;
     }
   }
-  void Input::init(SDL_Window* wnd, glm::vec2 mscale)
+  void Input::init(SDL_Window* wnd, glm::vec2 mscale, glm::vec2 rot)
   {
     assert(wnd != nullptr);
-    this->window = wnd;
+    this->m_window = wnd;
+    this->m_rot = rot;
     this->m_motion_scale = mscale;
     mouse_show(false);
     grab(true);
@@ -79,7 +79,7 @@ namespace cppcraft
 	void PlayerClass::initInputs(SDL_Window& window)
 	{
 		logger << Log::INFO << "* Initializing input systems" << Log::ENDL;
-    input.init(&window, glm::vec2(0.001f, 0.002f));
+    game.input().init(&window, glm::vec2(0.001f, 0.002f), player.rot);
 
 		/// Keyboard configuration
 		keyconf.k_forward  = config.get("k_forward",  26); // W
@@ -106,12 +106,6 @@ namespace cppcraft
 		keyconf.alternateMiningButton = config.get("mouse.swap_buttons", false);
 		keyconf.mouse_btn_place = (keyconf.alternateMiningButton) ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT;
 		keyconf.mouse_btn_mine = (keyconf.alternateMiningButton) ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
-
-		// initialize input systems
-		//input.init(gameScreen, true, true);
-		//input.setRotation(player.rot);
-		//input.grabMouse(true);  // enable fps-like mouse
-		//input.mouseOptions(mspd, msens); // mouse speed & sensitivity
 
 		// initialize joystick support
 		keyconf.joy_enabled = config.get("joy.enabled", false);
@@ -229,32 +223,32 @@ namespace cppcraft
 		// testing/cheats
 		if (busyControls() == false)
 		{
-			if (input.key(SDLK_F1) == Input::KEY_PRESSED)
+			if (game.input().key(SDLK_F1) == Input::KEY_PRESSED)
 			{
-				input.hold(SDLK_F1);
+				game.input().hold(SDLK_F1);
 
 				thesun.setRadianAngle(3.14159 * 1/8);
 			}
-			if (input.key(SDLK_F2) == Input::KEY_PRESSED)
+			if (game.input().key(SDLK_F2) == Input::KEY_PRESSED)
 			{
-				input.hold(SDLK_F2);
+				game.input().hold(SDLK_F2);
 
 				thesun.setRadianAngle(3.14159 * 2/8);
 			}
-			if (input.key(SDLK_F3) == Input::KEY_PRESSED)
+			if (game.input().key(SDLK_F3) == Input::KEY_PRESSED)
 			{
-				input.hold(SDLK_F3);
+				game.input().hold(SDLK_F3);
 
 				thesun.setRadianAngle(3.14159 * 3/8);
 			}
-			if (input.key(SDLK_F4) == Input::KEY_PRESSED)
+			if (game.input().key(SDLK_F4) == Input::KEY_PRESSED)
 			{
-				input.hold(SDLK_F4);
+				game.input().hold(SDLK_F4);
 
 				thesun.setRadianAngle(-1);
 			}
 
-			if (input.key(keyconf.k_flying) || keyconf.jbuttons[keyconf.joy_btn_flying])
+			if (game.input().key(keyconf.k_flying) || keyconf.jbuttons[keyconf.joy_btn_flying])
 			{
 				if (plogic.flylock == false)
 				{
@@ -268,7 +262,7 @@ namespace cppcraft
 
 			static bool lock_quickbar_scroll = false;
 
-			int wheel = input.mouse_wheel();
+			int wheel = game.input().mouse_wheel();
 			if (wheel > 0 || keyconf.jbuttons[keyconf.joy_btn_nextitem])
 			{
 				if (lock_quickbar_scroll == false)
@@ -298,16 +292,16 @@ namespace cppcraft
 			}
 			// number keys (1-9) to directly select on quickbar
 			for (int i = 1; i < 10; i++)
-			if (input.key(SDLK_0 + i))
+			if (game.input().key(SDLK_0 + i))
 			{
 				//gui::menu.quickbarX = (i - 1) % inventory.getWidth();
 			}
 
 		} // busyControls
 
-		if (input.key(keyconf.k_escape) == Input::KEY_PRESSED || keyconf.jbuttons[keyconf.joy_btn_exit])
+		if (game.input().key(keyconf.k_escape) == Input::KEY_PRESSED || keyconf.jbuttons[keyconf.joy_btn_exit])
 		{
-			input.hold(keyconf.k_escape);
+			game.input().hold(keyconf.k_escape);
 
 			if (chatbox.isOpen())
 			{
@@ -315,30 +309,32 @@ namespace cppcraft
 			}
 			else
 			{
-				mtx.terminate = true;
+        // its over
+				game.terminate();
 			}
 		}
 
-		if (input.key(SDLK_RETURN) == Input::KEY_PRESSED)
+		if (game.input().key(SDLK_RETURN) == Input::KEY_PRESSED)
 		{
-			input.hold(SDLK_RETURN);
+			game.input().hold(SDLK_RETURN);
 			chatbox.openChat(!chatbox.isOpen());
 
 			if (chatbox.isOpen() == false)
 			{
 				// say something, as long as its something :)
-				//if (input.getText().size())
-				//	network.sendChat(input.getText());
+				//if (!game.input().text().empty())
+				//	network.sendChat(game.input().text());
 			}
-			input.text_clear();
+			game.input().text_clear();
 		}
 
-		if (input.key(SDLK_BACKSPACE) == Input::KEY_PRESSED)
+		if (game.input().key(SDLK_BACKSPACE) == Input::KEY_PRESSED)
 		{
-			input.hold(SDLK_BACKSPACE);
-			if (chatbox.isOpen())
-				input.text_backspace();
+			game.input().hold(SDLK_BACKSPACE);
+			if (chatbox.isOpen()) {
+				game.input().text_backspace();
+      }
 		}
 
-	}
+	} // handleInputs()
 }

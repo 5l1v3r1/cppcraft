@@ -1,6 +1,6 @@
 #include "player_actions.hpp"
 
-#include "player_inputs.hpp"
+#include "game.hpp"
 #include <SDL.h>
 
 namespace cppcraft
@@ -27,7 +27,7 @@ namespace cppcraft
 		}
 
 		// left mouse button
-		if (input.mouse_button(keyconf.mouse_btn_place) || trigger_left)
+		if (game.input().mouse_button(keyconf.mouse_btn_place) || trigger_left)
 		{
 			if (lock_hand_axes == false)
 			{
@@ -35,7 +35,7 @@ namespace cppcraft
 				result = 0; // place/add block
 			}
 		}
-		else if (input.mouse_button(keyconf.mouse_btn_mine) || trigger_right)
+		else if (game.input().mouse_button(keyconf.mouse_btn_mine) || trigger_right)
 		{
 			if (lock_hand_axes == false)
 			{

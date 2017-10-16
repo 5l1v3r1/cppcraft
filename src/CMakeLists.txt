@@ -26,6 +26,7 @@ set(SOURCES
     db/blockdb.cpp
     drawq.cpp
     drawq_rendergrid.cpp
+    game.cpp
     gameconf.cpp
     generator/biomegen/biome.cpp
     generator/biomegen/biomegen.cpp

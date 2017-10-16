@@ -1,7 +1,7 @@
 #include "render_gui.hpp"
 
 #include "renderman.hpp"
-#include "player_inputs.hpp"
+#include "game.hpp"
 #include "gui/menu.hpp"
 #include "gui/window.hpp"
 #include <glm/vec2.hpp>
@@ -50,11 +50,11 @@ namespace cppcraft
 		if (current != nullptr)
 		{
 			// retrieve mouse status
-			auto M = input.mouse_button(SDL_BUTTON_LEFT);
+			auto M = game.input().mouse_button(SDL_BUTTON_LEFT);
 			// calculate position on screen
 			vec2 screen = vec2(renderer.width(), renderer.height() * renderer.aspect());
 
-			vec2 pos = input.mouse_xy() / screen;
+			vec2 pos = game.input().mouse_xy() / screen;
 			// send mouse information to window
 			current->mouseEvent(M, pos);
 			// render window

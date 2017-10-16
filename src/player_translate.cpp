@@ -2,9 +2,8 @@
 
 #include <library/log.hpp>
 #include <library/math/toolbox.hpp>
-#include <library/opengl/input.hpp>
+#include "game.hpp"
 #include "player.hpp"
-#include "player_inputs.hpp"
 #include "player_physics.hpp"
 #include "sectors.hpp"
 #include "spiders.hpp"
@@ -18,7 +17,7 @@ namespace cppcraft
 	void PlayerLogic::translatePlayer()
 	{
 		bool moved = false;
-		bool jumpKey = (input.key(keyconf.k_jump) || keyconf.jbuttons[keyconf.joy_btn_jump]) && player.busyControls() == false;
+		bool jumpKey = (game.input().key(keyconf.k_jump) || keyconf.jbuttons[keyconf.joy_btn_jump]) && player.busyControls() == false;
 
 		const double PLAYER_GROUND_LEVEL = 1.51;
 		const double fw_feettest   = 1.45; // feet level, used for gravity and landing tests
@@ -34,19 +33,19 @@ namespace cppcraft
 		#ifdef DBG_FLYING
 		if (player.busyControls() == false)
 		{
-			if (input.key(keyconf.k_flydown))
+			if (game.input().key(keyconf.k_flydown))
 			{
 				// fly faster when sprint key is held down
-				if (input.key(keyconf.k_sprint))
+				if (game.input().key(keyconf.k_sprint))
 					player.pos.y -= PlayerPhysics::spdUpDown;
 				else
 					player.pos.y -= PlayerPhysics::spdUpDown * 0.25;
 				moved = true;
 			}
-			if (input.key(keyconf.k_flyup))
+			if (game.input().key(keyconf.k_flyup))
 			{
 				// fly faster when sprint key is held down
-				if (input.key(keyconf.k_sprint))
+				if (game.input().key(keyconf.k_sprint))
 					player.pos.y += PlayerPhysics::spdUpDown;
 				else
 					player.pos.y += PlayerPhysics::spdUpDown * 0.25;
@@ -100,7 +99,7 @@ namespace cppcraft
 			{
 				// lock x/z when sprinting or holding crouch key
 				if (movestate == PMS_Sprint ||
-					input.key(keyconf.k_crouch) != 0 ||
+					game.input().key(keyconf.k_crouch) != 0 ||
 					keyconf.jbuttons[3])
 				{
 					player.accel.x = 0.0;
@@ -548,7 +547,7 @@ namespace cppcraft
 			// special case for landing in water
 			// we can release the jump key (but only if its locked)
 			this->jumplock = false;
-			//input.release(keyconf.k_jump);
+			//game.input().release(keyconf.k_jump);
 		}
 		else if (freefall)
 		{
@@ -569,7 +568,7 @@ namespace cppcraft
 
 	void PlayerLogic::handlePlayerJumping()
 	{
-		bool jumpKey = (input.key(keyconf.k_jump) || keyconf.jbuttons[keyconf.joy_btn_jump]) && player.busyControls() == false;
+		bool jumpKey = (game.input().key(keyconf.k_jump) || keyconf.jbuttons[keyconf.joy_btn_jump]) && player.busyControls() == false;
 
 		if (jumpKey)
 		{

@@ -2,10 +2,9 @@
 
 #include <library/log.hpp>
 #include <library/math/toolbox.hpp>
-#include <library/opengl/input.hpp>
+#include "game.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
-#include "player_inputs.hpp"
 #include <cmath>
 
 using namespace library;
@@ -86,7 +85,7 @@ namespace cppcraft
 		}
 		else
 		{
-			if (input.key(keyconf.k_crouch) || keyconf.jbuttons[keyconf.joy_btn_crouch])
+			if (game.input().key(keyconf.k_crouch) || keyconf.jbuttons[keyconf.joy_btn_crouch])
 			{
 				// as long as currently not in freefall
 				if (plogic.freefall == false)
@@ -110,7 +109,7 @@ namespace cppcraft
 			// allowed: jetpacking, jumping, ladderwalk (probably not slowfall)
 			if (movestate != PMS_Crouch)
 			{
-				if (input.key(keyconf.k_sprint) || keyconf.jbuttons[keyconf.joy_btn_sprint])
+				if (game.input().key(keyconf.k_sprint) || keyconf.jbuttons[keyconf.joy_btn_sprint])
 				{
 					movestate = PMS_Sprint;
 				}
@@ -131,7 +130,7 @@ namespace cppcraft
 
 		if (player.Flying)
 		{
-			if (input.key(keyconf.k_sprint) || keyconf.jbuttons[keyconf.joy_btn_sprint])
+			if (game.input().key(keyconf.k_sprint) || keyconf.jbuttons[keyconf.joy_btn_sprint])
 			{
 				this->curspeed = (this->curspeed * intrpol + PlayerPhysics::spdFlying * invintr);
 			}
@@ -206,23 +205,23 @@ namespace cppcraft
 			}
 
 			/// KEYBOARD MOVEMENT
-			if (input.key(keyconf.k_left))   // left
+			if (game.input().key(keyconf.k_left))   // left
 			{
 				dx -= cosf(player.rot.y);
 				dz -= sinf(player.rot.y);
 			}
-			if (input.key(keyconf.k_right))  // right
+			if (game.input().key(keyconf.k_right))  // right
 			{
 				dx += cosf(player.rot.y);
 				dz += sinf(player.rot.y);
 			}
-			if (input.key(keyconf.k_forward)) // forward
+			if (game.input().key(keyconf.k_forward)) // forward
 			{
 				dx += sinf(player.rot.y);
 				dz -= cosf(player.rot.y);
 				plogic.Motion = 1;
 			}
-			if (input.key(keyconf.k_backward)) // backward
+			if (game.input().key(keyconf.k_backward)) // backward
 			{
 				dx -= sinf(player.rot.y);
 				dz += cosf(player.rot.y);

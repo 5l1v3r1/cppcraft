@@ -10,8 +10,6 @@ namespace cppcraft
 
 	class ThreadingClass {
 	public:
-		bool terminate = false;
-
 		// world manager thread
 		std::thread worldman;
 

@@ -2,13 +2,12 @@
 
 #include <library/log.hpp>
 #include <library/timing/timer.hpp>
-#include <SDL2pp/SDL2pp.hh>
 #include "camera.hpp"
 #include "compilers.hpp"
 #include "drawq.hpp"
+#include "game.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
-#include "player_inputs.hpp"
 #include "render_fs.hpp"
 #include "render_gui.hpp"
 #include "render_scene.hpp"
@@ -167,7 +166,7 @@ namespace cppcraft
 
 		this->FPS = 0.0;
 
-		while (mtx.terminate == false)
+		while (game.is_terminating() == false)
 		{
 			/// variable delta frame timing ///
 			double t0 = t1;
@@ -202,10 +201,10 @@ namespace cppcraft
       while (SDL_PollEvent(&event))
       {
         if (event.type == SDL_QUIT) {
-          mtx.terminate = true;
+          game.terminate();
         }
         else {
-          input.handle(event);
+          game.input().handle(event);
         }
       }
 
