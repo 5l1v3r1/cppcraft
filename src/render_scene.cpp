@@ -44,6 +44,7 @@ namespace cppcraft
 	static FBO fogFBO, finalFBO;
 
 	SceneRenderer::SceneRenderer(Renderer& renderer)
+    : renderer(renderer)
 	{
 		// initialize members
 		this->snapPlayerPos = player.pos;
@@ -135,7 +136,7 @@ namespace cppcraft
 	}
 
 	// render normal scene
-	void SceneRenderer::render(Renderer& renderer)
+	void SceneRenderer::render()
 	{
 		bool frustumRecalc = false;
 
@@ -344,7 +345,7 @@ namespace cppcraft
 
 					glEnable(GL_CULL_FACE);
 					glCullFace(GL_FRONT);
-					renderReflectedScene(renderer, reflectionCamera);
+					renderReflectedScene(reflectionCamera);
 					glCullFace(GL_BACK);
 
 					glDisable(GL_CLIP_DISTANCE0);
@@ -375,7 +376,7 @@ namespace cppcraft
 		#endif
 
 		// scene
-		renderScene(renderer, camera);
+		renderScene(camera);
 
 		glEnable(GL_CULL_FACE);
 
@@ -402,7 +403,7 @@ namespace cppcraft
 		glEnable(GL_CULL_FACE);
 
 		// finally, render scene water
-		renderSceneWater(renderer);
+		renderSceneWater();
 
 		#ifdef TIMING
 		logger << Log::INFO << "Time spent on scene: " << timerScene.getDeltaTime() * 1000.0 << Log::ENDL;

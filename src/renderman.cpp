@@ -122,18 +122,17 @@ namespace cppcraft
 		// interpolate sun position
 		thesun.integrate(0.02 * dtime);
 
-		#ifdef TIMING
+#ifdef TIMING
 		Timer timer;
 		timer.startNewRound();
-		#endif
-		this->scene_elements = 0;
+#endif
 
 		// render scene
-		m_scene->render(*this);
+		m_scene->render();
 
-		#ifdef TIMING
+#ifdef TIMING
 		logger << Log::INFO << "Time spent rendering: " << timer.getDeltaTime() * 1000.0 << Log::ENDL;
-		#endif
+#endif
 
 		// count elements in draw queue
 		this->scene_elements = drawq.size();

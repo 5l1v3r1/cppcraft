@@ -242,7 +242,7 @@ namespace cppcraft
 			// cool effect
 			if (cv->pos.y < 0.0f)
 			{
-				cv->pos.y += 0.5f;
+				cv->pos.y += 0.5f * renderer.delta_time();
 				if (cv->pos.y > 0.0f) cv->pos.y = 0.0f;
 			}
 		}
@@ -325,7 +325,7 @@ namespace cppcraft
 		location = shd.getUniform("texrange");
 	}
 
-	void SceneRenderer::renderScene(Renderer& renderer, cppcraft::Camera& renderCam)
+	void SceneRenderer::renderScene(cppcraft::Camera& renderCam)
 	{
 		GLint loc_vtrans, location;
 		glm::vec3 position(-1.0f);
@@ -435,7 +435,7 @@ namespace cppcraft
 		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
 	} // renderReflectedColumn()
 
-	void SceneRenderer::renderReflectedScene(Renderer& renderer, cppcraft::Camera& renderCam)
+	void SceneRenderer::renderReflectedScene(cppcraft::Camera& renderCam)
 	{
 		GLint loc_vtrans, location;
 		glm::vec3  position(-1);
@@ -493,7 +493,7 @@ namespace cppcraft
 
 	} // renderReflectedScene()
 
-	void SceneRenderer::renderSceneWater(Renderer& renderer)
+	void SceneRenderer::renderSceneWater()
 	{
 		GLint loc_vtrans, location;
 		glm::vec3  position(-1);

@@ -18,7 +18,8 @@ namespace cppcraft
 	class SceneRenderer {
 	public:
 		SceneRenderer(Renderer& renderer);
-		void render(Renderer& renderer);
+
+    void render();
 
 		char isUnderwater() const
 		{
@@ -26,6 +27,7 @@ namespace cppcraft
 		}
 
 	private:
+    Renderer& renderer;
 		double lastTime = 0.0;
 
 		// snapshots
@@ -52,9 +54,9 @@ namespace cppcraft
 		void recalculateFrustum(Camera& camera, DrawQueue& drawq, const glm::vec3& look);
 		void compressRenderingQueue();
 		// main scene rendering function
-		void renderScene(Renderer& renderer, cppcraft::Camera& camera);
-		void renderReflectedScene(Renderer& renderer, cppcraft::Camera& camera);
-		void renderSceneWater(Renderer& renderer);
+		void renderScene(cppcraft::Camera& camera);
+		void renderReflectedScene(cppcraft::Camera& camera);
+		void renderSceneWater();
 
     void renderColumn(Column*, int i, glm::vec3& position, int loc_vtrans);
     void renderColumnSet(int i, glm::vec3& position, int loc_vtrans);
