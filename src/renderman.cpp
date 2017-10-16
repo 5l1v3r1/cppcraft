@@ -104,6 +104,9 @@ namespace cppcraft
 
 		// initialize gui renderer
 		rendergui.init(*this);
+
+    // call on_resize handler once
+    resize_handler(this->m_width, this->m_height);
 	}
 
 	void Renderer::render(double time_d_factor)
@@ -203,7 +206,13 @@ namespace cppcraft
         if (event.type == SDL_QUIT) {
           game.terminate();
         }
-        else {
+        else if (event.type == SDL_WINDOWEVENT) {
+          if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+          {
+            printf("Calling resize handler\n");
+            this->resize_handler(event.window.data1, event.window.data2);
+          }
+        } else {
           game.input().handle(event);
         }
       }
@@ -213,5 +222,12 @@ namespace cppcraft
 
 		} // rendering loop
 	}
+
+  void Renderer::resize_handler(const int w, const int h)
+  {
+    this->m_width  = w;
+    this->m_height = h;
+    for (auto& func : resize_signal) func(*this);
+  }
 
 }

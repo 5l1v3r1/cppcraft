@@ -91,6 +91,7 @@ namespace cppcraft
 		library::Texture textures[NUM_TEXTURES];
 
 		void generateTextures();
+    void rebuild_buffers(Renderer&);
 	};
 	extern Textureman textureman;
 }

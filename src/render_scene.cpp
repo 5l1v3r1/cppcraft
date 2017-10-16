@@ -36,24 +36,28 @@ using namespace library;
 
 namespace cppcraft
 {
-	FBO skyFBO;
-	FBO sceneFBO;
-	FBO reflectionFBO;
-	FBO underwaterFBO;
-	FBO fboResolveColor;
-	FBO fogFBO, finalFBO;
+	static FBO skyFBO;
+	static FBO sceneFBO;
+	static FBO reflectionFBO;
+	static FBO underwaterFBO;
+	static FBO fboResolveColor;
+	static FBO fogFBO, finalFBO;
 
 	SceneRenderer::SceneRenderer(Renderer& renderer)
 	{
 		// initialize members
 		this->snapPlayerPos = player.pos;
+    renderer.on_resize({this, &SceneRenderer::rebuild_scene});
 
-		// initialize terrain renderer
-		initTerrain();
-
-		// initialize sky renderer
+    // initialize sky renderer
 		skyrenderer.init();
 
+    // initialize terrain renderer
+		initTerrain();
+  }
+
+  void SceneRenderer::rebuild_scene(Renderer& renderer)
+  {
 		Texture& sceneTex = textureman[Textureman::T_SCENEBUFFER];
 
 		// the FBO we render the sky to

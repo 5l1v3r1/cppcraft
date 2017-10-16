@@ -44,6 +44,7 @@ namespace cppcraft
 		// camera bobbing computatron
 		double cameraDeviation(double frameCounter, double dtime);
 
+    void rebuild_scene(Renderer&);
 		// juggernauts
 		void initTerrain();
 		void recalculateFrustum();

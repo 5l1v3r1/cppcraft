@@ -2,8 +2,10 @@
 #define RENDERMAN_HPP
 
 #include "render_scene.hpp"
+#include "delegate.hpp"
 #include <memory>
 #include <string>
+#include <vector>
 #include <SDL.h>
 
 namespace cppcraft
@@ -55,7 +57,16 @@ namespace cppcraft
       return dtime;
     }
 
+    void on_resize(delegate<void(Renderer&)> func) {
+      resize_signal.push_back(std::move(func));
+    }
+
 	private:
+    // renders a scene
+		void render(double dtime);
+    // call resize signal handlers
+    void resize_handler(const int w, const int h);
+
     SDL_Window* m_window = nullptr;
     SDL_Renderer* m_renderer = nullptr;
     std::unique_ptr<SceneRenderer> m_scene = nullptr;
@@ -71,8 +82,7 @@ namespace cppcraft
 		// rendered terrain elements this frame
 		int scene_elements;
 
-		// renders a scene
-		void render(double dtime);
+    std::vector<delegate<void(Renderer&)>> resize_signal;
 	};
 
 }

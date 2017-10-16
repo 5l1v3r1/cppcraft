@@ -271,8 +271,13 @@ namespace cppcraft
 		// generated textures
 		generateTextures();
 
-		/// Fullscreen Buffers ///
+    // create fullscreen textures
+    renderer.on_resize({this, &Textureman::rebuild_buffers});
+	}
 
+  void Textureman::rebuild_buffers(Renderer& renderer)
+  {
+    /// Fullscreen Buffers ///
 		int  skyWidth  = renderer.width();
 		int  skyHeight = renderer.height();
 		bool skyLinear = false;
@@ -347,7 +352,8 @@ namespace cppcraft
 			textures[T_FINALDEPTH].createDepth(renderer.width(), renderer.height());
 		}
 
-		if (OpenGL::checkError()) throw std::runtime_error("Fullscreen textures error");
-	}
-
+		if (OpenGL::checkError()) {
+      throw std::runtime_error("Fullscreen textures error");
+    }
+  }
 }

@@ -84,10 +84,6 @@ namespace cppcraft
 	{
 		logger << Log::INFO << "* Loading & processing shaders" << Log::ENDL;
 
-		// "constant" data
-		glm::vec3 vecScreen(renderer.width(), renderer.height(), renderer.aspect());
-		glm::vec3 vecSuperScreen(renderer.width() * gameconf.supersampling, renderer.height() * gameconf.supersampling, renderer.aspect());
-
 		// load and initialize all shaders
 		std::vector<std::string> linkstage;
 
@@ -188,7 +184,6 @@ namespace cppcraft
 		shaders[PARTICLE] = Shader("shaders/particles.glsl", tokenizer, linkstage);
 		shaders[PARTICLE].sendInteger("texture", 0);
 		shaders[PARTICLE].sendMatrix("matproj", camera.getProjection());
-		shaders[PARTICLE].sendVec2("screensize", glm::vec2(vecScreen));
 
 		// atmospherics shader
 		linkstage.clear();
@@ -228,19 +223,15 @@ namespace cppcraft
 
 		// near plane half size
 		shaders[FSTERRAINFOG].sendVec2("nearPlaneHalfSize", camera.getNearPlaneHalfSize());
-		// screen size
-		shaders[FSTERRAINFOG].sendVec2("screenSize", glm::vec2(vecScreen));
 
 		// screenspace terrain shader
 		shaders[FSTERRAIN] = Shader("shaders/fsterrain.glsl", tokenizer, linkstage);
 		shaders[FSTERRAIN].sendInteger("terrain",     0);
-		shaders[FSTERRAIN].sendVec2("offset", glm::vec2(1.0f) / glm::vec2(vecScreen));
 
 		// supersampling (downsampler) shader
 		shaders[SUPERSAMPLING] = Shader("shaders/supersample.glsl", tokenizer, linkstage);
 		shaders[SUPERSAMPLING].sendInteger("colorbuffer", 0);
 		shaders[SUPERSAMPLING].sendInteger("samples",     gameconf.supersampling);
-		shaders[SUPERSAMPLING].sendVec2("offsets",        glm::vec2(1.0f) / glm::vec2(vecSuperScreen));
 
 		// lensflare
 		shaders[LENSFLARE] = Shader("shaders/lensflare.glsl", tokenizer, linkstage);
@@ -308,6 +299,25 @@ namespace cppcraft
 		linkstage.emplace_back("in_color");
 
 		shaders[GUI_COLOR] = Shader("shaders/gui_color.glsl", tokenizer, linkstage);
+
+    renderer.on_resize(
+      [this] (Renderer& renderer) {
+        // send updated screen size
+    		glm::vec3 vecScreen(renderer.width(), renderer.height(), renderer.aspect());
+        glm::vec3 vecSuperScreen(renderer.width() * gameconf.supersampling, renderer.height() * gameconf.supersampling, renderer.aspect());
+
+        shaders[PARTICLE].bind();
+        shaders[PARTICLE].sendVec2("screensize", glm::vec2(vecScreen));
+
+        shaders[FSTERRAINFOG].bind();
+        shaders[FSTERRAINFOG].sendVec2("screenSize", glm::vec2(vecScreen));
+
+        shaders[FSTERRAIN].bind();
+        shaders[FSTERRAIN].sendVec2("offset", glm::vec2(1.0f) / glm::vec2(vecScreen));
+
+        shaders[SUPERSAMPLING].bind();
+        shaders[SUPERSAMPLING].sendVec2("offsets", glm::vec2(1.0f) / glm::vec2(vecSuperScreen));
+      });
 	}
 
 	Shader& Shaderman::operator[] (shaderlist_t shader)
