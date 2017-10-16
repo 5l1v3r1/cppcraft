@@ -16,6 +16,3 @@
 [submodule "tacopie"]
 	path = network/tacopie
 	url = https://github.com/Cylix/tacopie.git
-[submodule "libSDL2pp"]
-	path = ext/libSDL2pp
-	url = https://github.com/libSDL2pp/libSDL2pp.git

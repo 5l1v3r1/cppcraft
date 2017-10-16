@@ -39,14 +39,16 @@ namespace cppcraft
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
 		// open SDL window
-    m_window.reset(new SDL2pp::Window(title,
+    m_window = SDL_CreateWindow(title.c_str(),
             (WX > 0) ? WX : SDL_WINDOWPOS_CENTERED,
             (WY > 0) ? WY : SDL_WINDOWPOS_CENTERED,
-            SW, SH, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
+            SW, SH, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    assert(m_window);
 
     // SDL renderer
-    m_renderer.reset(new SDL2pp::Renderer(*m_window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE));
+    m_renderer = SDL_CreateRenderer(m_window, -1,
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+    assert(m_renderer);
 
     const auto ogl = library::OpenGL(false);
     assert(ogl.supportsVBO);
@@ -54,6 +56,9 @@ namespace cppcraft
     assert(ogl.supportsFramebuffers);
     assert(ogl.supportsShaders);
     assert(ogl.supportsTextureArrays);
+
+    // get actual size
+    SDL_GL_GetDrawableSize(m_window, &this->m_width, &this->m_height);
 
 		// enable custom point sprites
 		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -139,7 +144,7 @@ namespace cppcraft
 #endif
 
 		// flip burgers
-		renderer().Present();
+		SDL_GL_SwapWindow(this->m_window);
 
 		// disable stuff
 		camera.rotated = false;

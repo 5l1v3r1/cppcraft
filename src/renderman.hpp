@@ -1,11 +1,10 @@
 #ifndef RENDERMAN_HPP
 #define RENDERMAN_HPP
 
-#include <SDL2pp/Renderer.hh>
-#include <SDL2pp/Window.hh>
 #include "render_scene.hpp"
 #include <memory>
 #include <string>
+#include <SDL.h>
 
 namespace cppcraft
 {
@@ -34,13 +33,13 @@ namespace cppcraft
     }
     // window helpers
     int width() const noexcept {
-      return m_window->GetSize().x;
+      return this->m_width;
     }
     int height() const noexcept {
-      return m_window->GetSize().y;
+      return this->m_height;
     }
     float aspect() const noexcept {
-      return m_window->GetSize().x / (float) m_window->GetSize().y;
+      return m_width / (float) m_height;
     }
 
 		double getCounter() const noexcept {
@@ -57,9 +56,11 @@ namespace cppcraft
     }
 
 	private:
-    std::unique_ptr<SDL2pp::Window> m_window = nullptr;
-    std::unique_ptr<SDL2pp::Renderer> m_renderer = nullptr;
+    SDL_Window* m_window = nullptr;
+    SDL_Renderer* m_renderer = nullptr;
     std::unique_ptr<SceneRenderer> m_scene = nullptr;
+    int m_width;
+    int m_height;
 
 		// elapsed time
 		double frametick = 0.0;

@@ -44,7 +44,6 @@ namespace cppcraft
   }
   void Input::grab(bool grabbed)
   {
-    window->SetGrab(grabbed);
     SDL_SetRelativeMouseMode((grabbed) ? SDL_TRUE : SDL_FALSE);
   }
 
@@ -68,7 +67,7 @@ namespace cppcraft
         break;
     }
   }
-  void Input::init(SDL2pp::Window* wnd, glm::vec2 mscale)
+  void Input::init(SDL_Window* wnd, glm::vec2 mscale)
   {
     assert(wnd != nullptr);
     this->window = wnd;
@@ -77,7 +76,7 @@ namespace cppcraft
     grab(true);
   }
 
-	void PlayerClass::initInputs(SDL2pp::Window& window)
+	void PlayerClass::initInputs(SDL_Window& window)
 	{
 		logger << Log::INFO << "* Initializing input systems" << Log::ENDL;
     input.init(&window, glm::vec2(0.001f, 0.002f));

@@ -3,7 +3,6 @@
 
 #include <glm/vec2.hpp>
 #include <SDL.h>
-#include <SDL2pp/Window.hh>
 #include <cmath>
 #include <map>
 
@@ -47,14 +46,14 @@ namespace cppcraft
       m_rot += rot;
     }
 
-    void init(SDL2pp::Window*, glm::vec2 motion_scale);
+    void init(SDL_Window*, glm::vec2 motion_scale);
     void handle(SDL_Event&);
 
   private:
     std::map<int, key_t> m_keys;
     glm::vec2 m_rot;
     glm::vec2 m_motion_scale;
-    SDL2pp::Window* window = nullptr;
+    SDL_Window* window = nullptr;
     int m_wheel_value = 0;
     std::string text_buffer;
   };

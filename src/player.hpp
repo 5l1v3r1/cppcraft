@@ -3,10 +3,10 @@
 
 #define DBG_FLYING
 
+#include "block.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <SDL2pp/Window.hh>
-#include "block.hpp"
+#include <SDL.h>
 
 namespace library
 {
@@ -40,7 +40,7 @@ namespace cppcraft
 		bool changedRotation;
 
 		void initPlayer();
-		void initInputs(SDL2pp::Window&);
+		void initInputs(SDL_Window&);
 		// first we run this, to get inputs
 		void handleInputs();
 		// handle any Joystick

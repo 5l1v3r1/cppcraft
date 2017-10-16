@@ -35,12 +35,6 @@ include_directories(inc/LuaBridge/Source/LuaBridge)
 include_directories(library/include)
 include_directories(network/tacopie/includes)
 
-
-set(SDL2PP_WITH_IMAGE ON)
-set(SDL2PP_WITH_MIXER ON)
-set(SDL2PP_WITH_TTF ON)
-add_subdirectory(ext/libSDL2pp)
-
 add_subdirectory(library)
 add_subdirectory(network)
 add_subdirectory(src)

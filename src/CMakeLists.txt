@@ -160,7 +160,7 @@ if (UNIX)
   #set_target_properties(bass PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libbass.so)
 
   target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie ${SDL2PP_LIBRARIES} -lbass libGLEW.a GL ${SDL2_LIBRARY} ${LUA_STATIC_LIBRARIES})
+  target_link_libraries(cppcraft library tacopie -lbass libGLEW.a GL ${SDL2_LIBRARY} ${LUA_STATIC_LIBRARIES})
 endif()
 
 install(TARGETS cppcraft DESTINATION ${CMAKE_INSTALL_PREFIX})
