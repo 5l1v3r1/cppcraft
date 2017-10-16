@@ -24,6 +24,14 @@ namespace cppcraft
 	void Soundman::init()
 	{
 		logger << Log::INFO << "* Initializing sound system" << Log::ENDL;
+    const int flags = MIX_INIT_MP3;
+
+    if (Mix_Init(flags) != flags)
+    {
+      throw std::runtime_error("SoundSystem(): Error initializing audio system");
+    }
+
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 
 		// load sounds
 		soundPlaylist();
@@ -40,11 +48,11 @@ namespace cppcraft
 
 	void Soundman::playSound(const std::string& name, vec3 v)
 	{
-		this->sounds[name].play( v );
+		this->sounds.at(name).play( v );
 	}
 	void Soundman::playSound(const std::string& name)
 	{
-		this->sounds[name].play();
+		this->sounds.at(name).play();
 	}
 
 	void Soundman::loadMaterialSound(const std::string& basename)
@@ -58,27 +66,34 @@ namespace cppcraft
 			std::stringstream ss;
 			ss << "sound/materials/" << basename << (i + 1) << ".ogg";
 
-			sounds[ basename + std::to_string(i) ] = Sound(ss.str());
+			create_sound(basename + std::to_string(i), ss.str());
 		}
 	}
 
+  inline void Soundman::create_sound(const std::string& name, const std::string& file)
+  {
+    sounds.emplace(std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(file));
+  }
+
 	void Soundman::soundPlaylist()
 	{
-		sounds["door_open"]  = Sound("sound/interaction/door_open.ogg");
-		sounds["door_close"] = Sound("sound/interaction/door_close.ogg");
+    create_sound("door_open", "sound/interaction/door_open.ogg");
+    create_sound("door_close", "sound/interaction/door_close.ogg");
 
-		sounds["pickup"] = Sound("sound/interaction/pickup.ogg");
-		sounds["place"]  = Sound("sound/interaction/place.ogg");
+		create_sound("pickup", "sound/interaction/pickup.ogg");
+		create_sound("place", "sound/interaction/place.ogg");
 
-		sounds["splash"]     = Sound("sound/liquid/splash1.ogg");
-		sounds["splash_big"] = Sound("sound/liquid/splash2.ogg");
+		create_sound("splash", "sound/liquid/splash1.ogg");
+		create_sound("splash_big", "sound/liquid/splash2.ogg");
 
-		sounds["click_start"]     = Sound("sound/click_start.mp3");
-		sounds["click_end"]     = Sound("sound/click_end.mp3");
+		create_sound("click_start", "sound/click_start.mp3");
+		create_sound("click_end", "sound/click_end.mp3");
 
-		sounds["water"]   = Sound("sound/liquid/water.ogg");
-		sounds["lava"]    = Sound("sound/liquid/lava.ogg");
-		sounds["lavapop"] = Sound("sound/liquid/lavapop.ogg");
+		create_sound("water", "sound/liquid/water.ogg");
+		create_sound("lava", "sound/liquid/lava.ogg");
+		create_sound("lavapop", "sound/liquid/lavapop.ogg");
 
 		loadMaterialSound("cloth");
 		loadMaterialSound("glass");
@@ -91,26 +106,33 @@ namespace cppcraft
 
 	}
 
+  inline void Soundman::create_stream(const std::string& name, const std::string& file)
+  {
+    streams.emplace(std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(file));
+  }
+
 	void Soundman::musicPlaylist()
 	{
 		// background music streams
-		streams["autumn"].load("music/ANW1402_09_Exodus.mp3");
-		streams["desert"].load("music/ANW1401_03_Call-to-Beroea.mp3");
-		streams["forest"].load("music/ANW1332_07_Intimate-Moment.mp3");
-		streams["islands"].load("music/ANW1247_05_Ancient-Times.mp3");
-		streams["jungle"].load("music/ANW1501_06_Denouement.mp3");
-		streams["winter"].load("music/ANW1332_04_Farewell-My-Dear.mp3");
+		create_stream("autumn", "music/ANW1402_09_Exodus.mp3");
+		create_stream("desert", "music/ANW1401_03_Call-to-Beroea.mp3");
+		create_stream("forest", "music/ANW1332_07_Intimate-Moment.mp3");
+		create_stream("islands", "music/ANW1247_05_Ancient-Times.mp3");
+		create_stream("jungle", "music/ANW1501_06_Denouement.mp3");
+		create_stream("winter", "music/ANW1332_04_Farewell-My-Dear.mp3");
 
 		// ambience streams
-		streams["amb_autumn"].load("music/ambience/autumn.mp3");
-		streams["amb_desert"].load("music/ambience/desert.mp3");
-		streams["amb_forest"].load("music/ambience/forest.mp3");
-		streams["amb_islands"].load("music/ambience/islands.mp3");
-		streams["amb_jungle"].load("music/ambience/jungle.mp3");
-		streams["amb_winter"].load("music/ambience/winter.mp3");
+		create_stream("amb_autumn", "music/ambience/autumn.mp3");
+		create_stream("amb_desert", "music/ambience/desert.mp3");
+		create_stream("amb_forest", "music/ambience/forest.mp3");
+		create_stream("amb_islands", "music/ambience/islands.mp3");
+		create_stream("amb_jungle", "music/ambience/jungle.mp3");
+		create_stream("amb_winter", "music/ambience/winter.mp3");
 
-		streams["amb_water"].load("music/ambience/underwater.mp3");
-		streams["amb_caves"].load("music/ambience/cave.mp3");
+		create_stream("amb_water", "music/ambience/underwater.mp3");
+		create_stream("amb_caves", "music/ambience/cave.mp3");
 	}
 
 	// returns the id of a random song in the playlist
@@ -135,7 +157,7 @@ namespace cppcraft
 			}
 			else
 			{
-        //musicPlayer.play(streams[terrain.getMusic()]);
+        //musicPlayer.play(create_stream(terrain.getMusic()]);
         musicPlayer.stop();
 			}
 			// slowly crossfade in/out streams as needed
@@ -148,7 +170,7 @@ namespace cppcraft
 			if (player.fullySubmerged()) // submerged priority over caves
 			{
 				ambiencePlayer.fullStop();
-				underwaterPlayer.play(streams["amb_water"]);
+				underwaterPlayer.play(streams.at("amb_water"));
 			}
 			else
 			{
@@ -156,12 +178,12 @@ namespace cppcraft
 
 				if (inCaves)
 				{
-					ambiencePlayer.play(streams["amb_caves"]);
+					ambiencePlayer.play(streams.at("amb_caves"));
 				}
 				else
 				{
           // by terrain
-          //ambiencePlayer.play(streams[terrain.getMusic()]);
+          //ambiencePlayer.play(create_stream(terrain.getMusic()]);
 					ambiencePlayer.stop();
 				} // ambience
 			}
@@ -173,11 +195,11 @@ namespace cppcraft
 
 	void Soundman::playMaterial(const std::string& sound, int num)
 	{
-		this->sounds[sound + std::to_string(num)].play();
+		this->sounds.at(sound + std::to_string(num)).play();
 	}
 	void Soundman::playMaterial(const std::string& sound, int num, vec3 v)
 	{
-		this->sounds[sound + std::to_string(num)].play(v);
+		this->sounds.at(sound + std::to_string(num)).play(v);
 	}
 
 }

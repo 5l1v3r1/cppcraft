@@ -116,7 +116,6 @@ set(SOURCES
     sound/channel.cpp
     soundman.cpp
     sound/sound.cpp
-    sound/soundsystem.cpp
     sound/stream.cpp
     spiders.cpp
     spiders_modify.cpp
@@ -146,22 +145,17 @@ if (WIN32)
   set_target_properties(glew PROPERTIES LINKER_LANGUAGE C)
   set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/glew32s.lib)
 
-  add_library(bass STATIC IMPORTED)
-  set_target_properties(bass PROPERTIES LINKER_LANGUAGE C)
-  set_target_properties(bass PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/bass.lib)
-
   add_library(lua STATIC IMPORTED)
   set_target_properties(lua PROPERTIES LINKER_LANGUAGE C)
   set_target_properties(lua PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/liblua53.a)
 
-  target_link_libraries(cppcraft imagehlp library lua bass glew ${OPENGL_gl_LIBRARY})
+  target_link_libraries(cppcraft imagehlp library lua glew ${OPENGL_gl_LIBRARY})
 endif()
 if (UNIX)
-  #add_library(bass SHARED IMPORTED)
-  #set_target_properties(bass PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libbass.so)
+  set(SDL2_LIBS "${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY}")
 
   target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie -lbass libGLEW.a GL ${SDL2_LIBRARY} ${LUA_STATIC_LIBRARIES})
+  target_link_libraries(cppcraft library tacopie libGLEW.a GL ${SDL2_LIBS} ${LUA_STATIC_LIBRARIES})
 endif()
 
 install(TARGETS cppcraft DESTINATION ${CMAKE_INSTALL_PREFIX})

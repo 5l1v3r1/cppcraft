@@ -24,7 +24,7 @@ using namespace cppcraft;
 
 int main(int argc, char* argv[])
 {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
+  if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
   {
     printf("Failed to initialize SDL2!\n");
     return EXIT_FAILURE;
