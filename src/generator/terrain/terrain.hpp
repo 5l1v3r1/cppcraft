@@ -23,7 +23,7 @@ namespace terragen
     typedef delegate<float(glm::vec2)> under_func_t;
 		typedef delegate<float(glm::vec3, float, glm::vec2)> terfunc3d;
 		typedef delegate<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
-		typedef delegate<void(gendata_t*, int, int, const int, int)> process_func_t;
+		typedef delegate<void(gendata_t*, int, int, const int)> process_func_t;
 
 		// returns RGBA8(0, 0, 0, 255)
 		static uint32_t justBlack(uint16_t, uint8_t, glm::vec2) { return 255 << 24; }

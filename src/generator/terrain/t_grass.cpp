@@ -77,7 +77,7 @@ namespace terragen
     return WATERLEVEL_FLT - 0.1f + lower_grass(p) * 0.4f;
   }
 
-	static void grass_process(gendata_t*, int x, int z, const int Y, int zone);
+	static void grass_process(gendata_t*, int x, int z, const int Y);
 
 	void terrain_grass_init()
 	{
@@ -126,7 +126,7 @@ namespace terragen
 
 	} // _init();
 
-  void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+  void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
     const block_t grass_id = db::getb("grass_block");
     const block_t cross_grass_id = db::getb("cross_grass");
@@ -223,7 +223,7 @@ namespace terragen
 			// -== ore deposition ==-
 			//
 			if (block.getID() == STONE_BLOCK) {
-				PostProcess::try_deposit(gdata, x, y, z);
+				PostProcess::try_deposit(gdata, wx, wz, x, y, z);
 			}
 
 			// count air

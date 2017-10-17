@@ -44,7 +44,7 @@ namespace terragen
 		return p.y - hvalue + ICECAP_HEIGHT * powf(fabsf(glm::simplex(p)), 0.85f);
 	}
 
-	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
     const block_t snow_id  = db::getb("snow_block");
     const block_t ice_id   = db::getb("ice_block");
@@ -123,7 +123,7 @@ namespace terragen
 			//
 			if (block.getID() == STONE_BLOCK)
 			{
-				PostProcess::try_deposit(gdata, x, y, z);
+				PostProcess::try_deposit(gdata, wx, wz, x, y, z);
 			} // ore deposition
 
 			// check if not air or cross

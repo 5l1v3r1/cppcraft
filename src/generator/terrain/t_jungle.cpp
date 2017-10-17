@@ -38,7 +38,7 @@ namespace terragen
 		return WATERLEVEL_FLT - 0.05f + land;
   }
 
-	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, int zone)
+	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
     const block_t GRASS_BLOCK = db::getb("grass_block");
     const block_t CROSS_GRASS_ID = db::getb("cross_grass");
@@ -130,7 +130,7 @@ namespace terragen
 			// -== ore deposition ==-
 			//
 			if (block.getID() == STONE_BLOCK) {
-				PostProcess::try_deposit(gdata, x, y, z);
+				PostProcess::try_deposit(gdata, wx, wz, x, y, z);
 			}
 
 			// count air
