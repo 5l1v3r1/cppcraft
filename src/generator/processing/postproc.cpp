@@ -24,12 +24,11 @@ namespace terragen
 		int wx = gdata->wx * BLOCKS_XZ + x;
 		int wz = gdata->wz * BLOCKS_XZ + z;
 
-		const float fy = 1.0f - y / (float) (BLOCKS_Y-1);
-    // deposit only on rare occasions
-		if (randf(wx, y-2, wz) < fy * 0.025f)
+    // try to deposit only on rare occasions
+		if (ihash(wx, y-2, wz) % 1024 == 7)
 		{
 			// try to deposit ore
-			int idx = ihash(wx, y-2, wz) % OreGen::size();
+			int idx = ihash(wx, y-3, wz) % OreGen::size();
 			auto& ore = OreGen::get(idx);
       auto& data = gdata->oregen.data(idx);
 

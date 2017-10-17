@@ -158,7 +158,7 @@ namespace terragen
       getheight_icecap, getcaves_icecap, getnoise_icecap, icecap_process);
 
 		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);
-    terrain.music_name = "amb_winter";
+    //terrain.music_name = "amb_winter";
 
 		// snow particle
 		int P_SNOW = particleSystem.add("snowflake",
