@@ -13,7 +13,7 @@ namespace cppcraft
 {
 	class Sector;
 
-	class Precomp {
+	class alignas(32) Precomp {
 	public:
 		static void init();
 
@@ -33,10 +33,10 @@ namespace cppcraft
 			return status;
 		}
 
-		jobresult_t status;
 		// our source sector (with additional data)
 		bordered_sector_t sector;
-
+    // job status
+    jobresult_t status;
 		// resulting mesh data
 		std::vector<vertex_t> datadump;
     // total amount of vertices for each shader line

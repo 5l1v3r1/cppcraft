@@ -1,12 +1,11 @@
 #include "soundman.hpp"
 
 #include <library/log.hpp>
-#include "biome.hpp"
-#include "block.hpp"
 #include "gameconf.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
 #include "sound/channel.hpp"
+#include "generator/terrain/terrains.hpp"
 #include <sstream>
 
 using namespace glm;
@@ -16,10 +15,6 @@ using namespace library;
 namespace cppcraft
 {
 	Soundman soundman;
-	// our always-on never-ending, amazing and intolerable background music
-	Channel musicPlayer;
-	Channel ambiencePlayer;
-	Channel underwaterPlayer;
 
 	void Soundman::init()
 	{
@@ -39,9 +34,6 @@ namespace cppcraft
 		musicPlaylist();
 
 		sound::Sound::setMasterVolume(0.3);
-		musicPlayer    = sound::Channel(0.0005, 0.2);
-		ambiencePlayer = sound::Channel(0.001,  0.75);
-		underwaterPlayer = sound::Channel(0.01, 0.5);
 
 		logger << Log::INFO << "* Sound system initialized" << Log::ENDL;
 	}
@@ -103,7 +95,6 @@ namespace cppcraft
 		loadMaterialSound("snow");
 		loadMaterialSound("stone");
 		loadMaterialSound("wood");
-
 	}
 
   inline void Soundman::create_stream(const std::string& name, const std::string& file)
@@ -136,60 +127,52 @@ namespace cppcraft
 	}
 
 	// returns the id of a random song in the playlist
-	void Soundman::handleSounds(int terrain)
+	void Soundman::sound_processing()
 	{
 		// if player is under the terrain, somehow change
 		// ambience & music to cave themes
 		Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);
-		int groundLevel = 0;
-		if (flat != nullptr) groundLevel = flat->groundLevel;
+    if (flat == nullptr) return;
+    // get terrain
+    auto& terrain = terragen::terrains[flat->terrain];
+    const int groundLevel = flat->groundLevel;
 
 		const int CAVE_DEPTH = 6;
-
-		bool inCaves = (player.pos.y < groundLevel - CAVE_DEPTH
-					 && player.pos.y < 64);
-
-		if (gameconf.music)
-		{
-			if (inCaves)
-			{
-				musicPlayer.stop();
-			}
-			else
-			{
-        //musicPlayer.play(create_stream(terrain.getMusic()]);
-        musicPlayer.stop();
-			}
-			// slowly crossfade in/out streams as needed
-			musicPlayer.integrate();
-		}
+		const bool in_caves = (player.pos.y < groundLevel - CAVE_DEPTH);
 
 		if (gameconf.ambience)
 		{
+      auto* old_stream = current_stream;
 			// ambience stream
 			if (player.fullySubmerged()) // submerged priority over caves
 			{
-				ambiencePlayer.fullStop();
-				underwaterPlayer.play(streams.at("amb_water"));
+				current_stream = &streams.at("amb_water");;
 			}
 			else
 			{
-				underwaterPlayer.stop();
-
-				if (inCaves)
+				if (in_caves)
 				{
-					ambiencePlayer.play(streams.at("amb_caves"));
+					current_stream = &streams.at("amb_caves");
 				}
 				else
 				{
           // by terrain
-          //ambiencePlayer.play(create_stream(terrain.getMusic()]);
-					ambiencePlayer.stop();
+          if (!terrain.music_name.empty())
+          {
+            current_stream = &streams.at(terrain.music_name);
+          }
 				} // ambience
 			}
 			// slowly crossfade in/out streams as needed
-			ambiencePlayer.integrate();
-			underwaterPlayer.integrate();
+      if (current_stream != nullptr)
+      {
+        if (old_stream != nullptr && old_stream != current_stream) {
+          old_stream->stop();
+        }
+        if (current_stream->isPlaying() == false) {
+          current_stream->play();
+        }
+      }
 		}
 	}
 

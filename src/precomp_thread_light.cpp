@@ -24,6 +24,9 @@ namespace cppcraft
                                  int x3, int y3, int z3,
                                  int x4, int y4, int z4)
 	{
+    auto& pcl = get_light(x1, y1, z1);
+    if (pcl) return pcl & 0xFF;
+
 		// TODO: calculate the actual light values...
 		Block* bl[4];
 		bl[0] = &sector->get(x1, y1, z1);
@@ -42,10 +45,13 @@ namespace cppcraft
 		}
     if (total != 0) {
        const float lv = (float) V / total;
-       float factor = 1.0f - 1.5f * std::min( (float) y1 , (float) WATERLEVEL ) / (float) BLOCKS_Y;
-       float light = powf(0.88f, (15.0f - lv) * factor);
-       return 25 + 230.0f * light;
+       float factor = 1.0f - std::min(y1 , WATERLEVEL) / (float) BLOCKS_Y;
+       float light = powf(0.88f, (15.0f - lv) * factor * factor);
+       short final_light = 25 + 230.0f * light;
+       pcl = final_light | 0x100;
+       return final_light;
     }
+    pcl = 0x100;
     return 0;
 	}
 

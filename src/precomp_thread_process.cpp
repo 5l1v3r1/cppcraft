@@ -35,8 +35,7 @@ namespace cppcraft
 				it->y += vy;
 				it->z += vz;
 			}
-
-		} // if (facing)
+		} // if (sides)
 
 	} // process_block()
 

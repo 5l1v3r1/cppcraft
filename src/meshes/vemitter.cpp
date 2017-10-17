@@ -371,37 +371,31 @@ namespace cppcraft
 		///////////////////////////////////////////////
 		const Block& block = ptd.sector->get(bx, by, bz);
 
-		for (int i = 1; i < 64; i <<= 1)
-		{
-			// add face only if predetermined visible
-			if (facing & i)
-			{
-				// emit vertex & apply lighting
-				switch (i)
-				{
-				case 1:   // +z
+		if (facing & 1) {  // +z
 					// emit vertex PZ
-					emitCubeVertexPZ(ptd, block, bx, by, bz); break;
-				case 2:   // -z
+					emitCubeVertexPZ(ptd, block, bx, by, bz);
+    }
+    if (facing & 2) {  // -z
 					// emit vertex NZ
-					emitCubeVertexNZ(ptd, block, bx, by, bz); break;
-				case 4:   // +y
+					emitCubeVertexNZ(ptd, block, bx, by, bz);
+    }
+		if (facing & 4) {  // +y
 					// emit vertex PY
-					emitCubeVertexPY(ptd, block, bx, by, bz); break;
-				case 8:   // -y
+					emitCubeVertexPY(ptd, block, bx, by, bz);
+    }
+    if (facing & 8) {  // -y
 					// emit vertex_NY
-					emitCubeVertexNY(ptd, block, bx, by, bz); break;
-				case 16:  // +x
+					emitCubeVertexNY(ptd, block, bx, by, bz);
+    }
+    if (facing & 16) {  // +x
 					// emit vertex PX
-					emitCubeVertexPX(ptd, block, bx, by, bz); break;
-				case 32:  // -x
+					emitCubeVertexPX(ptd, block, bx, by, bz);
+    }
+    if (facing & 32) {  // -x
 					// emit vertex NX
-					emitCubeVertexNX(ptd, block, bx, by, bz); break;
-				} // switch (i)
+					emitCubeVertexNX(ptd, block, bx, by, bz);
+    }
 
-			} // if facing & i
-
-		} // for each side of cube
 	} // emitCube()
 
 }

@@ -71,7 +71,7 @@ namespace cppcraft
 					particleSystem.update(_ticktimer);
 
 					// handle sound, music & ambience
-					soundman.handleSounds(player.getTerrain());
+					soundman.sound_processing();
 
 					_ticktimer += TIMING_TICKTIMER;
 

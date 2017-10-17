@@ -71,6 +71,8 @@ namespace terragen
 		std::array<color_func_t, Biomes::CL_MAX> colors;
 		// terrain tick-function
 		tick_func_t on_tick = nullptr;
+    // terrain music filename
+    std::string music_name = "";
 
 		// fog settings
 		glm::vec4 fog; // alpha is density

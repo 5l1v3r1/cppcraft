@@ -9,8 +9,7 @@
 
 namespace cppcraft
 {
-	class Soundman
-	{
+	class Soundman {
 	public:
 		void init();
 
@@ -19,33 +18,6 @@ namespace cppcraft
 		static const int sound_mine  = 2;
 		static const int sound_remove = 3;
 
-		enum music_streams_t
-		{
-			MUSIC_AUTUMN,  // exodus
-			MUSIC_DESERT,  // call to beroea
-			MUSIC_FOREST,  // intimate moment
-			MUSIC_ISLANDS, // ancient times
-			MUSIC_JUNGLE,  // denouement
-			MUSIC_WINTER,  // farewell my dear
-
-			NUM_MUSIC_STREAMS
-		};
-
-		enum ambience_streams_t
-		{
-			MA_AUTUMN,
-			MA_DESERT,
-			MA_FOREST,
-			MA_ISLANDS,
-			MA_JUNGLE,
-			MA_WINTER,
-
-			MA_UNDERWATER,
-			MA_CAVES,
-
-			NUM_AMBIENCE_STREAMS
-		};
-
 		// single sounds
 		void playSound(const std::string&, glm::vec3 distance);
 		void playSound(const std::string&);
@@ -53,7 +25,7 @@ namespace cppcraft
 		void playMaterial(const std::string& sound, int num, glm::vec3 distance);
 		void playMaterial(const std::string& sound, int num);
 
-		void handleSounds(int terrain);
+		void sound_processing();
 
 	private:
 		static const int MAX_SAMPLES = 4;
@@ -68,6 +40,7 @@ namespace cppcraft
 
 		std::map<std::string, sound::Sound> sounds;
 		std::map<std::string, sound::Stream> streams;
+    sound::Stream* current_stream = nullptr;
 	};
 	extern Soundman soundman;
 }

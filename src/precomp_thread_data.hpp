@@ -16,7 +16,16 @@ namespace cppcraft
 	public:
     typedef std::vector<vertex_t>::iterator vtx_iterator;
 		// working buffers
-		std::array<std::vector<vertex_t>, RenderConst::MAX_UNIQUE_SHADERS> vertices;
+		alignas(32)
+    std::array<std::vector<vertex_t>, RenderConst::MAX_UNIQUE_SHADERS> vertices;
+    // precomputed smooth light
+    alignas(32)
+    std::array<short, (BLOCKS_XZ+2) * (BLOCKS_XZ+2) * BLOCKS_Y> light_info{0};
+
+    inline auto& get_light(int bx, int by, int bz)
+		{
+			return light_info[(bx+1) * (BLOCKS_XZ+2) * BLOCKS_Y + (bz+1) * BLOCKS_Y + by];
+		}
 
 		// all the blocks
 		bordered_sector_t* sector = nullptr;

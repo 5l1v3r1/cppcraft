@@ -1,6 +1,7 @@
 #include "stream.hpp"
 
 #include <library/math/toolbox.hpp>
+#include <cassert>
 
 using namespace library;
 
@@ -23,17 +24,21 @@ namespace sound
 
 	bool Stream::play()
 	{
-    Mix_PlayMusic(this->stream, -1);
+    printf("Stream::play()\n");
+    assert(Mix_FadeInMusic(this->stream, -1, 1500) == 0);
+    return true;
 	}
 
 	bool Stream::isPlaying() const noexcept
 	{
-    return false;
+    return Mix_PlayingMusic();
 	}
 
 	void Stream::stop()
 	{
-		(void) 1;
+    if (isPlaying() && Mix_FadingMusic() != MIX_FADING_OUT) {
+      Mix_FadeOutMusic(1500);
+    }
 	}
 
 	void Stream::setVolume(float vol)

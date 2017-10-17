@@ -212,7 +212,6 @@ namespace cppcraft
         else if (event.type == SDL_WINDOWEVENT) {
           if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
           {
-            printf("Calling resize handler\n");
             this->resize_handler(event.window.data1, event.window.data2);
           }
         } else {
