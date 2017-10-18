@@ -17,15 +17,15 @@ namespace cppcraft
     int  x;
     int  y1, y2;
     int  z;
-    char lvl;
+    short lvl;
   };
   static std::deque<DeferredRemovedLight> lreque;
 
   void Lighting::deferredRemove(
-        Sector& sector, int bx, int y1, int y2, int bz, char lvl)
+        Sector& sector, int bx, int y1, int y2, int bz, short lvl)
   {
-    int x = bx + sector.getWX() * BLOCKS_XZ;
-    int z = bz + sector.getWZ() * BLOCKS_XZ;
+    const int x = bx + sector.getWX() * BLOCKS_XZ;
+    const int z = bz + sector.getWZ() * BLOCKS_XZ;
     lreque.push_back({x, y1, y2, z, lvl});
   }
 
@@ -63,8 +63,10 @@ namespace cppcraft
 		while (!lrefill.empty())
 		{
 			const emitter_t& e = lrefill.front();
-      auto lvl = Spiders::getBlock(e.x, e.y, e.z).getSkyLight();
-      floodOutof(e.x, e.y, e.z, 0, lvl);
+      short lvl = Spiders::getBlock(e.x, e.y, e.z).getSkyLight();
+      if (lvl == e.lvl) {
+        floodOutof(e.x, e.y, e.z, 0, lvl);
+      }
 			lrefill.pop();
 #ifdef TIMING
       sources++;

@@ -23,6 +23,8 @@ set(SOURCES
     ../src/gameconf.cpp
     ../src/lighting.cpp
     ../src/lighting_algos.cpp
+    ../src/lighting_remove.cpp
+    ../src/light_correction.cpp
     ../src/sector.cpp
     ../src/sectors.cpp
     ../src/spiders.cpp
@@ -34,6 +36,8 @@ set(SOURCES
 set(LIB_SOURCES
     ../library/library/config.cpp
     ../library/library/log.cpp
+    ../library/library/timing/timer.cpp
+    ../library/library/timing/highperf.cpp
   )
 
 add_executable(unittests ${SOURCES} ${LIB_SOURCES})

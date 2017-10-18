@@ -2,7 +2,4 @@
 
 using namespace cppcraft;
 
-void Generator::add(Sector&)
-{
-
-}
+std::deque<Sector*> Generator::queue;

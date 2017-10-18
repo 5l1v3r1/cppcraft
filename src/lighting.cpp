@@ -10,9 +10,8 @@ using namespace library;
 
 namespace cppcraft
 {
-	typedef Lighting::emitter_t emitter_t;
+  using emitter_t = Lighting::emitter_t;
 	extern void removeChannel(int x, int y, int z, char dir, emitter_t& removed, std::queue<emitter_t>& q);
-	extern void removeSkylight(int x, int y, int z, char dir, char lvl, std::queue<emitter_t>& q);
 
 	void Lighting::init()
 	{
@@ -20,7 +19,7 @@ namespace cppcraft
 		air_block.setLight(15, 0);
 	}
 
-	light_value_t Lighting::lightValue(Block& block)
+	light_value_t Lighting::lightValue(const Block& block)
 	{
 		light_value_t result = 0;
 
@@ -35,19 +34,16 @@ namespace cppcraft
 		return result;
 	}
 
-  inline void beginPropagateSkylight(int x, int y, int z, char mask)
+  inline void beginPropagateSkylight(Sector* s, int bx, int by, int bz, char mask)
   {
-  	if (mask & 1) Lighting::propagateChannel(x, y, z, 0, 0, 15); // +x
-  	if (mask & 2) Lighting::propagateChannel(x, y, z, 0, 1, 15); // -x
-  	if (mask & 4) Lighting::propagateChannel(x, y, z, 0, 4, 15); // +z
-  	if (mask & 8) Lighting::propagateChannel(x, y, z, 0, 5, 15); // -z
+  	if (mask & 1) Lighting::propagateChannel(s, bx, by, bz, {0, 0, 15}); // +x
+  	if (mask & 2) Lighting::propagateChannel(s, bx, by, bz, {0, 1, 15}); // -x
+  	if (mask & 4) Lighting::propagateChannel(s, bx, by, bz, {0, 4, 15}); // +z
+  	if (mask & 8) Lighting::propagateChannel(s, bx, by, bz, {0, 5, 15}); // -z
   }
 
   void Lighting::atmosphericFlood(Sector& sector)
   {
-    int sx = sector.getX() * BLOCKS_XZ;
-    int sz = sector.getZ() * BLOCKS_XZ;
-
     for (int x = 0; x < BLOCKS_XZ; x++)
     for (int z = 0; z < BLOCKS_XZ; z++)
     {
@@ -67,12 +63,12 @@ namespace cppcraft
     		if (z > 0)
     			if (sector.flat()(x, z-1).skyLevel <= y) mask &= ~8;
 
-		    beginPropagateSkylight(sx+x, y, sz+z, mask);
+		    beginPropagateSkylight(&sector, x, y, z, mask);
       } // y
 
 	    // try to enter water and other transparent blocks at the skylevel
 	    if (sector(x, sky, z).isTransparent())
-			   propagateChannel(sx+x, sky, sz+z, 0, 3, 14);
+			   propagateChannel(&sector, x, sky, z, {0, 3, 14});
 
     } // x, z
 
@@ -84,159 +80,131 @@ namespace cppcraft
 
   void Lighting::torchlight(Sector& sector)
   {
-    int sx = sector.getX() * BLOCKS_XZ;
-    int sz = sector.getZ() * BLOCKS_XZ;
-
     for (int x = 0; x < BLOCKS_XZ; x++)
     for (int z = 0; z < BLOCKS_XZ; z++)
-	for (int y = 1; y <= sector.flat()(x, z).groundLevel; y++)
+	  for (int y = 1; y <= sector.flat()(x, z).groundLevel; y++)
     {
-		Block& block = sector(x, y, z);
+		  Block& block = sector(x, y, z);
 
-		if (block.isLight())
-		{
-			const int ch = 1;
+      if (block.isLight())
+		  {
+  			const int ch = 1;
 
-			// set to max blocklight value
-      char opacity = block.getOpacity(0);
-      block.setChannel(ch, opacity);
+  			// set to max blocklight value
+        uint8_t opacity = block.getOpacity(0);
+        block.setChannel(ch, opacity);
 
-      // mask out impossible paths
-      int mask = 63;
-      if (x < BLOCKS_XZ-1)
-        if (!sector(x+1, y, z).isTransparent()) mask &= ~1;
-      if (x > 0)
-        if (!sector(x-1, y, z).isTransparent()) mask &= ~2;
+        // mask out impossible paths
+        int mask = 63;
+        if (x < BLOCKS_XZ-1)
+          if (!sector(x+1, y, z).isTransparent()) mask &= ~1;
+        if (x > 0)
+          if (!sector(x-1, y, z).isTransparent()) mask &= ~2;
 
-      if (!sector(x, y+1, z).isTransparent()) mask &= ~4;
-      if (!sector(x, y-1, z).isTransparent()) mask &= ~8;
+        if (!sector(x, y+1, z).isTransparent()) mask &= ~4;
+        if (!sector(x, y-1, z).isTransparent()) mask &= ~8;
 
-      if (z < BLOCKS_XZ-1)
-        if (!sector(x, y, z+1).isTransparent()) mask &= ~16;
-      if (z > 0)
-        if (!sector(x, y, z-1).isTransparent()) mask &= ~32;
+        if (z < BLOCKS_XZ-1)
+          if (!sector(x, y, z+1).isTransparent()) mask &= ~16;
+        if (z > 0)
+          if (!sector(x, y, z-1).isTransparent()) mask &= ~32;
 
-      // propagate block light in all directions
-      if (mask & 1)
-        propagateChannel(sx+x, y, sz+z, ch, 0, opacity); // +x
-      if (mask & 2)
-        propagateChannel(sx+x, y, sz+z, ch, 1, opacity); // -x
-      if (mask & 4)
-        propagateChannel(sx+x, y, sz+z, ch, 2, opacity); // +y
-      if (mask & 8)
-        propagateChannel(sx+x, y, sz+z, ch, 3, opacity); // -y
-      if (mask & 16)
-        propagateChannel(sx+x, y, sz+z, ch, 4, opacity); // +z
-      if (mask & 32)
-        propagateChannel(sx+x, y, sz+z, ch, 5, opacity); // -z
+        // propagate block light in all directions
+        if (mask & 1)
+          propagateChannel(&sector, x, y, z, {ch, 0, opacity}); // +x
+        if (mask & 2)
+          propagateChannel(&sector, x, y, z, {ch, 1, opacity}); // -x
+        if (mask & 4)
+          propagateChannel(&sector, x, y, z, {ch, 2, opacity}); // +y
+        if (mask & 8)
+          propagateChannel(&sector, x, y, z, {ch, 3, opacity}); // -y
+        if (mask & 16)
+          propagateChannel(&sector, x, y, z, {ch, 4, opacity}); // +z
+        if (mask & 32)
+          propagateChannel(&sector, x, y, z, {ch, 5, opacity}); // -z
 
-		} // isLight()
+  		} // isLight()
     } // x, z, y
 
   } // atmospheric flood
 
-  void Lighting::floodInto(int x, int y, int z, int ch)
+  #define DO_FLOOD_INTO(dir) {                 \
+      s2 = Spiders::wrap(*s, bx, by, bz);      \
+      if (s2 != nullptr) {                     \
+        auto lvl = (*s2)(bx, by, bz).getChannel(ch); \
+        if (lvl > 1) propagateChannel(s2, bx, by, bz, {ch, dir, lvl}); \
+      }}
+
+  void Lighting::floodInto(Sector* s, int x, int y, int z, short ch)
   {
+    Sector* s2 = nullptr;
+    int bx, by, bz;
+
 	  // for each neighbor to this block, flood in from
-	  if (x > 0)
-	  {
-  		Block& blk = Spiders::getBlock(x-1, y, z);
-  		if (blk.getChannel(ch) > 1)
-  			propagateChannel(x-1, y, z, ch, 0, blk.getChannel(ch)); // +x
-	  }
-	  if (x < sectors.getXZ()*BLOCKS_XZ-1)
-	  {
-  		Block& blk = Spiders::getBlock(x+1, y, z);
-      if (blk.getChannel(ch) > 1)
-  			propagateChannel(x+1, y, z, ch, 1, blk.getChannel(ch)); // -x
-	  }
-	  if (y > 0)
-	  {
-  		Block& blk = Spiders::getBlock(x, y-1, z);
-      if (blk.getChannel(ch) > 1)
-  			propagateChannel(x, y-1, z, ch, 2, blk.getChannel(ch)); // +y
-	  }
-	  if (y < BLOCKS_Y-1)
-	  {
-  		Block& blk = Spiders::getBlock(x, y+1, z);
-      if (blk.getChannel(ch) > 1)
-  			propagateChannel(x, y+1, z, ch, 3, blk.getChannel(ch)); // -y
-	  }
-	  if (z > 0)
-	  {
-  		Block& blk = Spiders::getBlock(x, y, z-1);
-      if (blk.getChannel(ch) > 1)
-  			propagateChannel(x, y, z-1, ch, 4, blk.getChannel(ch)); // +z
-	  }
-	  if (z < sectors.getXZ()*BLOCKS_XZ-1)
-	  {
-  		Block& blk = Spiders::getBlock(x, y, z+1);
-      if (blk.getChannel(ch) > 1)
-  			propagateChannel(x, y, z+1, ch, 5, blk.getChannel(ch)); // -z
-	  }
+    bx = x-1; by = y; bz = z;
+    DO_FLOOD_INTO(0); // +x
+
+    bx = x+1; by = y; bz = z;
+    DO_FLOOD_INTO(0); // -x
+
+    bx = x; by = y-1; bz = z;
+    DO_FLOOD_INTO(2); // +y
+
+    bx = x; by = y+1; bz = z;
+    DO_FLOOD_INTO(3); // -y
+
+    bx = x; by = y; bz = z-1;
+    DO_FLOOD_INTO(4); // +z
+
+    bx = x; by = y; bz = z+1;
+    DO_FLOOD_INTO(5); // -z
   }
 
-	void Lighting::floodOutof(int x, int y, int z, int ch, char lvl)
+	void Lighting::floodOutof(int x, int y, int z, short ch, short lvl)
 	{
+    Sector* s = Spiders::wrap(x, y, z);
+    assert(s != nullptr);
 		// for each neighbor to this block, try to
 		// propagate light from ch outwards
-		propagateChannel(x, y, z, ch, 0, lvl); // +x
-		propagateChannel(x, y, z, ch, 1, lvl); // -x
-		propagateChannel(x, y, z, ch, 2, lvl); // +y
-		propagateChannel(x, y, z, ch, 3, lvl); // -y
-		propagateChannel(x, y, z, ch, 4, lvl); // +z
-		propagateChannel(x, y, z, ch, 5, lvl); // -z
+		propagateChannel(s, x, y, z, {ch, 0, lvl}); // +x
+		propagateChannel(s, x, y, z, {ch, 1, lvl}); // -x
+		propagateChannel(s, x, y, z, {ch, 2, lvl}); // +y
+		propagateChannel(s, x, y, z, {ch, 3, lvl}); // -y
+		propagateChannel(s, x, y, z, {ch, 4, lvl}); // +z
+		propagateChannel(s, x, y, z, {ch, 5, lvl}); // -z
 	}
+
 	void Lighting::skyrayDownwards(Sector& sector, int bx, int by, int bz)
 	{
-		int wx = sector.getX()*BLOCKS_XZ + bx;
-		int wz = sector.getZ()*BLOCKS_XZ + bz;
-
 		for (int y = by; y >= 0; y--)
 		{
 			if (sector(bx, y, bz).isAir())
 			{
-				// promote to queen
-				sector(bx, y, bz).setSkyLight(15);
-				// send out rays on all sides
-				propagateChannel(wx, y, wz, 0, 0, 15); // +x
-				propagateChannel(wx, y, wz, 0, 1, 15); // -x
-				propagateChannel(wx, y, wz, 0, 4, 15); // +z
-				propagateChannel(wx, y, wz, 0, 5, 15); // -z
-			}
-			else
-			{
-				// set new skylevel to this y-value
-				sector.flat()(bx, bz).skyLevel = y+1;
+        // promote to queen
+        sector(bx, y, bz).setSkyLight(15);
+      }
+      else
+      {
+        // set new skylevel to this y-value
+        const int new_skylevel = y + 1;
+				sector.flat()(bx, bz).skyLevel = new_skylevel;
+        // send out rays on all sides along column
+        for (y = by; y >= new_skylevel; y--) {
+  				propagateChannel(&sector, bx, y, bz, {0, 0, 15}); // +x
+  				propagateChannel(&sector, bx, y, bz, {0, 1, 15}); // -x
+  				propagateChannel(&sector, bx, y, bz, {0, 4, 15}); // +z
+  				propagateChannel(&sector, bx, y, bz, {0, 5, 15}); // -z
+        }
+        y = new_skylevel - 1;
 				// try to enter below, if its transparent
 				if (sector(bx, y, bz).isTransparent())
 				{
-					propagateChannel(wx, y, wz, 0, 3, 14);
+					propagateChannel(&sector, bx, y, bz, {0, 3, 14});
 				}
 				break;
 			}
 		}
 	}
-
-	void Lighting::removeSkyLight(int x, int y1, int y2, int z, char lvl)
-	{
-		std::queue<emitter_t> q;
-    // remove all light from whole column
-    for (int y = y1; y <= y2; y++) {
-      // start rays in all 6 directions
-		  for (int dir = 0; dir < 6; dir++)
-			  removeSkylight(x, y, z, dir, lvl, q);
-    }
-		// re-flood edge values that were encountered
-		while (!q.empty())
-		{
-			const emitter_t& e = q.front();
-      auto lvl = Spiders::getBlock(e.x, e.y, e.z).getSkyLight();
-      floodOutof(e.x, e.y, e.z, 0, lvl);
-			q.pop();
-		}
-
-	} // removeSkyLight()
 
 	void Lighting::removeLight(const Block& blk, int srcX, int srcY, int srcZ)
 	{

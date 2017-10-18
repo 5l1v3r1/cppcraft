@@ -123,10 +123,6 @@ namespace cppcraft
 		{
 			return m_blocks->operator()(x, y, z);
 		}
-		Block& operator[] (unsigned short index)
-		{
-			return m_blocks->b[index];
-		}
 		// returns a reference to the special section, if one exists
 		// otherwise, GOD HELP US ALL
 		sectordata_t& data()

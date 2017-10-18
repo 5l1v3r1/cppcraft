@@ -88,7 +88,7 @@ namespace db
 		uint8_t shader = 0;
 		bool repeat_y = true;
 		// if non-zero, block is a light
-		uint32_t opacity = 0;
+		uint8_t opacity = 0;
 		// fully opaque blocks are common, and cover all their sides
 		bool block = true;
 		// light travels through transparent blocks
@@ -111,10 +111,10 @@ namespace db
 		delegate <std::string(const Block&)> getSound = nullptr;
 
     // boiler plate reduction
-    static BlockData& createSolid();
-    static BlockData& createFluid();
-    static BlockData& createLeaf();
-    static BlockData& createCross();
+    static BlockData& createSolid(std::string name = "");
+    static BlockData& createFluid(std::string name = "");
+    static BlockData& createLeaf(std::string name = "");
+    static BlockData& createCross(std::string name = "");
 
     BlockData(int ID) : id(ID) {}
   private:

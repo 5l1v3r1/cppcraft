@@ -39,19 +39,22 @@ TEST_CASE("Various light filling tests")
   REQUIRE(s(0, START_Y, 0).getID() == _AIR);
   REQUIRE(s(1, START_Y, 0).getID() == _AIR);
 
-  auto& d = db::BlockDB::get();
-  db::BlockData solid;
-  const int SOLID = d.create("solid", solid);
-  s(1, START_Y+1, 0).setID(SOLID);
+  auto& db = db::BlockDB::get();
+  auto& solid = db.create("solid");
+  const block_t SOLID = solid.getID();
+  auto& solid_block = s(1, START_Y+1, 0);
+  solid_block.setID(SOLID);
+  // make sure the solid is solid
+  REQUIRE(!solid_block.isTransparent());
 
   // create sun source
   s(0, START_Y, 0).setSkyLight(15);
-  Lighting::propagateChannel(16, START_Y, 16, 0, 0, 15);
-  Lighting::propagateChannel(16, START_Y, 16, 0, 1, 15);
-  //Lighting::propagateChannel(16, START_Y, 16, 0, 2, 15);
-  Lighting::propagateChannel(16, START_Y, 16, 0, 3, 15);
-  Lighting::propagateChannel(16, START_Y, 16, 0, 4, 15);
-  Lighting::propagateChannel(16, START_Y, 16, 0, 5, 15);
+  Lighting::propagateChannel(&s, 0, START_Y, 0, {0, 0, 15});
+  Lighting::propagateChannel(&s, 0, START_Y, 0, {0, 1, 15});
+  //Lighting::propagateChannel(&s, 0, START_Y, 0, {0, 2, 15});
+  Lighting::propagateChannel(&s, 0, START_Y, 0, {0, 3, 15});
+  Lighting::propagateChannel(&s, 0, START_Y, 0, {0, 4, 15});
+  Lighting::propagateChannel(&s, 0, START_Y, 0, {0, 5, 15});
 
   // main column should be fully bright
   for (int y = START_Y; y >= 1; y--) {

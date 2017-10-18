@@ -2,7 +2,7 @@
 #define SPIDERS_HPP
 
 #include "common.hpp"
-#include "sector.hpp"
+#include "sectors.hpp"
 #include <glm/vec3.hpp>
 
 namespace library
@@ -21,10 +21,10 @@ namespace cppcraft
 
 		// converts a position (x, y, z) to an explicit in-system position
 		// returns false if the position would become out of bounds (after conversion)
-		static Sector* spiderwrap(int& bx, int& by, int& bz);
+		static inline Sector* wrap(int& bx, int& by, int& bz) noexcept;
 		// converts a position (s, x, y, z) to an explicit in-system position
 		// returns false if the position would become out of bounds (after conversion)
-		static Sector* spiderwrap(Sector& s, int& bx, int& by, int& bz);
+		static inline Sector* wrap(Sector& s, int& bx, int& by, int& bz) noexcept;
 
 		static Block testArea(float x, float y, float z);
 		static Block testAreaEx(float x, float y, float z);
@@ -47,6 +47,38 @@ namespace cppcraft
     static int64_t total_blocks_placed() noexcept;
 	};
 	extern Block air_block;
+
+
+  inline Sector* Spiders::wrap(int& bx, int& by, int& bz) noexcept
+  {
+    const int fx = bx / Sector::BLOCKS_XZ;
+		const int fz = bz / Sector::BLOCKS_XZ;
+
+		if (UNLIKELY(fx < 0 || fx >= sectors.getXZ() ||
+			           fz < 0 || fz >= sectors.getXZ() ||
+			           by < 0 || by >= BLOCKS_Y))
+				return nullptr;
+
+		bx &= Sector::BLOCKS_XZ-1;
+		bz &= Sector::BLOCKS_XZ-1;
+		return &sectors(fx, fz);
+	}
+
+  inline Sector* Spiders::wrap(Sector& s, int& bx, int& by, int& bz) noexcept
+	{
+		const int fx = s.getX() + bx / Sector::BLOCKS_XZ;
+		const int fz = s.getZ() + bz / Sector::BLOCKS_XZ;
+
+    if (UNLIKELY(fx < 0 || fx >= sectors.getXZ() ||
+			           fz < 0 || fz >= sectors.getXZ() ||
+			           by < 0 || by >= BLOCKS_Y))
+				return nullptr;
+
+		bx &= Sector::BLOCKS_XZ-1;
+		bz &= Sector::BLOCKS_XZ-1;
+		return &sectors(fx, fz);
+	}
+
 }
 
 #endif

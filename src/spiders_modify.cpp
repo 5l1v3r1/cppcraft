@@ -13,7 +13,7 @@ namespace cppcraft
 {
 	bool Spiders::updateBlock(int bx, int by, int bz, block_t bits)
 	{
-		Sector* s = spiderwrap(bx, by, bz);
+		Sector* s = Spiders::wrap(bx, by, bz);
 		if (s == nullptr) return false;
 		// if the area isn't loaded we don't have the ability to modify it,
 		// only the server can do that on-the-fly anyways
@@ -32,7 +32,7 @@ namespace cppcraft
 
 	bool Spiders::setBlock(int bx, int by, int bz, const Block& newblock)
 	{
-		Sector* s = spiderwrap(bx, by, bz);
+		Sector* s = Spiders::wrap(bx, by, bz);
 		if (UNLIKELY(s == nullptr))
 		{
 			printf("Could not setblock(%d, %d, %d): out of bounds\t",
@@ -98,7 +98,7 @@ namespace cppcraft
 
 	Block Spiders::removeBlock(int bx, int by, int bz)
 	{
-		Sector* s = spiderwrap(bx, by, bz);
+		Sector* s = Spiders::wrap(bx, by, bz);
 		// if the given position is outside the local area, null will be returned
 		if (s == nullptr) return air_block;
 		// if the area isn't loaded we don't have the ability to modify it,
@@ -120,7 +120,7 @@ namespace cppcraft
 		}
     else if (block.isTransparent() == false) {
       // try to flood this new fancy empty space with light
-      Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 0);
+      Lighting::floodInto(s, bx, by, bz, 0);
     }
 
     // to remove lights we will have to do a more.. thorough job
@@ -128,7 +128,7 @@ namespace cppcraft
 			Lighting::removeLight(block, s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
     }
     else {
-      Lighting::floodInto(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1);
+      Lighting::floodInto(s, bx, by, bz, 1);
     }
 
 		// update the mesh, so we can see the change!

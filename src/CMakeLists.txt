@@ -24,6 +24,7 @@ set(SUB_SOURCES
     compilers.cpp
     compressor.cpp
     db/blockdb.cpp
+    db/blockdata.cpp
     drawq.cpp
     drawq_rendergrid.cpp
     game.cpp
@@ -61,6 +62,7 @@ set(SUB_SOURCES
     items.cpp
     lighting.cpp
     lighting_algos.cpp
+    lighting_remove.cpp
     light_correction.cpp
     main.cpp
     meshes/vemitcross.cpp

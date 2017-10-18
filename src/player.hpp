@@ -6,7 +6,8 @@
 #include "block.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <SDL.h>
+
+struct SDL_Window;
 
 namespace library
 {
