@@ -3,9 +3,6 @@
 #include "blocks_bordered.hpp"
 #include "sectors.hpp"
 
-#define likely(x)       __builtin_expect(!!(x), 1)
-#define unlikely(x)     __builtin_expect(!!(x), 0)
-
 namespace cppcraft
 {
 	// returns visible sides of this cube, relying heavily on the provided testdata
@@ -22,11 +19,11 @@ namespace cppcraft
 		lbx |= visibilityComp(bsb(bx+1, by, bz), 16);
 
 		// bottom -y
-		if (by > 0)
-		lbx |= visibilityComp(bsb(bx, by-1, bz), 8);
+		if (LIKELY(by > 0))
+		  lbx |= visibilityComp(bsb(bx, by-1, bz), 8);
 
 		// top +y
-		if (by < BLOCKS_Y-1)
+		if (LIKELY(by < BLOCKS_Y-1))
 			lbx |= visibilityComp(bsb(bx, by+1, bz), 4);
 		else
 			lbx |= 4;
@@ -44,7 +41,7 @@ namespace cppcraft
 		uint16_t lbx = 0;
 
 		// left side -x
-		if (bx == 0) // facing = 5
+		if (UNLIKELY(bx == 0)) // facing = 5
 		{
 			if (sector.getX() > 0)
 			{
@@ -58,7 +55,7 @@ namespace cppcraft
 		}
 
 		// right side +x
-		if (bx == BLOCKS_XZ-1) // facing = 4
+		if (UNLIKELY(bx == BLOCKS_XZ-1)) // facing = 4
 		{
 			if (sector.getX() < sectors.getXZ()-1)
 			{
@@ -72,7 +69,7 @@ namespace cppcraft
 		}
 
 		// bottom -y
-		if (likely(by > 0))
+		if (LIKELY(by > 0))
 		{
 			// we will never add faces down towards by=0,
 			// but we will be adding faces towards the block below
@@ -80,7 +77,7 @@ namespace cppcraft
 		}
 
 		// top +y
-		if (unlikely(by == Sector::BLOCKS_Y-1))
+		if (UNLIKELY(by == Sector::BLOCKS_Y-1))
 		{
 			// on the top of the world we have no choice but to always add faces
 			lbx |= 4;
@@ -91,7 +88,7 @@ namespace cppcraft
 		}
 
 		// back -z
-		if (bz == 0)
+		if (UNLIKELY(bz == 0))
 		{
 			if (sector.getZ() > 0)
 			{
@@ -104,7 +101,7 @@ namespace cppcraft
 			lbx |= visibilityComp(sector(bx, by, bz-1), 2);
 		}
 
-		if (bz == BLOCKS_XZ-1)
+		if (UNLIKELY(bz == BLOCKS_XZ-1))
 		{
 			if (sector.getZ() < sectors.getXZ()-1)
 			{
