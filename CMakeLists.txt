@@ -48,3 +48,31 @@ include_directories(network/tacopie/includes)
 add_subdirectory(library)
 add_subdirectory(network)
 add_subdirectory(src)
+
+### linker stage ###
+
+add_executable(cppcraft ${SOURCES})
+set_target_properties(cppcraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+if (WIN32)
+  add_library(glew STATIC IMPORTED)
+  set_target_properties(glew PROPERTIES LINKER_LANGUAGE C)
+  set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/glew32s.lib)
+
+  add_library(lua STATIC IMPORTED)
+  set_target_properties(lua PROPERTIES LINKER_LANGUAGE C)
+  set_target_properties(lua PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/liblua53.a)
+
+  target_link_libraries(cppcraft imagehlp library lua glew ${OPENGL_gl_LIBRARY})
+endif()
+if (UNIX)
+  set(SDL2_LIBS "${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY}")
+
+  target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
+  target_link_libraries(cppcraft library tacopie libGLEW.a GL ${SDL2_LIBS} ${LUA_STATIC_LIBRARIES})
+  if (GPERF)
+    target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)
+  endif()
+endif()
+
+install(TARGETS cppcraft DESTINATION ${CMAKE_INSTALL_PREFIX})

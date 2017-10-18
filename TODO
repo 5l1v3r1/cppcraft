@@ -3,7 +3,7 @@ Rewrite to SDL2 over a weekend
 - [x] Dump old GLFW stuff
 - [x] Refactor Renderer to Game, make it global, put Input into game
 - [x] Make window resizable
-- Dump BASS
+- [x] Dump BASS
 - Rewrite shaders to be a little more variable-length
 - Add custom shader for a block (eg. fresh water)
 
@@ -13,6 +13,7 @@ Implement light correction queue
 
 Fix issues with atmospheric voxel lighting
 - More tests
+- Pass sector around in lighting algos to improve performance
 
 Implement connected textures
 - [x] Make optional

@@ -1,5 +1,5 @@
 
-set(SOURCES
+set(SUB_SOURCES
     atmosphere.cpp
     biome.cpp
     blockmodels.cpp
@@ -133,32 +133,13 @@ set(SOURCES
     worldmanager_teleport.cpp
   )
 
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "${ORIGIN}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,.")
+FUNCTION(PREPEND var prefix)
+   SET(listVar "")
+   FOREACH(f ${ARGN})
+      LIST(APPEND listVar "${prefix}/${f}")
+   ENDFOREACH(f)
+   SET(${var} "${listVar}" PARENT_SCOPE)
+ENDFUNCTION(PREPEND)
 
-add_executable(cppcraft ${SOURCES})
-set_target_properties(cppcraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
-if (WIN32)
-  add_library(glew STATIC IMPORTED)
-  set_target_properties(glew PROPERTIES LINKER_LANGUAGE C)
-  set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/glew32s.lib)
-
-  add_library(lua STATIC IMPORTED)
-  set_target_properties(lua PROPERTIES LINKER_LANGUAGE C)
-  set_target_properties(lua PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/win64/liblua53.a)
-
-  target_link_libraries(cppcraft imagehlp library lua glew ${OPENGL_gl_LIBRARY})
-endif()
-if (UNIX)
-  set(SDL2_LIBS "${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY}")
-
-  target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie libGLEW.a GL ${SDL2_LIBS} ${LUA_STATIC_LIBRARIES})
-  if (GPERF)
-    target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)
-  endif()
-endif()
-
-install(TARGETS cppcraft DESTINATION ${CMAKE_INSTALL_PREFIX})
+PREPEND(SOURCES ${CMAKE_CURRENT_SOURCE_DIR} ${SUB_SOURCES})
+set(SOURCES "${SOURCES}" PARENT_SCOPE)
