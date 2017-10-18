@@ -18,7 +18,7 @@ namespace terragen
 
 	inline float mix(float a, float b, float level)
 	{
-		return a * (1.0 - level) + b * level;
+		return a * (1.0f - level) + b * level;
 	}
 
   void Terrain::init()
@@ -30,8 +30,7 @@ namespace terragen
 	Block Terrain::getBlock(float y, float in_beachhead, float density, float caves)
 	{
 		// FOR TESTING CAVES:
-		//if (caves < 0.0) return _STONE;
-		//return _AIR;
+		//return (caves < 0.0) ? _STONE : _AIR;
 		float cavetresh = 0.0f; // distance from air/dense barrier
 		if (density > -0.15 && density <= -0.05) cavetresh = (density + 0.05) / -0.1;
 		if (density > -0.025 && density <= 0.0) cavetresh = 1.0f;

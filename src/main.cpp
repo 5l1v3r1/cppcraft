@@ -21,6 +21,9 @@ const std::string logFile    = "cppcraft.log";
 
 using namespace library;
 using namespace cppcraft;
+#ifdef ENABLE_GPERF
+extern "C" int ProfilerStart(const char* fname);
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -97,6 +100,11 @@ int main(int argc, char* argv[])
 		logger.write(Log::ERR, "Failed to initialize player... Exiting.");
 		return EXIT_FAILURE;
 	}
+
+#ifdef ENABLE_GPERF
+  // start profiling
+  ProfilerStart("/tmp/prof.out");
+#endif
 
 	// start world manager thread
 	mtx.initThreading(*worldman);

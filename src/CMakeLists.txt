@@ -156,6 +156,9 @@ if (UNIX)
 
   target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
   target_link_libraries(cppcraft library tacopie libGLEW.a GL ${SDL2_LIBS} ${LUA_STATIC_LIBRARIES})
+  if (GPERF)
+    target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)
+  endif()
 endif()
 
 install(TARGETS cppcraft DESTINATION ${CMAKE_INSTALL_PREFIX})
