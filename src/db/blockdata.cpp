@@ -79,7 +79,7 @@ namespace db
 		{
 			// if they are both the same ID, we only add every 2nd face
 			if (src.getID() == dst.getID()) {
-          if (src.getSkyLight() < 8) return 0;
+          if (src.getSkyLight() < 10) return 0;
 				  return mask & (1 + 4 + 32);
       }
 			// otherwise, business as usual, only add towards transparent sides

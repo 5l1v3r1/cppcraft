@@ -10,6 +10,11 @@ namespace terragen
 {
 	Biome::result_t Biome::biomeGen(glm::vec2 pos)
 	{
+    // max distance between terrains before discard
+    // 10 = bad, 25 = decent, 50 = good
+    static const float MAX_DISTANCE = 25.0f;
+    static const float CROSS_FADE   = 0.5f;
+
 		const float climateBias = 0.9f; // <1.0 more warm, >1.0 more cold
 
 		float b1 = 0.5f + 0.45f*glm::simplex(pos*0.3f) + 0.05f*glm::simplex(pos*3.0f);
@@ -45,14 +50,14 @@ namespace terragen
     const float closest = values[0].second;
     size_t total = 1;
     for (; total < values.size(); total++) {
-      if (values[total].second - closest > 20.0f) break;
+      if (values[total].second - closest > MAX_DISTANCE) break;
     }
     values.resize(total);
     // first point is always factor 1
     values[0].second = 1.0f;
     float norma = 1.0f;
     for (size_t i = 1; i < total; i++) {
-      values[i].second = 1.0f / (1.0f + (values[i].second - closest));
+      values[i].second = 1.0f / (1.0f + (values[i].second - closest) * CROSS_FADE);
       norma += values[i].second;
     }
     norma = 1.0f / norma;
