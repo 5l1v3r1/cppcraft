@@ -16,3 +16,6 @@
 [submodule "tacopie"]
 	path = network/tacopie
 	url = https://github.com/Cylix/tacopie.git
+[submodule "inc/json"]
+	path = inc/json
+	url = https://github.com/nlohmann/json.git

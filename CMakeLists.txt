@@ -41,6 +41,7 @@ add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 include_directories(inc)
 include_directories(inc/glm)
 include_directories(inc/LuaBridge/Source/LuaBridge)
+include_directories(inc/json/src)
 include_directories(library/include)
 include_directories(network/tacopie/includes)
 
