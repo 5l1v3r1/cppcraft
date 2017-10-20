@@ -7,7 +7,6 @@
 #include <library/opengl/vao.hpp>
 #include <library/opengl/window.hpp>
 #include "camera.hpp"
-#include "gameconf.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
 #include "shaderman.hpp"
@@ -30,16 +29,10 @@ namespace cppcraft
 		// create screenspace VAO
 		screenVAO.createScreenspaceVAO();
 
-		// set texture sizes
-		// lens flare
-		int factor = gameconf.highq_lens ? 2 : 4;
-		this->flareTxW = renderer.width() / factor;
-		this->flareTxH = renderer.height() / factor;
-
 		// create screenspace FBOs
-		downsampler.create();
+    downsampler.create();
 
-		initFlare();
+		initFlare(renderer);
 
 		if (OpenGL::checkError())
 		{

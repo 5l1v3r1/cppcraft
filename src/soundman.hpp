@@ -2,8 +2,8 @@
 #define SOUNDMAN_HPP
 
 #include "sound/sound.hpp"
-#include "sound/stream.hpp"
 #include <library/math/vector.hpp>
+#include <fmod/fmod.hpp>
 #include <string>
 #include <map>
 
@@ -41,6 +41,9 @@ namespace cppcraft
 		std::map<std::string, sound::Sound> sounds;
 		std::map<std::string, sound::Stream> streams;
     sound::Stream* current_stream = nullptr;
+
+    // the sound system
+    FMOD::System* system = nullptr;
 	};
 	extern Soundman soundman;
 }

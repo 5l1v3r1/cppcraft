@@ -1,38 +1,29 @@
 #ifndef SOUND_SOUND_HPP
 #define SOUND_SOUND_HPP
 
-#include <SDL_mixer.h>
-#include <library/math/vector.hpp>
-#include <memory>
+#include <fmod/fmod.hpp>
 #include <string>
 
 namespace sound
 {
-	class SoundHandle;
-
 	class Sound
 	{
 	public:
-		static const float MAX_PAN_DIST;
-		static const float MAX_VOL_DIST;
-
-		Sound(const std::string& fname);
-		Sound(const std::string& fname, int samples);
+		Sound(FMOD::System*, const std::string& fname);
     Sound(Sound&&);
     ~Sound();
 
-		void setVolume(float vol);
-
-		void play(const glm::vec3&);
-		void play();
-
-		static void setMasterVolume(float vol);
+    auto* get() noexcept {
+      return sound;
+    }
 
 	private:
-    Mix_Chunk* sound = nullptr;
-		// master volume for samples [0..1]
-		static float masterVolume;
+    FMOD::Sound* sound = nullptr;
+    std::string  filename;
 	};
+
+  // in FMOD sounds and streams.. same shit
+  using Stream = Sound;
 }
 
 #endif

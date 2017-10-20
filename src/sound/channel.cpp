@@ -11,19 +11,19 @@ namespace sound
 		this->delta = delta;
 		this->maxVolume = maxv;
 	}
-	
+
 	void Channel::stop()
 	{
 		// nothing to do if the stream is already ending
 		if (current.stream == nullptr) return;
-		
+
 		// fade-out stream that we want to stop
 		older.push_back(current);
 		// invalidate current
 		current.stream = nullptr;
 		current.volume = 0;
 	}
-	
+
 	void Channel::fullStop()
 	{
 		// stop current
@@ -41,7 +41,7 @@ namespace sound
 			older.clear();
 		}
 	}
-	
+
 	void Channel::play(Stream& newStream)
 	{
 		// nothing to do if the new stream is the same as the current
@@ -67,14 +67,14 @@ namespace sound
 		current.stream->play();
 		current.stream->setVolume(current.volume);
 	}
-	
+
 	ManagedStream* Channel::streamExists(Stream& stream)
 	{
 		for (size_t i = 0; i < older.size(); i++)
 			if (older[i].stream == &stream) return &older[i];
 		return nullptr;
 	}
-	
+
 	void Channel::removeStream(Stream& stream)
 	{
 		for (int i = older.size()-1; i >= 0; i--)
@@ -83,7 +83,7 @@ namespace sound
 				older.erase(older.begin() + i);
 		}
 	}
-	
+
 	void Channel::integrate()
 	{
 		if (current.stream)

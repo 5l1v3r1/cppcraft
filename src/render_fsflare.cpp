@@ -5,6 +5,7 @@
 #include <library/opengl/vao.hpp>
 #include <library/opengl/window.hpp>
 #include "camera.hpp"
+#include "gameconf.hpp"
 #include "player.hpp"
 #include "render_sky.hpp"
 #include "sun.hpp"
@@ -21,10 +22,19 @@ namespace cppcraft
 	extern VAO screenVAO;
 	glm::mat4 lensMatrix;
 
-	void FSRenderer::initFlare()
+	void FSRenderer::initFlare(Renderer& renderer)
 	{
 		lensMatrix = biasMatrix() * camera.getProjection();
 		glGenFramebuffers(1, &flareFBO);
+
+    // lens flare
+    renderer.on_resize(
+    [this] (Renderer& renderer) {
+      // set texture sizes
+      int factor = gameconf.highq_lens ? 2 : 4;
+  		this->flareTxW = renderer.width() / factor;
+  		this->flareTxH = renderer.height() / factor;
+    });
 	}
 
 	glm::vec2 FSRenderer::getSunVector(const glm::mat4& matsun)

@@ -17,7 +17,7 @@ namespace cppcraft
 	{
 	public:
 		void init(Renderer&);
-		void initFlare();
+		void initFlare(Renderer&);
 		void terrainFog(double time);
 		void terrainBlur();
 		void renderSuperSampling(library::Texture& supersampled, library::Texture& texture);

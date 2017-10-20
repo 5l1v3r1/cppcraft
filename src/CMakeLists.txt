@@ -115,10 +115,8 @@ set(SUB_SOURCES
     sector.cpp
     sectors.cpp
     shaderman.cpp
-    sound/channel.cpp
     soundman.cpp
     sound/sound.cpp
-    sound/stream.cpp
     spiders.cpp
     spiders_modify.cpp
     spiders_world.cpp

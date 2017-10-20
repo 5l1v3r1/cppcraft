@@ -4,13 +4,14 @@
 #include "gameconf.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
-#include "sound/channel.hpp"
+#include "sound/system.hpp"
 #include "generator/terrain/terrains.hpp"
 #include <sstream>
 
 using namespace glm;
 using namespace sound;
 using namespace library;
+
 
 namespace cppcraft
 {
@@ -19,32 +20,43 @@ namespace cppcraft
 	void Soundman::init()
 	{
 		logger << Log::INFO << "* Initializing sound system" << Log::ENDL;
-    const int flags = MIX_INIT_MP3;
 
-    if (Mix_Init(flags) != flags)
-    {
-      throw std::runtime_error("SoundSystem(): Error initializing audio system");
-    }
+    FMOD_RESULT result = FMOD::System_Create(&system);
+    SND_CHECK(result);
 
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+    unsigned int version;
+    result = system->getVersion(&version);
+    SND_CHECK(result);
+    assert (version >= FMOD_VERSION && "Header version vs library version mismatch");
 
-		// load sounds
+    result = system->init(32, FMOD_INIT_NORMAL, nullptr);
+    SND_CHECK(result);
+
+    // load sounds
 		soundPlaylist();
 		// load music & ambience
 		musicPlaylist();
-
-		sound::Sound::setMasterVolume(0.3);
 
 		logger << Log::INFO << "* Sound system initialized" << Log::ENDL;
 	}
 
 	void Soundman::playSound(const std::string& name, vec3 v)
 	{
-		this->sounds.at(name).play( v );
+    this->playSound(name);
 	}
 	void Soundman::playSound(const std::string& name)
 	{
-		this->sounds.at(name).play();
+    auto& sound = this->sounds.at(name);
+    system->playSound(sound.get(), 0, false, nullptr);
+	}
+  void Soundman::playMaterial(const std::string& name, int num)
+	{
+    auto& sound = this->sounds.at(name + std::to_string(num));
+    system->playSound(sound.get(), 0, false, nullptr);
+	}
+	void Soundman::playMaterial(const std::string& name, int num, vec3 v)
+	{
+    this->playMaterial(name, num);
 	}
 
 	void Soundman::loadMaterialSound(const std::string& basename)
@@ -66,7 +78,7 @@ namespace cppcraft
   {
     sounds.emplace(std::piecewise_construct,
             std::forward_as_tuple(name),
-            std::forward_as_tuple(file));
+            std::forward_as_tuple(this->system, file));
   }
 
 	void Soundman::soundPlaylist()
@@ -101,7 +113,7 @@ namespace cppcraft
   {
     streams.emplace(std::piecewise_construct,
             std::forward_as_tuple(name),
-            std::forward_as_tuple(file));
+            std::forward_as_tuple(this->system, file));
   }
 
 	void Soundman::musicPlaylist()
@@ -142,47 +154,8 @@ namespace cppcraft
 
 		if (gameconf.ambience)
 		{
-      auto* old_stream = current_stream;
-			// ambience stream
-			if (player.fullySubmerged()) // submerged priority over caves
-			{
-				current_stream = &streams.at("amb_water");;
-			}
-			else
-			{
-				if (in_caves)
-				{
-					current_stream = &streams.at("amb_caves");
-				}
-				else
-				{
-          // by terrain
-          if (!terrain.music_name.empty())
-          {
-            current_stream = &streams.at(terrain.music_name);
-          }
-				} // ambience
-			}
-			// slowly crossfade in/out streams as needed
-      if (current_stream != nullptr)
-      {
-        if (old_stream != nullptr && old_stream != current_stream) {
-          old_stream->stop();
-        }
-        if (current_stream->isPlaying() == false) {
-          current_stream->play();
-        }
-      }
-		}
-	}
 
-	void Soundman::playMaterial(const std::string& sound, int num)
-	{
-		this->sounds.at(sound + std::to_string(num)).play();
-	}
-	void Soundman::playMaterial(const std::string& sound, int num, vec3 v)
-	{
-		this->sounds.at(sound + std::to_string(num)).play(v);
+		}
 	}
 
 }

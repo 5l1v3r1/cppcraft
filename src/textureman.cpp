@@ -240,14 +240,6 @@ namespace cppcraft
 		else throw std::runtime_error("Missing source file: Lensdirt texture");
 		if (OpenGL::checkError()) throw std::runtime_error("Lensdirt texture error");
 
-		// lens buffers
-		for (int i = 0; i < 3; i++)
-		{
-			textures[(int)T_LENSFLARE + i] = Texture(GL_TEXTURE_2D, GL_RGBA16F);
-			textures[(int)T_LENSFLARE + i].create(0, screenspace.flareTxW, screenspace.flareTxH);
-			textures[(int)T_LENSFLARE + i].setInterpolation(true);
-		}
-
 		/// GUI Renderer ///
 
 		// compass
@@ -277,6 +269,14 @@ namespace cppcraft
 
   void Textureman::rebuild_buffers(Renderer& renderer)
   {
+    // Lens fullscreen buffers
+		for (int i = 0; i < 3; i++)
+		{
+			textures[(int)T_LENSFLARE + i] = Texture(GL_TEXTURE_2D, GL_RGBA16F);
+			textures[(int)T_LENSFLARE + i].create(0, screenspace.flareTxW, screenspace.flareTxH);
+			textures[(int)T_LENSFLARE + i].setInterpolation(true);
+		}
+
     /// Fullscreen Buffers ///
 		int  skyWidth  = renderer.width();
 		int  skyHeight = renderer.height();
