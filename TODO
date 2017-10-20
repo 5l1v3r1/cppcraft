@@ -8,10 +8,6 @@ Implement configuration via JSON
 - Read JSON config file
 - Provide API to terrains (and other things)
 
-Implement light correction queue
-- [x] Remove skylight from all sources
-- [x] Refill after removing all
-
 Fix issues with atmospheric voxel lighting
 - More tests
 - Pass sector around in lighting algos to improve performance

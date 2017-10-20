@@ -48,5 +48,8 @@ namespace terragen
 		// calculate some basic lighting too, by following the sky down to the ground
 		PostProcess::run(data);
     PRINT("Done\n");
+
+    // place ores
+    OreGen::begin_deposit(data);
 	}
 }

@@ -71,7 +71,7 @@ namespace terragen
             glm::simplex(p*vec2(5.8f, 5.6f)) * 0.05f;
 		return land;
 	}
-  static float getcaves_grass(vec2 p)
+  static float getground_grass(vec2 p)
   {
     p *= 0.001f;
     return WATERLEVEL_FLT - 0.1f + lower_grass(p) * 0.4f;
@@ -83,7 +83,7 @@ namespace terragen
 	{
 		auto& terrain =
 		terrains.add("grass",  "Grasslands", Biome::biome_t{150.0f, 15.0f},
-        getheight_grass, getcaves_grass, getnoise_grass, grass_process);
+        getheight_grass, getground_grass, getnoise_grass, grass_process);
 
 		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.7f), 48);
 		terrain.on_tick =
@@ -217,13 +217,6 @@ namespace terragen
 			{
 				// how many times we've seen the same block on the way down
 				counter++;
-			}
-
-			//
-			// -== ore deposition ==-
-			//
-			if (block.getID() == STONE_BLOCK) {
-				PostProcess::try_deposit(gdata, wx, wz, x, y, z);
 			}
 
 			// count air

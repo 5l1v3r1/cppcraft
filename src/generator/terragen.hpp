@@ -28,10 +28,8 @@ namespace terragen
 			: wx(WX), wz(WZ)
 		{
 			// position we use to generate with:
-			genx = (wx - cppcraft::World::WORLD_CENTER);
-			genx *= BLOCKS_XZ;
-			genz = (wz - cppcraft::World::WORLD_CENTER);
-			genz *= BLOCKS_XZ;
+			genx = (wx - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
+			genz = (wz - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
 
 			// allocate new block data to avoid a copy at the end
 			sblock.reset(new Sector::sectorblock_t);
@@ -83,8 +81,6 @@ namespace terragen
 		const int wx, wz;
 		// same, but in blocks relative to the center of the world
 		int genx, genz;
-    // local ore generator
-    OreGen oregen;
 		/// === working set === ///
 
 		/// === results === ///

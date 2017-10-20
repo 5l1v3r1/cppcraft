@@ -22,11 +22,10 @@ namespace cppcraft
 	void Compilers::run()
 	{
 		std::unique_ptr<Precomp> precomp = nullptr;
-		while ((precomp = std::move(CompilerScheduler::get())) != nullptr)
+		while ((precomp = CompilerScheduler::get()) != nullptr)
 		{
-      assert(&precomp->sector != nullptr);
-			int x = precomp->sector.wx - world.getWX();
-			int z = precomp->sector.wz - world.getWZ();
+			const int x = precomp->sector.wx - world.getWX();
+			const int z = precomp->sector.wz - world.getWZ();
 
 			// so, what do we do here? I think we just ignore the
 			// mesh for (x, z), since there is nothing to do

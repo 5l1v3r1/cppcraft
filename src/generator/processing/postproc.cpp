@@ -18,23 +18,6 @@ namespace terragen
 		OreGen::init();
 	}
 
-	void PostProcess::begin_deposit(gendata_t* gdata, int x, int y, int z)
-	{
-		const int wx = gdata->wx * BLOCKS_XZ + x;
-		const int wz = gdata->wz * BLOCKS_XZ + z;
-
-		// try to deposit ore
-		int idx = ihash(wx, y-3, wz) % OreGen::size();
-		auto& ore = OreGen::get(idx);
-    auto& data = gdata->oregen.data(idx);
-
-		if (y < ore.min_depth && data.clusters < ore.max_clusters)
-		{
-			gdata->oregen.deposit(gdata, idx, x, y, z);
-      data.clusters++;
-		}
-	}
-
 	void PostProcess::run(gendata_t* gdata)
 	{
 		/// go go go gø go go go ///

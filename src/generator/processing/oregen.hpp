@@ -15,19 +15,16 @@ namespace terragen
     int  cluster_max;
 		int  max_clusters;
 	};
-  struct OreData
-  {
-    int clusters = 0;
-  };
 
 	class OreGen {
 	public:
-    static void init();
-
 		static void add(const OreInfo& oi)
 		{
 			ores.push_back(oi);
 		}
+
+    static void begin_deposit(gendata_t* gdata);
+
     static const OreInfo& get(int i)
 		{
 			return ores.at(i);
@@ -37,15 +34,11 @@ namespace terragen
 			return ores.size();
 		}
 
-    OreData& data(int i)
-    {
-      return oredata.at(i);
-    }
-		void deposit(gendata_t* gdata, size_t ore_idx, int x, int y, int z);
+		static void deposit(gendata_t*, const OreInfo&, int x, int y, int z);
 
+    static void init();
     OreGen();
 	private:
-    std::vector<OreData> oredata;
 		static std::vector<OreInfo> ores;
 	};
 }

@@ -12,18 +12,32 @@ namespace terragen
 		OreGen::add({db::getb("ore_iron"), 200, 4,  8, 40});
 	}
 
-  OreGen::OreGen()
-  {
-    oredata.resize(ores.size());
-  }
-
-	void OreGen::deposit(gendata_t* gdata, size_t ore_idx, int x, int y, int z)
+  void OreGen::begin_deposit(gendata_t* gdata)
 	{
-    const auto& ore = gdata->oregen.get(ore_idx);
+    int counter = 0;
+    for (size_t i = 0; i < ores.size(); i++)
+    {
+      const auto& ore = OreGen::get(i);
 
-		// find number of deposits
-		int count = ore.cluster_max - ore.cluster_min;
-    count = ore.cluster_min + (ihash(x+40, y-10, z-30) % count);
+      for (int cl = 0; cl < ore.max_clusters; cl++)
+      {
+        int x = ihash(counter + 256, gdata->wx, gdata->wz) % BLOCKS_XZ;
+        int z = ihash(counter - 256, gdata->wx, gdata->wz) % BLOCKS_XZ;
+
+        const int ground = gdata->flatl(x, z).groundLevel;
+        int y = ihash(counter, x, z) % std::min(ore.min_depth, ground);
+
+    		OreGen::deposit(gdata, ore, x, y, z);
+        counter++;
+      }
+    }
+	}
+
+	void OreGen::deposit(gendata_t* gdata, const OreInfo& ore, int x, int y, int z)
+	{
+		// find number of blocks to deposit
+		const int count =
+        ore.cluster_min + (ihash(x+40, y-10, z-30) % (ore.cluster_max - ore.cluster_min));
 
 		for (int i = 0; i < count; i++)
 		{

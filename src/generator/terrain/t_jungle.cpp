@@ -126,13 +126,6 @@ namespace terragen
 				counter++;
 			}
 
-			//
-			// -== ore deposition ==-
-			//
-			if (block.getID() == STONE_BLOCK) {
-				PostProcess::try_deposit(gdata, wx, wz, x, y, z);
-			}
-
 			// count air
 			if (block.isAir()) {
 				air++;
