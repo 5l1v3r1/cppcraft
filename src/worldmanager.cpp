@@ -21,10 +21,6 @@ using namespace library;
 
 namespace cppcraft
 {
-	static const double TIMING_TICKTIMER = 0.0125;
-	static const double MAX_TIMING_WAIT  = 0.012;
-	static const double TIMING_SLEEP_TIME = TIMING_TICKTIMER / 2.0;
-
 	void WorldManager::submain()
 	{
 		main();

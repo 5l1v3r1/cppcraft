@@ -167,7 +167,9 @@ namespace cppcraft
 
 					// play placement sound
 					if (item.toBlock().hasSound())
-						soundman.playMaterial(item.toBlock().getSound(), Soundman::sound_place);
+						soundman.playMaterial(item.toBlock().getSound(), 
+                                  Soundman::sound_place,
+                                  {ddx, ddy, ddz});
 					else
 						printf("Missing placement sound for %s\n", item.toBlock().getName().c_str());
 
@@ -256,9 +258,12 @@ namespace cppcraft
 
 				if (!removed.isAir())
 				{
+          const glm::vec3 center(ddx + 0.5f, ddy + 0.5f, ddz + 0.5f);
 					// play material 'removed' sound
 					if (removed.hasSound())
-						soundman.playMaterial(removed.getSound(), Soundman::sound_remove);
+            soundman.playMaterial(removed.getSound(),
+                                  Soundman::sound_remove,
+                                  center);
 					else
 						printf("Missing removal sound for %s\n", removed.getName().c_str());
 
@@ -266,11 +271,8 @@ namespace cppcraft
 					//NetworkBlock nblock(ddx, ddy, ddz, Block(), NetworkBlock::BREM);
 					//network.addBlock(Network::OUTGOING, nblock);
 
-					// --------------------------------
-					int FIXME_create_some_smoke_n_shits;
-
 					// create particles using fractionals
-					//particleSystem.newParticle(glm::vec3(ddx + 0.5f, ddy + 0.25f, ddz + 0.5f), PARTICLE_M_GENER, 16);
+					//particleSystem.newParticle(center, PARTICLE_M_GENER, 16);
 
 				} // block was removed
 
@@ -459,7 +461,9 @@ namespace cppcraft
 				if (mineTimer % MINE_SOUNDMOD == 0)
 				{
 					if (selection.block.hasSound())
-						soundman.playMaterial(selection.block.getSound(), Soundman::sound_mine);
+						soundman.playMaterial(selection.block.getSound(),
+                                  Soundman::sound_mine,
+                                  selection.pos);
 				}
 
 				mineTimer -= 1;

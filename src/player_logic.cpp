@@ -12,14 +12,14 @@ namespace cppcraft
 	PlayerLogic plogic;
 	// sound timing intervals
 	///...
-	
+
 	static const int TIME_FIRST_STEP      = 4;
 	static const int TIME_BETWEEN_CROUCH  = 50;
 	static const int TIME_BETWEEN_STEPS   = 32;
 	static const int TIME_BETWEEN_SPRINTS = 20;
 	int timesteps = TIME_FIRST_STEP;
 	int stepsound = 0;
-	
+
 	void PlayerLogic::playerSounds()
 	{
 		if (Moved && Submerged == PS_None) // the player moved
@@ -31,10 +31,11 @@ namespace cppcraft
 				{
 					int value = rand() & 1;
 					stepsound = 0 + value;
-					
-					soundman.playMaterial(block->getSound(), stepsound);
+
+					soundman.playMaterial(block->getSound(), stepsound,
+              {player.pos.x, player.pos.y - 1.51f, player.pos.z});
 				}
-				
+
 				if (movestate == PMS_Crouch)
 				{
 					timesteps = TIME_BETWEEN_CROUCH;
@@ -47,11 +48,11 @@ namespace cppcraft
 				{
 					timesteps = TIME_BETWEEN_SPRINTS;
 				}
-				
+
 			}
 			else timesteps--;
 		}
 		else timesteps = TIME_FIRST_STEP;
 	}
-	
+
 }

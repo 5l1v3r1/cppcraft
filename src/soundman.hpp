@@ -44,6 +44,8 @@ namespace cppcraft
 
     // the sound system
     FMOD::System* system = nullptr;
+    FMOD_VECTOR last_pos { 0.0, 0.0, 0.0 };
+    double      last_time = 0.0;
 	};
 	extern Soundman soundman;
 }

@@ -547,7 +547,6 @@ namespace cppcraft
 			// special case for landing in water
 			// we can release the jump key (but only if its locked)
 			this->jumplock = false;
-			//game.input().release(keyconf.k_jump);
 		}
 		else if (freefall)
 		{
@@ -559,7 +558,8 @@ namespace cppcraft
 			if (block->hasSound())
 			{
 				int sound = rnd(4);
-				soundman.playMaterial(block->getSound(), sound);
+				soundman.playMaterial(block->getSound(), sound,
+            {player.pos.x, player.pos.y - PLAYER_GROUND_LEVEL, player.pos.z});
 			}
 
 		} // freefalling

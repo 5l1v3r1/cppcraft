@@ -1,11 +1,14 @@
 #include "soundman.hpp"
 
 #include <library/log.hpp>
+#include <library/math/vector.hpp>
+#include <glm/glm.hpp>
 #include "gameconf.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
 #include "sound/system.hpp"
 #include "generator/terrain/terrains.hpp"
+#include "worldmanager.hpp"
 #include <sstream>
 
 using namespace glm;
@@ -19,6 +22,7 @@ namespace cppcraft
 
 	void Soundman::init()
 	{
+    static const float DISTANCEFACTOR = 1.0f;
 		logger << Log::INFO << "* Initializing sound system" << Log::ENDL;
 
     FMOD_RESULT result = FMOD::System_Create(&system);
@@ -29,7 +33,9 @@ namespace cppcraft
     SND_CHECK(result);
     assert (version >= FMOD_VERSION && "Header version vs library version mismatch");
 
-    result = system->init(32, FMOD_INIT_NORMAL, nullptr);
+    result = system->init(100, FMOD_INIT_NORMAL, nullptr);
+    SND_CHECK(result);
+    result = system->set3DSettings(1.0, DISTANCEFACTOR, 1.0f);
     SND_CHECK(result);
 
     // load sounds
@@ -56,7 +62,13 @@ namespace cppcraft
 	}
 	void Soundman::playMaterial(const std::string& name, int num, vec3 v)
 	{
-    this->playMaterial(name, num);
+    const FMOD_VECTOR pos {  v.x,  v.y,  v.z };
+    const FMOD_VECTOR vel { 0.0f, 0.0f, 0.0f };
+
+    auto& sound = this->sounds.at(name + std::to_string(num));
+    FMOD::Channel* chan;
+    system->playSound(sound.get(), 0, false, &chan);
+    chan->set3DAttributes(&pos, &vel);
 	}
 
 	void Soundman::loadMaterialSound(const std::string& basename)
@@ -141,6 +153,31 @@ namespace cppcraft
 	// returns the id of a random song in the playlist
 	void Soundman::sound_processing()
 	{
+    const glm::vec3 forw = library::lookVector(player.rot);
+    const glm::vec3 right = glm::normalize(glm::cross(forw, glm::vec3(0.0f, 1.0f, 0.0f)));
+    const glm::vec3 upv  = glm::cross(right, forw);
+    //printf("Forward: (%f, %f, %f)\n", forw.x, forw.y, forw.z);
+    //printf("Up:      (%f, %f, %f)\n", upv.x, upv.y, upv.z);
+
+    const FMOD_VECTOR pos      { player.pos.x, player.pos.y, player.pos.z };
+    const FMOD_VECTOR forward  { forw.x, forw.y, forw.z };
+    const FMOD_VECTOR up       { upv.x,  upv.y,  upv.z };
+
+    // vel = how far we moved last FRAME (m/f), then time compensate it to SECONDS (m/s).
+    FMOD_VECTOR vel;
+    vel.x = (pos.x - last_pos.x) * (1.0 / WorldManager::TIMING_TICKTIMER);
+    vel.y = (pos.y - last_pos.y) * (1.0 / WorldManager::TIMING_TICKTIMER);
+    vel.z = (pos.z - last_pos.z) * (1.0 / WorldManager::TIMING_TICKTIMER);
+    // store pos for next time
+    last_pos = pos;
+
+    auto result = system->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
+    SND_CHECK(result);
+    // mui importante
+    result = system->update();
+    SND_CHECK(result);
+    return;
+
 		// if player is under the terrain, somehow change
 		// ambience & music to cave themes
 		Flatland::flatland_t* flat = sectors.flatland_at(player.pos.x, player.pos.z);

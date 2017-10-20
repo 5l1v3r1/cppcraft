@@ -26,7 +26,7 @@ namespace cppcraft
 		glm::vec3 snap_pos;
 		int    snapStage;
 
-		// rotation
+		// rotation in radians
 		glm::vec2 rot;
 
 		// acceleration

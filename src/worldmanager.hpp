@@ -41,6 +41,9 @@ namespace cppcraft
 			return this->gamestate;
 		}
 
+    static constexpr double TIMING_TICKTIMER = 0.0167;
+    static constexpr double MAX_TIMING_WAIT  = 0.012;
+  	static constexpr double TIMING_SLEEP_TIME = TIMING_TICKTIMER / 2.0;
 	private:
 		gamestate_t gamestate;
 	};
