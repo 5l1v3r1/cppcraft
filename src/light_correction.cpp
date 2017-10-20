@@ -63,9 +63,26 @@ namespace cppcraft
 		while (!lrefill.empty())
 		{
 			const emitter_t& e = lrefill.front();
-      short lvl = Spiders::getBlock(e.x, e.y, e.z).getSkyLight();
-      if (lvl == e.lvl) {
-        floodOutof(e.x, e.y, e.z, 0, lvl);
+      int bx = e.x;
+      int by = e.y;
+      int bz = e.z;
+      Sector* sector = Spiders::wrap(bx, by, bz);
+      if (sector != nullptr)
+      {
+        short lvl = (*sector)(bx, by, bz).getSkyLight();
+        if (lvl == e.lvl) {
+          char dir = e.dir;
+          switch (e.dir) {
+          case 0: dir = 1; break;
+          case 1: dir = 0; break;
+          case 2: dir = 3; break;
+          case 3: dir = 2; break;
+          case 4: dir = 5; break;
+          case 5: dir = 4; break;
+          default: assert(0 && "Invalid direction in skylight emitter");
+          }
+          propagateChannel(sector, bx, by, bz, {0, dir, lvl});
+        }
       }
 			lrefill.pop();
 #ifdef TIMING

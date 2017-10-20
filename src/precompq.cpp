@@ -1,7 +1,6 @@
 #include "precompq.hpp"
 
 #include <library/log.hpp>
-#include <library/timing/timer.hpp>
 #include "compiler_scheduler.hpp"
 #include "gameconf.hpp"
 #include "lighting.hpp"
@@ -41,9 +40,9 @@ namespace cppcraft
 		queue.push_back(&sector);
 	}
 
-	bool PrecompQ::run(Timer& timer, double timeOut)
+	void PrecompQ::run()
 	{
-		if (!AsyncPool::available()) return false;
+		if (!AsyncPool::available()) return;
 
     if (!queue.empty()) {
       extern bool GenerationOrder(Sector*, Sector*);
@@ -111,9 +110,6 @@ namespace cppcraft
 			// immediately exit while loop, as the sector was not validated
 			break;
 		}
-
-		// always check if time is out
-		return (timer.getTime() > timeOut);
 	}
 
 	void PrecompQ::startJob(Sector& sector)

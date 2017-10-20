@@ -55,7 +55,7 @@ namespace cppcraft
     static inline char lightPenetrate(const Block& block)
     {
   	   if (block.isAir()) return 1;
-  	   return (block.isTransparent() ? 1 : 15);
+  	   return (block.isTransparent() ? 2 : 15);
     }
 	};
 }

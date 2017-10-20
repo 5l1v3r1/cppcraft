@@ -5,11 +5,6 @@
 #include <deque>
 #include <vector>
 
-namespace library
-{
-	class Timer;
-}
-
 namespace cppcraft
 {
 	class Sector;
@@ -25,7 +20,7 @@ namespace cppcraft
 
 		//! \brief executes one round of mesh generation scheduling
 		//! \warn  very time consuming, running N threads in parallell and waits for them to finish
-		bool run(library::Timer& timer, double timeOut);
+		void run();
 
 		std::size_t size() const noexcept
 		{

@@ -120,9 +120,9 @@ namespace cppcraft
 
 				// as long as not currently 'generating' world:
 				// start precompiling sectors
-				if (precompq.run(timer, timeOut)) break;
+				precompq.run();
 
-				// check for timeout
+        // check for timeout
 				if (timer.getTime() > timeOut) break;
 
 				//double t1 = timer.getTime() - t0;
@@ -138,6 +138,9 @@ namespace cppcraft
 				/// ---------- GENERATOR ----------- ///
 				///----------------------------------///
 				Generator::run();
+
+        // check for timeout
+				if (timer.getTime() > timeOut) break;
 
 				// update shadows if sun has travelled far
 				// but not when connected to a network

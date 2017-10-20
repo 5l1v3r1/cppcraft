@@ -78,8 +78,10 @@ namespace db
 		[] (const Block& src, const Block& dst, uint16_t mask)
 		{
 			// if they are both the same ID, we only add every 2nd face
-			if (src.getID() == dst.getID())
+			if (src.getID() == dst.getID()) {
+          if (src.getSkyLight() < 6) return 0;
 				  return mask & (1 + 4 + 32);
+      }
 			// otherwise, business as usual, only add towards transparent sides
 			return mask & dst.getTransparentSides();
 		};
