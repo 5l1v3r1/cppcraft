@@ -31,3 +31,4 @@ Debug/config.ini
 *.rar
 build/
 Debug/world/world.data
+Debug/gprof_callgraph.png

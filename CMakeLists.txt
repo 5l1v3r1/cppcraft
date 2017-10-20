@@ -22,8 +22,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 if (UNIX)
   find_package(GLEW REQUIRED glew)
   find_package(SDL2 REQUIRED sdl2)
-  find_package(SDL2_mixer REQUIRED)
-  include_directories(${GLEW_STATIC_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
+  include_directories(${GLEW_STATIC_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
   link_directories("${GLEW_STATIC_LIBRARY_DIRS}")
 
   include(FindPkgConfig)
@@ -51,6 +50,7 @@ add_subdirectory(src)
 
 ### linker stage ###
 
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/Debug)
 add_executable(cppcraft ${SOURCES})
 set_target_properties(cppcraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -66,10 +66,14 @@ if (WIN32)
   target_link_libraries(cppcraft imagehlp library lua glew ${OPENGL_gl_LIBRARY})
 endif()
 if (UNIX)
-  set(SDL2_LIBS "${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY}")
+  set(SDL2_LIBS "${SDL2_LIBRARY}")
+
+  add_library(fmod SHARED IMPORTED)
+  set_target_properties(fmod PROPERTIES LINKER_LANGUAGE CXX)
+  set_target_properties(fmod PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Debug/libfmod.so.10.0)
 
   target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie libGLEW.a GL ${SDL2_LIBS} ${LUA_STATIC_LIBRARIES})
+  target_link_libraries(cppcraft library tacopie libGLEW.a GL fmod ${SDL2_LIBS} ${LUA_STATIC_LIBRARIES})
   if (GPERF)
     target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)
   endif()
