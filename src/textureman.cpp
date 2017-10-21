@@ -29,236 +29,172 @@ namespace cppcraft
 		Bitmap bmp;
 
 		/// TERRAIN regular tileset ///
-		if (bmp.load(config.get("textures.diffuse", "bitmap/default/diffuse.png"), Bitmap::PNG))
+		bmp = Bitmap(config.get("textures.diffuse", "bitmap/default/diffuse.png"), Bitmap::PNG);
+		bmp.parse2D(tiles.tileSize, tiles.tileSize);
+
+		// set engine (smaller) tileset tiles in (x, y) directions
+		tiles.tilesX = bmp.getTilesX();
+		tiles.tilesY = bmp.getTilesY();
+
+		textures[T_DIFFUSE] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_DIFFUSE].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_DIFFUSE].setAnisotropy(gameconf.anisotropy);
+		if (OpenGL::checkError())
 		{
-			bmp.parse2D(tiles.tileSize, tiles.tileSize);
-
-			// set engine (smaller) tileset tiles in (x, y) directions
-			tiles.tilesX = bmp.getTilesX();
-			tiles.tilesY = bmp.getTilesY();
-
-			textures[T_DIFFUSE] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_DIFFUSE].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-			textures[T_DIFFUSE].setAnisotropy(gameconf.anisotropy);
-			if (OpenGL::checkError())
-			{
-				throw std::runtime_error("Failed to set terrain texture anisotropic filter");
-			}
-
-			if (OpenGL::checkError()) throw std::runtime_error("Materials(1) texture2d array error");
-
-			// voxelize (some) tiles
-			voxels.createBlockModels(bmp);
-
-			if (OpenGL::checkError())
-			{
-				throw std::runtime_error("Failed to create voxel blocks");
-			}
+			throw std::runtime_error("Failed to set terrain texture anisotropic filter");
 		}
-		else throw std::runtime_error("Materials(1) missing source file: Diffuse");
 
-		if (bmp.load(config.get("textures.tonemap", "bitmap/default/tonemap.png"), Bitmap::PNG))
+		if (OpenGL::checkError()) throw std::runtime_error("Materials(1) texture2d array error");
+
+		// voxelize (some) tiles
+		voxels.createBlockModels(bmp);
+
+		if (OpenGL::checkError())
 		{
-			bmp.parse2D(tiles.tileSize, tiles.tileSize);
-
-			textures[T_TONEMAP] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_TONEMAP].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-			textures[T_TONEMAP].setAnisotropy(gameconf.anisotropy);
-
-			if (OpenGL::checkError()) throw std::runtime_error("Materials(2) texture2d array error");
+			throw std::runtime_error("Failed to create voxel blocks");
 		}
-		else throw std::runtime_error("Materials(2) missing source file: Tonemap");
+
+		bmp = Bitmap(config.get("textures.tonemap", "bitmap/default/tonemap.png"), Bitmap::PNG);
+		bmp.parse2D(tiles.tileSize, tiles.tileSize);
+
+		textures[T_TONEMAP] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_TONEMAP].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_TONEMAP].setAnisotropy(gameconf.anisotropy);
+
+		if (OpenGL::checkError()) throw std::runtime_error("Materials(2) texture2d array error");
 
 		/// TERRAIN bigger tileset ///
-		if (bmp.load(config.get("textures.bigdiff", "bitmap/default/bigdiff.png"), Bitmap::PNG))
-		{
-			bmp.parse2D(tiles.bigSize, tiles.bigSize);
+		bmp = Bitmap(config.get("textures.bigdiff", "bitmap/default/bigdiff.png"), Bitmap::PNG);
+		bmp.parse2D(tiles.bigSize, tiles.bigSize);
 
-			// set engine (bigger) tileset tiles in (x, y) directions
-			tiles.bigTilesX = bmp.getTilesX();
-			tiles.bigTilesY = bmp.getTilesY();
+		// set engine (bigger) tileset tiles in (x, y) directions
+		tiles.bigTilesX = bmp.getTilesX();
+		tiles.bigTilesY = bmp.getTilesY();
 
-			textures[T_BIG_DIFF] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_BIG_DIFF].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-			textures[T_BIG_DIFF].setAnisotropy(gameconf.anisotropy);
+		textures[T_BIG_DIFF] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_BIG_DIFF].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_BIG_DIFF].setAnisotropy(gameconf.anisotropy);
 
-			if (OpenGL::checkError()) throw std::runtime_error("Materials(3) texture2d array error");
-		}
-		else throw std::runtime_error("Materials(3) missing source file: Bigdiff");
+		if (OpenGL::checkError()) throw std::runtime_error("Materials(3) texture2d array error");
 
-		if (bmp.load(config.get("textures.bigtone", "bitmap/default/bigtone.png"), Bitmap::PNG))
-		{
-			bmp.parse2D(tiles.bigSize, tiles.bigSize);
+		bmp = Bitmap(config.get("textures.bigtone", "bitmap/default/bigtone.png"), Bitmap::PNG);
+		bmp.parse2D(tiles.bigSize, tiles.bigSize);
 
-			textures[T_BIG_TONE] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_BIG_TONE].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-			textures[T_BIG_TONE].setAnisotropy(gameconf.anisotropy);
+		textures[T_BIG_TONE] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_BIG_TONE].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_BIG_TONE].setAnisotropy(gameconf.anisotropy);
 
-			if (OpenGL::checkError()) throw std::runtime_error("Materials(4) texture2d array error");
-		}
-		else throw std::runtime_error("Materials(4) missing source file: Bigtone");
+		if (OpenGL::checkError()) throw std::runtime_error("Materials(4) texture2d array error");
 
 		/// ITEMS tileset ///
-		if (bmp.load(config.get("textures.items", "bitmap/default/items.png"), Bitmap::PNG))
-		{
-			bmp.parse2D(items.itemSize, items.itemSize);
+		bmp = Bitmap(config.get("textures.items", "bitmap/default/items.png"), Bitmap::PNG);
+		bmp.parse2D(items.itemSize, items.itemSize);
 
-			items.itemsX = bmp.getTilesX();
-			items.itemsY = bmp.getTilesY();
+		items.itemsX = bmp.getTilesX();
+		items.itemsY = bmp.getTilesY();
 
-			textures[T_ITEMS] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_ITEMS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_ITEMS] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_ITEMS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 
-			if (OpenGL::checkError()) throw std::runtime_error("Items texture2d array error");
+		if (OpenGL::checkError()) throw std::runtime_error("Items texture2d array error");
 
-			// voxelize the items
-			voxels.createItemModels(bmp);
-		}
-		else throw std::runtime_error("Missing source file: Items tileset");
+		// voxelize the items
+		voxels.createItemModels(bmp);
 
 		/// PLAYER MODELS tileset ///
-		if (bmp.load(config.get("textures.players", "bitmap/default/playerskins.png"), Bitmap::PNG))
-		{
-			bmp.parse2D(tiles.skinSize, tiles.skinSize);
+		bmp = Bitmap(config.get("textures.players", "bitmap/default/playerskins.png"), Bitmap::PNG);
+		bmp.parse2D(tiles.skinSize, tiles.skinSize);
 
-			textures[T_PLAYERMODELS] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_PLAYERMODELS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-			textures[T_PLAYERMODELS].setAnisotropy(gameconf.anisotropy);
+		textures[T_PLAYERMODELS] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_PLAYERMODELS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_PLAYERMODELS].setAnisotropy(gameconf.anisotropy);
 
-			if (OpenGL::checkError()) throw std::runtime_error("Player skins texture2d array error");
-		}
-		else throw std::runtime_error("Missing source file: Player skins");
+		if (OpenGL::checkError()) throw std::runtime_error("Player skins texture2d array error");
 
 		/// PARTICLES tileset ///
-		if (bmp.load(config.get("textures.partic", "bitmap/default/particles.png"), Bitmap::PNG))
-		{
-			int partSize = config.get("partic.size", 32);
+		bmp = Bitmap(config.get("textures.partic", "bitmap/default/particles.png"), Bitmap::PNG);
+		int partSize = config.get("partic.size", 32);
+    // need to invert Y axis for the particles
+		bmp.parse2D(partSize, partSize, true);
 
-			bmp.parse2D_invY(partSize, partSize);
+		tiles.partsX = bmp.getTilesX();
+		tiles.partsY = bmp.getTilesY();
 
-			tiles.partsX = bmp.getTilesX();
-			tiles.partsY = bmp.getTilesY();
+		textures[T_PARTICLES] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_PARTICLES].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 
-			textures[T_PARTICLES] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_PARTICLES].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-
-			if (OpenGL::checkError()) throw std::runtime_error("Particles texture2d array error");
-		}
-		else throw std::runtime_error("Missing source file: Particles");
+		if (OpenGL::checkError()) throw std::runtime_error("Particles texture2d array error");
 
 		/// PlayerSelection textures ///
-		if (bmp.load(config.get("textures.selection", "bitmap/default/selection.png"), Bitmap::PNG))
-		{
-			textures[T_SELECTION] = Texture(GL_TEXTURE_2D);
-			textures[T_SELECTION].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		bmp = Bitmap(config.get("textures.selection", "bitmap/default/selection.png"), Bitmap::PNG);
+		textures[T_SELECTION] = Texture(GL_TEXTURE_2D);
+		textures[T_SELECTION].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 
-			if (OpenGL::checkError()) throw std::runtime_error("Selection texture2d error");
-		}
-		else throw std::runtime_error("Missing source file: Selection texture");
+		if (OpenGL::checkError()) throw std::runtime_error("Selection texture2d error");
 
-		if (bmp.load(config.get("textures.mining", "bitmap/default/mining.png"), Bitmap::PNG))
-		{
-			bmp.parse2D(tiles.tileSize, tiles.tileSize);
+		bmp = Bitmap(config.get("textures.mining", "bitmap/default/mining.png"), Bitmap::PNG);
+		bmp.parse2D(tiles.tileSize, tiles.tileSize);
 
-			textures[T_MINING] = Texture(GL_TEXTURE_2D_ARRAY);
-			textures[T_MINING].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_MINING] = Texture(GL_TEXTURE_2D_ARRAY);
+		textures[T_MINING].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 
-			if (OpenGL::checkError()) throw std::runtime_error("Selection texture2d error");
-		}
-		else throw std::runtime_error("Missing source file: Selection texture");
+		if (OpenGL::checkError()) throw std::runtime_error("Selection texture2d error");
 
 		/// Sky renderer ///
 
 		// sun texture
-		if (bmp.load(config.get("textures.sun", "bitmap/default/sun.png"), Bitmap::PNG))
-		{
-			textures[T_SUN] = Texture(GL_TEXTURE_2D);
-			textures[T_SUN].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-		}
+		bmp = Bitmap(config.get("textures.sun", "bitmap/default/sun.png"), Bitmap::PNG);
+		textures[T_SUN] = Texture(GL_TEXTURE_2D);
+		textures[T_SUN].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+
 		// moon texture
-		if (bmp.load(config.get("textures.moon", "bitmap/default/moon.png"), Bitmap::PNG))
-		{
-			textures[T_MOON] = Texture(GL_TEXTURE_2D, GL_COMPRESSED_RGBA);
-			textures[T_MOON].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-		}
-		else throw std::runtime_error("Materials(5) missing source file: Moon texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Materials(5) texture2d error");
+		bmp = Bitmap(config.get("textures.moon", "bitmap/default/moon.png"), Bitmap::PNG);
+		textures[T_MOON] = Texture(GL_TEXTURE_2D, GL_COMPRESSED_RGBA);
+		textures[T_MOON].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 
 		// stars texture
-		if (bmp.load(config.get("textures.stars", "bitmap/default/stars.png"), Bitmap::PNG))
-		{
-			textures[T_STARS] = Texture(GL_TEXTURE_2D, GL_COMPRESSED_RGBA);
-			textures[T_STARS].create(bmp, true, GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-		}
-		else throw std::runtime_error("Materials(6) missing source file: Starmap");
-		if (OpenGL::checkError()) throw std::runtime_error("Materials(6) texture2d error");
+		bmp = Bitmap(config.get("textures.stars", "bitmap/default/stars.png"), Bitmap::PNG);
+		textures[T_STARS] = Texture(GL_TEXTURE_2D, GL_COMPRESSED_RGBA);
+		textures[T_STARS].create(bmp, true, GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 
 		// sky cubemap
-		if (bmp.load(config.get("textures.skybox", "bitmap/default/skybox.png"), Bitmap::PNG))
-		{
-			textures[T_SKYBOX] = Texture(GL_TEXTURE_CUBE_MAP, GL_COMPRESSED_RGBA);
-			textures[T_SKYBOX].create(bmp, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
-		}
-		else throw std::runtime_error("Missing source file: Skybox cubemap");
-		if (OpenGL::checkError()) throw std::runtime_error("Skybox cubemap error");
+		bmp = Bitmap(config.get("textures.skybox", "bitmap/default/skybox.png"), Bitmap::PNG);
+		textures[T_SKYBOX] = Texture(GL_TEXTURE_CUBE_MAP, GL_COMPRESSED_RGBA);
+		textures[T_SKYBOX].create(bmp, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
 
 		// clouds texture
-		if (bmp.load(config.get("textures.clouds", "bitmap/default/clouds.png"), Bitmap::PNG))
-		{
-			textures[T_CLOUDS] = Texture(GL_TEXTURE_2D);
-			textures[T_CLOUDS].create(bmp, true, GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-		}
-		else throw std::runtime_error("Missing source file: Clouds texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Clouds texture error");
+		bmp = Bitmap(config.get("textures.clouds", "bitmap/default/clouds.png"), Bitmap::PNG);
+		textures[T_CLOUDS] = Texture(GL_TEXTURE_2D);
+		textures[T_CLOUDS].create(bmp, true, GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 
 		// magma texture
-		if (bmp.load(config.get("textures.magma", "bitmap/default/magma.png"), Bitmap::PNG))
-		{
-			textures[T_MAGMA] = Texture(GL_TEXTURE_2D);
-			textures[T_MAGMA].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-		}
-		else throw std::runtime_error("Missing source file: Magma texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Magma texture error");
+		bmp = Bitmap(config.get("textures.magma", "bitmap/default/magma.png"), Bitmap::PNG);
+		textures[T_MAGMA] = Texture(GL_TEXTURE_2D);
+		textures[T_MAGMA].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 
 		// random noise normal texture
-		if (bmp.load(config.get("textures.noise", "bitmap/default/noise.png"), Bitmap::PNG))
-		{
-			textures[T_NOISE] = Texture(GL_TEXTURE_2D);
-			textures[T_NOISE].create(bmp, true, GL_REPEAT, GL_LINEAR, GL_LINEAR);
-		}
-		else throw std::runtime_error("Missing source file: Noise texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Noise texture error");
+		bmp = Bitmap(config.get("textures.noise", "bitmap/default/noise.png"), Bitmap::PNG);
+		textures[T_NOISE] = Texture(GL_TEXTURE_2D);
+		textures[T_NOISE].create(bmp, true, GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
 		/// FS Renderer ///
 
 		// dirty lens texture
-		if (bmp.load(config.get("textures.lens", "bitmap/default/lensdirt_lowc.png"), Bitmap::PNG))
-		{
-			textures[T_LENSDIRT] = Texture(GL_TEXTURE_2D, GL_COMPRESSED_RGBA);
-			textures[T_LENSDIRT].create(bmp, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
-		}
-		else throw std::runtime_error("Missing source file: Lensdirt texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Lensdirt texture error");
+		bmp = Bitmap(config.get("textures.lens", "bitmap/default/lensdirt_lowc.png"), Bitmap::PNG);
+		textures[T_LENSDIRT] = Texture(GL_TEXTURE_2D, GL_COMPRESSED_RGBA);
+		textures[T_LENSDIRT].create(bmp, false, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
 
 		/// GUI Renderer ///
 
 		// compass
-		if (bmp.load(config.get("textures.compass", "bitmap/default/gui/compass.png"), Bitmap::PNG))
-		{
-			textures[T_COMPASS] = Texture(GL_TEXTURE_2D);
-			textures[T_COMPASS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-		}
-		else throw std::runtime_error("Missing source file: Compass texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Compass texture error");
+		bmp = Bitmap(config.get("textures.compass", "bitmap/default/gui/compass.png"), Bitmap::PNG);
+		textures[T_COMPASS] = Texture(GL_TEXTURE_2D);
+		textures[T_COMPASS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 
 		// GUI composite texture
-		if (bmp.load(config.get("textures.gui", "bitmap/default/gui/gui.1.png"), Bitmap::PNG))
-		{
-			textures[T_GUI] = Texture(GL_TEXTURE_2D);
-			textures[T_GUI].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
-		}
-		else throw std::runtime_error("Missing source file: Quickbar texture");
-		if (OpenGL::checkError()) throw std::runtime_error("Quickbar texture error");
+		bmp = Bitmap(config.get("textures.gui", "bitmap/default/gui/gui.1.png"), Bitmap::PNG);
+		textures[T_GUI] = Texture(GL_TEXTURE_2D);
+		textures[T_GUI].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
 
 		// generated textures
 		generateTextures();
