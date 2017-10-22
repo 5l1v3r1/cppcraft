@@ -149,12 +149,10 @@ namespace cppcraft
 			return getID() == _AIR;
 		}
 
-		// opaque means all sides are fully covered
-		// 1. this block contributes to AO
-		// 2. ...
+		// this block contributes to AO
 		bool isBlock() const
 		{
-			return db().block;
+			return db().isBlock();
 		}
 		// returns true if light travels through this block
 		bool isTransparent() const

@@ -220,7 +220,7 @@ namespace terragen
 			};
 			fluid.getName = [] (const Block&) { return "Lava"; };
 			fluid.shader = RenderConst::TX_LAVA;
-			fluid.block       = false;
+			fluid.setBlock(false);
 			fluid.transparent = false;
 			fluid.setLightColor(6, 7, 3);
 			db.assign("lava", fluid);
@@ -275,8 +275,6 @@ namespace terragen
 			blk.getName = [] (const Block&) { return "Grass"; };
       blk.useTileID(tiledb.tiles("grass_bush"));
       blk.setColorIndex(Biomes::CL_GRASS);
-			blk.transparent = true;
-			blk.block = false;
 			blk.getSound = nullptr;
 			db.assign("cross_grass", blk);
 		}
@@ -285,8 +283,6 @@ namespace terragen
 			auto& blk = BlockData::createCross();
 			blk.getName = [] (const Block&) { return "Torch"; };
       blk.useTileID(tiledb.tiles("torch"));
-			blk.transparent = true;
-			blk.block       = false;
 			blk.getSound = [] (const Block&) { return "wood"; };
 			blk.setLightColor(13, 11, 8);
 			db.assign("torch", blk);

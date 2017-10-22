@@ -14,8 +14,8 @@ namespace db
     // the first Block *MUST* be _AIR
 		assert(air.getID() == 0);
 
-		air.block       = false;
 		air.transparent = true;
+    air.setBlock(false);
 		air.blocksMovement = [] (const Block&) { return false; };
 		air.forwardMovement = [] (const Block&) { return true; };
 		air.getColor = [] (const Block&) { return 255; };

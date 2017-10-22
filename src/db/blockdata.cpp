@@ -25,7 +25,6 @@ namespace db
 		solid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
     solid.shader = RenderConst::TX_SOLID;
-		solid.voxelModel = 0;
 		solid.visibilityComp = nullptr;
 		solid.emit = cppcraft::emitCube;
 		return solid;
@@ -36,13 +35,11 @@ namespace db
 		fluid.blocksMovement = [] (const Block&) { return false; };
 		fluid.forwardMovement = [] (const Block&) { return true; };
 		fluid.hasActivation = [] (const Block&) { return false; };
-		fluid.liquid = true;
-		fluid.block       = false;
+		fluid.liquid      = true;
 		fluid.transparent = true;
 		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
 		fluid.transparentSides = BlockData::SIDE_ALL; // none of them solid
-		fluid.voxelModel = 0;
 		fluid.visibilityComp =
 		[] (const Block& src, const Block& dst, uint16_t mask)
 		{
@@ -61,14 +58,12 @@ namespace db
 		leaf.blocksMovement = [] (const Block&) { return true; };
 		leaf.forwardMovement = [] (const Block&) { return false; };
 		leaf.hasActivation = [] (const Block&) { return false; };
-		leaf.block       = true;
 		leaf.transparent = true;
 		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.repeat_y = false;
 		leaf.shader = RenderConst::TX_TRANS;
 		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
-		leaf.voxelModel = 0;
 		leaf.visibilityComp =
 		[] (const Block& src, const Block& dst, uint16_t mask)
 		{
@@ -87,8 +82,8 @@ namespace db
 	{
     BlockData& blk = BlockDB::get().create(name);
 		blk.cross       = true;  // is indeed a cross
-		blk.block       = false; // no AO
 		blk.transparent = true;  // transparent as fuck
+    blk.setBlock(false); // dont generate AO
 		blk.blocksMovement = [] (const Block&) { return false; };
 		blk.forwardMovement = [] (const Block&) { return true; };
 		blk.hasActivation = [] (const Block&) { return false; };
@@ -102,7 +97,6 @@ namespace db
 		blk.shader = RenderConst::TX_CROSS;
 		blk.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
 		blk.transparentSides = BlockData::SIDE_ALL; // none of them solid
-		blk.voxelModel = 0;
 		blk.visibilityComp =
 		[] (const Block&, const Block&, uint16_t mask)
 		{

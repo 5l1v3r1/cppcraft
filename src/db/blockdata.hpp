@@ -106,10 +106,10 @@ namespace db
 		bool repeat_y = true;
 		// if non-zero, block is a light
 		uint8_t opacity = 0;
-		// fully opaque blocks are common, and cover all their sides
-		bool block = true;
 		// light travels through transparent blocks
 		bool transparent = false;
+    bool isBlock() const noexcept { return block; }
+    void setBlock(bool v) { block = v; }
 
 		bool liquid = false;
 		bool indexColored = false;
@@ -139,6 +139,7 @@ namespace db
     texmode_t texture_mode = texmode_t::TILE_ID;
     short   tile_id = 0;
     short   colorIndex = -1;
+    bool    block = true;
 	};
 
   inline void BlockData::useTileID(short texid) {
