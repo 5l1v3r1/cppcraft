@@ -42,7 +42,7 @@ namespace terragen
 		// create _BEDROCK
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
+			solid.setColorIndex(Biomes::CL_STONE);
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(48, 48, 48, 255); };
 			solid.getName = [] (const Block&) { return "Bedrock"; };
@@ -53,7 +53,7 @@ namespace terragen
 		// create _STONE
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
+			solid.setColorIndex(Biomes::CL_STONE);
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
 			solid.getName = [] (const Block&) { return "Stone"; };
@@ -65,7 +65,7 @@ namespace terragen
 		// create _ORE_COAL
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
+			solid.setColorIndex(Biomes::CL_STONE);
 			solid.indexColored = true;
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
 			solid.getName = [] (const Block&) { return "Coal Ore"; };
@@ -76,8 +76,7 @@ namespace terragen
 		// create _ORE_IRON
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_STONE);
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(68, 62, 62, 255); };
 			solid.getName = [] (const Block&) { return "Iron Ore"; };
       solid.useTileID(tiledb.tiles("ore_iron"));
@@ -87,8 +86,7 @@ namespace terragen
 		// create _MOLTEN stones
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_STONE; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_STONE);
 			solid.minimapColor =
 			[] (const Block&, const Sector& s, int x, int, int z)
 			{
@@ -102,8 +100,7 @@ namespace terragen
 		// create _SOIL
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_GRASS);
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(97, 57, 14, 255); };
 			solid.getName = [] (const Block&) { return "Dirt"; };
       solid.useTileID(tiledb.bigtiles("soil"));
@@ -114,8 +111,7 @@ namespace terragen
 		// _SOILGRASS (green, snow, ...)
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_GRASS);
 			solid.minimapColor =
 			[] (const Block& b, const Sector& s, int x, int, int z)
 			{
@@ -143,8 +139,7 @@ namespace terragen
 		// _SNOW
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_GRASS);
 			solid.minimapColor =
 			[] (const Block&, const Sector&, int, int, int)
 			{
@@ -160,8 +155,7 @@ namespace terragen
 		// _ICECUBE
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_GRASS);
 			solid.minimapColor =
 			[] (const Block&, const Sector&, int, int, int)
 			{
@@ -192,8 +186,7 @@ namespace terragen
 		// _DESERT (sand)
 		{
 			auto& solid = BlockData::createSolid();
-			solid.getColorIndex = [] (const Block&) { return Biomes::CL_SAND; };
-			solid.indexColored = true;
+			solid.setColorIndex(Biomes::CL_SAND);
 			solid.minimapColor = [] (const Block&, const Sector&, int, int, int) { return RGBA8(220, 210, 174, 255); };
 			solid.getName = [] (const Block&) { return "Desert Sand"; };
       solid.useTileID(tiledb.bigtiles("desert_sand"));
@@ -204,8 +197,7 @@ namespace terragen
 		// create _WATER
 		{
 			auto& fluid = BlockData::createFluid();
-      fluid.getColorIndex = [] (const Block&) { return Biomes::CL_WATER; };
-      fluid.indexColored = true;
+      fluid.setColorIndex(Biomes::CL_WATER);
 			fluid.minimapColor =
 			[] (const Block&, const Sector& sect, int x, int y, int z)
 			{
@@ -253,8 +245,7 @@ namespace terragen
 		// create _LEAF
 		{
 			auto& blk = BlockData::createLeaf();
-			blk.getColorIndex = [] (const Block&) { return Biomes::CL_TREES_A; };
-			blk.indexColored = true;
+			blk.setColorIndex(Biomes::CL_TREES_A);
 			blk.minimapColor =
 			[] (const Block&, const Sector& s, int x, int, int z)
 			{
@@ -267,8 +258,7 @@ namespace terragen
 		}
     {
 			auto& blk = BlockData::createLeaf();
-			blk.getColorIndex = [] (const Block&) { return Biomes::CL_TREES_B; };
-			blk.indexColored = true;
+			blk.setColorIndex(Biomes::CL_TREES_B);
 			blk.minimapColor =
 			[] (const Block&, const Sector& s, int x, int, int z)
 			{
@@ -284,6 +274,7 @@ namespace terragen
 			auto& blk = BlockData::createCross();
 			blk.getName = [] (const Block&) { return "Grass"; };
       blk.useTileID(tiledb.tiles("grass_bush"));
+      blk.setColorIndex(Biomes::CL_GRASS);
 			blk.transparent = true;
 			blk.block = false;
 			blk.getSound = nullptr;

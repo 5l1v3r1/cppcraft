@@ -40,13 +40,16 @@ namespace db
 		}
 
 		bool isTerrainColored() const noexcept {
-			return indexColored;
+			return colorIndex >= 0;
 		}
-		// returns the color index used, if applicable
-		delegate <int(const Block&)> getColorIndex = nullptr;
-
+    void setColorIndex(short index) {
+      this->colorIndex = index;
+    }
+    short getColorIndex() const noexcept {
+      return this->colorIndex;
+    }
 		bool isColored() const noexcept {
-			return !indexColored;
+			return !isTerrainColored();
 		}
 		// returns the color used, if applicable
 		delegate <uint32_t(const Block&)> getColor = nullptr;
@@ -134,7 +137,8 @@ namespace db
   private:
     const int id;
     texmode_t texture_mode = texmode_t::TILE_ID;
-    short tile_id = 0;
+    short   tile_id = 0;
+    short   colorIndex = -1;
 	};
 
   inline void BlockData::useTileID(short texid) {

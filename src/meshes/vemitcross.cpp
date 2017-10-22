@@ -26,7 +26,7 @@ namespace cppcraft
 
 		// terrain color
 		Block& blk = ptd.sector->get(bx, by, bz);
-		int clid = blk.db().getColorIndex(blk);
+		auto clid = blk.db().getColorIndex();
 
 		vtx[0].color = ptd.getColor(bx  , bz  , clid); // (0, 0)
 		vtx[3].color = ptd.getColor(bx  , bz  , clid);

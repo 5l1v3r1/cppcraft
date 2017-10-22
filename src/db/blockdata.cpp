@@ -92,8 +92,6 @@ namespace db
 		blk.blocksMovement = [] (const Block&) { return false; };
 		blk.forwardMovement = [] (const Block&) { return true; };
 		blk.hasActivation = [] (const Block&) { return false; };
-		blk.indexColored = true;
-		blk.getColorIndex = [] (const Block&) { return Biomes::CL_GRASS; };
 		blk.minimapColor =
 		[] (const Block&, const Sector& s, int x, int, int z)
 		{
