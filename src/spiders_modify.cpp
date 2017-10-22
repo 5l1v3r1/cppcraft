@@ -3,6 +3,7 @@
 #include <library/log.hpp>
 #include <common.hpp>
 #include "chunks.hpp"
+#include "minimap.hpp"
 #include "lighting.hpp"
 #include "sectors.hpp"
 using namespace library;
@@ -91,12 +92,14 @@ namespace cppcraft
 			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1, blk.getTorchLight());
 		}
 
-		// update mesh
-		s->updateMeshesAt(by);
 		// write updated sector to disk
 		//chunks.addSector(*s);
+    // update mesh
+		s->updateMeshesAt(by);
 		// update nearby sectors only if we are at certain edges
 		updateSurroundings(*s, bx, by, bz);
+    // delay-update minimap
+    minimap.sched(*s);
 		return true;
 	}
 
@@ -135,15 +138,14 @@ namespace cppcraft
       Lighting::floodInto(s, bx, by, bz, 1);
     }
 
-		// update the mesh, so we can see the change!
-		s->updateAllMeshes();
-
 		// write updated sector to disk
 		//chunks.addSector(*s);
-
+    // update the mesh, so we can see the change!
+		s->updateAllMeshes();
 		// update neighboring sectors (depending on edges)
 		updateSurroundings(*s, bx, by, bz);
-
+    // delay-update minimap
+    minimap.sched(*s);
 		// return COPY of block
 		return block;
 	}

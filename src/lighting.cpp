@@ -80,8 +80,6 @@ namespace cppcraft
 
   void Lighting::torchlight(Sector& sector)
   {
-    printf("Highest light point for %d,%d is %d\n",
-          sector.getX(), sector.getZ(), sector.getHighestLightPoint());
     for (int y = 1; y <= sector.getHighestLightPoint(); y++)
     if (sector.hasLight(y))
     {

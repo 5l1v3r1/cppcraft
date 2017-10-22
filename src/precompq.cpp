@@ -4,6 +4,7 @@
 #include "compiler_scheduler.hpp"
 #include "gameconf.hpp"
 #include "lighting.hpp"
+#include "minimap.hpp"
 #include "precomp_thread.hpp"
 #include "precompiler.hpp"
 #include "sectors.hpp"
@@ -112,6 +113,10 @@ namespace cppcraft
 		//printf("Precompiler scheduling (%d, %d) size: %lu\n",
 		//	sector->getX(), sector->getZ(), sizeof(Precomp));
 		sector.meshgen = 0;
+    // sneak in a minimap update if scheduled
+    if (sector.has_flag(Sector::MINIMAP)) {
+      minimap.addSector(sector);
+    }
 
     const int y0 = 0;
     const int y1 = BLOCKS_Y;

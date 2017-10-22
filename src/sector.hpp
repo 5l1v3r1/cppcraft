@@ -23,6 +23,7 @@ namespace cppcraft
 
 		static const int GENERATED  = 0x1;
 		static const int GENERATING = 0x2;
+    static const int MINIMAP    = 0x8;
 
 		struct sectorblock_t
 		{
@@ -176,14 +177,20 @@ namespace cppcraft
 
 		bool generated() const noexcept
 		{
-			return gen_flags & GENERATED;
+			return has_flag(GENERATED);
 		}
 		bool generating() const noexcept
 		{
-			return gen_flags & GENERATING;
+			return has_flag(GENERATING);
 		}
-    void add_genflag(int flag) {
+    void add_genflag(const int flag) noexcept {
       gen_flags |= flag;
+    }
+    void rem_genflag(const int flag) noexcept {
+      gen_flags &= ~flag;
+    }
+    bool has_flag(const int flag) const noexcept {
+      return gen_flags & flag;
     }
 
 	private:
@@ -200,7 +207,7 @@ namespace cppcraft
 		// 8 bits to signify which parts of sector needs update
 		// when an update is needed,
 		uint8_t meshgen = 0;
-		// true when the generator has generated blocks for this sector
+		// various flags for generator, minimap etc.
 		uint8_t gen_flags = 0;
 		// non-zero when objects are scheduled directly on this sector
 		uint8_t objects = 0;

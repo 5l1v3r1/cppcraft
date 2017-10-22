@@ -2,6 +2,7 @@
 #define MINIMAP_HPP
 
 #include <glm/mat4x4.hpp>
+#include "sector.hpp"
 
 namespace library
 {
@@ -12,7 +13,7 @@ namespace library
 namespace cppcraft
 {
 	class Sector;
-	
+
 	class Minimap
 	{
 	public:
@@ -20,16 +21,21 @@ namespace cppcraft
 		void init();
 		void update(double px, double pz);
 		void render(glm::mat4& mvp);
-		
+
+    // update minimap now
 		void addSector(Sector& s);
 		void roll(int x, int z);
-		
-		void setUpdated();
-		
+	  void setUpdated();
+
+    // delay-update minimap for this sector
+    void sched(Sector& sector) {
+      sector.add_genflag(Sector::MINIMAP);
+    }
+
 	private:
 		library::Bitmap*  bitmap;
 		library::Texture* texture;
-		
+
 		bool needs_update;
 		float ofsX, ofsY;
 	};

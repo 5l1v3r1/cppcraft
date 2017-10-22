@@ -45,19 +45,12 @@ namespace terragen
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
-		// count the same block ID until a new one appears
-		int counter = BLOCKS_Y-1;
 		// count current form of dirt/sand etc.
 		int soilCounter = 0;
-		// the last block we encountered
-		Block lastb = air_block;
+		// start counting from top
+		int air = BLOCKS_Y - MAX_Y;
 
-		// start counting from top (pretend really high)
-		int skyLevel    = 0;
-		int groundLevel = 0;
-		int air = BLOCKS_Y; // simple _AIR counter
-
-		for (int y = MAX_Y-1; y > 0; y--)
+		for (int y = MAX_Y; y > 0; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
 
@@ -79,76 +72,45 @@ namespace terragen
 			}
 			else soilCounter = 0;
 
-			// check if ultradifferent
-			if (block.getID() != lastb.getID())
+			// place greenery when enough air
+			if (air > 8)
 			{
-				if (air > 8)
+				///-////////////////////////////////////-///
+				///- create objects, and litter crosses -///
+				///-////////////////////////////////////-///
+				if (block.getID() == SOIL_BLOCK)
 				{
-					///-////////////////////////////////////-///
-					///- create objects, and litter crosses -///
-					///-////////////////////////////////////-///
-					if (block.getID() == SOIL_BLOCK)
+					block.setID(GRASS_BLOCK);
+
+					// TODO: use poisson disc here
+					const float rand = randf(wx, y, wz);
+          const glm::vec2 p = gdata->getBaseCoords2D(x, z);
+
+					/// terrain specific objects ///
+					if (rand < 0.05 && air > 16)
 					{
-						block.setID(GRASS_BLOCK);
-
-						// TODO: use poisson disc here
-						const float rand = randf(wx, y, wz);
-            const glm::vec2 p = gdata->getBaseCoords2D(x, z);
-
-						/// terrain specific objects ///
-						if (rand < 0.05 && air > 16)
+						if (glm::simplex(p * 0.005f) < -0.2)
 						{
-							if (glm::simplex(p * 0.005f) < -0.2)
+							unsigned height = 40 + randf(wx, y-1, wz) * 15;
+							if (y + height < WATERLEVEL + 64)
 							{
-								unsigned height = 40 + randf(wx, y-1, wz) * 15;
-								if (y + height < WATERLEVEL + 64)
-								{
-									gdata->add_object("jungle_tree", wx, y+1, wz, height);
-								}
-							}
-						}
-						else if (rand > 0.65)
-						{
-							// note: this is an inverse of the forest noise
-							if (glm::simplex(p * 0.005f) > -0.1)
-							{
-								gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
+								gdata->add_object("jungle_tree", wx, y+1, wz, height);
 							}
 						}
 					}
+					else if (rand > 0.65)
+					{
+						// note: this is an inverse of the forest noise
+						if (glm::simplex(p * 0.005f) > -0.1)
+						{
+							gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
+						}
+					}
 				}
-				// ...
-				lastb = block;
 			}
-			else
-			{
-				// how many times we've seen the same block on the way down
-				counter++;
-			}
-
-			// count air
-			if (block.isAir()) {
-				air++;
-			}
-			else
-			{
-				air = 0;
-				if (skyLevel == 0)
-					   skyLevel = y+1;
-				//if (block.isTransparent() == false)
-				if (groundLevel == 0)
-					   groundLevel = y+1;
-			}
-
-			// use skylevel to determine when we are below sky
-			block.setLight((skyLevel == 0) ? 15 : 0, 0);
+      // count air
+      if (block.isAir()) air++; else air = 0;
 		} // y
-
-		// set skylevel, groundlevel
-		if (groundLevel == 0)
-			   groundLevel = 1;
-		gdata->flatl(x, z).groundLevel = groundLevel;
-		gdata->flatl(x, z).skyLevel = skyLevel;
 	}
 
 	void terrain_jungle_init()

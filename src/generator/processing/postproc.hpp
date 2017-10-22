@@ -13,6 +13,11 @@ namespace terragen
 		// how much soil we need for stone conversion
 		static const int STONE_CONV_UNDER = 8;
 
+    struct process_helper
+    {
+      
+    };
+
 		static void init();
 		static void run(gendata_t* gdata);
 

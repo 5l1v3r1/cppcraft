@@ -37,6 +37,7 @@ namespace db
 		fluid.hasActivation = [] (const Block&) { return false; };
 		fluid.liquid      = true;
 		fluid.transparent = true;
+    fluid.setBlock(false);
 		fluid.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		fluid.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
 		fluid.transparentSides = BlockData::SIDE_ALL; // none of them solid

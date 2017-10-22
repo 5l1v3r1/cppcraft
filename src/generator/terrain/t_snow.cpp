@@ -51,19 +51,12 @@ namespace terragen
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
-		// count the same block ID until a new one appears
-		int counter = BLOCKS_Y-1;
 		// count current form of dirt/sand etc.
 		int soilCounter = 0;
-		// the last block we encountered
-		Block lastb = air_block;
-
 		// start counting from top (pretend really high)
-		int skyLevel    = 0;
-		int groundLevel = 0;
-		int air = BLOCKS_Y - MAX_Y; // simple _AIR counter
+		int air = BLOCKS_Y; // simple _AIR counter
 
-		for (int y = MAX_Y-1; y > 0; y--)
+		for (int y = MAX_Y; y > 0; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
 
@@ -87,61 +80,30 @@ namespace terragen
 			else soilCounter = 0;
 
 			// check if ultradifferent
-			if (block.getID() != lastb.getID())
+			if (air >= BLOCKS_Y)
 			{
-				if (air > 8)
+				///-////////////////////////////////////-///
+				///- create objects, and litter crosses -///
+				///-////////////////////////////////////-///
+				if (block.getID() == SOIL_BLOCK)
+					    block.setID(snow_id);
+
+				/// terrain specific objects ///
+				// TODO: use poisson disc here
+				float rand = randf(wx, y, wz);
+				if (rand < 0.1)
 				{
-					///-////////////////////////////////////-///
-					///- create objects, and litter crosses -///
-					///-////////////////////////////////////-///
-					if (block.getID() == SOIL_BLOCK)
-						    block.setID(snow_id);
-
-					/// terrain specific objects ///
-					// TODO: use poisson disc here
-					float rand = randf(wx, y, wz);
-					if (rand < 0.1)
-					{
-						// set some bs winter-cross
-					}
+					// set some bs winter-cross
 				}
-				if (air && block.getID() == WATER_BLOCK)
-				{
-					block.setID(ice_id);
-				}
-				// ...
-				lastb = block;
 			}
-			else
+			if (air > 0 && block.getID() == WATER_BLOCK)
 			{
-				// how many times we've seen the same ID on the way down
-				counter++;
+				block.setID(ice_id);
 			}
-
-			// check if not air or cross
-			if (block.isAir()) {
-				air++;
-			}
-			else
-			{
-				air = 0;
-				if (skyLevel == 0)
-					   skyLevel = y+1;
-				if (groundLevel == 0)
-					   groundLevel = y+1;
-			}
-
-			// use skylevel to determine when we are below sky
-			block.setLight((skyLevel == 0) ? 15 : 0, 0);
+      // count air
+      if (block.isAir()) air++; else air = 0;
 		} // y
-
-		// set skylevel, groundlevel
-		if (groundLevel == 0)
-			groundLevel = 1;
-		gdata->flatl(x, z).groundLevel = groundLevel;
-		gdata->flatl(x, z).skyLevel = skyLevel;
-
-	} // PostProcess::run()
+	}
 
 	void terrain_icecap_init()
 	{
