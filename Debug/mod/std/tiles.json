@@ -48,20 +48,5 @@
       "mushroom_core": [13, 9],
       "mushroom_coretop": [14, 9]
     }
-  },
-  "ores":
-  {
-    "ore_coal": {
-      "max_height": 255,
-      "min_cluster": 6,
-      "max_cluster": 16,
-      "deposits": 80
-    },
-    "ore_iron": {
-      "max_height": 160,
-      "min_cluster": 4,
-      "max_cluster": 8,
-      "deposits": 40
-    }
   }
 }

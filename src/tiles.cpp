@@ -43,12 +43,12 @@ namespace cppcraft
 		this->skinSize = config.get("players.size", 32);
 
     // load and apply the init.json for each mod folder
-    std::ifstream file("mod/std/init.json");
+    std::ifstream file("mod/std/tiles.json");
     const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     rapidjson::Document doc;
     doc.Parse(str.c_str());
 
-    CC_ASSERT(doc.IsObject(), "JSON document 'init.json' must be valid");
+    CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
     if (doc.HasMember("tiles"))
     {
       auto& tiles_obj = doc["tiles"];
