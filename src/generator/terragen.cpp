@@ -3,12 +3,12 @@
 #include "terrain/terrain.hpp"
 #include "terrain/terrains.hpp"
 #include "processing/postproc.hpp"
-#include <stdio.h>
+#include <cstdio>
 #include <cassert>
 
 #include <library/compression/lzo.hpp>
 #include <library/timing/timer.hpp>
-#include <cstring>
+#include <library/log.hpp>
 using namespace library;
 
 #define PRINT(fmt, ...)  /** **/

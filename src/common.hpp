@@ -16,5 +16,16 @@ namespace cppcraft
 	typedef uint16_t light_value_t;
 }
 
+extern void dump_trace();
+
 #define LIKELY(x)    __builtin_expect(!!(x), 1)
 #define UNLIKELY(x)  __builtin_expect(!!(x), 0)
+
+#include <cassert>
+#include <stdlib.h>
+#include <cstdio>
+#define CC_ASSERT(x, msg)            \
+  if (UNLIKELY(!(x))) {              \
+    fprintf(stderr, "%s() [%s:%d] %s\n", \
+        __FUNCTION__, __FILE__, __LINE__, msg);\
+    dump_trace(); abort(); }

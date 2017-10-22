@@ -1,0 +1,67 @@
+{
+  "bigtiles": {
+    "diffuse": "mod/std/bitmaps/bigdiff.png",
+    "tonemap": "mod/std/bitmaps/bigtone.png",
+    "data":
+    {
+      "soil": [2, 0],
+      "grass_top": [0, 0],
+      "grass_side": [0, 1],
+      "snow": [1, 0],
+      "snow_side": [1, 1],
+
+      "stone": [3, 0],
+      "gravel": [0, 3],
+
+      "beach_sand": [3, 1],
+      "desert_sand": [2, 1]
+
+    }
+  },
+  "tiles": {
+    "diffuse": "mod/std/bitmaps/diffuse.png",
+    "tonemap": "mod/std/bitmaps/tonemap.png",
+    "data":
+    {
+      "bedrock": [2, 5],
+      "molten": [15, 13],
+
+      "ice": [14, 13],
+
+      "ore_coal": [4, 3],
+      "ore_iron": [3, 3],
+
+      "wood_oak": [0, 7],
+      "leaf": [15, 0],
+      "grass_bush": [6, 1],
+
+      "torch": [0, 13],
+
+      "torch": [0, 13],
+
+      "mushroom_top": [13, 8],
+      "mushroom_speckle": [14, 8],
+      "mushroom_topedge": [15, 8],
+      "mushroom_topunder": [15, 9],
+
+      "mushroom_under": [15, 9],
+      "mushroom_core": [13, 9],
+      "mushroom_coretop": [14, 9]
+    }
+  },
+  "ores":
+  {
+    "ore_coal": {
+      "max_height": 255,
+      "min_cluster": 6,
+      "max_cluster": 16,
+      "deposits": 80
+    },
+    "ore_iron": {
+      "max_height": 160,
+      "min_cluster": 4,
+      "max_cluster": 8,
+      "deposits": 40
+    }
+  }
+}

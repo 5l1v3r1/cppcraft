@@ -1,5 +1,6 @@
 #include "worldmanager.hpp"
 
+#include "blockmodels.hpp"
 #include "chunks.hpp"
 #include "items.hpp"
 #include "lighting.hpp"
@@ -7,7 +8,6 @@
 #include "gui/menu.hpp"
 #include "particles.hpp"
 #include "player.hpp"
-#include "precompq.hpp"
 #include "sectors.hpp"
 #include "soundman.hpp"
 #include "threadpool.hpp"
@@ -26,14 +26,14 @@ namespace cppcraft
 		this->gamestate = gs;
 		// initalize world
 		world.init(worldFolder);
+    // initialize block meshes
+		blockmodels.init();
 		// initialize player
 		player.initPlayer();
 		// initialize chunk systems
 		chunks.initChunks();
 		// initialize threads
 		AsyncPool::init();
-		// initialize precompiler systems
-		precompq.init();
 		// initialize lighting
 		Lighting::init();
 

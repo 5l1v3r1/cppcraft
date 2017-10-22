@@ -53,53 +53,17 @@ int main(int argc, char* argv[])
 
 	// initialize renderer
 	std::unique_ptr<Renderer> renderer = nullptr;
-	try
-	{
-		renderer.reset(new Renderer("test window"));
-	}
-	catch (std::exception& error)
-	{
-    logger.write(Log::ERR, error.what());
-		logger.write(Log::ERR, "Failed to initialize renderer... Exiting.");
-		return EXIT_FAILURE;
-	}
+	renderer.reset(new Renderer("test window"));
 
 	// initialize game/world manager
 	std::unique_ptr<WorldManager> worldman = nullptr;
-	try
-	{
-		worldman.reset(new WorldManager(WorldManager::GS_RUNNING, renderer->window(), wfolder));
-	}
-  catch (std::exception& error)
-	{
-    logger.write(Log::ERR, error.what());
-		logger.write(Log::ERR, "Failed to initialize renderer... Exiting.");
-		return EXIT_FAILURE;
-	}
+	worldman.reset(new WorldManager(WorldManager::GS_RUNNING, renderer->window(), wfolder));
 
-	try
-	{
-		// prepare renderer
-		renderer->prepare();
-	}
-  catch (std::exception& error)
-	{
-		logger.write(Log::ERR, error.what());
-		logger.write(Log::ERR, "Failed to prepare renderer... Exiting.");
-		return EXIT_FAILURE;
-	}
+	// prepare renderer
+	renderer->prepare();
 
-	try
-	{
-		// load player location
-		worldman->initPlayer();
-	}
-	catch (std::exception& error)
-	{
-		logger.write(Log::ERR, error.what());
-		logger.write(Log::ERR, "Failed to initialize player... Exiting.");
-		return EXIT_FAILURE;
-	}
+	// load player location
+	worldman->initPlayer();
 
 #ifdef ENABLE_GPERF
   // start profiling

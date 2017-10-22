@@ -20,7 +20,6 @@ namespace db
 		air.forwardMovement = [] (const Block&) { return true; };
 		air.getColor = [] (const Block&) { return 255; };
 		air.getName  = [] (const Block&) { return "Air"; };
-		air.getTexture = [] (const Block&, uint8_t) { return 255; };
 		// you can never hit or select _AIR
 		air.physicalHitbox3D = [] (const Block&, float, float, float) { return false; };
 		air.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };

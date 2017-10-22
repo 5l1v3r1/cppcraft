@@ -45,27 +45,27 @@ namespace terragen
 				return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
 			};
 			blk.getName = [] (const Block&) { return "Mushroom Block"; };
-			blk.getTexture =
-			[] (const Block& blk, uint8_t face)
+			blk.useTextureFunction(
+			[] (const Block& blk, uint8_t face) -> short
 			{
         int type = blk.getExtra() & 0xF0;
         // core
-        if (type == TYPE_CORE) return 13 + 9 * tiles.tilesX;
+        if (type == TYPE_CORE) return tiledb.tiles("mushroom_core");
         // core_top
-        if (type == TYPE_CORE_TOP) return 14 + 9 * tiles.tilesX;
+        if (type == TYPE_CORE_TOP) return tiledb.tiles("mushroom_coretop");
         // top
-        if (type == TYPE_TOP) return 13 + 8 * tiles.tilesX;
+        if (type == TYPE_TOP) return tiledb.tiles("mushroom_top");
         // speck
-        if (type == TYPE_SPECK) return 14 + 8 * tiles.tilesX;
+        if (type == TYPE_SPECK) return tiledb.tiles("mushroom_speckle");
         // edge
         if (type == TYPE_EDGE) {
-          if (face == 3) return 15 + 9 * tiles.tilesX;
-          return 15 + 8 * tiles.tilesX;
+          if (face == 3) return tiledb.tiles("mushroom_topunder");
+          return tiledb.tiles("mushroom_topedge");
         }
         // under
-        if (type == TYPE_UNDER) return 15 + 9 * tiles.tilesX;
+        if (type == TYPE_UNDER) return tiledb.tiles("mushroom_under");
         return 0;
-			};
+			});
 			blk.repeat_y = true;
 			blk.shader   = RenderConst::TX_SOLID;
       blk.getSound = [] (const Block&) { return "cloth"; };

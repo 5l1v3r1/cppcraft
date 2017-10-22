@@ -19,12 +19,6 @@ namespace cppcraft
 {
 	PrecompQ precompq;
 
-	void PrecompQ::init()
-	{
-		// initialize precompiler stuff
-		Precomp::init();
-	}
-
 	void PrecompQ::add(Sector& sector, uint8_t parts)
 	{
 		// we don't care if the sector is currently

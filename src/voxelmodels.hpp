@@ -46,36 +46,36 @@ namespace cppcraft
 #define VOXB_HANGINGAPPLE      51
 
 	typedef unsigned short block_t;
-	
+
 	class VoxelModels
 	{
 	public:
 		static const int VOXELITEMS_MAX  = 256;
 		static const int VOXELBLOCKS_MAX =  64;
-		
+
 		// z extrude scale 1:Z
 		static const float VOXELMODELS_ZSCALE;
-		
+
 		int  getVoxelId  (block_t id);
-		
-		void createItemModels (library::Bitmap& bmp);
-		void createBlockModels(library::Bitmap& bmp);
-		
+
+		void createItemModels (const library::Bitmap& bmp);
+		void createBlockModels(const library::Bitmap& bmp);
+
 		void renderItem (int modelid);
 		void renderBlock(int modelid);
-		
+
 	private:
-		
+
 		// voxelized blocks
 		library::VoxelModel* voxelBlocks[VOXELBLOCKS_MAX] = {nullptr};
 		// voxelized items
 		library::VoxelModel* voxelItems[VOXELITEMS_MAX] = {nullptr};
-		
-		void createModel    (library::VoxelModel*& model, library::Bitmap& bmp, int tileID, int tileSize);
-		void createModelTall(library::VoxelModel*& model, library::Bitmap& bmp, int tileBot, int tileTop, int tileSize);
-		
+
+		void createModel    (library::VoxelModel*& model, const library::Bitmap& bmp, int tileID, int tileSize);
+		void createModelTall(library::VoxelModel*& model, const library::Bitmap& bmp, int tileBot, int tileTop, int tileSize);
+
 		void renderModel(library::VoxelModel* model);
-		
+
 	};
 	extern VoxelModels voxels;
 }

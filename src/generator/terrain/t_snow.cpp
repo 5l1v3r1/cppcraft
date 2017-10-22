@@ -164,7 +164,7 @@ namespace terragen
 		[] (Particle& p, particle_vertex_t& pv)
 		{
 			pv.size    = 16;
-			pv.tileID  = 1 + 1 * tiles.partsX; // (1, 1) = snow particle
+			pv.tileID  = 1 + 1 * tiledb.partsX; // (1, 1) = snow particle
 			pv.uvscale = 255;
 			pv.shiny   = 0;
 

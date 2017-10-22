@@ -90,8 +90,6 @@ namespace cppcraft
 
 		// initialize camera
 		camera.init(*this);
-		// init tile sizes
-		tiles.init();
 		// initialize sun, and lens textures at half-size
 		thesun.init(SunClass::SUN_DEF_ANGLE);
 

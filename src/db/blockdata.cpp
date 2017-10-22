@@ -26,12 +26,7 @@ namespace db
 		solid.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
     solid.shader = RenderConst::TX_SOLID;
 		solid.voxelModel = 0;
-		solid.visibilityComp =
-		[] (const Block&, const Block& dst, uint16_t mask)
-		{
-			// only add faces towards transparent sides
-			return mask & dst.getTransparentSides();
-		};
+		solid.visibilityComp = nullptr;
 		solid.emit = cppcraft::emitCube;
 		return solid;
 	}

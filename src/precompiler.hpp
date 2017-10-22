@@ -15,8 +15,6 @@ namespace cppcraft
 
 	class alignas(32) Precomp {
 	public:
-		static void init();
-
 		/// this constructor MUST be called from main world thread
 		explicit Precomp(Sector& sector, int y0, int y1);
 

@@ -85,7 +85,7 @@ namespace cppcraft
       break;
     }
     const auto& self = ct.blocks[4].db();
-    return self.getConnectedTexture(ct, face);
+    return self.connTexFunction(ct, face);
   }
 
 }

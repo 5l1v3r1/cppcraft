@@ -125,6 +125,7 @@ namespace gui
 	{
 		// face value is "as if" front
 		Block blk = itm.toBlock();
+    const auto& db = blk.db();
 		float tileTop = blk.getTexture(2);
 		float tileBot = blk.getTexture(0);
 		// emit to itemTiles or blockTiles depending on item type

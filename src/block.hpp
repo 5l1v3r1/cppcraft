@@ -175,13 +175,19 @@ namespace cppcraft
 			return (db().opacity >> (ch << 2)) & 0xF;
 		}
 
-		//! returns the texture id for this block, dependent on @face
-    bool hasTexture() const {
-      return db().getTexture != nullptr;
+    short getTexture(uint8_t face) const
+    {
+      const auto& db = this->db();
+      switch (db.textureMode()) {
+        case db::BlockData::texmode_t::TILE_ID:
+            return db.getTileID();
+        case db::BlockData::texmode_t::STATIC_FUNCTION:
+            return db.textureFunction(blk, face);
+        case db::BlockData::texmode_t::CONNECTED_TEXTURE:
+            return getConnectedTexture(db, face);
+      } // switch
     }
-		short getTexture(uint8_t face) const {
-			return db().getTexture(*this, face);
-		}
+
 		//! returns the dynamic minimap color for this block, depending on custom algorithm
 		uint32_t getMinimapColor(const Sector& sector, int bx, int by, int bz) const
 		{
@@ -194,10 +200,12 @@ namespace cppcraft
 		unsigned short visibleFaces(Sector& sector, int bx, int by, int bz) const;
 		//! face visibility test, returning the same mask for each face that is visible
 		//! this function lets @this determine whether @dst covers the face mask @facing
-		//! @facing: 1 = +z, 2 = -z, 4 = +y, 8 = -y, 16 = +x, 32 = -x
-		uint16_t visibilityComp(const Block& dst, uint16_t facing) const
+		//! @mask: 1 = +z, 2 = -z, 4 = +y, 8 = -y, 16 = +x, 32 = -x
+		uint16_t visibilityComp(const Block& dst, uint16_t mask) const
 		{
-			return db().visibilityComp(*this, dst, facing);
+      auto& blk = db();
+      if (blk.visibilityComp == nullptr) return mask & dst.getTransparentSides();
+      return blk.visibilityComp(*this, dst, mask);
 		}
 		uint16_t getTransparentSides() const
 		{
@@ -310,6 +318,7 @@ namespace cppcraft
 		}
 
 	private:
+    inline short getConnectedTexture(const db::BlockData&, uint8_t) const;
 		block_t  blk = _AIR;
     bfield_t extra = 0;
 		light_t  light = 0;
@@ -321,6 +330,13 @@ namespace cppcraft
     std::array<Block, 9> blocks;
     inline Block& self() { return blocks[4]; }
   };
+
+  inline short Block::getConnectedTexture(const db::BlockData& db, uint8_t face) const
+  {
+    connected_textures_t ct;
+    ct.blocks[4] = *this;
+    return db.connTexFunction(ct, face);
+  }
 }
 
 #endif

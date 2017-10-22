@@ -23,6 +23,9 @@ namespace db
 
     int getID() const noexcept { return id; }
 
+    // returns the human-friendly block name
+		delegate <std::string(const Block&)> getName = nullptr;
+
     bool isCross() const noexcept { return cross; }
 
 		// tick function
@@ -48,9 +51,6 @@ namespace db
 		// returns the color used, if applicable
 		delegate <uint32_t(const Block&)> getColor = nullptr;
 
-		// returns the human-friendly block name
-		delegate <std::string(const Block&)> getName = nullptr;
-
 		// returns true if the block has a special hand-held model
 		// eg. crosses, door, ladder
 		bool isVoxelModel() const noexcept {
@@ -69,9 +69,23 @@ namespace db
 		// and also allowing smooth movement over small height-changes
 		delegate <bool(const Block&)> forwardMovement = nullptr;
 
-		// returns the texture value for @block
-		delegate <short(const Block&, uint8_t face)> getTexture = nullptr;
-    delegate <short(const connected_textures_t&, uint8_t face)> getConnectedTexture = nullptr;
+    /// tile, texture & connected texture ///
+    typedef delegate<short(const Block&, uint8_t face)> texture_func_t;
+    typedef delegate<short(const connected_textures_t&, uint8_t face)> conntex_func_t;
+    enum class texmode_t : uint8_t {
+      TILE_ID = 0,
+      STATIC_FUNCTION = 1,
+      CONNECTED_TEXTURE = 2
+    };
+
+    inline void useTileID(short texid);
+    inline void useTextureFunction(texture_func_t);
+    inline void useConnectedTexture(conntex_func_t);
+    inline texmode_t textureMode() const noexcept { return texture_mode; }
+    inline short   getTileID() const noexcept { return this->tile_id; }
+    texture_func_t textureFunction = nullptr;
+    conntex_func_t connTexFunction = nullptr;
+
 		//! returns the non-zero facing mask @facing, if determined visible
 		//! first block is source, second is the block we are checking against
 		delegate <uint16_t(const Block&, const Block&, uint16_t)> visibilityComp = nullptr;
@@ -119,5 +133,21 @@ namespace db
     BlockData(int ID) : id(ID) {}
   private:
     const int id;
+    texmode_t texture_mode = texmode_t::TILE_ID;
+    short tile_id = 0;
 	};
+
+  inline void BlockData::useTileID(short texid) {
+    texture_mode = texmode_t::TILE_ID;
+    this->tile_id = texid;
+  }
+  inline void BlockData::useTextureFunction(texture_func_t func) {
+    texture_mode = texmode_t::STATIC_FUNCTION;
+    textureFunction = std::move(func);
+  }
+  inline void BlockData::useConnectedTexture(conntex_func_t func) {
+    texture_mode = texmode_t::CONNECTED_TEXTURE;
+    connTexFunction = std::move(func);
+  }
+
 }

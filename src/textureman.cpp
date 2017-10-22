@@ -18,26 +18,14 @@ namespace cppcraft
 {
 	Textureman textureman;
 
-	Textureman::Textureman() {}
-
 	void Textureman::init(Renderer& renderer)
 	{
 		// create all textures
 		logger << Log::INFO << "* Loading & processing textures" << Log::ENDL;
 
-		// working bitmap object
-		Bitmap bmp;
-
 		/// TERRAIN regular tileset ///
-		bmp = Bitmap(config.get("textures.diffuse", "bitmap/default/diffuse.png"), Bitmap::PNG);
-		bmp.parse2D(tiles.tileSize, tiles.tileSize);
-
-		// set engine (smaller) tileset tiles in (x, y) directions
-		tiles.tilesX = bmp.getTilesX();
-		tiles.tilesY = bmp.getTilesY();
-
 		textures[T_DIFFUSE] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_DIFFUSE].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_DIFFUSE].create(tiledb.tiles.diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		textures[T_DIFFUSE].setAnisotropy(gameconf.anisotropy);
 		if (OpenGL::checkError())
 		{
@@ -47,47 +35,34 @@ namespace cppcraft
 		if (OpenGL::checkError()) throw std::runtime_error("Materials(1) texture2d array error");
 
 		// voxelize (some) tiles
-		voxels.createBlockModels(bmp);
+		voxels.createBlockModels(tiledb.tiles.diffuse());
 
 		if (OpenGL::checkError())
 		{
 			throw std::runtime_error("Failed to create voxel blocks");
 		}
 
-		bmp = Bitmap(config.get("textures.tonemap", "bitmap/default/tonemap.png"), Bitmap::PNG);
-		bmp.parse2D(tiles.tileSize, tiles.tileSize);
-
 		textures[T_TONEMAP] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_TONEMAP].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_TONEMAP].create(tiledb.tiles.tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		textures[T_TONEMAP].setAnisotropy(gameconf.anisotropy);
 
 		if (OpenGL::checkError()) throw std::runtime_error("Materials(2) texture2d array error");
 
 		/// TERRAIN bigger tileset ///
-		bmp = Bitmap(config.get("textures.bigdiff", "bitmap/default/bigdiff.png"), Bitmap::PNG);
-		bmp.parse2D(tiles.bigSize, tiles.bigSize);
-
-		// set engine (bigger) tileset tiles in (x, y) directions
-		tiles.bigTilesX = bmp.getTilesX();
-		tiles.bigTilesY = bmp.getTilesY();
-
 		textures[T_BIG_DIFF] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_BIG_DIFF].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_BIG_DIFF].create(tiledb.bigtiles.diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		textures[T_BIG_DIFF].setAnisotropy(gameconf.anisotropy);
 
 		if (OpenGL::checkError()) throw std::runtime_error("Materials(3) texture2d array error");
 
-		bmp = Bitmap(config.get("textures.bigtone", "bitmap/default/bigtone.png"), Bitmap::PNG);
-		bmp.parse2D(tiles.bigSize, tiles.bigSize);
-
 		textures[T_BIG_TONE] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_BIG_TONE].create(bmp, true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		textures[T_BIG_TONE].create(tiledb.bigtiles.tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		textures[T_BIG_TONE].setAnisotropy(gameconf.anisotropy);
 
 		if (OpenGL::checkError()) throw std::runtime_error("Materials(4) texture2d array error");
 
 		/// ITEMS tileset ///
-		bmp = Bitmap(config.get("textures.items", "bitmap/default/items.png"), Bitmap::PNG);
+		auto bmp = Bitmap(config.get("textures.items", "bitmap/default/items.png"), Bitmap::PNG);
 		bmp.parse2D(items.itemSize, items.itemSize);
 
 		items.itemsX = bmp.getTilesX();
@@ -103,7 +78,7 @@ namespace cppcraft
 
 		/// PLAYER MODELS tileset ///
 		bmp = Bitmap(config.get("textures.players", "bitmap/default/playerskins.png"), Bitmap::PNG);
-		bmp.parse2D(tiles.skinSize, tiles.skinSize);
+		bmp.parse2D(tiledb.skinSize, tiledb.skinSize);
 
 		textures[T_PLAYERMODELS] = Texture(GL_TEXTURE_2D_ARRAY);
 		textures[T_PLAYERMODELS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
@@ -117,8 +92,8 @@ namespace cppcraft
     // need to invert Y axis for the particles
 		bmp.parse2D(partSize, partSize, true);
 
-		tiles.partsX = bmp.getTilesX();
-		tiles.partsY = bmp.getTilesY();
+		tiledb.partsX = bmp.getTilesX();
+		tiledb.partsY = bmp.getTilesY();
 
 		textures[T_PARTICLES] = Texture(GL_TEXTURE_2D_ARRAY);
 		textures[T_PARTICLES].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
@@ -133,7 +108,7 @@ namespace cppcraft
 		if (OpenGL::checkError()) throw std::runtime_error("Selection texture2d error");
 
 		bmp = Bitmap(config.get("textures.mining", "bitmap/default/mining.png"), Bitmap::PNG);
-		bmp.parse2D(tiles.tileSize, tiles.tileSize);
+		bmp.parse2D(tiledb.tiles.tilesize(), tiledb.tiles.tilesize());
 
 		textures[T_MINING] = Texture(GL_TEXTURE_2D_ARRAY);
 		textures[T_MINING].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);

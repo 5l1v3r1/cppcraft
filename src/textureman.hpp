@@ -63,8 +63,6 @@ namespace cppcraft
 
 		} named_textures_t;
 
-		Textureman();
-
 		void init(Renderer&);
 
 		inline void bind(int unit, named_textures_t tx)

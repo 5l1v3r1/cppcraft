@@ -1,5 +1,6 @@
 
 set(SUB_SOURCES
+    arch.cpp
     atmosphere.cpp
     biome.cpp
     blockmodels.cpp
@@ -111,6 +112,8 @@ set(SUB_SOURCES
     render_scene_terrain.cpp
     render_sky_clouds.cpp
     render_sky.cpp
+    script/script.cpp
+    script/interface.cpp
     seamless.cpp
     sector.cpp
     sectors.cpp

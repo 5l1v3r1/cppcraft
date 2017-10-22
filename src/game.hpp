@@ -1,6 +1,7 @@
 #pragma once
 
 #include "player_inputs.hpp"
+#include "script/script.hpp"
 
 namespace cppcraft
 {
@@ -13,6 +14,10 @@ namespace cppcraft
       return m_input;
     }
 
+    Script& script() noexcept {
+      return m_script;
+    }
+
     void terminate() {
       this->m_terminate = true;
     }
@@ -21,8 +26,9 @@ namespace cppcraft
     }
 
   private:
-    Input m_input;
-    bool  m_terminate = false;
+    Script m_script;
+    Input  m_input;
+    bool   m_terminate = false;
   };
   extern Game game;
 }

@@ -41,8 +41,15 @@ namespace cppcraft
 
     int16_t getConnectedTexture(const Block& blk, int bx, int by, int bz, int face) const
     {
-      if (blk.hasTexture()) return blk.getTexture(face);
-      return getConnectedTexture(bx, by, bz, face);
+      const auto& db = blk.db();
+      switch (db.textureMode()) {
+        case db::BlockData::texmode_t::TILE_ID:
+            return db.getTileID();
+        case db::BlockData::texmode_t::STATIC_FUNCTION:
+            return db.textureFunction(blk, face);
+        case db::BlockData::texmode_t::CONNECTED_TEXTURE:
+            return getConnectedTexture(bx, by, bz, face);
+      }
     }
     // the real deal
     int16_t getConnectedTexture(int bx, int by, int bz, int face) const;

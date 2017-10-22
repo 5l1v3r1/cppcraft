@@ -11,7 +11,7 @@ using namespace library;
 
 namespace cppcraft
 {
-	const int PTD::REPEAT_FACTOR = RenderConst::VERTEX_SCALE / Tiles::TILES_PER_BIG_TILE;
+	const int PTD::REPEAT_FACTOR = RenderConst::VERTEX_SCALE / TileDB::TILES_PER_BIG_TILE;
 
 	void PrecompThread::precompile(Precomp& pc)
 	{

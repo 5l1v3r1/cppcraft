@@ -1,6 +1,7 @@
 #include "blockmodels.hpp"
 
 #include <library/log.hpp>
+#include <cstdio>
 using namespace library;
 
 namespace cppcraft
@@ -10,8 +11,7 @@ namespace cppcraft
   // build all common mesh objects
 	void BlockModels::init()
 	{
-		logger << Log::INFO << "Precomputing vertex data" << Log::ENDL;
-
+    logger << Log::INFO << "* Initializing block meshes" << Log::ENDL;
 		// initialize cube meshes
 		initCubes();
 		// initialize sloped leafs

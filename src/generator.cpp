@@ -34,6 +34,7 @@ namespace cppcraft
 
 	void Generator::init()
 	{
+    logger << Log::INFO << "* Initializing terrain generator" << Log::ENDL;
 		/// our esteemed generator ///
 		terragen::Generator::init();
 		// load all block data in view

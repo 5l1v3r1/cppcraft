@@ -17,7 +17,7 @@ namespace cppcraft
 	VoxelModels voxels;
 	const float VoxelModels::VOXELMODELS_ZSCALE = 0.05;
 
-	void VoxelModels::createItemModels(Bitmap& bmp)
+	void VoxelModels::createItemModels(const Bitmap& bmp)
 	{
 		// roll through all items
 		for (int i = 0; i < VOXELITEMS_MAX; i++)
@@ -26,7 +26,7 @@ namespace cppcraft
 		}
 	}
 
-	void VoxelModels::createBlockModels(Bitmap& bmp)
+	void VoxelModels::createBlockModels(const Bitmap& bmp)
 	{
 		/*
 		createModel(voxelBlocks[VOXB_LADDER], bmp, Block(_LADDER).getTexture(0), tiles.tileSize);
@@ -66,7 +66,7 @@ namespace cppcraft
 		*/
 	}
 
-	void VoxelModels::createModel(VoxelModel*& model, Bitmap& bmp, int tileID, int tileSize)
+	void VoxelModels::createModel(VoxelModel*& model, const Bitmap& bmp, int tileID, int tileSize)
 	{
 		// create temporary bitmap
 		Bitmap tmp(tileSize, tileSize, 32);
@@ -88,7 +88,7 @@ namespace cppcraft
 
 	}
 
-	void VoxelModels::createModelTall(VoxelModel*& model, Bitmap& bmp, int tile_bot, int tile_top, int tileSize)
+	void VoxelModels::createModelTall(VoxelModel*& model, const Bitmap& bmp, int tile_bot, int tile_top, int tileSize)
 	{
 		// create temporary bitmap
 		Bitmap tmp(tileSize, tileSize * 2, 4);

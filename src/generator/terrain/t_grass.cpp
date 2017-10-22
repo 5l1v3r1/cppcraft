@@ -181,7 +181,6 @@ namespace terragen
 
 						// TODO: use poisson disc here
 						float rand = randf(wx, y, wz);
-						glm::vec2 p = gdata->getBaseCoords2D(x, z);
 
 						/// terrain specific objects ///
             if (rand < 0.00005 && air > 40) {
@@ -192,6 +191,7 @@ namespace terragen
             }
 						else if (rand < 0.05 && air > 16)
 						{
+              glm::vec2 p = gdata->getBaseCoords2D(x, z);
 							if (glm::simplex(p * 0.005f) < -0.2)
 							{
 								unsigned height = 5 + randf(wx, y-1, wz) * 3;
@@ -204,6 +204,7 @@ namespace terragen
 						else if (rand > 0.75)
 						{
 							// note: this is an inverse of the otreeHuge noise
+              glm::vec2 p = gdata->getBaseCoords2D(x, z);
 							if (glm::simplex(p * 0.005f) > 0.0) {
 								gdata->getb(x, y+1, z).setID(cross_grass_id);
 							}

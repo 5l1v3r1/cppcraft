@@ -12,9 +12,6 @@ namespace cppcraft
 
 	class PrecompQ {
 	public:
-		//! \brief initializes threadpool and creates N jobs
-		void init();
-
 		//! \brief Queues a sector for the mesh generator subsystem
 		void add(Sector& sector, uint8_t parts);
 

@@ -39,3 +39,6 @@ World simulation
 Custom shaders for mods
 - Rewrite shaders to be a little more variable-length
 - Add custom shader for a block (eg. fresh water)
+
+Implement adding tiles from mods
+- Add to end of one of the tilesheets before uploading to GPU
