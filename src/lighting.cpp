@@ -80,51 +80,56 @@ namespace cppcraft
 
   void Lighting::torchlight(Sector& sector)
   {
-    for (int x = 0; x < BLOCKS_XZ; x++)
-    for (int z = 0; z < BLOCKS_XZ; z++)
-	  for (int y = 1; y <= sector.flat()(x, z).groundLevel; y++)
+    printf("Highest light point for %d,%d is %d\n",
+          sector.getX(), sector.getZ(), sector.getHighestLightPoint());
+    for (int y = 1; y <= sector.getHighestLightPoint(); y++)
+    if (sector.hasLight(y))
     {
-		  Block& block = sector(x, y, z);
+      for (int x = 0; x < BLOCKS_XZ; x++)
+      for (int z = 0; z < BLOCKS_XZ; z++)
+      {
+  		  Block& block = sector(x, y, z);
 
-      if (block.isLight())
-		  {
-  			const int ch = 1;
+        if (block.isLight())
+  		  {
+    			const int ch = 1;
 
-  			// set to max blocklight value
-        uint8_t opacity = block.getOpacity(0);
-        block.setChannel(ch, opacity);
+    			// set to max blocklight value
+          uint8_t opacity = block.getOpacity(0);
+          block.setChannel(ch, opacity);
 
-        // mask out impossible paths
-        int mask = 63;
-        if (x < BLOCKS_XZ-1)
-          if (!sector(x+1, y, z).isTransparent()) mask &= ~1;
-        if (x > 0)
-          if (!sector(x-1, y, z).isTransparent()) mask &= ~2;
+          // mask out impossible paths
+          int mask = 63;
+          if (x < BLOCKS_XZ-1)
+            if (!sector(x+1, y, z).isTransparent()) mask &= ~1;
+          if (x > 0)
+            if (!sector(x-1, y, z).isTransparent()) mask &= ~2;
 
-        if (!sector(x, y+1, z).isTransparent()) mask &= ~4;
-        if (!sector(x, y-1, z).isTransparent()) mask &= ~8;
+          if (!sector(x, y+1, z).isTransparent()) mask &= ~4;
+          if (!sector(x, y-1, z).isTransparent()) mask &= ~8;
 
-        if (z < BLOCKS_XZ-1)
-          if (!sector(x, y, z+1).isTransparent()) mask &= ~16;
-        if (z > 0)
-          if (!sector(x, y, z-1).isTransparent()) mask &= ~32;
+          if (z < BLOCKS_XZ-1)
+            if (!sector(x, y, z+1).isTransparent()) mask &= ~16;
+          if (z > 0)
+            if (!sector(x, y, z-1).isTransparent()) mask &= ~32;
 
-        // propagate block light in all directions
-        if (mask & 1)
-          propagateChannel(&sector, x, y, z, {ch, 0, opacity}); // +x
-        if (mask & 2)
-          propagateChannel(&sector, x, y, z, {ch, 1, opacity}); // -x
-        if (mask & 4)
-          propagateChannel(&sector, x, y, z, {ch, 2, opacity}); // +y
-        if (mask & 8)
-          propagateChannel(&sector, x, y, z, {ch, 3, opacity}); // -y
-        if (mask & 16)
-          propagateChannel(&sector, x, y, z, {ch, 4, opacity}); // +z
-        if (mask & 32)
-          propagateChannel(&sector, x, y, z, {ch, 5, opacity}); // -z
+          // propagate block light in all directions
+          if (mask & 1)
+            propagateChannel(&sector, x, y, z, {ch, 0, opacity}); // +x
+          if (mask & 2)
+            propagateChannel(&sector, x, y, z, {ch, 1, opacity}); // -x
+          if (mask & 4)
+            propagateChannel(&sector, x, y, z, {ch, 2, opacity}); // +y
+          if (mask & 8)
+            propagateChannel(&sector, x, y, z, {ch, 3, opacity}); // -y
+          if (mask & 16)
+            propagateChannel(&sector, x, y, z, {ch, 4, opacity}); // +z
+          if (mask & 32)
+            propagateChannel(&sector, x, y, z, {ch, 5, opacity}); // -z
 
-  		} // isLight()
-    } // x, z, y
+    		} // isLight()
+      } // x, z
+    } // is light source(y)
 
   } // atmospheric flood
 

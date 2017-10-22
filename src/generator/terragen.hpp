@@ -33,6 +33,8 @@ namespace terragen
 
 			// allocate new block data to avoid a copy at the end
 			sblock.reset(new Sector::sectorblock_t);
+      // clear light bits, just to be sure
+      for (auto& bits : sblock->lights) bits = 0;
 			// create new flatland data, since it isnt allocated by default :(
 			flatl.assign(std::vector<Flatland::flatland_t> (BLOCKS_XZ*BLOCKS_XZ));
 		}
@@ -61,6 +63,7 @@ namespace terragen
 		{
 			return (*sblock)(x, y, z);
 		}
+    inline void setLight(int y) { sblock->setLight(y); }
 
     // schedule object for creation
     template <typename... Args>

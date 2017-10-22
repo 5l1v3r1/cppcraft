@@ -13,7 +13,7 @@ namespace cppcraft
 		for (int ch = 0; ch < Block::CHANNELS; ch++)
 		{
 			int V = block.getChannel(ch);
-			RGBA |= ((V << 4) | V) << (ch * 8);
+			RGBA |= (V * 17) << (ch * 8);
 		}
 		return RGBA;
 	}
@@ -25,7 +25,7 @@ namespace cppcraft
                                  int x4, int y4, int z4)
 	{
     auto& pcl = get_light(x1, y1, z1);
-    if (pcl) return pcl & 0xFF;
+    if (pcl) return pcl & 0xFFFF;
 
 		// TODO: calculate the actual light values...
 		Block* bl[4];
@@ -34,25 +34,36 @@ namespace cppcraft
 		bl[2] = &sector->get(x3, y3, z3);
 		bl[3] = &sector->get(x4, y4, z4);
 
-		uint8_t V = 0;
-    int total = 0;
-		for (int i = 0; i < 4; i++)
-		{
-      if (bl[i]->isTransparent()) {
-			     V += bl[i]->getChannel(0);
-           total++;
+    light_value_t final_light = 0;
+    for (int ch = 0; ch < Block::CHANNELS; ch++)
+    {
+  		uint8_t V = 0;
+      int total = 0;
+  		for (int i = 0; i < 4; i++)
+  		{
+        if (bl[i]->isTransparent()) {
+  			     V += bl[i]->getChannel(ch);
+             total++;
+        }
+  		}
+      if (total != 0)
+      {
+        if (ch == 0)
+        {
+          const float lv = (float) V / total;
+          float factor = 1.0f - std::min(y1 , WATERLEVEL) / (float) BLOCKS_Y;
+          float light = powf(0.88f, (15.0f - lv) * factor * factor);
+          final_light |= int(25 + 230.0f * light);
+        }
+        else
+        {
+          const float lv = (float) V / total;
+          final_light |= int(lv * 17) << (ch * 8);
+        }
       }
-		}
-    if (total != 0) {
-       const float lv = (float) V / total;
-       float factor = 1.0f - std::min(y1 , WATERLEVEL) / (float) BLOCKS_Y;
-       float light = powf(0.88f, (15.0f - lv) * factor * factor);
-       short final_light = 25 + 230.0f * light;
-       pcl = final_light | 0x100;
-       return final_light;
     }
-    pcl = 0x100;
-    return 0;
+    pcl = final_light | 0x10000;
+    return final_light;
 	}
 
 

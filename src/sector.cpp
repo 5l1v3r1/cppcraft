@@ -22,20 +22,6 @@ namespace cppcraft
 		return world.getWZ() + this->z;
 	}
 
-	int Sector::countLights()
-	{
-		if (hasBlocks() == false) throw std::string("Sector::countLights(): Sector had no blocks");
-
-		int lights = 0;
-		for (const Block& block : m_blocks->b)
-		{
-			if (block.isLight()) lights++;
-		}
-
-		m_blocks->lights = lights;
-		return lights;
-	}
-
 	float Sector::distanceTo(const Sector& sector, int bx, int bz) const
 	{
 		// centroidal

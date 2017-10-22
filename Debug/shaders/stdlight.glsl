@@ -11,7 +11,7 @@ float shadow = min(1.0, daylight * skylight + brightness);
 
 // corner shadows and dotlight
 float cornershad = smoothstep(0.0, 1.0, lightdata.b);
-cornershad = min(1.0, cornershad * worldLight + brightness * 0.125);
+cornershad = min(1.0, cornershad * worldLight + brightness * 0.1);
 
 // final shadow applied
 color.rgb *= cornershad * shadow;

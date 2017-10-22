@@ -181,6 +181,8 @@ namespace terragen
 
 						// TODO: use poisson disc here
 						float rand = randf(wx, y, wz);
+            if (rand >= 0.6 && rand <= 0.61)
+                  block.setID(db::getb("grass_random"));
 
 						/// terrain specific objects ///
             if (rand < 0.00005 && air > 40) {
@@ -232,6 +234,8 @@ namespace terragen
 				//if (block.isTransparent() == false)
 				if (groundLevel == 0)
 					   groundLevel = y+1;
+       // mark this Y-value as having a light source
+       if (block.isLight()) gdata->setLight(y);
 			}
 
 			// use skylevel to determine when we are below sky

@@ -1,10 +1,10 @@
 #include "spiders.hpp"
 
 #include <library/log.hpp>
+#include <common.hpp>
 #include "chunks.hpp"
 #include "lighting.hpp"
 #include "sectors.hpp"
-#include <assert.h>
 using namespace library;
 
 static int64_t total_blocks_placed = 0;
@@ -83,7 +83,11 @@ namespace cppcraft
 		// for lights, we will flood lighting outwards
 		if (UNLIKELY(blk.isLight()))
 		{
+      // mark light existing at by
+      s->getBlocks().setLight(by);
+      // set light source level for block
 			blk.setTorchLight(blk.getOpacity(0));
+      // start flooding
 			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1, blk.getTorchLight());
 		}
 

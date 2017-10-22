@@ -136,6 +136,34 @@ namespace terragen
 			solid.getSound = [] (const Block&) { return "grass"; };
 			db.assign("grass_block", solid);
 		}
+    // grass_random (green, snow, ...)
+		{
+			auto& solid = BlockData::createSolid();
+			solid.setColorIndex(Biomes::CL_GRASS);
+			solid.minimapColor =
+			[] (const Block& b, const Sector& s, int x, int, int z)
+			{
+				if (b.getBits() == 0)
+					return s.flat()(x, z).fcolor[Biomes::CL_GRASS];
+				else
+					return BGRA8(255, 255, 255, 255);
+			};
+			solid.getName = [] (const Block&) { return "Grass Block w/Flowers"; };
+      const short soil = tiledb.bigtiles("soil");
+      const short grass_top = tiledb.bigtiles("grass_random");
+      const short grass_side = tiledb.bigtiles("grass_side");
+      solid.useTextureFunction(
+			[soil, grass_top, grass_side] (const Block&, uint8_t face)
+			{
+				if (face == 2) return grass_top;
+        if (face != 3) return grass_side;
+				return soil; // bottom
+			});
+			solid.repeat_y = false;
+      solid.shader = RenderConst::TX_REPEAT;
+			solid.getSound = [] (const Block&) { return "grass"; };
+			db.assign("grass_random", solid);
+		}
 		// _SNOW
 		{
 			auto& solid = BlockData::createSolid();
@@ -222,7 +250,7 @@ namespace terragen
 			fluid.shader = RenderConst::TX_LAVA;
 			fluid.setBlock(false);
 			fluid.transparent = false;
-			fluid.setLightColor(6, 7, 3);
+			fluid.setLightColor(10, 7, 3);
 			db.assign("lava", fluid);
 		}
 

@@ -20,7 +20,7 @@ namespace cppcraft
     std::array<std::vector<vertex_t>, RenderConst::MAX_UNIQUE_SHADERS> vertices;
     // precomputed smooth light
     alignas(32)
-    std::array<short, (BLOCKS_XZ+2) * (BLOCKS_XZ+2) * BLOCKS_Y> light_info;
+    std::array<int, (BLOCKS_XZ+2) * (BLOCKS_XZ+2) * BLOCKS_Y> light_info;
 
     inline auto& get_light(int bx, int by, int bz)
 		{

@@ -7,6 +7,7 @@
       "soil": [2, 0],
       "grass_top": [0, 0],
       "grass_side": [0, 1],
+      "grass_random": [1, 2],
       "snow": [1, 0],
       "snow_side": [1, 1],
 

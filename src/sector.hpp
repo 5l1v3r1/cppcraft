@@ -32,10 +32,19 @@ namespace cppcraft
 			}
 
 			std::array<Block, BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y> b;
+      std::array<uint64_t, BLOCKS_Y / 64> lights;
 			short blocks = 0;
-			short lights = 0;
+      short highest_light_y = 0;
 			unsigned short nothing_yet = 0;
 			unsigned short checksum = 0;
+
+      inline void setLight(short y) noexcept {
+        lights.at(y / 64) |= 1 << (y % 64);
+        highest_light_y = std::max(highest_light_y, y);
+      }
+      inline bool getLight(int y) const noexcept {
+        return lights.at(y / 64) & (1 << (y % 64));
+      }
 		};
     static_assert(sizeof(sectorblock_t::b) == BLOCKS_XZ*BLOCKS_XZ*BLOCKS_Y* sizeof(Block),
                   "The sectorblock array must be the size of an entire sector");
@@ -85,10 +94,8 @@ namespace cppcraft
 		{
 			return m_blocks->blocks;
 		}
-		short lightCount() const noexcept
-		{
-			return m_blocks->lights;
-		}
+    bool hasLight(int y) const noexcept { return m_blocks->getLight(y); }
+    int getHighestLightPoint() const { return m_blocks->highest_light_y; }
 
 		// fill sector with air
 		void clear();
@@ -141,10 +148,6 @@ namespace cppcraft
 
 		// distance to another sector (in block units)
 		float distanceTo(const Sector& sector, int bx, int bz) const;
-
-		// torchlight related
-		// counts total lights in chunk AND returns that count
-		int countLights();
 
 		sectorblock_t& getBlocks()
 		{
