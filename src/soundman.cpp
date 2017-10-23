@@ -127,6 +127,7 @@ namespace cppcraft
 		{
 			// create filename
 			const std::string filename = path + std::to_string(i + 1) + ".ogg";
+      //printf("mat %s -> %s\n", name.c_str(), filename.c_str());
 			create_sound(name + std::to_string(i), filename);
 		}
 	}
