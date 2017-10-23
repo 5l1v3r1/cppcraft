@@ -2,6 +2,7 @@
 
 #include <library/log.hpp>
 #include <library/math/vector.hpp>
+#include <library/timing/timer.hpp>
 #include <glm/glm.hpp>
 #include "gameconf.hpp"
 #include "player.hpp"
@@ -9,12 +10,10 @@
 #include "sound/system.hpp"
 #include "generator/terrain/terrains.hpp"
 #include "worldmanager.hpp"
-#include <sstream>
 
 using namespace glm;
 using namespace sound;
 using namespace library;
-static const bool DISABLE_SOUND = true;
 
 namespace cppcraft
 {
@@ -22,10 +21,10 @@ namespace cppcraft
 
 	void Soundman::init()
 	{
-    if (DISABLE_SOUND) return;
     static const float DISTANCEFACTOR = 1.0f;
 		logger << Log::INFO << "* Initializing sound system" << Log::ENDL;
 
+    Timer timer;
     FMOD_RESULT result = FMOD::System_Create(&system);
     SND_CHECK(result);
 
@@ -34,7 +33,7 @@ namespace cppcraft
     SND_CHECK(result);
     assert (version >= FMOD_VERSION && "Header version vs library version mismatch");
 
-    result = system->init(100, FMOD_INIT_NORMAL, nullptr);
+    result = system->init(32, FMOD_INIT_NORMAL, nullptr);
     SND_CHECK(result);
     result = system->set3DSettings(1.0, DISTANCEFACTOR, 1.0f);
     SND_CHECK(result);
@@ -44,29 +43,25 @@ namespace cppcraft
 		// load music & ambience
 		musicPlaylist();
 
-		logger << Log::INFO << "* Sound system initialized" << Log::ENDL;
+		logger << Log::INFO << "* Sound system initialized (" << timer.getTime() << " secs)" << Log::ENDL;
 	}
 
 	void Soundman::playSound(const std::string& name, vec3 v)
 	{
-    if (DISABLE_SOUND) return;
     this->playSound(name);
 	}
 	void Soundman::playSound(const std::string& name)
 	{
-    if (DISABLE_SOUND) return;
     auto& sound = this->sounds.at(name);
     system->playSound(sound.get(), 0, false, nullptr);
 	}
   void Soundman::playMaterial(const std::string& name, int num)
 	{
-    if (DISABLE_SOUND) return;
     auto& sound = this->sounds.at(name + std::to_string(num));
     system->playSound(sound.get(), 0, false, nullptr);
 	}
 	void Soundman::playMaterial(const std::string& name, int num, vec3 v)
 	{
-    if (DISABLE_SOUND) return;
     const FMOD_VECTOR pos {  v.x,  v.y,  v.z };
     const FMOD_VECTOR vel { 0.0f, 0.0f, 0.0f };
 
@@ -84,10 +79,10 @@ namespace cppcraft
 		for (int i = 0; i < SOUNDS_PER_MAT; i++)
 		{
 			// create filename
-			std::stringstream ss;
-			ss << "sound/materials/" << basename << (i + 1) << ".ogg";
+			const std::string filename =
+			     "sound/materials/" + basename + std::to_string(i + 1) + ".ogg";
 
-			create_sound(basename + std::to_string(i), ss.str());
+			create_sound(basename + std::to_string(i), filename);
 		}
 	}
 
@@ -112,8 +107,6 @@ namespace cppcraft
 		create_sound("click_start", "sound/click_start.mp3");
 		create_sound("click_end", "sound/click_end.mp3");
 
-		create_sound("water", "sound/liquid/water.ogg");
-		create_sound("lava", "sound/liquid/lava.ogg");
 		create_sound("lavapop", "sound/liquid/lavapop.ogg");
 
 		loadMaterialSound("cloth");
@@ -135,6 +128,10 @@ namespace cppcraft
 
 	void Soundman::musicPlaylist()
 	{
+    // looping ambience
+    create_stream("water", "sound/liquid/water.ogg");
+		create_stream("lava", "sound/liquid/lava.ogg");
+
 		// background music streams
 		create_stream("autumn", "music/ANW1402_09_Exodus.mp3");
 		create_stream("desert", "music/ANW1401_03_Call-to-Beroea.mp3");
@@ -158,7 +155,6 @@ namespace cppcraft
 	// returns the id of a random song in the playlist
 	void Soundman::sound_processing()
 	{
-    if (DISABLE_SOUND) return;
     const glm::vec3 forw = library::lookVector(player.rot);
     const glm::vec3 right = glm::normalize(glm::cross(forw, glm::vec3(0.0f, 1.0f, 0.0f)));
     const glm::vec3 upv  = glm::cross(right, forw);

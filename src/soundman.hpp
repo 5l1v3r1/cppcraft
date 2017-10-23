@@ -19,19 +19,18 @@ namespace cppcraft
 		static const int sound_remove = 3;
 
 		// single sounds
-		void playSound(const std::string&, glm::vec3 distance);
+		void playSound(const std::string&, glm::vec3 pos);
 		void playSound(const std::string&);
 		// material sounds, sets of SOUNDS_PER_MAT (4)
-		void playMaterial(const std::string& sound, int num, glm::vec3 distance);
+		void playMaterial(const std::string& sound, int num, glm::vec3 pos);
 		void playMaterial(const std::string& sound, int num);
+
+    void create_sound(const std::string& name, const std::string& file);
+    void create_stream(const std::string& name, const std::string& file);
 
 		void sound_processing();
 
 	private:
-		static const int MAX_SAMPLES = 4;
-    void create_sound(const std::string& name, const std::string& file);
-    void create_stream(const std::string& name, const std::string& file);
-
 		void soundPlaylist();
     void musicPlaylist();
 
