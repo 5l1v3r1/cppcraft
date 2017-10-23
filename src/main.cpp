@@ -8,6 +8,7 @@
 
 #include <library/config.hpp>
 #include <library/log.hpp>
+#include "game.hpp"
 #include "gameconf.hpp"
 #include "generator.hpp"
 #include "renderman.hpp"
@@ -36,6 +37,8 @@ int main(int argc, char* argv[])
 	// start logging to file
 	//logger.open(logFile);
 	logger << Log::INFO << "Starting up..." << Log::ENDL;
+  // std is a default mod
+  game.add_mod("std");
 
 	std::string wfolder = "";
 	if (argc > 1)

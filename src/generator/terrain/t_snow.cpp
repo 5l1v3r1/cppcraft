@@ -6,7 +6,7 @@
 #include "../blocks.hpp"
 #include "../random.hpp"
 #include "../biomegen/biome.hpp"
-#include "../processing/postproc.hpp"
+#include "../postproc.hpp"
 #include <glm/gtc/noise.hpp>
 #include <library/bitmap/colortools.hpp>
 #include <library/math/toolbox.hpp>

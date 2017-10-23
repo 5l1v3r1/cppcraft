@@ -2,7 +2,7 @@
 
 #include "terrain/terrain.hpp"
 #include "terrain/terrains.hpp"
-#include "processing/postproc.hpp"
+#include "postproc.hpp"
 #include <cstdio>
 #include <cassert>
 

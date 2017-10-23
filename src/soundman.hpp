@@ -13,6 +13,7 @@ namespace cppcraft
 	public:
 		void init();
 
+    static constexpr int SOUNDS_PER_MAT = 4;
 		static const int sound_place = 0;
 		static const int sound_land  = 1;
 		static const int sound_mine  = 2;
@@ -31,10 +32,7 @@ namespace cppcraft
 		void sound_processing();
 
 	private:
-		void soundPlaylist();
-    void musicPlaylist();
-
-    void loadMaterialSound(const std::string&);
+    void create_material(std::string name, std::string path);
 		static std::string blockToMaterial(int id);
 
 		std::map<std::string, sound::Sound> sounds;

@@ -1,6 +1,7 @@
 #include "tiles.hpp"
 
 #include <library/log.hpp>
+#include "game.hpp"
 #include "gameconf.hpp"
 #include <common.hpp>
 #include <rapidjson/document.h>
@@ -42,25 +43,28 @@ namespace cppcraft
 		// players
 		this->skinSize = config.get("players.size", 32);
 
-    // load and apply the init.json for each mod folder
-    std::ifstream file("mod/std/tiles.json");
-    const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    rapidjson::Document doc;
-    doc.Parse(str.c_str());
+    // load and apply the tiles JSON for each mod
+    for (const auto& mod : game.mods())
+    {
+      std::ifstream file(mod.modpath() + "/tiles.json");
+      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+      rapidjson::Document doc;
+      doc.Parse(str.c_str());
 
-    CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
-    if (doc.HasMember("tiles"))
-    {
-      auto& tiles_obj = doc["tiles"];
-      parse_tile_database(tiledb.tiles, tiles_obj);
-      printf("* Loaded %zu tiles\n", tiledb.tiles.size());
+      CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
+      if (doc.HasMember("tiles"))
+      {
+        auto& tiles_obj = doc["tiles"];
+        parse_tile_database(tiledb.tiles, tiles_obj);
+      }
+      if (doc.HasMember("bigtiles"))
+      {
+        auto& bigtiles_obj = doc["bigtiles"];
+        parse_tile_database(tiledb.bigtiles, bigtiles_obj);
+      }
     }
-    if (doc.HasMember("bigtiles"))
-    {
-      auto& bigtiles_obj = doc["bigtiles"];
-      parse_tile_database(tiledb.bigtiles, bigtiles_obj);
-      printf("* Loaded %zu big tiles\n", tiledb.bigtiles.size());
-    }
+    printf("* Loaded %zu tiles\n", tiledb.tiles.size());
+    printf("* Loaded %zu big tiles\n", tiledb.bigtiles.size());
 
     // free some memory
     this->unload_temp_store();

@@ -3,7 +3,7 @@
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "../random.hpp"
-#include "../processing/postproc.hpp"
+#include "../postproc.hpp"
 #include "helpers.hpp"
 #include "terrains.hpp"
 #include <library/bitmap/colortools.hpp>

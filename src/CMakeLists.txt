@@ -41,8 +41,8 @@ set(SUB_SOURCES
     generator/objects/jungle_tree.cpp
     generator/objects/mushrooms.cpp
     generator/objects/volumetrics.cpp
-    generator/processing/oregen.cpp
-    generator/processing/postproc.cpp
+    generator/oregen.cpp
+    generator/postproc.cpp
     generator/terragen.cpp
     generator/terragen_objects.cpp
     generator/terrain/helpers.cpp
@@ -69,6 +69,7 @@ set(SUB_SOURCES
     meshes/vemitcross.cpp
     meshes/vemitter.cpp
     minimap.cpp
+    modification.cpp
     netplayer.cpp
     netplayers.cpp
     particles.cpp

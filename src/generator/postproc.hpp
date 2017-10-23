@@ -1,5 +1,5 @@
 #pragma once
-#include "../random.hpp"
+#include "random.hpp"
 
 namespace terragen
 {
@@ -12,11 +12,6 @@ namespace terragen
 		static const int STONE_CONV_OVERW = 4;
 		// how much soil we need for stone conversion
 		static const int STONE_CONV_UNDER = 8;
-
-    struct process_helper
-    {
-      
-    };
 
 		static void init();
 		static void run(gendata_t* gdata);

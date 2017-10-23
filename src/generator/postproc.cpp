@@ -1,8 +1,8 @@
 #include "postproc.hpp"
 
-#include "../terragen.hpp"
-#include "../blocks.hpp"
-#include "../terrain/terrains.hpp"
+#include "terragen.hpp"
+#include "blocks.hpp"
+#include "terrain/terrains.hpp"
 #include "oregen.hpp"
 #include <library/noise/voronoi.hpp>
 #include <glm/gtc/noise.hpp>

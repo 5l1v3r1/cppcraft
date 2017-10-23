@@ -3,14 +3,21 @@
 3. Musikk per område, musikk i caves
 4.
 
+Implement post-processing in Lua
+- [x] Move most of the generic stuff to post-processing in C++
+- Make the post-processing callback a Lua function
+- Create Lua script wrapper
+- Load a Lua script, which again loads the rest (?)
+
 Implement configuration via JSON
-- Add JSON git submodule
-- Read JSON config file
+- [x] Add JSON git submodule
+- [x] Read JSON config file
 - Provide API to terrains (and other things)
 
 Fix issues with atmospheric voxel lighting
 - More tests
-- Pass sector around in lighting algos to improve performance
+- [x] Pass sector around in lighting algos to improve performance
+- Re-enable torchlight fill, test with lava
 
 Implement connected textures
 - [x] Make optional
@@ -36,9 +43,8 @@ World simulation
 - Rivers using flow
 - Generate rivers naturally
 
-Custom shaders for mods
-- Rewrite shaders to be a little more variable-length
-- Add custom shader for a block (eg. fresh water)
 
-Implement adding tiles from mods
-- Add to end of one of the tilesheets before uploading to GPU
+
+Perf:
+- It's possible that disabling atmospherics until at least a 3x3 is complete
+  will result in better performance overall (including objects)

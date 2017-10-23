@@ -1,6 +1,6 @@
 #pragma once
-#include "../terragen.hpp"
-#include "../../block.hpp"
+#include "terragen.hpp"
+#include <block.hpp>
 #include <vector>
 
 namespace terragen

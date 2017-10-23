@@ -17,8 +17,15 @@ namespace sound
       return sound;
     }
 
+    bool is_ready() const noexcept {
+      if (this->ready) return true;
+      return check_ready();
+    }
+    bool check_ready() const noexcept;
+
 	private:
     FMOD::Sound* sound = nullptr;
+    mutable bool ready = false;
     std::string  filename;
 	};
 

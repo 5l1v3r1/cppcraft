@@ -1,6 +1,7 @@
-#include "../terragen.hpp"
-#include "../blocks.hpp"
-#include "../random.hpp"
+#include "terragen.hpp"
+#include "blocks.hpp"
+#include "random.hpp"
+#include <game.hpp>
 #include <library/log.hpp>
 #include <rapidjson/document.h>
 
@@ -12,29 +13,32 @@ namespace terragen
 
 	void OreGen::init()
 	{
-    // load and apply the init.json for each mod folder
-    std::ifstream file("mod/std/ores.json");
-    const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    rapidjson::Document doc;
-    doc.Parse(str.c_str());
-    CC_ASSERT(doc.IsObject(), "Oregen JSON must be valid");
-
-    if (doc.HasMember("deposits"))
+    // load and apply the oregen JSON for each mod
+    for (const auto& mod : cppcraft::game.mods())
     {
-      auto& data = doc["deposits"];
-      for (auto itr = data.MemberBegin(); itr != data.MemberEnd(); ++itr)
+      std::ifstream file(mod.modpath() + "/ores.json");
+      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+      rapidjson::Document doc;
+      doc.Parse(str.c_str());
+      CC_ASSERT(doc.IsObject(), "Oregen JSON must be valid");
+
+      if (doc.HasMember("deposits"))
       {
-        CC_ASSERT(itr->value.IsObject(), "Ore deposit must be JSON object");
-        const auto v = itr->value.GetObject();
-        const int MAX_HEIGHT = v["max_height"].GetInt();
-        const int CL_MIN = v["min_cluster"].GetInt();
-        const int CL_MAX = v["max_cluster"].GetInt();
-        const int COUNT  = v["count"].GetInt();
-        // add to ore database
-        OreGen::add({db::getb(itr->name.GetString()),
-                    MAX_HEIGHT, CL_MIN, CL_MAX, COUNT});
+        auto& data = doc["deposits"];
+        for (auto itr = data.MemberBegin(); itr != data.MemberEnd(); ++itr)
+        {
+          CC_ASSERT(itr->value.IsObject(), "Ore deposit must be JSON object");
+          const auto v = itr->value.GetObject();
+          const int MAX_HEIGHT = v["max_height"].GetInt();
+          const int CL_MIN = v["min_cluster"].GetInt();
+          const int CL_MAX = v["max_cluster"].GetInt();
+          const int COUNT  = v["count"].GetInt();
+          // add to ore database
+          OreGen::add({db::getb(itr->name.GetString()),
+                      MAX_HEIGHT, CL_MIN, CL_MAX, COUNT});
+        }
       }
-    }
+    } // mod
     logger << "* OreGen loaded " << OreGen::size() << " ores" << Log::ENDL;
 	}
 
