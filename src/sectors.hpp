@@ -71,6 +71,14 @@ namespace cppcraft
 			s->x = x;
 			s->z = z;
 		}
+    inline void move(int x, int z, Sector* sector)
+		{
+			Sector*& s = getSectorRef(x, z);
+			// move to new position
+			s = sector;
+			s->x = x;
+			s->z = z;
+		}
 
 		// 3d and 2d data containers
 		std::vector<Sector*> sectors;

@@ -68,6 +68,8 @@ namespace cppcraft
       }
       // set new skylevel?
       s->flat()(bx, bz).skyLevel = by+1;
+      // update minimap since top-level changed
+      minimap.sched(*s);
 		}
 		else
 		{
@@ -98,8 +100,6 @@ namespace cppcraft
 		s->updateMeshesAt(by);
 		// update nearby sectors only if we are at certain edges
 		updateSurroundings(*s, bx, by, bz);
-    // delay-update minimap
-    minimap.sched(*s);
 		return true;
 	}
 
@@ -124,6 +124,8 @@ namespace cppcraft
 		if (by >= skylevel-1)
 		{
 			Lighting::skyrayDownwards(*s, bx, by, bz);
+      // update minimap since top-level changed
+      minimap.sched(*s);
 		}
     else if (block.isTransparent() == false) {
       // try to flood this new fancy empty space with light
@@ -144,8 +146,6 @@ namespace cppcraft
 		s->updateAllMeshes();
 		// update neighboring sectors (depending on edges)
 		updateSurroundings(*s, bx, by, bz);
-    // delay-update minimap
-    minimap.sched(*s);
 		// return COPY of block
 		return block;
 	}

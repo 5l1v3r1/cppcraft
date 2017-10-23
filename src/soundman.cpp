@@ -14,7 +14,7 @@
 using namespace glm;
 using namespace sound;
 using namespace library;
-
+static const bool DISABLE_SOUND = true;
 
 namespace cppcraft
 {
@@ -22,6 +22,7 @@ namespace cppcraft
 
 	void Soundman::init()
 	{
+    if (DISABLE_SOUND) return;
     static const float DISTANCEFACTOR = 1.0f;
 		logger << Log::INFO << "* Initializing sound system" << Log::ENDL;
 
@@ -48,20 +49,24 @@ namespace cppcraft
 
 	void Soundman::playSound(const std::string& name, vec3 v)
 	{
+    if (DISABLE_SOUND) return;
     this->playSound(name);
 	}
 	void Soundman::playSound(const std::string& name)
 	{
+    if (DISABLE_SOUND) return;
     auto& sound = this->sounds.at(name);
     system->playSound(sound.get(), 0, false, nullptr);
 	}
   void Soundman::playMaterial(const std::string& name, int num)
 	{
+    if (DISABLE_SOUND) return;
     auto& sound = this->sounds.at(name + std::to_string(num));
     system->playSound(sound.get(), 0, false, nullptr);
 	}
 	void Soundman::playMaterial(const std::string& name, int num, vec3 v)
 	{
+    if (DISABLE_SOUND) return;
     const FMOD_VECTOR pos {  v.x,  v.y,  v.z };
     const FMOD_VECTOR vel { 0.0f, 0.0f, 0.0f };
 
@@ -153,6 +158,7 @@ namespace cppcraft
 	// returns the id of a random song in the playlist
 	void Soundman::sound_processing()
 	{
+    if (DISABLE_SOUND) return;
     const glm::vec3 forw = library::lookVector(player.rot);
     const glm::vec3 right = glm::normalize(glm::cross(forw, glm::vec3(0.0f, 1.0f, 0.0f)));
     const glm::vec3 upv  = glm::cross(right, forw);

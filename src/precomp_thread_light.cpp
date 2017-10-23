@@ -18,7 +18,6 @@ namespace cppcraft
 		return RGBA;
 	}
 
-  __attribute__((optimize("unroll-loops")))
 	light_value_t PTD::smoothLight(int x1, int y1, int z1,
                                  int x2, int y2, int z2,
                                  int x3, int y3, int z3,
@@ -41,9 +40,15 @@ namespace cppcraft
       int total = 0;
   		for (int i = 0; i < 4; i++)
   		{
-        if (bl[i]->isTransparent()) {
+        if (ch == 0) {
+          if (bl[i]->isTransparent()) {
   			     V += bl[i]->getChannel(ch);
              total++;
+          }
+        }
+        else if (bl[i]->isTransparent() || bl[i]->isLight()) {
+            V += bl[i]->getChannel(ch);
+            total++;
         }
   		}
       if (total != 0)

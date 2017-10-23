@@ -87,7 +87,9 @@ namespace cppcraft
 						#endif
 						return false;
 					}
-					return true;
+          // we also only accept sectors with no objects left to generate
+					return (sect.objects == 0);
+          //return true;
 				});
 				if (atmos == false)
 					break;

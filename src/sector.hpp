@@ -201,6 +201,7 @@ namespace cppcraft
 		// 2d data (just a container!)
 		Flatland m_flat;
 
+    friend class Sectors;
 		friend class Seamstress;
 		friend class Compressor;
 	public:
@@ -215,6 +216,7 @@ namespace cppcraft
 		// we flooded this with light, or it needs flooding if the player looks at it?
 		bool atmospherics = false;
 
+  private:
 		// grid position
 		int x, z;
 	};
