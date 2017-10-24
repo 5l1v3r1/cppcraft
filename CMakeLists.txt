@@ -45,11 +45,12 @@ include_directories(inc/glm)
 include_directories(inc/LuaBridge/Source/LuaBridge)
 include_directories(inc/rapidjson/include)
 include_directories(library/include)
-include_directories(network/tacopie/includes)
+include_directories(ext/tacopie/includes)
+include_directories(ext/nanogui/include)
 
 add_subdirectory(library)
-add_subdirectory(network)
 add_subdirectory(src)
+add_subdirectory(ext)
 
 ### linker stage ###
 
@@ -76,7 +77,7 @@ if (UNIX)
   set_target_properties(fmod PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Debug/libfmod.so.10.0)
 
   target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie libGLEW.a GL fmod ${SDL2_LIBS} ${LUA_LIBS})
+  target_link_libraries(cppcraft library tacopie nanogui libGLEW.a GL fmod ${SDL2_LIBS} ${LUA_LIBS})
   if (GPERF)
     target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)
   endif()

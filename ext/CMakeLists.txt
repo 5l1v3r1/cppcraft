@@ -1,4 +1,4 @@
-
+### NETWORK
 set(TACO_SOURCES
   tacopie/sources/network/tcp_server.cpp
   tacopie/sources/network/unix/unix_tcp_socket.cpp
@@ -15,3 +15,11 @@ set(TACO_SOURCES
 
 add_library(tacopie ${TACO_SOURCES})
 target_include_directories(tacopie PUBLIC tacopie/includes)
+
+### GUI
+option(NANOGUI_BUILD_EXAMPLE "" OFF)
+option(NANOGUI_BUILD_SHARED "" OFF)
+option(NANOGUI_BUILD_PYTHON "" OFF)
+option(NANOGUI_INSTALL "" OFF)
+
+add_subdirectory(nanogui)
