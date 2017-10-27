@@ -3,7 +3,7 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include <deque>
 
 namespace db
 {
@@ -37,7 +37,7 @@ namespace db
       names.emplace(std::piecewise_construct,
           std::forward_as_tuple(name), std::forward_as_tuple(bd.getID()));
     }
-		std::size_t size() const
+		std::size_t size() const noexcept
 		{
 			return names.size();
 		}
@@ -61,7 +61,7 @@ namespace db
 
 		// vector of registered blocks
 		// the ID of a block is its index into this vector
-		std::vector<BlockData> blocks;
+		std::deque<BlockData> blocks;
 	};
 
 	inline int getb(const char* name)

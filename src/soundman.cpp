@@ -97,12 +97,18 @@ namespace cppcraft
     const FMOD_VECTOR pos {  v.x,  v.y,  v.z };
     const FMOD_VECTOR vel { 0.0f, 0.0f, 0.0f };
 
-    auto& sound = this->sounds.at(name);
-    if (sound.is_ready()) {
-      FMOD::Channel* chan;
-      system->playSound(sound.get(), 0, false, &chan);
-      chan->set3DAttributes(&pos, &vel);
+    auto it = this->sounds.find(name);
+    if (it != this->sounds.end())
+    {
+      auto& sound = it->second;
+      if (sound.is_ready()) {
+        FMOD::Channel* chan;
+        system->playSound(sound.get(), 0, false, &chan);
+        chan->set3DAttributes(&pos, &vel);
+      }
+      return;
     }
+    printf("Could not find sound: %s\n", name.c_str());
 	}
 	void Soundman::playSound(const std::string& name)
 	{

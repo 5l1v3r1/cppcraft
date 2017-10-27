@@ -46,8 +46,8 @@ namespace terragen
 
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
-    const block_t snow_id  = db::getb("snow_block");
-    const block_t ice_id   = db::getb("ice_block");
+    const block_t snow_id  = db::getb("snow");
+    const block_t ice_id   = db::getb("ice");
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 

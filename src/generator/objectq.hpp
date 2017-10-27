@@ -2,7 +2,7 @@
 
 #include "object.hpp"
 #include <list>
-#include <stdio.h>
+#include <vector>
 
 namespace terragen
 {

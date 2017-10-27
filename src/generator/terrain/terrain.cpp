@@ -312,6 +312,7 @@ float noise11 = mix( cave_array[bx+1][bz+1][iy], cave_array[bx+1][bz+1][iy+1], f
 							caves = mix( w0, w1, frz );
 							// caves density //
 						}
+            // calculate and set basic type
 						block[y] = getBlock(y / float(BLOCKS_Y), beach, density, caves);
 					}
 					else

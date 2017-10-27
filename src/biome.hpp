@@ -7,7 +7,7 @@ namespace cppcraft
 {
 	class Biomes {
 	public:
-		typedef uint32_t biomecolor_t;
+		typedef uint32_t color_t;
 
 		// biome color ids
 		enum biome_color_t
@@ -27,8 +27,8 @@ namespace cppcraft
 		static int idToColorIndex(unsigned short id);
 
 		// returns a 32-bit color from a fixed set of 16 colors
-		static biomecolor_t getSpecialColorRGBA(int clid);
-		static biomecolor_t getSpecialColorBGRA(int clid);
+		static color_t getSpecialColorRGBA(int clid);
+		static color_t getSpecialColorBGRA(int clid);
 	};
 }
 

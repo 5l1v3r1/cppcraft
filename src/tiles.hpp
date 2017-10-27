@@ -19,7 +19,10 @@ namespace cppcraft
     int tilesize() const noexcept { return m_tile_size; }
     // convert name to tile ID
     short operator() (const std::string& name) const {
-      return namedb.at(name);
+      auto it = namedb.find(name);
+      if (it != namedb.end()) return it->second;
+      printf("Missing tile: %s\n", name.c_str());
+      return 0;
     }
     void assign(std::string name, short id);
 

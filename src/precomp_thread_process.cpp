@@ -19,14 +19,15 @@ namespace cppcraft
 			this->shader = block.db().shader;
 			this->repeat_y = block.db().repeat_y;
 			// get pointer, increase it by existing vertices
+      //CC_ASSERT(shader >= 0 && shader < vertices.size(), "Invalid shader index");
 			size_t start = vertices[shader].size();
 			// emit vertices
 			block.db().emit(*this, bx, by, bz, sides);
 
 			// vertex position in 16bits
-			short vx = bx << RenderConst::VERTEX_SHL;
-			short vy = by << RenderConst::VERTEX_SHL;
-			short vz = bz << RenderConst::VERTEX_SHL;
+			const short vx = bx << RenderConst::VERTEX_SHL;
+			const short vy = by << RenderConst::VERTEX_SHL;
+			const short vz = bz << RenderConst::VERTEX_SHL;
 
 			// move mesh object to local grid space
 			for (auto it = vertices[shader].begin() + start; it != vertices[shader].end(); ++it)

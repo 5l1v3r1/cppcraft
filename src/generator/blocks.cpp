@@ -2,10 +2,13 @@
 
 #include "biomegen/biome.hpp"
 #include "../db/blockdata.hpp"
+#include "../game.hpp"
 #include "../renderconst.hpp"
 #include "../sector.hpp"
 #include "../tiles.hpp"
 #include <library/bitmap/colortools.hpp>
+#include <rapidjson/document.h>
+#include <fstream>
 #include <cassert>
 
 using namespace library;
@@ -21,86 +24,172 @@ namespace terragen
 	using cppcraft::tiledb;
 	using cppcraft::RenderConst;
 
-	static int getDepth(const Sector& sect, int x, int y, int z)
+	static inline int getDepth(const Block* blk, const int MAX_Y)
 	{
-		int depth = 0;
-		for (;y > 0; y--)
-		{
-			const Block& b = sect(x, y, z);
-
-			if (!b.isFluid()) return depth;
-			depth++;
-		}
-		return depth;
+		for (int y = MAX_Y;y > 0; y--) if (!blk[y].isFluid()) return MAX_Y - y;
+		return 1;
 	}
+
+  static db::BlockData&
+  create_from_type(const std::string& name, const std::string& type)
+  {
+    if (type == "solid") return BlockData::createSolid(name);
+    if (type == "fluid") return BlockData::createFluid(name);
+    if (type == "leaf") return BlockData::createLeaf(name);
+    if (type == "cross") return BlockData::createCross(name);
+    throw std::out_of_range("Not acceptable JSON block type " + type + " for block " + name);
+  }
+  static uint32_t color_index_from(const std::string& type)
+  {
+    if (type == "stone")  return Biomes::CL_STONE;
+    if (type == "soil")   return Biomes::CL_SOIL;
+    if (type == "gravel") return Biomes::CL_GRAVEL;
+    if (type == "sand")   return Biomes::CL_SAND;
+    if (type == "grass")  return Biomes::CL_GRASS;
+    if (type == "trees_a") return Biomes::CL_TREES_A;
+    if (type == "trees_b") return Biomes::CL_TREES_B;
+    if (type == "water")  return Biomes::CL_WATER;
+    throw std::out_of_range("Not acceptable color index type: " + type);
+  }
+  static uint32_t color_index_from(const rapidjson::Value& obj)
+  {
+    if (obj.IsArray()) {
+      return BGRA8(obj[0].GetInt(), obj[1].GetInt(), obj[2].GetInt(), obj[3].GetInt());
+    }
+    return color_index_from(obj.GetString());
+  }
+
+  static void
+  parse_block(const std::string name, const rapidjson::Value& v)
+  {
+    // type must be specified
+    CC_ASSERT(v.HasMember("type"), "Blocks must have the 'type' field");
+    auto& block = create_from_type(name, v["type"].GetString());
+    // name
+    std::string m_name(v["name"].GetString());
+    block.getName =
+    BlockData::name_func_t::make_packed(
+      [m_name] (const Block&) {
+        return m_name;
+      });
+    // color
+    if (v.HasMember("color")) {
+      uint32_t color = color_index_from(v["color"]);
+      if (color < 256) block.setColorIndex(color);
+      else block.getColor = [color] (const Block&) { return color; };
+    }
+    // minimap
+    if (v.HasMember("minimap")) {
+      uint32_t color = color_index_from(v["minimap"]);
+      block.setMinimapColor(color);
+    }
+    // tile
+    if (v.HasMember("tile"))
+    {
+      auto& tile = v["tile"];
+      CC_ASSERT(tile.IsArray(), "JSON tile field can only contain array");
+      // tile type and ID
+      const std::string type = tile[0].GetString();
+      const std::string id = tile[1].GetString();
+      //
+      if (type == "tiles")
+      {
+        bool is_connected = false;
+        // subtype check
+        if (tile.Size() == 3) {
+          const std::string attr = tile[2].GetString();
+          if (attr == "connected") {
+            // gather tiles
+            int tile_ids[10];
+            tile_ids[0] = tiledb.tiles(id);
+            for (int i = 1; i < 10; i++) {
+              tile_ids[i] = tiledb.tiles(id + "_" + std::to_string(i));
+            }
+            // create basic CT function
+            block.useConnectedTexture(
+              BlockData::conntex_func_t::make_packed(
+              [tile_ids] (const connected_textures_t& ct, uint8_t face) -> short
+              {
+                // TODO: write me
+                return 0;
+              }));
+            is_connected = true;
+          } else {
+            throw std::out_of_range("Not acceptable tiling attribute: " + attr);
+          }
+        }
+        // regular tiles
+        if (is_connected == false)
+        {
+          block.useTileID(tiledb.tiles(id));
+        }
+      } // tiles
+      else if (type == "big")
+      {
+        block.repeat_y = false;
+        if (tile.Size() == 3) {
+          const std::string attr = tile[2].GetString();
+          // repeating tiles
+          if (attr == "repeat") {
+            block.repeat_y = true;
+          } else {
+            throw std::out_of_range("Not acceptable tiling attribute: " + attr);
+          }
+        } // attr
+        block.useTileID(tiledb.bigtiles(id));
+        block.shader = cppcraft::RenderConst::TX_REPEAT;
+      }
+    }
+    // sound
+    if (v.HasMember("sound")) {
+      const std::string sound = v["sound"].GetString();
+      block.getSound =
+      BlockData::sound_func_t::make_packed(
+        [sound] (const Block&) { return sound;
+      });
+    }
+    // light emission value
+    if (v.HasMember("light")) {
+      block.setLightColor(v["light"].GetInt(), 0, 0);
+    }
+  }
 
 	void init_blocks()
 	{
-		auto& db = db::BlockDB::get();
-		// create some solid block
+		auto& db = BlockDB::get();
 
-		// create _BEDROCK
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_STONE);
-			solid.setMinimapColor(RGBA8(48, 48, 48, 255));
-			solid.getName = [] (const Block&) { return "Bedrock"; };
-			solid.useTileID(tiledb.tiles("bedrock"));
-			solid.getSound = [] (const Block&) { return "stone"; };
-			db.assign("bedrock", solid);
-		}
-		// create _STONE
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_STONE);
-			solid.setMinimapColor(RGBA8(68, 62, 62, 255));
-			solid.getName = [] (const Block&) { return "Stone"; };
-      solid.useTileID(tiledb.bigtiles("stone"));
-			solid.getSound = [] (const Block&) { return "stone"; };
-      solid.shader = RenderConst::TX_REPEAT;
-			db.assign("stone", solid);
-		}
-		// create _ORE_COAL
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_STONE);
-			solid.setMinimapColor(RGBA8(68, 62, 62, 255));
-			solid.getName = [] (const Block&) { return "Coal Ore"; };
-      solid.useTileID(tiledb.tiles("ore_coal"));
-			solid.getSound = [] (const Block&) { return "stone"; };
-			db.assign("ore_coal", solid);
-		}
-		// create _ORE_IRON
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_STONE);
-			solid.setMinimapColor(RGBA8(68, 62, 62, 255));
-			solid.getName = [] (const Block&) { return "Iron Ore"; };
-      solid.useTileID(tiledb.tiles("ore_iron"));
-			solid.getSound = [] (const Block&) { return "stone"; };
-			db.assign("ore_iron", solid);
-		}
-		// create _MOLTEN stones
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_STONE);
-      solid.setMinimapColor(Biomes::CL_STONE);
-			solid.getName = [] (const Block&) { return "Molten Stone"; };
-      solid.useTileID(tiledb.tiles("molten"));
-			solid.getSound = [] (const Block&) { return "stone"; };
-			db.assign("molten_stone", solid);
-		}
-		// create _SOIL
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_GRASS);
-			solid.setMinimapColor(RGBA8(97, 57, 14, 255));
-			solid.getName = [] (const Block&) { return "Dirt"; };
-      solid.useTileID(tiledb.bigtiles("soil"));
-      solid.shader = RenderConst::TX_REPEAT;
-			solid.getSound = [] (const Block&) { return "grass"; };
-			db.assign("soil_block", solid);
-		}
+    // load and apply the tiles JSON for each mod
+    for (const auto& mod : cppcraft::game.mods())
+    {
+      std::ifstream file(mod.modpath() + "/blocks.json");
+      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+      rapidjson::Document doc;
+      doc.Parse(str.c_str());
+
+      CC_ASSERT(doc.IsObject(), "Blocks JSON must be valid");
+      if (doc.HasMember("blocks"))
+      {
+        auto& obj = doc["blocks"];
+        for (auto itr = obj.MemberBegin(); itr != obj.MemberEnd(); ++itr)
+        {
+          CC_ASSERT(itr->value.IsObject(), "Block must be JSON object");
+          const std::string name = itr->name.GetString();
+          const auto& v = itr->value.GetObject();
+
+          try
+          {
+            parse_block(name, v);
+          }
+          catch (std::exception& e)
+          {
+            printf("Error parsing block %s: %s\n", name.c_str(), e.what());
+            throw;
+          }
+        }
+      }
+    }
+    printf("* Loaded %zu blocks\n", db.size());
+
 		// _SOILGRASS (green, snow, ...)
 		{
 			auto& solid = BlockData::createSolid();
@@ -143,46 +232,6 @@ namespace terragen
 			solid.getSound = [] (const Block&) { return "grass"; };
 			db.assign("grass_random", solid);
 		}
-		// _SNOW
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setMinimapColor(RGBA8(255, 255, 255, 255));
-			solid.getName = [] (const Block&) { return "Snow Block"; };
-      solid.useTileID(tiledb.bigtiles("snow"));
-      solid.shader = RenderConst::TX_REPEAT;
-			solid.getSound = [] (const Block&) { return "snow"; };
-			db.assign("snow_block", solid);
-		}
-		// _ICECUBE
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setMinimapColor(RGBA8(80, 200, 250, 255));
-			solid.getName = [] (const Block&) { return "Ice Block"; };
-      solid.useTileID(tiledb.tiles("ice"));
-			solid.getSound = [] (const Block&) { return "stone"; };
-			db.assign("ice_block", solid);
-		}
-		// _BEACH (sand)
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setMinimapColor(RGBA8(220, 210, 174, 255));
-			solid.getName = [] (const Block&) { return "Sand"; };
-      solid.useTileID(tiledb.bigtiles("beach_sand"));
-      solid.shader = RenderConst::TX_REPEAT;
-			solid.getSound = [] (const Block&) { return "sand"; };
-			db.assign("beach", solid);
-		}
-		// _DESERT (sand)
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_SAND);
-			solid.setMinimapColor(RGBA8(220, 210, 174, 255));
-			solid.getName = [] (const Block&) { return "Desert Sand"; };
-      solid.useTileID(tiledb.bigtiles("desert_sand"));
-			solid.shader = RenderConst::TX_REPEAT;
-			solid.getSound = [] (const Block&) { return "sand"; };
-			db.assign("desert", solid);
-		}
 		// create _WATER
 		{
 			auto& fluid = BlockData::createFluid();
@@ -190,7 +239,8 @@ namespace terragen
 			fluid.useMinimapFunction(
   			[] (const Block&, const Sector& sect, int x, int y, int z)
   			{
-  				float depth = 1.0 - getDepth(sect, x, y, z) / 64.0; // ocean depth
+          // measure ocean depth
+  				const float depth = 1.0 - getDepth(&sect(x, 0, z), y) / 64.0;
   				// create gradiented ocean blue
   				return RGBA8(depth * depth * 62, depth*depth * 140, depth * 128, 255);
   			});
@@ -211,63 +261,13 @@ namespace terragen
 			db.assign("lava", fluid);
 		}
 
-		// _WOOD (brown)
-		{
-			auto& blk = BlockData::createSolid();
-			blk.getColor = [] (const Block&) { return 0; };
-			blk.setMinimapColor(RGBA8(111, 63, 16, 255));
-			blk.getName = [] (const Block&) { return "Wood"; };
-      blk.useTileID(tiledb.tiles("wood_oak"));
-			blk.repeat_y = false;
-			blk.getSound = [] (const Block&) { return "wood"; };
-			db.assign("wood_brown", blk);
-		}
-		// create _LEAF
-		{
-			auto& blk = BlockData::createLeaf();
-			blk.setColorIndex(Biomes::CL_TREES_A);
-      blk.setMinimapColor(Biomes::CL_TREES_A);
-			blk.getName = [] (const Block&) { return "Leaf (block)"; };
-      blk.useTileID(tiledb.tiles("leaf"));
-			blk.getSound = [] (const Block&) { return "cloth"; };
-			db.assign("leaf_colored", blk);
-		}
-    {
-			auto& blk = BlockData::createLeaf();
-			blk.setColorIndex(Biomes::CL_TREES_B);
-			blk.setMinimapColor(Biomes::CL_TREES_B);
-			blk.getName = [] (const Block&) { return "Leaf (block)"; };
-      blk.useTileID(tiledb.tiles("leaf"));
-			blk.getSound = [] (const Block&) { return "cloth"; };
-			db.assign("leaf_green", blk);
-		}
-		// create _C_GRASS
-		{
-			auto& blk = BlockData::createCross();
-			blk.getName = [] (const Block&) { return "Grass"; };
-      blk.useTileID(tiledb.tiles("grass_bush"));
-      blk.setColorIndex(Biomes::CL_GRASS);
-      blk.setMinimapColor(Biomes::CL_GRASS);
-			blk.getSound = nullptr;
-			db.assign("cross_grass", blk);
-		}
-		// create _TORCH
-		{
-			auto& blk = BlockData::createCross();
-			blk.getName = [] (const Block&) { return "Torch"; };
-      blk.useTileID(tiledb.tiles("torch"));
-			blk.getSound = [] (const Block&) { return "wood"; };
-			blk.setLightColor(13, 11, 8);
-			db.assign("torch", blk);
-		}
-
     // initialize essential blocks
     BEDROCK      = db::getb("bedrock");
     STONE_BLOCK  = db::getb("stone");
-    SOIL_BLOCK   = db::getb("soil_block");
+    SOIL_BLOCK   = db::getb("soil");
     BEACH_BLOCK  = db::getb("beach");
     WATER_BLOCK  = db::getb("water");
-    MOLTEN_BLOCK = db::getb("molten_stone");
+    MOLTEN_BLOCK = db::getb("molten");
     LAVA_BLOCK   = db::getb("lava");
 	}
 }

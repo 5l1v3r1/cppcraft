@@ -24,7 +24,8 @@ namespace db
     int getID() const noexcept { return id; }
 
     // returns the human-friendly block name
-		delegate <std::string(const Block&)> getName = nullptr;
+    typedef delegate <std::string(const Block&)> name_func_t;
+		name_func_t getName = nullptr;
 
     bool isCross() const noexcept {
       return cross;
@@ -138,7 +139,8 @@ namespace db
 		uint16_t transparentSides = 0; // default: all sides solid
 
 		//
-		delegate <std::string(const Block&)> getSound = nullptr;
+    typedef delegate<std::string(const Block&)> sound_func_t;
+		sound_func_t getSound = nullptr;
 
     // boiler plate reduction
     static BlockData& createSolid(std::string name = "");

@@ -11,7 +11,12 @@
 #include <library/log.hpp>
 using namespace library;
 
+//#define DEBUG_TERRAGEN
+#ifdef DEBUG_TERRAGEN
+#define PRINT(fmt, ...)  printf(fmt, ##__VA_ARGS__)
+#else
 #define PRINT(fmt, ...)  /** **/
+#endif
 
 namespace terragen
 {
@@ -26,7 +31,7 @@ namespace terragen
     Generator::init_objects();
 		// initialize subsystems
     Terrain::init();
-		PostProcess::init();
+    PostProcess::init();
 	}
 
 	void Generator::run(gendata_t* data)
@@ -46,7 +51,13 @@ namespace terragen
 			     data->wx, data->wz);
 		// having generated the terrain, we can now reprocess and finish the terrain
 		// calculate some basic lighting too, by following the sky down to the ground
-		PostProcess::run(data);
+    try {
+      PostProcess::run(data);
+    }
+    catch (std::exception& e) {
+      printf("Exception in post-processing: %s\n", e.what());
+      throw;
+    }
     PRINT("Done\n");
 
     // place ores
