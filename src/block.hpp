@@ -186,12 +186,6 @@ namespace cppcraft
       } // switch
     }
 
-		//! returns the dynamic minimap color for this block, depending on custom algorithm
-		uint32_t getMinimapColor(const Sector& sector, int bx, int by, int bz) const
-		{
-			return db().minimapColor(*this, sector, bx, by, bz);
-		}
-
 		// run visibility tests, revealing visible sides of this cube by comparing neighbors
 		unsigned short visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const;
 		// run visibility tests using spiders

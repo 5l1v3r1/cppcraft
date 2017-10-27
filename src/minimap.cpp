@@ -142,9 +142,15 @@ namespace cppcraft
 	{
 		// get the topmost block at location
 		int y = sector.flat()(x, z).skyLevel-1;
-		const Block& blk = sector(x, y, z);
+    const auto& blk = sector(x, y, z);
+		const auto& db  = blk.db();
 		// determine the minimap color
-		uint32_t c = blk.getMinimapColor(sector, x, y, z);
+    uint32_t c;
+    if (db.isMinimapIndexColored()) {
+      c = sector.flat()(x, z).fcolor[db.getMinimapColor()];
+    } else {
+		  c = db.getMinimapColor(blk, sector, x, y, z);
+    }
 
 		// basic height coloring
 		const int HEIGHT_BIAS = 128;

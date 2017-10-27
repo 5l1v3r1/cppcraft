@@ -26,7 +26,15 @@ namespace db
     // returns the human-friendly block name
 		delegate <std::string(const Block&)> getName = nullptr;
 
-    bool isCross() const noexcept { return cross; }
+    bool isCross() const noexcept {
+      return cross;
+    }
+    bool isLiquid() const noexcept {
+      return this->liquid;
+    }
+    bool isBlock() const noexcept {
+      return block;
+    }
 
 		// tick function
 		delegate <void (Block&)> tick_function = nullptr;
@@ -97,7 +105,14 @@ namespace db
 		//! \brief Selection hitbox test for this block
 		delegate <bool(const Block&, float, float, float)> selectionHitbox3D = nullptr;
 
-		delegate <uint32_t(const Block&, const Sector&, int, int, int)> minimapColor = nullptr;
+    typedef delegate<uint32_t(const Block&, const Sector&, int, int, int)> minimap_func_t;
+    inline uint32_t getMinimapColor(const Block&, const Sector&, int, int, int) const;
+    inline void setMinimapColor(uint32_t color); // BGRA8 or color index
+    inline void useMinimapFunction(minimap_func_t);
+    uint32_t getMinimapColor() const noexcept { return this->minimap_color; }
+    bool isMinimapIndexColored() const noexcept {
+        return this->minimap_color_callback == nullptr && this->minimap_color < 256;
+    }
 
 		// index to voxel registry
 		int voxelModel = 0;
@@ -108,11 +123,9 @@ namespace db
 		uint8_t opacity = 0;
 		// light travels through transparent blocks
 		bool transparent = false;
-    bool isBlock() const noexcept { return block; }
     void setBlock(bool v) { block = v; }
 
 		bool liquid = false;
-		bool indexColored = false;
 		bool cross = false;   // cross, flowers and torches etc
 		bool ladder = false;  // lets players move up and down
 		bool slowing = false; // slows players on touch
@@ -140,6 +153,9 @@ namespace db
     short   tile_id = 0;
     short   colorIndex = -1;
     bool    block = true;
+    // minimap
+    minimap_func_t minimap_color_callback = nullptr;
+    uint32_t minimap_color = 0;
 	};
 
   inline void BlockData::useTileID(short texid) {
@@ -155,4 +171,25 @@ namespace db
     connTexFunction = std::move(func);
   }
 
+  // minimap
+  inline uint32_t BlockData::getMinimapColor(
+      const Block& blk, const Sector& s, int x, int y, int z) const
+  {
+    // index
+    if (this->minimap_color) {
+      return this->minimap_color;
+    }
+    else if (minimap_color_callback) {
+      return minimap_color_callback(blk, s, x, y, z);
+    }
+    return 0xFFFF00FF;
+  }
+  inline void BlockData::setMinimapColor(uint32_t color) {
+    this->minimap_color_callback = nullptr;
+    this->minimap_color = color;
+  }
+  inline void BlockData::useMinimapFunction(minimap_func_t func) {
+    this->minimap_color_callback = std::move(func);
+    this->minimap_color = 0;
+  }
 }

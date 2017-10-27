@@ -38,12 +38,11 @@ namespace terragen
 			blk.getColor = [] (const Block& blk) {
         return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
       };
-			blk.indexColored = false;
-			blk.minimapColor =
-			[] (const Block& blk, const Sector&, int, int, int)
-			{
-				return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
-			};
+			blk.useMinimapFunction(
+  			[] (const Block& blk, const Sector&, int, int, int)
+  			{
+  				return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
+  			});
 			blk.getName = [] (const Block&) { return "Mushroom Block"; };
 			blk.useTextureFunction(
 			[] (const Block& blk, uint8_t face) -> short

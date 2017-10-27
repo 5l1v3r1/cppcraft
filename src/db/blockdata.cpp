@@ -88,11 +88,7 @@ namespace db
 		blk.blocksMovement = [] (const Block&) { return false; };
 		blk.forwardMovement = [] (const Block&) { return true; };
 		blk.hasActivation = [] (const Block&) { return false; };
-		blk.minimapColor =
-		[] (const Block&, const Sector& s, int x, int, int z)
-		{
-			return s.flat()(x, z).fcolor[Biomes::CL_GRASS];
-		};
+    blk.setMinimapColor(Biomes::CL_GRASS);
 		blk.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		blk.repeat_y = false;
 		blk.shader = RenderConst::TX_CROSS;

@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include <cassert>
 #include <cstdint>
+#include <vector>
 
 namespace cppcraft
 {
