@@ -2,64 +2,73 @@
 
 #include "renderman.hpp"
 #include "game.hpp"
-#include "gui/menu.hpp"
-#include "gui/window.hpp"
 #include <glm/vec2.hpp>
 #include <cmath>
+#include <nanogui/nanogui.h>
 
 using namespace glm;
 
 namespace cppcraft
 {
-	gui::Window window;
+	static nanogui::Screen* screen = nullptr;
 
 	void GUIRenderer::initInterfaces(Renderer& renderer)
 	{
-		(void) renderer;
+    bool bvar = true;
+    int ivar = 12345678;
+    double dvar = 3.1415926;
+    float fvar = (float)dvar;
+    std::string strval = "A string";
+    enum test_enum {
+      Item1 = 0,
+      Item2,
+      Item3
+    };
+    test_enum enumval = Item2;
+    bool enabled = true;
+    nanogui::Color colval(0.5f, 0.5f, 0.7f, 1.f);
 
-		window = gui::Window(vec2(0.25, 0.110), vec2(0.50, 0.375));
+    screen = new nanogui::Screen();
+    screen->initialize(renderer.window(), true);
 
-		for (int i = 0; i < 3; i++)
-		{
-			gui::Button* btn = new gui::Button({0.025, 0.025f + i * 0.1f, 0.15, 0.03}, "text goes here " + std::to_string(i) );
-			btn->onAction(
-			[] (gui::Control* c, int, vec2) {
-				printf("Action! button text=%s\n",
-					((gui::Button*) c)->getText().c_str());
-			});
+    renderer.on_terminate([] { delete screen; });
 
-			gui::Checkbox* chk = new gui::Checkbox({0.310, 0.025f + i * 0.1f, 0.025, 0.025}, "checkbox " + std::to_string(i) );
-			chk->onAction(
-			[] (gui::Control* c, int, vec2) {
-				printf("Action! checkbox checked=%d\n",
-					((gui::Checkbox*) c)->isChecked());
-				window.close();
-			});
+    auto* gui = new nanogui::FormHelper(screen);
+    auto wnd = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
 
-			window.add(btn);
-			window.add(chk);
-		}
-		gui::Progress* prg = new gui::Progress({0.025, 0.3, 0.1, 0.1}, 5, 50);
-		window.add(prg);
+    gui->addGroup("Basic types");
+    gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
+    gui->addVariable("string", strval);
+
+    gui->addGroup("Validating fields");
+    gui->addVariable("int", ivar)->setSpinnable(true);
+    gui->addVariable("float", fvar)->setTooltip("Test.");
+    gui->addVariable("double", dvar)->setSpinnable(true);
+
+    gui->addGroup("Complex types");
+    gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
+    gui->addVariable("Color", colval)
+       ->setFinalCallback([](const auto& c) {
+             std::cout << "ColorPicker Final Callback: ["
+                       << c.r() << ", "
+                       << c.g() << ", "
+                       << c.b() << ", "
+                       << c.w() << "]" << std::endl;
+         });
+
+    gui->addGroup("Other widgets");
+    gui->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");
+
+    screen->setVisible(true);
+    screen->performLayout();
+    wnd->center();
 	}
 
 	void GUIRenderer::renderInterfaces(Renderer& renderer)
 	{
-		gui::Window* current = gui::menu.getWindow();
-
-		if (current != nullptr)
-		{
-			// retrieve mouse status
-			auto M = game.input().mouse_button(GLFW_MOUSE_BUTTON_LEFT);
-			// calculate position on screen
-			vec2 screen = vec2(renderer.width(), renderer.height() * renderer.aspect());
-
-			vec2 pos = game.input().mouse_xy() / screen;
-			// send mouse information to window
-			current->mouseEvent(M, pos);
-			// render window
-			current->render(this->getFont(), this->getOrtho(), renderer.getCounter());
-		}
+    (void) renderer;
+    screen->drawContents();
+    screen->drawWidgets();
 	}
 
 }

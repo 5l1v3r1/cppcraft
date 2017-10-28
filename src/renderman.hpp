@@ -53,6 +53,9 @@ namespace cppcraft
     void on_resize(delegate<void(Renderer&)> func) {
       resize_signal.push_back(std::move(func));
     }
+    void on_terminate(delegate<void()> func) {
+      terminate_signal.push_back(std::move(func));
+    }
 
 	private:
     // renders a scene
@@ -75,6 +78,7 @@ namespace cppcraft
 		int scene_elements;
 
     std::vector<delegate<void(Renderer&)>> resize_signal;
+    std::vector<delegate<void()>> terminate_signal;
 	};
 
 }

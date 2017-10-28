@@ -161,7 +161,6 @@ namespace cppcraft
 	 * Rendering loop w/delta frame timing
 	 * Runs forever until game ends
 	**/
-
 	void Renderer::renderloop()
 	{
 		const double render_granularity = 0.01; // 10ms granularity
@@ -171,6 +170,7 @@ namespace cppcraft
 		const int framesMax = 15;
 		double framesTime = 0.0;
 
+    glfwSetTime(0.0);
 		this->FPS = 0.0;
 
 		while (game.is_terminating() == false && !glfwWindowShouldClose(m_window))
@@ -204,7 +204,11 @@ namespace cppcraft
 
 		} // rendering loop
 
-    glfwDestroyWindow(m_window);
+    // call renderer termination functions
+    for (auto& term_func : terminate_signal) {
+      term_func();
+    }
+
     // make sure game is terminating
     game.terminate();
 	}

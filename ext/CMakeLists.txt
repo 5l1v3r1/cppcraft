@@ -24,3 +24,5 @@ option(NANOGUI_BUILD_PYTHON "" OFF)
 option(NANOGUI_INSTALL "" OFF)
 
 add_subdirectory(nanogui)
+# from manual:
+set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")

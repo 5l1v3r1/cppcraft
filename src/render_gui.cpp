@@ -17,7 +17,6 @@
 #include <library/math/matrix.hpp>
 
 #include "drawq.hpp"
-
 #include "player.hpp"
 #include "spiders.hpp"
 #include "generator.hpp"
@@ -78,6 +77,7 @@ namespace cppcraft
 		renderPlayerhand(renderer.getCounter());
 
 		glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_CULL_FACE);
 
 		/// compass & minimap ///
