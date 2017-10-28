@@ -19,7 +19,7 @@ namespace cppcraft
 	}
 
 	// run compilers and try to clear queue, if theres enough time
-	void Compilers::run()
+	void Compilers::run(const int wx, const int wz)
 	{
 		std::unique_ptr<Precomp> precomp = nullptr;
 		while ((precomp = CompilerScheduler::get()) != nullptr)

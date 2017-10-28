@@ -26,6 +26,14 @@ namespace cppcraft
 			return underwater;
 		}
 
+    // return renderers current world position
+    int snap_wx() const {
+      return snapWX;
+    }
+    int snap_wz() const {
+      return snapWZ;
+    }
+
 	private:
     Renderer& renderer;
 		double lastTime = 0.0;

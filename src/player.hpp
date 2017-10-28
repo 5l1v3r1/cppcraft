@@ -7,12 +7,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-struct SDL_Window;
-
-namespace library
-{
-	class WindowClass;
-}
+struct GLFWwindow;
 
 namespace cppcraft
 {
@@ -41,7 +36,7 @@ namespace cppcraft
 		bool changedRotation;
 
 		void initPlayer();
-		void initInputs(SDL_Window&);
+		void initInputs(GLFWwindow*);
 		// first we run this, to get inputs
 		void handleInputs();
 		// handle any Joystick

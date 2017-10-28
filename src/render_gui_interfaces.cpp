@@ -50,7 +50,7 @@ namespace cppcraft
 		if (current != nullptr)
 		{
 			// retrieve mouse status
-			auto M = game.input().mouse_button(SDL_BUTTON_LEFT);
+			auto M = game.input().mouse_button(GLFW_MOUSE_BUTTON_LEFT);
 			// calculate position on screen
 			vec2 screen = vec2(renderer.width(), renderer.height() * renderer.aspect());
 

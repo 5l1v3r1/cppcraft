@@ -144,14 +144,6 @@ namespace cppcraft
 
 	void PlayerClass::handleRotation()
 	{
-		if (keyconf.joy_enabled)
-		{
-			float dx = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_xrot]);
-			float dy = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_yrot]);
-
-			game.input().add_rotation(vec2(dx, dy) * keyconf.joy_speed);
-		}
-
 		// measure closeness
 		float dx = fabsf(player.rot.x - game.input().rotation().x);
 		float dy = fabsf(player.rot.y - game.input().rotation().y);

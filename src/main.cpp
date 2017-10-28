@@ -15,7 +15,6 @@
 #include "threading.hpp"
 #include "worldmanager.hpp"
 #include <string>
-#include <SDL.h>
 
 const std::string configFile = "config.ini";
 const std::string logFile    = "cppcraft.log";
@@ -28,12 +27,6 @@ extern "C" int ProfilerStart(const char* fname);
 
 int main(int argc, char* argv[])
 {
-  if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-  {
-    printf("Failed to initialize SDL2!\n");
-    return EXIT_FAILURE;
-  }
-
 	// start logging to file
 	//logger.open(logFile);
 	logger << Log::INFO << "Starting up..." << Log::ENDL;
@@ -84,7 +77,5 @@ int main(int argc, char* argv[])
 	logger << Log::INFO << "Ending..." << Log::ENDL;
 	// cleanup
 	mtx.cleanupThreading();
-
-  SDL_Quit();
 	return EXIT_SUCCESS;
 }

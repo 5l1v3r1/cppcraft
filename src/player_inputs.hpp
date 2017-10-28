@@ -2,33 +2,16 @@
 #define PLAYER_INPUTS_HPP
 
 #include <glm/vec2.hpp>
-#include <SDL.h>
+#include <library/opengl/opengl.hpp>
+#include <library/opengl/input.hpp>
 #include <cmath>
 #include <map>
 
 namespace cppcraft
 {
-  struct Input
+  class Input : public library::Input
   {
-    enum key_t {
-      KEY_NONE,
-      KEY_PRESSED,
-      KEY_HELD
-    };
-
-    key_t key(int value) {
-      return m_keys[value];
-    }
-    void hold(int value) {
-      auto it = m_keys.find(value);
-      if (it != m_keys.end()) it->second = KEY_HELD;
-    }
-    bool mouse_button(int value);
-    glm::vec2 mouse_xy();
-    int  mouse_wheel();
-    void mouse_show(bool visible);
-    void grab(bool);
-
+  public:
     const std::string& text() {
       return text_buffer;
     }
@@ -39,29 +22,16 @@ namespace cppcraft
       text_buffer.pop_back();
     }
 
-    const glm::vec2& rotation() const {
-      return m_rot;
-    }
-    void add_rotation(glm::vec2 rot) {
-      m_rot += rot;
-    }
-
-    void init(SDL_Window*, glm::vec2 mscale, glm::vec2 rotation);
-    void handle(SDL_Event&);
+    void handle();
 
   private:
-    std::map<int, key_t> m_keys;
-    glm::vec2 m_rot;
-    glm::vec2 m_motion_scale;
-    SDL_Window* m_window = nullptr;
-    int m_wheel_value = 0;
     std::string text_buffer;
   };
 
 	struct keyconf_t
 	{
 		/// Keyboard related ///
-    int k_escape = 41; // ESC
+    int k_escape; // ESC
 
 		int k_forward;
 		int k_backward;

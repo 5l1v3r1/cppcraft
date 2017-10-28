@@ -30,7 +30,7 @@ namespace cppcraft
 		//   flying up / down   //
 		//----------------------//
 
-		#ifdef DBG_FLYING
+#ifdef DBG_FLYING
 		if (player.busyControls() == false)
 		{
 			if (game.input().key(keyconf.k_flydown))
@@ -52,7 +52,7 @@ namespace cppcraft
 				moved = true;
 			}
 		}
-		#endif
+#endif
 
 		//////////////////////////
 		/// Integrated gravity ///

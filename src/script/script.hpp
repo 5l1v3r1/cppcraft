@@ -2,9 +2,6 @@
 #define SCRIPT_SCRIPT_HPP
 
 #include <common.hpp>
-#include <functional>
-#include <map>
-#include <set>
 #include <string>
 #include <stdexcept>
 extern "C" {
@@ -30,15 +27,12 @@ public:
 
   bool add_file(std::string file);
 
-	const std::string& title() const { return title_str; }
-
   Script();
 	~Script();
 private:
   void add_lua_interface();
 
-	std::string title_str;
-	lua_State*  state;
+	lua_State* state;
 };
 
 template <typename... Args>

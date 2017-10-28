@@ -74,14 +74,12 @@ namespace gui
 
 	void Window::open()
 	{
-		game.input().grab(false);
-		game.input().mouse_show(true);
+		game.input().mouse_grab(false);
 		menu.wnd = this;
 	}
 	void Window::close()
 	{
-		game.input().grab(true);
-		game.input().mouse_show(false);
+		game.input().mouse_grab(true);
 		menu.wnd = nullptr;
 	}
 }

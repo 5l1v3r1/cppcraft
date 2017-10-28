@@ -12,7 +12,6 @@
 #include "soundman.hpp"
 #include "threadpool.hpp"
 #include "world.hpp"
-#include <SDL.h>
 
 namespace cppcraft
 {
@@ -20,7 +19,7 @@ namespace cppcraft
 
 	WorldManager::WorldManager(
       gamestate_t gs,
-      SDL_Window& window,
+      GLFWwindow* window,
       const std::string& worldFolder)
 	{
 		this->gamestate = gs;

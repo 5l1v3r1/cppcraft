@@ -17,6 +17,7 @@ add_library(tacopie ${TACO_SOURCES})
 target_include_directories(tacopie PUBLIC tacopie/includes)
 
 ### GUI
+option(NANOGUI_USE_GLAD "" OFF)
 option(NANOGUI_BUILD_EXAMPLE "" OFF)
 option(NANOGUI_BUILD_SHARED "" OFF)
 option(NANOGUI_BUILD_PYTHON "" OFF)

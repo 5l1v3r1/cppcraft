@@ -1,12 +1,12 @@
 #ifndef RENDERMAN_HPP
 #define RENDERMAN_HPP
 
+#include <library/opengl/opengl.hpp>
 #include "render_scene.hpp"
 #include "delegate.hpp"
 #include <memory>
 #include <string>
 #include <vector>
-#include <SDL.h>
 
 namespace cppcraft
 {
@@ -19,19 +19,12 @@ namespace cppcraft
 		// running forever
 		void renderloop();
 
-    // SDL2pp renderer
-		auto& renderer() noexcept {
-      return *m_renderer;
+    // window
+    auto* window() noexcept {
+      return m_window;
     }
-    const auto& renderer() const noexcept {
-      return *m_renderer;
-    }
-    // SDL2pp screen
-    auto& window() noexcept {
-      return *m_window;
-    }
-    const auto& window() const noexcept {
-      return *m_window;
+    const auto* window() const noexcept {
+      return m_window;
     }
     // window helpers
     int width() const noexcept {
@@ -67,8 +60,7 @@ namespace cppcraft
     // call resize signal handlers
     void resize_handler(const int w, const int h);
 
-    SDL_Window* m_window = nullptr;
-    SDL_Renderer* m_renderer = nullptr;
+    GLFWwindow* m_window = nullptr;
     std::unique_ptr<SceneRenderer> m_scene = nullptr;
     int m_width;
     int m_height;

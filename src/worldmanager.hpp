@@ -5,7 +5,7 @@
 #include <glm/vec3.hpp>
 #include <string>
 
-struct SDL_Window;
+struct GLFWwindow;
 
 namespace cppcraft
 {
@@ -26,7 +26,7 @@ namespace cppcraft
 			GS_EXIT
 		};
 
-		WorldManager(gamestate_t, SDL_Window&, const std::string& folder);
+		WorldManager(gamestate_t, GLFWwindow*, const std::string& folder);
 		void exit();
 		void initPlayer();
 		// running thread function

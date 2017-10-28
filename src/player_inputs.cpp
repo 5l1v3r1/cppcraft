@@ -9,7 +9,6 @@
 #include "player_logic.hpp"
 #include "sun.hpp"
 #include "threading.hpp"
-#include <SDL.h>
 #include <cmath>
 #include <set>
 #include <string>
@@ -20,103 +19,73 @@ namespace cppcraft
 {
 	keyconf_t keyconf;
 
-  bool Input::mouse_button(int v)
+  void Input::handle()
   {
-    return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(v);
-  }
-  glm::vec2 Input::mouse_xy()
-  {
-    int x; int y;
-    SDL_GetMouseState(&x, &y);
-    return glm::vec2(x, y);
-  }
-  int Input::mouse_wheel()
-  {
-    int v = m_wheel_value;
-    m_wheel_value = 0;
-    return v;
-  }
-  void Input::mouse_show(bool visible)
-  {
-    SDL_ShowCursor((visible) ? SDL_ENABLE : SDL_DISABLE);
-  }
-  void Input::grab(bool grabbed)
-  {
-    SDL_SetWindowGrab(this->m_window, (grabbed) ? SDL_TRUE : SDL_FALSE);
-    SDL_SetRelativeMouseMode((grabbed) ? SDL_TRUE : SDL_FALSE);
+    // poll for events
+    glfwPollEvents();
+
+    // joystick rotation
+    if (keyconf.joy_enabled)
+		{
+			float dx = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_xrot]);
+			float dy = tresholdValue(keyconf.jaxis[keyconf.joy_axis_look_yrot]);
+
+			this->add_rotation(glm::vec2(dx, dy) * keyconf.joy_speed);
+		}
+
+    // interpolate player rotation and signals camera refresh
+    player.handleRotation();
   }
 
-  void Input::handle(SDL_Event& event)
-  {
-    switch (event.type) {
-    case SDL_KEYDOWN:
-        //printf("Key pressed: %d\n", event.key.keysym.scancode);
-        m_keys[event.key.keysym.scancode] = Input::KEY_PRESSED;
-        break;
-    case SDL_KEYUP:
-        m_keys[event.key.keysym.scancode] = Input::KEY_NONE;
-        break;
-    case SDL_MOUSEMOTION:
-        add_rotation(glm::vec2(event.motion.yrel, event.motion.xrel) * m_motion_scale);
-        break;
-    case SDL_MOUSEWHEEL:
-        m_wheel_value += event.wheel.y;
-        break;
-    default:
-        break;
-    }
-  }
-  void Input::init(SDL_Window* wnd, glm::vec2 mscale, glm::vec2 rot)
-  {
-    assert(wnd != nullptr);
-    this->m_window = wnd;
-    this->m_rot = rot;
-    this->m_motion_scale = mscale;
-    mouse_show(false);
-    grab(true);
-  }
-
-	void PlayerClass::initInputs(SDL_Window& window)
+	void PlayerClass::initInputs(GLFWwindow* window)
 	{
 		logger << Log::INFO << "* Initializing input systems" << Log::ENDL;
-    game.input().init(&window, glm::vec2(0.001f, 0.002f), player.rot);
+    game.input().init(window, true, true);
+    game.input().set_rotation(player.rot);
+    //game.input().mouse_options();
+    game.input().mouse_grab(true);
 
 		/// Keyboard configuration
-		keyconf.k_forward  = config.get("k_forward",  26); // W
-		keyconf.k_backward = config.get("k_backward", 22); // S
-		keyconf.k_right    = config.get("k_right",     7); // D
-		keyconf.k_left     = config.get("k_left",      4); // A
+    keyconf.k_escape   = GLFW_KEY_ESCAPE;
+		keyconf.k_forward  = config.get("k_forward",  GLFW_KEY_W); // W
+		keyconf.k_backward = config.get("k_backward", GLFW_KEY_S); // S
+		keyconf.k_right    = config.get("k_right",    GLFW_KEY_D); // D
+		keyconf.k_left     = config.get("k_left",     GLFW_KEY_A); // A
 
-		keyconf.k_jump   = config.get("k_jump", 44);    // Space
-		keyconf.k_sprint = config.get("k_sprint", (int) SDL_SCANCODE_LSHIFT);
-		keyconf.k_crouch = config.get("k_crouch", (int) SDL_SCANCODE_LCTRL);
-		keyconf.k_throw     = config.get("k_throw", 20);    // Q
-    keyconf.k_inventory = config.get("k_inventory", 8); // E
+		keyconf.k_jump   = config.get("k_jump", GLFW_KEY_SPACE);   // Space
+		keyconf.k_sprint = config.get("k_sprint", (int) GLFW_KEY_LEFT_SHIFT);
+		keyconf.k_crouch = config.get("k_crouch", (int) GLFW_KEY_LEFT_CONTROL);
+		keyconf.k_throw     = config.get("k_throw",     GLFW_KEY_Q); // Q
+    keyconf.k_inventory = config.get("k_inventory", GLFW_KEY_E); // E
 
-		keyconf.k_flying  = config.get("k_flying",  9); // F
-		keyconf.k_flyup   = config.get("k_flyup",  23); // T
-		keyconf.k_flydown = config.get("k_flydown",21); // R
+		keyconf.k_flying  = config.get("k_flying", GLFW_KEY_F); // F
+		keyconf.k_flyup   = config.get("k_flyup",  GLFW_KEY_T); // T
+		keyconf.k_flydown = config.get("k_flydown",GLFW_KEY_R); // R
 
 
 		/// Mouse configuration
 
-		double mspd  = config.get("mouse.speed", 120) / 1000.0;
-		double msens = config.get("mouse.sens",  80)  / 10.0;
+		double mspd  = config.get("mouse.speed", 80) / 1000.0;
+		double msens = config.get("mouse.sens",  40)  / 10.0;
 
 		keyconf.alternateMiningButton = config.get("mouse.swap_buttons", false);
-		keyconf.mouse_btn_place = (keyconf.alternateMiningButton) ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT;
-		keyconf.mouse_btn_mine = (keyconf.alternateMiningButton) ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
+		keyconf.mouse_btn_place = (keyconf.alternateMiningButton)
+                  ? GLFW_MOUSE_BUTTON_RIGHT : GLFW_MOUSE_BUTTON_LEFT;
+		keyconf.mouse_btn_mine = (keyconf.alternateMiningButton)
+                  ? GLFW_MOUSE_BUTTON_LEFT : GLFW_MOUSE_BUTTON_RIGHT;
 
 		// initialize joystick support
 		keyconf.joy_enabled = config.get("joy.enabled", false);
 		if (keyconf.joy_enabled)
 		{
 			keyconf.joy_index   = config.get("joy.index", 0);
-			keyconf.joy_enabled = SDL_IsGameController(keyconf.joy_index);
+			//keyconf.joy_enabled = SDL_IsGameController(keyconf.joy_index);
+      keyconf.joy_enabled = false;
 
 			if (keyconf.joy_enabled)
 			{
-				std::string jname(SDL_GameControllerNameForIndex(keyconf.joy_index));
+				//std::string jname(SDL_GameControllerNameForIndex(keyconf.joy_index));
+        std::string jname = "";
 				logger << Log::INFO << "* Joystick: " << jname << Log::ENDL;
 
 				keyconf.joy_deadzone = config.get("joy.deadzone", 0.12);
@@ -223,27 +192,27 @@ namespace cppcraft
 		// testing/cheats
 		if (busyControls() == false)
 		{
-			if (game.input().key(SDLK_F1) == Input::KEY_PRESSED)
+			if (game.input().key(GLFW_KEY_F1) == Input::KEY_PRESSED)
 			{
-				game.input().hold(SDLK_F1);
+				game.input().key_hold(GLFW_KEY_F1);
 
 				thesun.setRadianAngle(3.14159 * 1/8);
 			}
-			if (game.input().key(SDLK_F2) == Input::KEY_PRESSED)
+			if (game.input().key(GLFW_KEY_F2) == Input::KEY_PRESSED)
 			{
-				game.input().hold(SDLK_F2);
+				game.input().key_hold(GLFW_KEY_F2);
 
 				thesun.setRadianAngle(3.14159 * 2/8);
 			}
-			if (game.input().key(SDLK_F3) == Input::KEY_PRESSED)
+			if (game.input().key(GLFW_KEY_F3) == Input::KEY_PRESSED)
 			{
-				game.input().hold(SDLK_F3);
+				game.input().key_hold(GLFW_KEY_F3);
 
 				thesun.setRadianAngle(3.14159 * 3/8);
 			}
-			if (game.input().key(SDLK_F4) == Input::KEY_PRESSED)
+			if (game.input().key(GLFW_KEY_F4) == Input::KEY_PRESSED)
 			{
-				game.input().hold(SDLK_F4);
+				game.input().key_hold(GLFW_KEY_F4);
 
 				thesun.setRadianAngle(-1);
 			}
@@ -292,7 +261,7 @@ namespace cppcraft
 			}
 			// number keys (1-9) to directly select on quickbar
 			for (int i = 1; i < 10; i++)
-			if (game.input().key(SDLK_0 + i))
+			if (game.input().key(GLFW_KEY_0 + i))
 			{
 				//gui::menu.quickbarX = (i - 1) % inventory.getWidth();
 			}
@@ -301,7 +270,7 @@ namespace cppcraft
 
 		if (game.input().key(keyconf.k_escape) == Input::KEY_PRESSED || keyconf.jbuttons[keyconf.joy_btn_exit])
 		{
-			game.input().hold(keyconf.k_escape);
+			game.input().key_hold(keyconf.k_escape);
 
 			if (chatbox.isOpen())
 			{
@@ -314,9 +283,9 @@ namespace cppcraft
 			}
 		}
 
-		if (game.input().key(SDLK_RETURN) == Input::KEY_PRESSED)
+		if (game.input().key(GLFW_KEY_ENTER) == Input::KEY_PRESSED)
 		{
-			game.input().hold(SDLK_RETURN);
+			game.input().key_hold(GLFW_KEY_ENTER);
 			chatbox.openChat(!chatbox.isOpen());
 
 			if (chatbox.isOpen() == false)
@@ -328,9 +297,9 @@ namespace cppcraft
 			game.input().text_clear();
 		}
 
-		if (game.input().key(SDLK_BACKSPACE) == Input::KEY_PRESSED)
+		if (game.input().key(GLFW_KEY_BACKSPACE) == Input::KEY_PRESSED)
 		{
-			game.input().hold(SDLK_BACKSPACE);
+			game.input().key_hold(GLFW_KEY_BACKSPACE);
 			if (chatbox.isOpen()) {
 				game.input().text_backspace();
       }

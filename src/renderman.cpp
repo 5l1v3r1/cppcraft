@@ -25,7 +25,7 @@ namespace cppcraft
 {
 	Renderer::Renderer(const std::string& title)
 	{
-    const bool fullscreen = config.get("render.fullscreen", false);
+    const bool FULLSCREEN = config.get("render.fullscreen", false);
     const bool vsync      = config.get("render.vsync", false);
     const int refreshrate = config.get("render.refresh", 0);
     const bool MAXIMIZE = config.get("window.maximize", false);
@@ -34,24 +34,21 @@ namespace cppcraft
     const int WX = config.get("window.x", 128);
     const int WY = config.get("window.y", 128);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    glfwInit();
+    glfwWindowHint(GLFW_RESIZABLE, 1);
+    if (MAXIMIZE) glfwWindowHint(GLFW_MAXIMIZED, 1);
 
-    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-    if (MAXIMIZE) flags |= SDL_WINDOW_MAXIMIZED;
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
 		// open SDL window
-    m_window = SDL_CreateWindow(title.c_str(),
-            (WX > 0) ? WX : SDL_WINDOWPOS_CENTERED,
-            (WY > 0) ? WY : SDL_WINDOWPOS_CENTERED,
-            SW, SH, flags);
+    m_window = glfwCreateWindow(
+            SW, SH, title.c_str(),
+            (FULLSCREEN) ? glfwGetPrimaryMonitor() : nullptr, nullptr);
     assert(m_window);
-
-    // SDL renderer
-    m_renderer = SDL_CreateRenderer(m_window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-    assert(m_renderer);
+    glfwMakeContextCurrent(m_window);
+    glfwSwapInterval(1);
 
     const auto ogl = library::OpenGL(false);
     assert(ogl.supportsVBO);
@@ -61,7 +58,13 @@ namespace cppcraft
     assert(ogl.supportsTextureArrays);
 
     // get actual size
-    SDL_GL_GetDrawableSize(m_window, &this->m_width, &this->m_height);
+    glfwGetFramebufferSize(m_window, &this->m_width, &this->m_height);
+    // enable resize event (TODO: fix hack)
+    static Renderer* meself = this;
+    glfwSetFramebufferSizeCallback(m_window,
+    [] (GLFWwindow*, int w, int h) {
+      meself->resize_handler(w, h);
+    });
 
 		// enable custom point sprites
 		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -147,7 +150,7 @@ namespace cppcraft
 #endif
 
 		// flip burgers
-		SDL_GL_SwapWindow(this->m_window);
+		glfwSwapBuffers(this->m_window);
 
 		// disable stuff
 		camera.rotated = false;
@@ -170,11 +173,11 @@ namespace cppcraft
 
 		this->FPS = 0.0;
 
-		while (game.is_terminating() == false)
+		while (game.is_terminating() == false && !glfwWindowShouldClose(m_window))
 		{
 			/// variable delta frame timing ///
 			double t0 = t1;
-			t1 = SDL_GetTicks() / 1000.0;
+			t1 = glfwGetTime();
 
 			dtime = (t1 - t0) / render_granularity;
 
@@ -191,36 +194,19 @@ namespace cppcraft
 			else framesCounter++;
 
 			// compiling columns
-			if (mtx.sectorseam.try_lock())
-			{
-				Compilers::run();
-				mtx.sectorseam.unlock();
-			}
+			Compilers::run(m_scene->snap_wx(), m_scene->snap_wz());
 
 			// rendering function
 			render(dtime);
 
-			// poll for events
-      SDL_Event event;
-      while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT) {
-          game.terminate();
-        }
-        else if (event.type == SDL_WINDOWEVENT) {
-          if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-          {
-            this->resize_handler(event.window.data1, event.window.data2);
-          }
-        } else {
-          game.input().handle(event);
-        }
-      }
-
-			// interpolate player rotation and signals camera refresh
-			player.handleRotation();
+      // handle inputs (main thread)
+      game.input().handle();
 
 		} // rendering loop
+
+    glfwDestroyWindow(m_window);
+    // make sure game is terminating
+    game.terminate();
 	}
 
   void Renderer::resize_handler(const int w, const int h)

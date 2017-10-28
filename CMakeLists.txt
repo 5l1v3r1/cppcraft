@@ -20,12 +20,8 @@ endif()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if (UNIX)
-  find_package(GLEW REQUIRED glew)
-  find_package(SDL2 REQUIRED sdl2)
-  include_directories(${GLEW_STATIC_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
-  link_directories("${GLEW_STATIC_LIBRARY_DIRS}")
-
-  #include(FindPkgConfig)
+  include(FindPkgConfig)
+  pkg_search_module(GLFW REQUIRED glfw3)
   #pkg_check_modules(LUA REQUIRED lua-5.1)
   #include_directories("${LUA_STATIC_INCLUDE_DIRS}")
   #link_directories("${LUA_STATIC_LIBRARY_DIRS}")
@@ -47,14 +43,15 @@ include_directories(inc/rapidjson/include)
 include_directories(library/include)
 include_directories(ext/tacopie/includes)
 include_directories(ext/nanogui/include)
+#include_directories(ext/nanogui/ext/glfw/include)
 
 add_subdirectory(library)
 add_subdirectory(src)
 add_subdirectory(ext)
 
 ### linker stage ###
-
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/Debug)
+
 add_executable(cppcraft ${SOURCES})
 set_target_properties(cppcraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -70,14 +67,15 @@ if (WIN32)
   target_link_libraries(cppcraft imagehlp library lua glew ${OPENGL_gl_LIBRARY})
 endif()
 if (UNIX)
-  set(SDL2_LIBS "${SDL2_LIBRARY}")
 
   add_library(fmod SHARED IMPORTED)
   set_target_properties(fmod PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(fmod PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Debug/libfmod.so.10.0)
 
   target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie nanogui libGLEW.a GL fmod ${SDL2_LIBS} ${LUA_LIBS})
+  target_link_libraries(cppcraft library tacopie nanogui fmod ${LUA_LIBS})
+  target_link_libraries(cppcraft glfw ${GLFW_LIBRARIES} libGLEW.a GL)
+
   if (GPERF)
     target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)
   endif()

@@ -1,7 +1,6 @@
 #include "player_actions.hpp"
 
 #include "game.hpp"
-#include <SDL.h>
 
 namespace cppcraft
 {
