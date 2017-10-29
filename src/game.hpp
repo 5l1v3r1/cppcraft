@@ -3,6 +3,7 @@
 #include "player_inputs.hpp"
 #include "script/script.hpp"
 #include "modification.hpp"
+#include "gui/gui.hpp"
 #include <vector>
 
 namespace cppcraft
@@ -20,6 +21,13 @@ namespace cppcraft
       return m_script;
     }
 
+    GUI& gui() noexcept {
+      return m_gui;
+    }
+    const GUI& gui() const noexcept {
+      return m_gui;
+    }
+
     auto& mods() {
       return m_mods;
     }
@@ -35,6 +43,7 @@ namespace cppcraft
   private:
     Script m_script;
     Input  m_input;
+    GUI    m_gui;
     std::vector<Modification> m_mods;
     bool   m_terminate = false;
   };

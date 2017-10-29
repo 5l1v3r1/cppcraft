@@ -64,8 +64,6 @@ namespace cppcraft
 		bool freefall;
 		// water escape mechanism
 		bool EscapeAttempt;
-		// locks
-		bool flylock;
 		// status flags
 		bool Falling;
 		bool Ladderized;

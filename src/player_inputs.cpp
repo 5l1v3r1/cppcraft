@@ -217,21 +217,23 @@ namespace cppcraft
 				thesun.setRadianAngle(-1);
 			}
 
-			if (game.input().key(keyconf.k_flying) || keyconf.jbuttons[keyconf.joy_btn_flying])
+			if (game.input().key(keyconf.k_flying) == Input::KEY_PRESSED)
 			{
-				if (plogic.flylock == false)
-				{
-					// lock key
-					plogic.flylock = true;
-					// toggle flying
-					player.Flying = ! player.Flying;
-				}
+				game.input().key_hold(keyconf.k_flying);
+				// toggle flying
+				player.Flying = ! player.Flying;
 			}
-			else plogic.flylock = false;
+
+      // inventory toggle
+      if (game.input().key(keyconf.k_inventory) == Input::KEY_PRESSED)
+      {
+        game.input().key_hold(keyconf.k_inventory);
+        game.input().mouse_grab(false);
+        game.gui().takeover();
+      }
 
 			static bool lock_quickbar_scroll = false;
-
-			int wheel = game.input().mouse_wheel();
+			const int wheel = game.input().mouse_wheel();
 			if (wheel > 0 || keyconf.jbuttons[keyconf.joy_btn_nextitem])
 			{
 				if (lock_quickbar_scroll == false)

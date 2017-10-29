@@ -1,7 +1,7 @@
 #include "menu.hpp"
 
 #include "inventory.hpp"
-#include "../generator/blocks.hpp"
+#include "../block.hpp"
 #include "../items.hpp"
 
 using namespace cppcraft;

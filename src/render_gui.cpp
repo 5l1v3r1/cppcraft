@@ -5,6 +5,7 @@
 #include <library/opengl/oglfont.hpp>
 #include "camera.hpp"
 #include "chat.hpp"
+#include "game.hpp"
 #include "minimap.hpp"
 #include "player_logic.hpp"
 #include "renderman.hpp"
@@ -47,7 +48,7 @@ namespace cppcraft
 		minimap.init();
 
 		// our esteemed graphical interfaces
-		initInterfaces(renderer);
+		game.gui().init(renderer);
 
 		// initialize chatbox & chat-transformation station
 		chatbox.init(width, height);
@@ -87,7 +88,7 @@ namespace cppcraft
 		renderCrosshair(ortho);
 
 		/// render graphical interfaces ///
-		renderInterfaces(renderer);
+    game.gui().render();
 
 		glDisable(GL_BLEND);
 

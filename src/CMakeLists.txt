@@ -55,6 +55,7 @@ set(SUB_SOURCES
     gui/bordered_frame.cpp
     gui/button.cpp
     gui/checkbox.cpp
+    gui/gui.cpp
     gui/inventory.cpp
     gui/item_renderer.cpp
     gui/menu.cpp
@@ -103,7 +104,6 @@ set(SUB_SOURCES
     render_gui.cpp
     render_gui_crosshair.cpp
     render_gui_helditem.cpp
-    render_gui_interfaces.cpp
     render_gui_inventory.cpp
     render_gui_playerhand.cpp
     renderman.cpp

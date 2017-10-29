@@ -7,7 +7,7 @@
 namespace cppcraft
 {
 	class Renderer;
-	
+
 	class GUIRenderer
 	{
 	public:
@@ -17,11 +17,10 @@ namespace cppcraft
 			float u, v;
 			unsigned int color;
 		};
-		
+
 		void init(Renderer& renderer);
 		void render(Renderer& renderer);
-		void initInterfaces(Renderer& renderer);
-		
+
 		library::SimpleFont& getFont()
 		{
 			return font;
@@ -30,7 +29,7 @@ namespace cppcraft
 		{
 			return ortho;
 		}
-		
+
 	private:
 		float width;
 		float height;
@@ -38,11 +37,10 @@ namespace cppcraft
 		glm::mat4 ortho;
 		// A wild Font appears!
 		library::SimpleFont font;
-		
+
 		void renderPlayerhand(double frameCounter);
 		void renderMinimap(glm::mat4& ortho);
 		void renderCrosshair(glm::mat4& ortho);
-		void renderInterfaces(Renderer& renderer);
 		void renderMenuSystem(glm::mat4& ortho, double frameCounter);
 	};
 	extern GUIRenderer rendergui;
