@@ -36,6 +36,13 @@ namespace cppcraft
     player.handleRotation();
   }
 
+  void Input::restore_inputs()
+  {
+    this->restore_keyboard();
+    this->restore_mouse();
+    this->mouse_grab(true);
+  }
+
 	void PlayerClass::initInputs(GLFWwindow* window)
 	{
 		logger << Log::INFO << "* Initializing input systems" << Log::ENDL;

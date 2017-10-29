@@ -24,6 +24,8 @@ namespace cppcraft
 
     void handle();
 
+    void restore_inputs();
+
   private:
     std::string text_buffer;
   };

@@ -1,10 +1,12 @@
 #include "gui.hpp"
+#include "../game.hpp"
 #include "../renderman.hpp"
 #include <nanogui/nanogui.h>
 
 namespace cppcraft
 {
   nanogui::Screen* GUI::m_screen = nullptr;
+  nanogui::ref<nanogui::Window> wnd;
 
   void GUI::init(Renderer& renderer)
   {
@@ -28,7 +30,7 @@ namespace cppcraft
     renderer.on_terminate([] { delete m_screen; });
 
     auto* gui = new nanogui::FormHelper(m_screen);
-    auto wnd = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
+    wnd = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
 
     gui->addGroup("Basic types");
     gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
@@ -51,9 +53,12 @@ namespace cppcraft
          });
 
     gui->addGroup("Other widgets");
-    gui->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");
+    gui->addButton("A button",
+    [this]() {
+      std::cout << "Button pressed." << std::endl;
+      this->restore_game();
+    })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");
 
-    m_screen->setVisible(true);
     m_screen->performLayout();
     wnd->center();
   }
@@ -61,11 +66,21 @@ namespace cppcraft
   void GUI::render()
   {
     m_screen->drawContents();
-    m_screen->drawWidgets();
+    if (this->show_window)
+    {
+      m_screen->drawWidgets();
+    }
+  }
+
+  void GUI::restore_game()
+  {
+    this->show_window = false;
+    game.input().restore_inputs();
   }
 
   void GUI::takeover()
   {
+    this->show_window = true;
     auto* window = m_screen->glfwWindow();
     glfwSetCursorPosCallback(window,
         [] (GLFWwindow*, double x, double y) {
