@@ -1,9 +1,7 @@
 #include "player_actions.hpp"
 
 #include <library/log.hpp>
-#include <library/math/vector.hpp>
 #include "items.hpp"
-#include "gui/menu.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
@@ -11,6 +9,7 @@
 #include "soundman.hpp"
 #include "spiders.hpp"
 #include "threading.hpp"
+#include <glm/glm.hpp>
 #include <cmath>
 
 /**
@@ -125,7 +124,7 @@ namespace cppcraft
 
 		// additional test for whether the destination face is correct for this block
 		// eg. cant place ladders on top and bottom faces, torches on bottom faces etc.
-		glm::vec3 fpos = fract(selection.pos);
+		glm::vec3 fpos = glm::fract(selection.pos);
 		placement_test &= item.toBlock().placeToFace(selection.facing, fpos.x, fpos.y, fpos.z);
 
 		// make sure we can place <here>
@@ -167,7 +166,7 @@ namespace cppcraft
 
 					// play placement sound
 					if (item.toBlock().hasSound())
-						soundman.playMaterial(item.toBlock().getSound(), 
+						soundman.playMaterial(item.toBlock().getSound(),
                                   Soundman::sound_place,
                                   {ddx, ddy, ddz});
 					else
@@ -213,7 +212,7 @@ namespace cppcraft
 		/////////////////////////////////////
 		/// item currently held by player ///
 		/////////////////////////////////////
-		Item& helditem = gui::menu.getHeldItem();
+		Item helditem(IT_NONE, 0); //
 
 		if (action == playeraction_t::PA_Addblock)
 		{
@@ -312,7 +311,7 @@ namespace cppcraft
 				if (!found.isAir() && !found.isFluid())
 				{
 					// create fractionals from ray
-					glm::vec3 fracs = fract(ray);
+					glm::vec3 fracs = glm::fract(ray);
 
 					if (found.selectionHitbox3D(fracs.x, fracs.y, fracs.z))
 					{
@@ -323,7 +322,7 @@ namespace cppcraft
 							ray -= rayStep;
 							Block& bfound = Spiders::getBlock(ray.x, ray.y, ray.z);
 
-							fracs = fract(ray);
+							fracs = glm::fract(ray);
 
 							// glean until we hit air, then break
 							if (bfound.selectionHitbox3D(fracs.x, fracs.y, fracs.z) == false) break;
@@ -332,7 +331,7 @@ namespace cppcraft
 						// now that we are out, increase ray by one step ahead to get back inside
 						ray += rayStep;
 						// create new fractionals
-						fracs = fract(ray);
+						fracs = glm::fract(ray);
 
 						int ddx = ray.x, ddy = ray.y, ddz = ray.z;
 						// find position in local grid

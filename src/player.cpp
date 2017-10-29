@@ -4,7 +4,6 @@
 #include "camera.hpp"
 #include "chat.hpp"
 #include "game.hpp"
-#include "gui/menu.hpp"
 #include "player_actions.hpp"
 #include "player_logic.hpp"
 #include "player_physics.hpp"
@@ -63,7 +62,7 @@ namespace cppcraft
 	}
 	bool PlayerClass::busyControls() const
 	{
-		return chatbox.isOpen() || gui::menu.guiOpen();
+		return chatbox.isOpen();
 	}
 
 	glm::vec3 PlayerClass::getLookVector() const

@@ -7,7 +7,7 @@
 #include <library/math/toolbox.hpp>
 #include "blockmodels.hpp"
 #include "camera.hpp"
-#include "gui/menu.hpp"
+#include "items.hpp"
 #include "player.hpp"
 #include "player_actions.hpp"
 #include "player_logic.hpp"
@@ -253,7 +253,7 @@ namespace cppcraft
 	void PlayerHand::renderHandItem(const glm::vec2& light, float modulation)
 	{
 		// render held item
-		Item& helditem = gui::menu.getHeldItem();
+		Item helditem(IT_NONE, 0);
 		// no item, no render
 		if (helditem.isAlive() == false) return;
 

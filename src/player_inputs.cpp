@@ -4,7 +4,6 @@
 #include "chat.hpp"
 #include "game.hpp"
 #include "gameconf.hpp"
-#include "gui/menu.hpp"
 #include "player_inputs.hpp"
 #include "player_logic.hpp"
 #include "sun.hpp"

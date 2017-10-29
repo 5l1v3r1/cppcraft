@@ -5,7 +5,6 @@
 #include "items.hpp"
 #include "lighting.hpp"
 #include "generator.hpp"
-#include "gui/menu.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
@@ -41,9 +40,6 @@ namespace cppcraft
 
 		// initialize particles
 		particleSystem.init();
-
-		// menu & items
-		gui::menu.init();
 
 		// initialize sound
 		soundman.init();

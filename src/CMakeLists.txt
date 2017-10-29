@@ -52,15 +52,9 @@ set(SUB_SOURCES
     generator/terrain/t_grass.cpp
     generator/terrain/t_jungle.cpp
     generator/terrain/t_snow.cpp
-    gui/bordered_frame.cpp
-    gui/button.cpp
-    gui/checkbox.cpp
     gui/gui.cpp
     gui/inventory.cpp
     gui/item_renderer.cpp
-    gui/menu.cpp
-    gui/progress.cpp
-    gui/window.cpp
     items.cpp
     lighting.cpp
     lighting_algos.cpp
