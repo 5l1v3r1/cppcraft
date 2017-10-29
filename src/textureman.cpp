@@ -62,7 +62,7 @@ namespace cppcraft
 		if (OpenGL::checkError()) throw std::runtime_error("Materials(4) texture2d array error");
 
 		/// ITEMS tileset ///
-    items.itemSize = 16;
+    items.itemSize = 32;
 		auto bmp = Bitmap(config.get("textures.items", "bitmap/default/items.png"), Bitmap::PNG);
 		bmp.parse2D(items.itemSize, items.itemSize);
 

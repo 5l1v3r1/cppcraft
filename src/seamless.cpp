@@ -23,6 +23,7 @@ namespace cppcraft
 {
 	// length player has to travel for a transition to take place
 	const int Seamless::OFFSET = Sector::BLOCKS_XZ;
+  static std::vector<delegate<void()>> transition_signal;
 
 	// runs seamless() until no more transitions happen
 	// essentially moving the player until he is on a local grid, near center
@@ -38,8 +39,16 @@ namespace cppcraft
 			seam |= running;
 			if (running == false) break;
 		}
+    // call event handlers when transition happened
+    if (seam) {
+      for (auto& func : transition_signal) func();
+    }
 		return seam;
 	}
+
+  void Seamless::on_transition(delegate<void()> func) {
+    transition_signal.push_back(std::move(func));
+  }
 
 	class Seamstress
 	{

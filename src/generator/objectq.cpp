@@ -1,6 +1,7 @@
 #include "objectq.hpp"
 
 #include "../sectors.hpp"
+#include "../seamless.hpp"
 #include "../spiders.hpp"
 #include "../world.hpp"
 #include <library/timing/timer.hpp>
@@ -12,6 +13,15 @@ namespace terragen
 	using cppcraft::BLOCKS_Y;
 	using cppcraft::Sector;
 	using cppcraft::sectors;
+  static bool transitioned = true;
+
+  void ObjectQueue::init()
+  {
+    cppcraft::Seamless::on_transition(
+      [] {
+        transitioned = true;
+      });
+  }
 
 	// returns true if the sector is surrounded by sectors
 	// that are already properly generated, or on an edge
@@ -36,6 +46,11 @@ namespace terragen
 
 		int worldX = cppcraft::world.getWX() * BLOCKS_XZ;
 		int worldZ = cppcraft::world.getWZ() * BLOCKS_XZ;
+
+    if (transitioned) {
+      transitioned = false;
+      objects.splice(objects.begin(), retry_objects);
+    }
 
 		for (auto it = objects.begin(); it != objects.end(); ++it)
 		{
@@ -77,7 +92,7 @@ namespace terragen
 					if (sector.objects)
 						sector.objects--;
 				}
-				return;
+        return;
 			}
 			else if (sectX < 0 || sectX >= sectors.getXZ()
 				    || sectZ < 0 || sectZ >= sectors.getXZ())
@@ -86,6 +101,12 @@ namespace terragen
 				//printf("Removing object oob at (%d, %d)\n", sectX, sectZ);
 				it = objects.erase(it);
 			}
+      else {
+        // remove from queue and put on hold
+        auto next = it; next++;
+        retry_objects.splice(retry_objects.begin(), objects, it, next);
+        it = next;
+      }
 		} // for(objects)
 
 	} // ObjectQueue::run()

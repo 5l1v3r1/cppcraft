@@ -14,15 +14,25 @@ namespace terragen
 				get().objects.push_back(obj);
 		}
 
+    static void init();
+
 		static void run()
 		{
 			get().run_internal();
 		}
 		static ObjectQueue& get();
 
+    static std::size_t size() noexcept {
+      return get().objects.size();
+    }
+    static std::size_t retry_size() noexcept {
+      return get().retry_objects.size();
+    }
+
 	private:
 		void run_internal();
 
 		std::list<SchedObject> objects;
+    std::list<SchedObject> retry_objects;
 	};
 }

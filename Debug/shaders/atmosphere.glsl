@@ -54,27 +54,27 @@ void main(void)
 {
 	v3x = in_vertex.xyz - v3CameraPos;
 	v3x.y = v3x.y * above + 0.001 * v3x.y * (1.0 - above);
-	
+
 	v3Direction = v3CameraPos - in_vertex.xyz;
-	
+
 	// Get the ray from the camera to the vertex, and its length (which is the far point of the ray passing through the atmosphere)
 	vec3 v3Ray = v3x;
 	float fFar = length(v3Ray);
 	v3Ray /= fFar;
-	
+
 	// Calculate the ray's starting position, then calculate its scattering offset
 	vec3 v3Start = v3CameraPos;
 	float fHeight = length(v3Start);
 	float fDepth = exp(fScaleOverScaleDepth * (fInnerRadius - fCameraHeight));
 	float fStartAngle = dot(v3Ray, v3Start) / fHeight;
 	float fStartOffset = fDepth * scale(fStartAngle);
-	
+
 	// Initialize the scattering loop variables
 	float fSampleLength = fFar / fSamples;
 	float fScaledLength = fSampleLength * fScale;
 	vec3 v3SampleRay = v3Ray * fSampleLength;
 	vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;
-	
+
 	// Now loop through the sample rays
 	vec3 v3FrontColor = vec3(0.0);
 	for(int i = 0; i < nSamples; i++)
@@ -88,13 +88,13 @@ void main(void)
 		v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
 		v3SamplePoint += v3SampleRay;
 	}
-	
+
 	// Finally, scale the Mie and Rayleigh colors and set up the varying variables for the pixel shader
 	color_mie = v3FrontColor * fKmESun;
 	color_rayleigh = v3FrontColor * (v3InvWavelength * fKrESun);
 	// camera look direction
 	starc = v3Ray;
-	
+
 	gl_Position = matmvp * vec4(in_vertex.xyz, 1.0);
 }
 
@@ -125,15 +125,15 @@ void main (void)
 	float fCos = dot(v3LightPos, -v3x) / length(v3x);
 	float fRayleighPhase = 0.75 * (1.0 + fCos*fCos);
 	float fMiePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos*fCos) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);
-	
+
 	color.rgb = fRayleighPhase * color_rayleigh + fMiePhase * color_mie;
-	
+
 	vec3 norm = normalize(v3Direction);
 	norm.y *= (0.5 - above) * 2.0;
-	
+
 	vec3 skyColor = texture(skymap, norm).rgb;
 	color.rgb = mix(color.rgb, skyColor, (color.b - color.r * 0.5) * 0.5);
-	
+
 	float darkness = max(0.0, 0.16 - length(color.rgb)) * 6.0;
 	if (darkness > 0.05)
 	{
@@ -142,11 +142,11 @@ void main (void)
 		vec2 coord = vec2(((atan(norm.y, norm.x) + sunAngle) / PI + 1.0) * 0.5, asin(norm.z) / PI + 0.5 );
 		vec3 stars = texture(starmap, coord).rgb;
 		stars = pow(stars, vec3(3.0)) * starBrightness;
-		
+
 		color.rgb = mix(color.rgb, stars, darkness * darkness);
 	}
-	
-	color.rgb = vec3(1.0) - exp(color.rgb * -2.0);
+
+	//color.rgb = vec3(1.0) - exp(color.rgb * -2.0);
 	color.a = 1.0;
 }
 

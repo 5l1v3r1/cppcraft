@@ -37,6 +37,7 @@ namespace cppcraft
     logger << Log::INFO << "* Initializing terrain generator" << Log::ENDL;
 		/// our esteemed generator ///
 		terragen::Generator::init();
+    terragen::ObjectQueue::init();
 		// load all block data in view
 		for (int x = 0; x < sectors.getXZ(); x++)
 		for (int z = 0; z < sectors.getXZ(); z++)
@@ -110,8 +111,8 @@ namespace cppcraft
 			finished.pop_front();
 			mtx_genq.unlock();
 
-			int x = gdata->wx - world.getWX();
-			int z = gdata->wz - world.getWZ();
+			const int x = gdata->wx - world.getWX();
+			const int z = gdata->wz - world.getWZ();
 			// check that the generated data is still
 			// within our grid:
 			if (x >= 0 && x < sectors.getXZ() &&
@@ -128,7 +129,6 @@ namespace cppcraft
 				// toggle sector generated flag, as well as removing generating flag
 				dest.meshgen      = 0; // make sure its added to meshgen
 				dest.gen_flags    = Sector::GENERATED;
-				// we just generated this, it couldnt possibly have any objects scheduled for it? could it?
 				dest.objects      = gdata->get_objects().size();
 				dest.atmospherics = false;
 

@@ -45,8 +45,7 @@ namespace cppcraft
     library::Bitmap m_tonemap;
   };
 
-	class TileDB
-	{
+	class TileDB {
 	public:
 		// size of a big tile is exactly N regular tiles
 		static const int TILES_PER_BIG_TILE = 4;
@@ -54,6 +53,7 @@ namespace cppcraft
     tile_database tiles;
     tile_database bigtiles;
     tile_database selection;
+    tile_database items;
     tile_database skins;
     tile_database particles;
 

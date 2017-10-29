@@ -14,6 +14,8 @@ namespace cppcraft
     void restore_game();
     void render();
 
+    auto* screen() noexcept { return m_screen; }
+
     void init(Renderer&);
   private:
     bool show_window = false;

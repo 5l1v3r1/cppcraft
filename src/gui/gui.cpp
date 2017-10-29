@@ -1,6 +1,7 @@
 #include "gui.hpp"
 #include "../game.hpp"
 #include "../renderman.hpp"
+#include "../textureman.hpp"
 #include <nanogui/nanogui.h>
 
 namespace cppcraft
@@ -8,22 +9,26 @@ namespace cppcraft
   nanogui::Screen* GUI::m_screen = nullptr;
   nanogui::ref<nanogui::Window> wnd;
 
+  static void add_tile(nanogui::FormHelper* gui, GLuint texture, GLuint tile)
+  {
+    auto* image = new nanogui::ArrayTexture(wnd, texture);
+    image->setTile(tile, 0, 0);
+    image->setScaleCentered(2.0f);
+    image->setFixedSize(image->scaledImageSize());
+    gui->addWidget("", image);
+  }
+
+  static auto* add_inv(nanogui::FormHelper* gui, GLuint texture, const int w, const int h)
+  {
+    auto* image = new nanogui::ArrayTexture(wnd, w, h, texture);
+    image->setScaleCentered(3.0f);
+    image->setFixedSize(image->scaledImageSize());
+    gui->addWidget("", image);
+    return image;
+  }
+
   void GUI::init(Renderer& renderer)
   {
-    bool bvar = true;
-    int ivar = 12345678;
-    double dvar = 3.1415926;
-    float fvar = (float)dvar;
-    std::string strval = "A string";
-    enum test_enum {
-      Item1 = 0,
-      Item2,
-      Item3
-    };
-    test_enum enumval = Item2;
-    bool enabled = true;
-    nanogui::Color colval(0.5f, 0.5f, 0.7f, 1.f);
-
     this->m_screen = new nanogui::Screen();
     m_screen->initialize(renderer.window(), true);
 
@@ -32,25 +37,21 @@ namespace cppcraft
     auto* gui = new nanogui::FormHelper(m_screen);
     wnd = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
 
-    gui->addGroup("Basic types");
-    gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
-    gui->addVariable("string", strval);
-
-    gui->addGroup("Validating fields");
-    gui->addVariable("int", ivar)->setSpinnable(true);
-    gui->addVariable("float", fvar)->setTooltip("Test.");
-    gui->addVariable("double", dvar)->setSpinnable(true);
-
     gui->addGroup("Complex types");
-    gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
-    gui->addVariable("Color", colval)
-       ->setFinalCallback([](const auto& c) {
-             std::cout << "ColorPicker Final Callback: ["
-                       << c.r() << ", "
-                       << c.g() << ", "
-                       << c.b() << ", "
-                       << c.w() << "]" << std::endl;
-         });
+
+    const GLuint handle = textureman[Textureman::T_ITEMS].getHandle();
+    add_tile(gui, handle, 1);
+    add_tile(gui, handle, 2);
+    add_tile(gui, handle, 3);
+
+    auto* inv = add_inv(gui, handle, 9, 3);
+    std::vector<short> tiles(9 * 3);
+    int counter = 0;
+    for (int y = 0; y < 3; y++)
+    for (int x = 0; x < 9; x++) {
+      tiles[counter++] = x + y * 16;
+    }
+    inv->setTiles(tiles);
 
     gui->addGroup("Other widgets");
     gui->addButton("A button",
@@ -58,6 +59,7 @@ namespace cppcraft
       std::cout << "Button pressed." << std::endl;
       this->restore_game();
     })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");
+    wnd->setVisible(false);
 
     m_screen->performLayout();
     wnd->center();
@@ -65,11 +67,7 @@ namespace cppcraft
 
   void GUI::render()
   {
-    m_screen->drawContents();
-    if (this->show_window)
-    {
-      m_screen->drawWidgets();
-    }
+    wnd->setVisible(this->show_window);
   }
 
   void GUI::restore_game()

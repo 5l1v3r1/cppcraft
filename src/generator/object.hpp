@@ -17,6 +17,8 @@ namespace terragen
 	{
 		SchedObject(const std::string& gname, int X, int Y, int Z, int64_t D)
 			: name(gname), x(X), y(Y), z(Z), data(D) {}
+    SchedObject(SchedObject&&) = default;
+    SchedObject(const SchedObject&) = default;
 
 		int getWX() const {
 			return x / BLOCKS_XZ;
