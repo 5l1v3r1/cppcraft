@@ -80,6 +80,7 @@ namespace cppcraft
 
   void Lighting::torchlight(Sector& sector)
   {
+    int light_count = 0;
     for (int y = 1; y <= sector.getHighestLightPoint(); y++)
     if (sector.hasLight(y))
     {
@@ -90,6 +91,7 @@ namespace cppcraft
 
         if (block.isLight())
   		  {
+          light_count++;
     			const int ch = 1;
 
     			// set to max blocklight value
@@ -128,7 +130,8 @@ namespace cppcraft
     		} // isLight()
       } // x, z
     } // is light source(y)
-
+    // update sectors light count (mostly for debugging)
+    sector.getBlocks().light_count = light_count;
   } // atmospheric flood
 
   #define DO_FLOOD_INTO(dir) {                 \

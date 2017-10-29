@@ -34,7 +34,7 @@ namespace cppcraft
 
 			std::array<Block, BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y> b;
       std::array<uint64_t, BLOCKS_Y / 64> lights;
-			short blocks = 0;
+			unsigned short light_count = 0;
       short highest_light_y = 0;
 			unsigned short nothing_yet = 0;
 			unsigned short checksum = 0;
@@ -91,12 +91,11 @@ namespace cppcraft
 		{
 			return m_blocks != nullptr;
 		}
-		short blockCount() const noexcept
-		{
-			return m_blocks->blocks;
-		}
     bool hasLight(int y) const noexcept { return m_blocks->getLight(y); }
     int getHighestLightPoint() const { return m_blocks->highest_light_y; }
+    int getLightCount() const noexcept {
+      return m_blocks->light_count;
+    }
 
 		// fill sector with air
 		void clear();

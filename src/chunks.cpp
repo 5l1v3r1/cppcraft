@@ -199,14 +199,6 @@ namespace cppcraft
 			return false;
 		}
 
-    // some extra checks
-		if (sector.blockCount() == 0)
-		{
-			logger << Log::WARN << "*** Recorrection to nullsector - buggy chunk file" << Log::ENDL;
-			//sector.generated = false;
-			return false;
-		}
-
 		// if (s->blockpt->special) loadSpecialDataEx(s, File);
 		return true;
 	}

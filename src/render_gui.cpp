@@ -40,7 +40,7 @@ namespace cppcraft
   static nanogui::IntBox<size_t>* objbox = nullptr;
   static nanogui::IntBox<size_t>* objretrybox = nullptr;
   // sector //
-  static nanogui::IntBox<int>* sectobjs = nullptr;
+  static nanogui::IntBox<int>* sectlts = nullptr;
   static nanogui::IntBox<int>* sectstage = nullptr;
   static nanogui::TextBox* trnbox = nullptr;
   static nanogui::IntBox<int>* skybox = nullptr;
@@ -109,16 +109,6 @@ namespace cppcraft
                       Alignment::Middle, 0, 20));
     new Label(sector, "Sector");
 
-    new Label(sector, "Objects");
-    sectobjs = new nanogui::IntBox<int>(sector);
-    sectobjs->setEditable(false);
-    sectobjs->setFixedSize(Vector2i(50, 20));
-
-    new Label(sector, "Mesh stage");
-    sectstage = new nanogui::IntBox<int>(sector);
-    sectstage->setEditable(false);
-    sectstage->setFixedSize(Vector2i(50, 20));
-
     new Label(sector, "Terrain");
     trnbox = new nanogui::TextBox(sector);
     trnbox->setEditable(false);
@@ -134,6 +124,15 @@ namespace cppcraft
     gndbox->setEditable(false);
     gndbox->setFixedSize(Vector2i(50, 20));
 
+    new Label(sector, "Lights");
+    sectlts = new nanogui::IntBox<int>(sector);
+    sectlts->setEditable(false);
+    sectlts->setFixedSize(Vector2i(50, 20));
+
+    new Label(sector, "Mesh stage");
+    sectstage = new nanogui::IntBox<int>(sector);
+    sectstage->setEditable(false);
+    sectstage->setFixedSize(Vector2i(50, 20));
 
     stats->setPosition({0, 0});
     gui.screen()->performLayout();
@@ -190,7 +189,7 @@ namespace cppcraft
     auto* sector = sectors.sectorAt(player.pos.x, player.pos.z);
 		if (sector)
     {
-      sectobjs->setValue(sector->objects);
+      sectlts->setValue(sector->getLightCount());
       sectstage->setValue(sector->meshGenStage());
       // only show flatland values when generated
       if (sector->generated())
