@@ -158,6 +158,20 @@ namespace terragen
 	{
 		auto& db = BlockDB::get();
 
+    BlockData& air = db.create("air");
+    // ** the first Block *MUST* be _AIR ** //
+		assert(air.getID() == 0);
+		air.transparent = true;
+    air.setBlock(false);
+		air.blocksMovement = [] (const Block&) { return false; };
+		air.forwardMovement = [] (const Block&) { return true; };
+		air.getColor = [] (const Block&) { return 255; };
+		air.getName  = [] (const Block&) { return "Air"; };
+		// you can never hit or select _AIR
+		air.physicalHitbox3D = [] (const Block&, float, float, float) { return false; };
+		air.selectionHitbox3D = [] (const Block&, float, float, float) { return false; };
+		air.transparentSides = BlockData::SIDE_ALL;
+
     // load and apply the tiles JSON for each mod
     for (const auto& mod : cppcraft::game.mods())
     {

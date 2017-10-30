@@ -4,6 +4,8 @@
 #include "../textureman.hpp"
 #include <nanogui/nanogui.h>
 
+#include "../items/inventory.hpp"
+
 namespace cppcraft
 {
   nanogui::Screen* GUI::m_screen = nullptr;

@@ -31,23 +31,14 @@ namespace cppcraft
 		constexpr Block() {}
 		// constructor taking block id as parameter
 		constexpr Block(block_t id) : blk(id) {}
-		// semi-complete constructor
-		constexpr Block(block_t id, block_t bitfield)
-      : blk((id & 0xFFF) | (bitfield << 12)) {}
-    // constructor with id and 4 + 8 bits
-	  constexpr Block(block_t id, block_t bitfield, bfield_t ex)
-      : Block(id, bitfield) { this->extra = ex; }
-    // complete constructor, with lighting
-	  constexpr Block(block_t id, block_t bitfield, bfield_t ex, light_t li)
-      : Block(id, bitfield) {
-      this->extra = ex; this->light = li;
-    }
+    // complete constructor
+	  constexpr Block(block_t id, block_t bits, bfield_t ex = 0, light_t li = 0)
+      : blk((id & 0xFFF) | (bits << 12)), extra(ex), light(li) {}
 
 		// sets/gets the block ID for this block
 		void setID(block_t id)
 		{
-			// remove id part
-			this->blk &= 0xF000;
+			this->blk &= 0xF000; // remove id part
 			this->blk |= id & 0xFFF;
 		}
 		block_t getID() const
@@ -118,9 +109,8 @@ namespace cppcraft
 
 		inline void setChannel(const int ch, const light_t level)
 		{
-      assert(level < 16);
 		  this->light &= ~(0xF << (ch * 4));
-			this->light |= level << (ch * 4);
+			this->light |= (level & 0xF) << (ch * 4);
 		}
 		inline light_t getChannel(const int ch) const
 		{

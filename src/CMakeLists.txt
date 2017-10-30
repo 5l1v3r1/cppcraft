@@ -24,8 +24,8 @@ set(SUB_SOURCES
     compiler_schedule.cpp
     compilers.cpp
     compressor.cpp
-    db/blockdb.cpp
     db/blockdata.cpp
+    db/itemdata.cpp
     drawq.cpp
     drawq_rendergrid.cpp
     game.cpp
