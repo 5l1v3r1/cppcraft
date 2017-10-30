@@ -39,19 +39,19 @@ namespace cppcraft
 
     gui->addGroup("Complex types");
 
-    const GLuint handle = textureman[Textureman::T_ITEMS].getHandle();
+    const GLuint handle = textureman[Textureman::T_DIFFUSE].getHandle();
     add_tile(gui, handle, 1);
     add_tile(gui, handle, 2);
     add_tile(gui, handle, 3);
 
     auto* inv = add_inv(gui, handle, 9, 3);
     std::vector<short> tiles(9 * 3);
-    int counter = 0;
-    for (int y = 0; y < 3; y++)
-    for (int x = 0; x < 9; x++) {
-      tiles[counter++] = x + y * 16;
-    }
-    inv->setTiles(tiles);
+    for (size_t i = 0; i < tiles.size(); i++) tiles[i] = i;
+    inv->setTiles(std::move(tiles));
+    inv->onTileMotion(
+      [] (int btn, int mod, int tx, int ty) {
+
+      });
 
     gui->addGroup("Other widgets");
     gui->addButton("A button",
