@@ -33,9 +33,9 @@ void main(void)
 {
 	vec4 position = vec4(in_vertex * VERTEX_SCALE_INV + vtrans, 1.0);
 	position = matview * position;
-	
+
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
-	
+
 	if (texrange == TX_CROSS)
 	{
 		// fire animation
@@ -43,7 +43,7 @@ void main(void)
 		{
 			texCoord.z += mod(int(frameCounter / PI2 * 32.0 + length(in_vertex.xz) / 2.0), 8.0);
 		}*/
-		
+
 		// standing
 		float speed  = frameCounter * 0.01;
 		float factor = CROSSWIND_STRENGTH * texCoord.t;
@@ -51,10 +51,10 @@ void main(void)
 		vec2 pos = in_vertex.xz * VERTEX_SCALE_INV / 16.0;
 		position.x += sin(PI2 * (2.0*pos.x + pos.y) + speed) * factor;
 	}
-	
+
 	gl_Position = matproj * position;
 	v_normals = mat3(matview) * in_normal.xyz;
-	
+
   #include "unpack_light.glsl"
 	biomeColor = in_biome;
 	out_normal = in_normal.xyz;
@@ -89,17 +89,20 @@ const float ZFAR
 void main(void)
 {
 	color = texture(diffuse, texCoord.stp);
+  // alpha-to-coverage solution
+  //const float CUTOFF = 0.5;
+  //color.a = (color.a - CUTOFF) / max(fwidth(color.a), 0.0001) + 0.5;
 	if (color.a < 0.1) discard;
-	
+
 	// read tonecolor from tonemap
 	vec4 toneColor = texture(tonemap, texCoord.stp);
 	color.rgb = mix(color.rgb, biomeColor.rgb * toneColor.rgb, toneColor.a);
-	
+
 	#include "degamma.glsl"
 	#include "worldlight_cross.glsl"
 	#include "stdlight.glsl"
 	#include "finalcolor.glsl"
-	
+
 #ifdef VIEW_NORMALS
 	normals = vec4(v_normals, 1.0);
 #endif

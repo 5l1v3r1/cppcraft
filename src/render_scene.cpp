@@ -282,17 +282,17 @@ namespace cppcraft
 				// frustum was updated
 				camera.ref = true;
 
-				#ifdef TIMING
+#ifdef TIMING
 				Timer timer;
 				timer.startNewRound();
-				#endif
+#endif
 
 				// process columns & modify occlusion
 				recalculateFrustum();
 
-				#ifdef TIMING
-				logger << Log::INFO << "Time spent calculating: " << timer.getDeltaTime() * 1000.0 << Log::ENDL;
-				#endif
+#ifdef TIMING
+				logger << Log::INFO << "Time spent recalculate frustum: " << timer.getDeltaTime() * 1000.0 << Log::ENDL;
+#endif
 			}
 			else
 			{
@@ -370,10 +370,10 @@ namespace cppcraft
 		// disable double-sided faces
 		glEnable(GL_CULL_FACE);
 
-		#ifdef TIMING
+#ifdef TIMING
 		Timer timerScene;
 		timerScene.startNewRound();
-		#endif
+#endif
 
 		// scene
 		renderScene(camera);
@@ -405,9 +405,9 @@ namespace cppcraft
 		// finally, render scene water
 		renderSceneWater();
 
-		#ifdef TIMING
+#ifdef TIMING
 		logger << Log::INFO << "Time spent on scene: " << timerScene.getDeltaTime() * 1000.0 << Log::ENDL;
-		#endif
+#endif
 
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
@@ -426,7 +426,7 @@ namespace cppcraft
 		}
 		else if (gameconf.multisampling)
 		{
-			sceneFBO.blitTo(fboResolveColor, sceneTex.getWidth(), sceneTex.getHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+			sceneFBO.blitTo(fboResolveColor, sceneTex.getWidth(), sceneTex.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 			sceneFBO.blitTo(fboResolveColor, sceneTex.getWidth(), sceneTex.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
 			textureman.bind(0, Textureman::T_FINALBUFFER);

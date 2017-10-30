@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 pushd ../build
 cmake .. -DGPROF=ON
 make -j8

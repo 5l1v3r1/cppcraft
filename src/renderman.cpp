@@ -70,6 +70,10 @@ namespace cppcraft
 		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
+    // sample to coverage (only when multisampling)
+    //glSampleCoverage(0.5f, GL_FALSE);
+    //glEnable(GL_SAMPLE_ALPHA_TO_ONE);
+
 		// enable seamless cubemaps (globally)
 		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 		//
