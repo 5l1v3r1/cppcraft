@@ -1,5 +1,5 @@
 #pragma once
-#include "../block.hpp"
+#include "../db/itemdb.hpp"
 #include <string>
 #include <cstdint>
 // no item is always zero
@@ -18,6 +18,9 @@ namespace cppcraft
 	public:
   	static const int BLOCK = 0;
   	static const int ITEM  = 1;
+
+    // used as empty item slot or free hand
+    Item() : m_guid(0), m_id(0), m_count(0) {}
 
 		Item(uint32_t guid, item_t id, item_t type = BLOCK, uint16_t cnt = 1)
 			: m_guid(guid), m_id(id | (type << 15)), m_count(cnt) {}
@@ -51,6 +54,33 @@ namespace cppcraft
 
 		bool isValid() const noexcept {
 			return this->getID() != IT_NONE && this->getCount() > 0;
+		}
+
+    bool isBlock() const noexcept {
+      return getType() == BLOCK;
+    }
+    Block toBlock() const noexcept {
+      assert(isBlock());
+      return Block(m_id);
+    }
+
+    //! lookup in db for this item, depending on type
+		const auto& itemdb() const {
+      assert(getType() == ITEM);
+		  return ::db::ItemDB::cget()[this->getID()];
+		}
+		auto& itemdb() {
+      assert(getType() == ITEM);
+			return ::db::ItemDB::get()[this->getID()];
+		}
+
+    const auto& blockdb() const {
+      assert(getType() == BLOCK);
+		  return ::db::BlockDB::cget()[this->getID()];
+		}
+		auto& blockdb() {
+      assert(getType() == BLOCK);
+			return ::db::BlockDB::get()[this->getID()];
 		}
 
 	private:

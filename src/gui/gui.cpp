@@ -1,28 +1,38 @@
 #include "gui.hpp"
 #include "../game.hpp"
+#include "../tiles.hpp"
 #include "../renderman.hpp"
-#include "../textureman.hpp"
 #include <nanogui/nanogui.h>
 
 #include "../items/inventory.hpp"
+#include "item_renderer.hpp"
+
+// GUI frontend
+namespace gui
+{
+  struct FrontendInventory : public InventoryArray
+  {
+    FrontendInventory(int tiles_x, int tiles_y);
+
+    // simulate a click on the inventory at @idx into @hand
+    // hand will be modified and item stacks may be swapped
+    virtual void click(int idx, Item& hand);
+
+    nanogui::ArrayTexture* widget;
+
+  };
+}
 
 namespace cppcraft
 {
   nanogui::Screen* GUI::m_screen = nullptr;
   nanogui::ref<nanogui::Window> wnd;
+  gui::ItemRenderer irender;
 
-  static void add_tile(nanogui::FormHelper* gui, GLuint texture, GLuint tile)
+  static auto* add_inv(nanogui::FormHelper* gui, const int w, const int h)
   {
-    auto* image = new nanogui::ArrayTexture(wnd, texture);
-    image->setTile(tile, 0, 0);
-    image->setScaleCentered(2.0f);
-    image->setFixedSize(image->scaledImageSize());
-    gui->addWidget("", image);
-  }
-
-  static auto* add_inv(nanogui::FormHelper* gui, GLuint texture, const int w, const int h)
-  {
-    auto* image = new nanogui::ArrayTexture(wnd, w, h, texture);
+    const int tilesize = tiledb.tiles.tilesize();
+    auto* image = new nanogui::ArrayTexture(wnd, tilesize, tilesize, w, h);
     image->setScaleCentered(3.0f);
     image->setFixedSize(image->scaledImageSize());
     gui->addWidget("", image);
@@ -36,23 +46,38 @@ namespace cppcraft
 
     renderer.on_terminate([] { delete m_screen; });
 
+    /// item renderer ///
+    gui::ItemRenderer::init();
+
     auto* gui = new nanogui::FormHelper(m_screen);
     wnd = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
 
     gui->addGroup("Complex types");
 
-    const GLuint handle = textureman[Textureman::T_DIFFUSE].getHandle();
-    add_tile(gui, handle, 1);
-    add_tile(gui, handle, 2);
-    add_tile(gui, handle, 3);
-
-    auto* inv = add_inv(gui, handle, 9, 3);
-    std::vector<short> tiles(9 * 3);
-    for (size_t i = 0; i < tiles.size(); i++) tiles[i] = i;
-    inv->setTiles(std::move(tiles));
+    auto* inv = add_inv(gui, 9, 3);
     inv->onTileMotion(
       [] (int btn, int mod, int tx, int ty) {
 
+      });
+
+    inv->onContentRender(
+      [] (auto& widget, auto scale, auto offset)
+      {
+        const Item itm(1, 1, Item::BLOCK);
+
+        irender.begin();
+        for (int tx = 0; tx < widget.tilesX(); tx++)
+        for (int ty = 0; ty < widget.tilesY(); ty++)
+        {
+          const float x = widget.tilePos(tx, ty).x();
+          const float y = widget.tilePos(tx, ty).y();
+          const float w = widget.tileSize().x();
+          const float h = widget.tileSize().y();
+          irender.emit(itm, {x, y}, {w, h});
+        }
+        irender.upload();
+
+        irender.render({scale.x(), scale.y()}, {offset.x(), offset.y()});
       });
 
     gui->addGroup("Other widgets");

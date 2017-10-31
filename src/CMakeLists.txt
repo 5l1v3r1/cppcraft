@@ -55,6 +55,7 @@ set(SUB_SOURCES
     gui/gui.cpp
     gui/inventory.cpp
     gui/item_renderer.cpp
+    #items/item.cpp
     items.cpp
     lighting.cpp
     lighting_algos.cpp

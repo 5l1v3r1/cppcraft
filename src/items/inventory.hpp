@@ -2,35 +2,35 @@
 #include "../items/item.hpp"
 #include <cstdint>
 
-namespace cppcraft
+namespace gui
 {
+  using cppcraft::Item;
+
   // the inventory interface
   struct Inventory
   {
-    // get size of inventory
-    virtual size_t size() = 0;
-    // access element
-    virtual Item& operator() (int idx) = 0;
     // insert @source into inventory, returns the count of items affected
     // eg. if inserting a stack of 64 items its possible only room for 1.
-    virtual size_t insert(Item& source);
+    virtual size_t insert(Item& source) = 0;
+
+    // pull @count items from inventory as an item
+    virtual Item pull(size_t count) = 0;
+    // try pulling from inventory, receive what you would have pulled
+    virtual Item try_pull(size_t count) = 0;
 
   };
-  // implementation of general inventory
-  struct GeneralInventory : public Inventory
+  // inventory with slots
+  struct InventoryArray : public Inventory
   {
-    GeneralInventory(size_t capacity);
+    InventoryArray(size_t capacity) : m_storage(capacity) {}
 
-    // simulate a click on the inventory at @idx into @hand
-    // hand will be modified and item stacks may be swapped
-    virtual void click(int idx, Item& hand);
+    // get size of inventory
+    virtual size_t size() const noexcept = 0;
+    // access element at @idx
+    virtual Item& operator() (int idx) = 0;
+    virtual const Item& operator() (int idx) const = 0;
 
   private:
     std::vector<Item> m_storage;
-  };
-  // GUI frontend
-  struct FrontendInventory : public GeneralInventory
-  {
-
   };
 }

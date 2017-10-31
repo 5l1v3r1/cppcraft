@@ -285,10 +285,6 @@ namespace cppcraft
 		shaders[GUI] = Shader("shaders/gui.glsl", tokenizer, linkstage);
 		shaders[GUI].sendInteger("texture", 0);
 
-		// GUI menuitem shader
-		shaders[MENUITEM] = Shader("shaders/gui_item.glsl", tokenizer, linkstage);
-		shaders[MENUITEM].sendInteger("texture", 0);
-
 		// compass shader
 		shaders[COMPASS] = Shader("shaders/compass.glsl", tokenizer, linkstage);
 		shaders[COMPASS].sendInteger("texture", 0);

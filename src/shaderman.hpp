@@ -62,7 +62,6 @@ namespace cppcraft
 			MINIMAP,
 			GUI,
 			GUI_COLOR,
-			MENUITEM,
 
 			NUMBER_OF_SHADERS
 

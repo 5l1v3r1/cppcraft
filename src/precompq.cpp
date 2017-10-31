@@ -22,12 +22,7 @@ namespace cppcraft
 
 	void PrecompQ::add(Sector& sector, uint8_t parts)
 	{
-		// we don't care if the sector is currently
-		// being generated again, all we care about
-		// is that is has been generated at some point
-		#ifdef DEBUG
 		assert(sector.generated() == true);
-		#endif
 
 		if (sector.meshgen != 0) return;
 

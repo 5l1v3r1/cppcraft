@@ -1,7 +1,7 @@
 #include "item_renderer.hpp"
 
 #include <library/bitmap/colortools.hpp>
-#include <library/opengl/oglfont.hpp>
+#include <library/opengl/shader.hpp>
 #include <library/math/matrix.hpp>
 #include "../block.hpp"
 #include "../shaderman.hpp"
@@ -15,13 +15,47 @@ using namespace glm;
 
 namespace gui
 {
+  constexpr char const *const vertex_shader =
+      R"(#version 330
+      uniform vec2 scaleFactor;
+      uniform vec2 position;
+      in vec3 vertex;
+      in vec3 texCoords;
+      in vec4 color;
+      out vec3 uv;
+      out vec4 colordata;
+      void main() {
+          uv = texCoords;
+          colordata = color;
+          vec2 scaledVertex = (vertex.xy * scaleFactor) + position;
+          gl_Position  = vec4(2.0*scaledVertex.x - 1.0,
+                              1.0 - 2.0*scaledVertex.y,
+                              vertex.z, 1.0);
+      })";
+
+  constexpr char const *const fragment_shader =
+      R"(#version 330
+      uniform sampler2DArray image;
+      in vec3 uv;
+      in vec4 colordata;
+      out vec4 color;
+      void main() {
+          color = texture(image, uv);
+          color.rgb = mix(color.rgb, colordata.rgb, colordata.a);
+      })";
+
+  static library::Shader ir_shader;
 	static const double PI = 4 * atan(1);
+  static const uint32_t invis   = BGRA8(255, 255, 255,   0);
+  static const uint32_t visible = BGRA8(255, 255, 255, 128);
+	static std::vector<ItemRenderer::ivertex_t> transformedCube;
 
-	std::vector<ItemRenderer::ivertex_t> transformedCube;
-	SimpleFont itemRendererFont;
-
-	void ItemRenderer::init(SimpleFont& font)
+	void ItemRenderer::init()
 	{
+    ir_shader = library::Shader(vertex_shader, fragment_shader, "GUI shader",
+                std::vector<std::string>{"vertex", "texCoords", "color"});
+    ir_shader.sendInteger("image", 0);
+
 		// pre-transform cube
 		glm::vec3 GUI_cube[12] =
 		{
@@ -31,7 +65,7 @@ namespace gui
 		};
 
 		// rotate cube and invert the Y-axis
-		glm::mat4 scale = glm::scale(glm::vec3(1.0f, -1.0f, 1.0f));
+		glm::mat4 scale = glm::scale(glm::vec3(1.0f, -1.0f, 1.0f) * 0.5f);
 		glm::mat4 matrot = rotationMatrix(PI / 4, -PI / 4, 0);
 		// turn the cube upside down because this coordinate system
 		// has the positive Y-axis pointing downwards
@@ -42,15 +76,13 @@ namespace gui
 			GUI_cube[vert] = vec3(matrot * glm::vec4(GUI_cube[vert], 1.0f));
 		}
 
-		float GUIcube_tex[24] =
-		{
+		static const float GUIcube_tex[24] = {
 			0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
 			0.0, 1.0,  0.0, 0.0,  1.0, 0.0,  1.0, 1.0,
 			1.0, 0.0,  1.0, 1.0,  0.0, 1.0,  0.0, 0.0,
 		};
 
-		unsigned int GUIcube_colors[3] =
-		{
+		static const uint32_t GUIcube_colors[3] = {
 			BGRA8(0, 0, 0,   0),
 			BGRA8(0, 0, 0,  20),
 			BGRA8(0, 0, 0,  64)
@@ -60,111 +92,100 @@ namespace gui
 
 		for (int i = 0; i < 12; i++)
 		{
-			vec3& v = GUI_cube[i];
+			const vec3& v = GUI_cube[i];
 
 			float tu = GUIcube_tex[i * 2 + 0];
 			float tv = GUIcube_tex[i * 2 + 1];
 
-			int face = i >> 2;
+			const int face = i / 4;
 			transformedCube.emplace_back(v.x, v.y, v.z,  tu, tv, (float)face * 2, GUIcube_colors[face]);
 		}
-
-		// re-use shader & texture from existing font object
-		itemRendererFont.setShader(font.getShader());
-		itemRendererFont.setTexture(font.getTexture());
 	}
 
-	void ItemRenderer::clear()
+	void ItemRenderer::begin()
 	{
 		this->blockTiles.clear();
 		this->itemTiles.clear();
 	}
 
-	int ItemRenderer::emit(Item& itm, float x, float y, float size)
+	int ItemRenderer::emit(const Item& itm, glm::vec2 pos, glm::vec2 size)
 	{
-		if (itm.isItem())
-		{
-			return emitQuad(itm, x, y, size);
-		}
-		else if (itm.isBlock())
+		if (itm.isBlock())
 		{
 			// some blocks can be represented by quads
 			if (itm.toBlock().isCross())
 			{
-				return emitQuad(itm, x, y, size);
+				return emitQuad(itm, pos, size);
 			}
 			else if (itm.toBlock().isTall())
 			{
-				return emitTallQuad(itm, x, y, size);
+				return emitTallQuad(itm, pos, size);
 			}
 			// presentable rotated blocks
-			return emitBlock(itm, x, y, size * 0.8);
+			return emitBlock(itm, pos, size);
 		}
-		return 0;
+    // normal item
+		return emitQuad(itm, pos, size);
 	}
 
-	int ItemRenderer::emitQuad(Item& itm, float x, float y, float size)
+	int ItemRenderer::emitQuad(const Item& itm, glm::vec2 pos, glm::vec2 size)
 	{
 		// face value is "as if" front
-		float tile = itm.getTextureTileID();
+		const float tile = (itm.isBlock()) ? itm.blockdb().getTileID() : itm.itemdb().getTileID();
 		// emit to itemTiles or blockTiles depending on item type
-		std::vector<ivertex_t>& dest = (itm.isItem()) ? itemTiles : blockTiles;
+		auto& dest = (itm.isBlock()) ? blockTiles : itemTiles;
 
 		// create single quad
 		dest.emplace_back(
-			x,        y + size, 0,   0, 0, tile,   BGRA8(255, 255, 255,   0) );
+			pos.x,          pos.y + size.y, 0,   0, 0, tile,   invis );
 		dest.emplace_back(
-			x + size, y + size, 0,   1, 0, tile,   BGRA8(255, 255, 255,   0) );
+			pos.x + size.x, pos.y + size.y, 0,   1, 0, tile,   invis );
 		dest.emplace_back(
-			x + size, y,        0,   1, 1, tile,   BGRA8(255, 255, 255,   0) );
+			pos.x + size.x, pos.y,          0,   1, 1, tile,   invis );
 		dest.emplace_back(
-			x,        y,        0,   0, 1, tile,   BGRA8(255, 255, 255, 128) );
+			pos.x,          pos.y,          0,   0, 1, tile,   visible );
 		return 4;
 	}
-	int ItemRenderer::emitTallQuad(Item& itm, float x, float y, float size)
+	int ItemRenderer::emitTallQuad(const Item& itm, glm::vec2 pos, glm::vec2 size)
 	{
 		// face value is "as if" front
-		Block blk = itm.toBlock();
-    const auto& db = blk.db();
+		const Block blk = itm.toBlock();
 		float tileTop = blk.getTexture(2);
 		float tileBot = blk.getTexture(0);
 		// emit to itemTiles or blockTiles depending on item type
-		std::vector<ivertex_t>& dest = (itm.isItem()) ? itemTiles : blockTiles;
-
-		float xofs = size * 0.2;
+    auto& dest = (itm.isBlock()) ? blockTiles : itemTiles;
+		const float xofs = size.x * 0.2;
 
 		// top quad
 		dest.emplace_back(
-			x + xofs,        y + size*1.0, 0,   0, 0, tileTop,   BGRA8(255, 255, 255,   0) );
+			pos.x + xofs,          pos.y + size.y*1.0, 0,   0, 0, tileTop,   invis );
 		dest.emplace_back(
-			x + size - xofs, y + size*1.0, 0,   1, 0, tileTop,   BGRA8(255, 255, 255,   0) );
+			pos.x + size.x - xofs, pos.y + size.y*1.0, 0,   1, 0, tileTop,   invis );
 		dest.emplace_back(
-			x + size - xofs, y + size*0.5, 0,   1, 1, tileTop,   BGRA8(255, 255, 255,   0) );
+			pos.x + size.x - xofs, pos.y + size.y*0.5, 0,   1, 1, tileTop,   invis );
 		dest.emplace_back(
-			x + xofs,        y + size*0.5, 0,   0, 1, tileTop,   BGRA8(255, 255, 255,   0) );
+			pos.x + xofs,          pos.y + size.y*0.5, 0,   0, 1, tileTop,   invis );
 		// bottom quad
 		dest.emplace_back(
-			x + xofs,        y + size*0.5, 0,   0, 0, tileBot,   BGRA8(255, 255, 255,   0) );
+			pos.x + xofs,          pos.y + size.y*0.5, 0,   0, 0, tileBot,   invis );
 		dest.emplace_back(
-			x + size - xofs, y + size*0.5, 0,   1, 0, tileBot,   BGRA8(255, 255, 255,   0) );
+			pos.x + size.x - xofs, pos.y + size.y*0.5, 0,   1, 0, tileBot,   invis );
 		dest.emplace_back(
-			x + size - xofs, y,            0,   1, 1, tileBot,   BGRA8(255, 255, 255,   0) );
+			pos.x + size.x - xofs, pos.y,              0,   1, 1, tileBot,   invis );
 		dest.emplace_back(
-			x + xofs,        y,            0,   0, 1, tileBot,   BGRA8(255, 255, 255, 128) );
+			pos.x + xofs,          pos.y,              0,   0, 1, tileBot,   visible );
 
 		return 8;
 	}
-	int ItemRenderer::emitBlock(Item& itm, float x, float y, float size)
+	int ItemRenderer::emitBlock(const Item& itm, glm::vec2 pos, glm::vec2 size)
 	{
-		glm::vec3 offset = glm::vec3(x, y, -1.0f) + glm::vec3(size, size, 0.0f) * 0.6f;
+		const glm::vec3 offset(pos + size * 0.5f, 0.0f);
 
-		for (size_t i = 0; i < transformedCube.size(); i++)
+		for (const auto& vertex : transformedCube)
 		{
-			ivertex_t& vertex = transformedCube[i];
-
 			// move cube to the right position, and scale it down to size
-			vec3 v(vertex.x, vertex.y, vertex.z);
-			v = offset + v * size;
+			glm::vec3 v(vertex.x, vertex.y, vertex.z);
+			v = offset + v * vec3(size, 0.0f);
 
 			// face value is located in vertex.w
 			Block blk = itm.toBlock();
@@ -173,13 +194,13 @@ namespace gui
 			// emit to blockTiles only
 			blockTiles.emplace_back(v.x, v.y, v.z,  vertex.u, vertex.v, tw,  vertex.color);
 		}
-		return 12;
+		return transformedCube.size();
 	}
 
 	void ItemRenderer::upload()
 	{
-		int items  = itemTiles.size();
-		int blocks = blockTiles.size();
+		size_t items  = itemTiles.size();
+		size_t blocks = blockTiles.size();
 
 		if (items + blocks == 0) return;
 
@@ -204,17 +225,18 @@ namespace gui
 		}
 	}
 
-	void ItemRenderer::render(glm::mat4& ortho)
+	void ItemRenderer::render(glm::vec2 scale, glm::vec2 offset)
 	{
 		// nothing to do here with no items or blocks
 		if (blockTiles.size() == 0) return;
 
-		int items  = itemTiles.size() - blockTiles.size();
-		int blocks = blockTiles.size();
+		const size_t items  = itemTiles.size() - blockTiles.size();
+		const size_t blocks = blockTiles.size();
 
 		/// render all menu items ///
-		shaderman[Shaderman::MENUITEM].bind();
-		shaderman[Shaderman::MENUITEM].sendMatrix("mvp", ortho);
+		ir_shader.bind();
+		ir_shader.sendVec2("scaleFactor", scale);
+    ir_shader.sendVec2("position", offset);
 
 		if (items)
 		{
@@ -230,5 +252,5 @@ namespace gui
 			// render blocks
 			vao.render(GL_QUADS, items, blocks);
 		}
-	} // GUIInventory::render
-}
+	} // render()
+} // ItemRenderer
