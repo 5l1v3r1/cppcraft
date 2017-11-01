@@ -23,8 +23,15 @@ namespace cppcraft
 	void PrecompQ::add(Sector& sector, uint8_t parts)
 	{
 		assert(sector.generated() == true);
-
+    // dont add if already added
 		if (sector.meshgen != 0) return;
+    // dont add the edge to queue as its going to get auto-updated by seamless
+    if (sector.getX() < 2 || sector.getZ() < 2 || sector.getX() >= sectors.getXZ()-2 || sector.getZ() >= sectors.getXZ()-2)
+          return;
+    // dont add if neighbors arent (at least) generated
+    if (sector.isReadyForAtmos() == false) return;
+    // sectors with queued-up objects shouldnt be added to queue
+    assert(sector.objects == 0);
 
 		sector.meshgen |= parts;
 		queue.push_back(&sector);
@@ -50,54 +57,52 @@ namespace cppcraft
       // -= try to clear out old shite =-
   		// NOTE: there will always be sectors that cannot be finished
   		// due to objects begin scheduled and not enough room to build them
-      if (sector->generated() == false || sector->meshgen == 0)
+      if (sector->generated() == false || sector->meshgen == 0 ||
+          sector->getX() < 2 || sector->getZ() < 2 ||
+          sector->getX() >= sectors.getXZ()-2 ||
+          sector->getZ() >= sectors.getXZ()-2)
       {
         queue.pop_front();
         continue;
       }
 
-			// we don't want to start jobs we can't finish
-			// this is also bound to be true at some point,
-			// unless everything completely stopped...
-			if (sector->isReadyForMeshgen() && sector->objects == 0)
+			// make sure we have proper light
+			sectors.onNxN(*sector, 1, // 3x3
+			[] (Sector& sect)
 			{
-				// make sure we have proper light
-				bool atmos = sectors.onNxN(*sector, 1, // 3x3
-				[] (Sector& sect)
+				// in the future the sector might need finished atmospherics
+				if (sect.atmospherics == false)
 				{
-					// in the future the sector might need finished atmospherics
-					// we will be ignoring the border sectors, out of sight - out of mind
-					if (sect.getX() != 0 && sect.getZ() != 0
-					 && sect.getX() < sectors.getXZ()-1 && sect.getZ() < sectors.getXZ()-1)
-					if (sect.atmospherics == false)
-					{
-						if (sect.isReadyForMeshgen() == false) return false;
-						#ifdef TIMING
-							Timer timer;
-						#endif
-						Lighting::atmosphericFlood(sect);
-						#ifdef TIMING
-							printf("Time spent in that goddamn atm flood: %f\n",
-								timer.getTime());
-						#endif
-						return false;
-					}
-          // we also only accept sectors with no objects left to generate
-					return (sect.objects == 0);
-          //return true;
-				});
-				if (atmos == false)
-					break;
+					if (sect.isReadyForAtmos() == false) { return true; }
+					#ifdef TIMING
+						Timer timer;
+					#endif
+					Lighting::atmosphericFlood(sect);
+					#ifdef TIMING
+						printf("Time spent in that goddamn atm flood: %f\n",
+							timer.getTime());
+					#endif
+          // flood takes some time, so lets not do more in one go
+					return false;
+				}
+        return true;
+			});
+      // we will only accept this sector if
+      // atmospherics is done on all neighbors and no objects scheduled
+      bool is_ready = sectors.onNxN(*sector, 1, // 3x3
+			[] (Sector& sect)
+			{
+				return sect.objects == 0 && sect.atmospherics;
+      });
+			if (is_ready == false)
+				break;
 
-				// check again that there are available slots
-				if (!AsyncPool::available()) break;
+			// check again that there are available slots
+			if (!AsyncPool::available()) break;
 
-				// finally, we can start the job
-				startJob(*sector);
-        queue.pop_front();
-			}
-      // monitor this number:
-      //printf("PrecompQ size: %zu\n", queue.size());
+			// finally, we can start the job
+			startJob(*sector);
+      queue.pop_front();
 
 			// immediately exit while loop, as the sector was not validated
 			break;

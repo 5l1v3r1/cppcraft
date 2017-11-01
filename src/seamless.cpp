@@ -23,7 +23,10 @@ namespace cppcraft
 {
 	// length player has to travel for a transition to take place
 	const int Seamless::OFFSET = Sector::BLOCKS_XZ;
+  // called each time a transition happens
   static std::vector<delegate<void()>> transition_signal;
+  // the edge sector row which gets mesh updated on transition
+  static const int EDGE_NO = 2;
 
 	// runs seamless() until no more transitions happen
 	// essentially moving the player until he is on a local grid, near center
@@ -126,7 +129,7 @@ namespace cppcraft
 				// reset it completely
 				Seamstress::resetSectorColumn(oldpointer);
 				// flag neighboring sector as dirty, if necessary
-				Seamstress::updateSectorColumn(1, z);
+				Seamstress::updateSectorColumn(EDGE_NO, z);
 
 				// reset edge columns
 				for (y = 0; y < columns.getHeight(); y++)
@@ -170,7 +173,7 @@ namespace cppcraft
 				// reset sector completely
 				Seamstress::resetSectorColumn(oldpointer);
 				// update neighbor
-				Seamstress::updateSectorColumn(sectors.getXZ()-2, z);
+				Seamstress::updateSectorColumn(sectors.getXZ()-1-EDGE_NO, z);
 
 				// reset edge columns
 				for (y = 0; y < columns.getHeight(); y++)
@@ -217,7 +220,7 @@ namespace cppcraft
 				// reset oldpointer column
 				Seamstress::resetSectorColumn(oldpointer);
 				// only need to update 1 row for Z
-				Seamstress::updateSectorColumn(x, 1);
+				Seamstress::updateSectorColumn(x, EDGE_NO);
 
 				// reset edge columns
 				for (y = 0; y < columns.getHeight(); y++)
@@ -260,7 +263,7 @@ namespace cppcraft
 				// reset oldpointer column
 				Seamstress::resetSectorColumn(oldpointer);
 				// only need to update 1 row for Z
-				Seamstress::updateSectorColumn(x, sectors.getXZ()-2);
+				Seamstress::updateSectorColumn(x, sectors.getXZ()-1-EDGE_NO);
 
 				// reset edge columns
 				for (y = 0; y < columns.getHeight(); y++)

@@ -31,12 +31,12 @@ namespace cppcraft
 		return sqrtf(dx*dx + dz*dz) - (BLOCKS_XZ / 2) * sqrtf(3.0);
 	}
 
-	bool Sector::isReadyForMeshgen() const
+	bool Sector::isReadyForAtmos() const
 	{
 		return sectors.onNxN(*this, 1, // 3x3
 		[] (Sector& sect)
 		{
-			return sect.generated();
+			return sect.generated() && sect.objects == 0;
 		});
 	}
 	void Sector::updateAllMeshes()

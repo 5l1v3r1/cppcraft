@@ -89,8 +89,19 @@ namespace terragen
 					it = objects.erase(it);
 					// reduce the object count on sector (FIXME)
 					//assert (sector.objects);
-					if (sector.objects)
+					if (sector.objects) {
 						sector.objects--;
+            if (sector.objects == 0) {
+              // now that we have completed all objects on this sector,
+              // its possible that all its neighbors can be added to precompq
+              sectors.onNxN(sector, 1, // 3x3
+                  [] (Sector& sect) -> bool {
+                    if (sect.isReadyForAtmos() && sect.meshgen == 0)
+                        sect.updateAllMeshes();
+                    return true;
+                  });
+            } // no longer has objects
+          } // has objects
 				}
         return;
 			}

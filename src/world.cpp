@@ -19,7 +19,7 @@ namespace cppcraft
 		// default world folder
 		const std::string DEFAULT_WORLD_FOLDER = "Worlds/test";
 
-		int sectors_xz = config.get("world.viewdist", 24) * 2;
+		int sectors_xz = config.get("world.viewdist", 24) * 2 + 4;
 		sectors.rebuild(sectors_xz);
 
 		/// load world position from folder ///

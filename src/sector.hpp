@@ -108,7 +108,7 @@ namespace cppcraft
 		}
 		// returns true if the sector is surrounded by sectors
 		// that are already properly generated, or on an edge
-		bool isReadyForMeshgen() const;
+		bool isReadyForAtmos() const;
 
 		// update relevant parts of this sectors mesh
 		void updateAllMeshes();

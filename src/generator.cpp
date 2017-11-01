@@ -6,7 +6,6 @@
 #include "chunks.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
-#include "precompq.hpp"
 #include "lighting.hpp"
 #include "sectors.hpp"
 #include "threadpool.hpp"
@@ -133,14 +132,21 @@ namespace cppcraft
 				dest.atmospherics = false;
 
 				// add all the objects from this sector to object queue
-				if (dest.objects != 0)
-					terragen::ObjectQueue::add(gdata->get_objects());
-
+				if (dest.objects > 0)
+			     terragen::ObjectQueue::add(gdata->get_objects());
+        else
+        {
+          // each time a sector gets generated, we can check if neighbors
+          // are ready to be added to precompq
+          sectors.onNxN(dest, 1, // 3x3
+              [] (Sector& sect) -> bool {
+                if (sect.isReadyForAtmos() && sect.meshgen == 0)
+                    sect.updateAllMeshes();
+                return true;
+              });
+        }
 				// add it to the minimap!!!
 				minimap.addSector(dest);
-
-				// now that its been generated, let's meshmerize it
-				precompq.add(dest, 0xFF);
 			}
 			else
 			{
