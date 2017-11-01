@@ -49,24 +49,6 @@ namespace cppcraft
 		}
 	}
 
-	// the queue of vectors that needs terrain (blocks)
-	// we will be using this comparison function to sort
-	// the sectors by distance from center
-	bool GenerationOrder(Sector* s1, Sector* s2)
-	{
-		const int center = sectors.getXZ() / 2;
-		const int dx1 = s1->getX() - center;
-		const int dz1 = s1->getZ() - center;
-
-		const int dx2 = s2->getX() - center;
-		const int dz2 = s2->getZ() - center;
-
-		// euclidian:
-		return (dx1*dx1 + dz1*dz1) < (dx2*dx2 + dz2*dz2);
-		// manhattan:
-		//return std::abs(dx1) + std::abs(dz1) > std::abs(dx2) + std::abs(dz2);
-	}
-
 	void Generator::run()
 	{
 		// sort by distance from center (radius)

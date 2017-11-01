@@ -2,7 +2,7 @@
 
 #include <string>
 #include <unordered_map>
-#include <deque>
+#include <vector>
 
 namespace db
 {
@@ -54,9 +54,9 @@ namespace db
 		}
 
 	private:
+    // the ID of a type is its index into this vector
+		std::vector<Datatype> storage;
 		// name to id conversion
 		std::unordered_map<std::string, int> names;
-		// the ID of a type is its index into this vector
-		std::deque<Datatype> storage;
 	};
 }

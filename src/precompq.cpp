@@ -42,7 +42,6 @@ namespace cppcraft
 		if (!AsyncPool::available()) return;
 
     if (!queue.empty()) {
-      extern bool GenerationOrder(Sector*, Sector*);
       std::sort(queue.begin(), queue.end(), GenerationOrder);
     }
 
@@ -70,7 +69,6 @@ namespace cppcraft
 			sectors.onNxN(*sector, 1, // 3x3
 			[] (Sector& sect)
 			{
-				// in the future the sector might need finished atmospherics
 				if (sect.atmospherics == false)
 				{
 					if (sect.isReadyForAtmos() == false) { return true; }
@@ -83,7 +81,7 @@ namespace cppcraft
 							timer.getTime());
 					#endif
           // flood takes some time, so lets not do more in one go
-					return false;
+					return true;
 				}
         return true;
 			});
