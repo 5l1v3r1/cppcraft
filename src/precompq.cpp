@@ -28,10 +28,15 @@ namespace cppcraft
     // dont add the edge to queue as its going to get auto-updated by seamless
     if (sector.getX() < 2 || sector.getZ() < 2 || sector.getX() >= sectors.getXZ()-2 || sector.getZ() >= sectors.getXZ()-2)
           return;
-    // dont add if neighbors arent (at least) generated
-    if (sector.isReadyForAtmos() == false) return;
-    // sectors with queued-up objects shouldnt be added to queue
-    assert(sector.objects == 0);
+    // Unfortunately we can't do a full check to see if the sector
+    // is completely ready for this queue.
+    // On the edge there are sectors that will "never"
+    // get their objects done, and so will never let their neighbors
+    // qualify for this queue. This happens rarely, but it *DOES* happen.
+    // We can at least check if the neighbors are generated:
+    bool at_least_generated = sectors.onNxN(sector, 1, // 3x3
+		[] (Sector& sect) { return sect.generated(); });
+    if (at_least_generated == false) return;
 
 		sector.meshgen |= parts;
 		queue.push_back(&sector);
@@ -140,4 +145,12 @@ namespace cppcraft
   			AsyncPool::release();
       }));
 	}
+
+  bool PrecompQ::contains(Sector& sector) const
+  {
+    for (const auto* s : queue) {
+      if (s->getX() == sector.getX() && s->getZ() == sector.getZ()) return true;
+    }
+    return false;
+  }
 }

@@ -29,6 +29,9 @@ namespace terragen
       return get().retry_objects.size();
     }
 
+    // for debugging purposes
+    static bool contains(Sector&);
+
 	private:
 		void run_internal();
 

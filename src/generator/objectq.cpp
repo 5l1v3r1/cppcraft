@@ -122,4 +122,24 @@ namespace terragen
 
 	} // ObjectQueue::run()
 
+  bool ObjectQueue::contains(Sector& sector)
+  {
+    const int worldX = cppcraft::world.getWX() * BLOCKS_XZ;
+		const int worldZ = cppcraft::world.getWZ() * BLOCKS_XZ;
+
+    for (const auto& obj : get().objects)
+    {
+      const int sectX = (obj.x - worldX) / BLOCKS_XZ;
+			const int sectZ = (obj.z - worldZ) / BLOCKS_XZ;
+      if (sector.getX() == sectX && sector.getZ() == sectZ) return true;
+    }
+    for (const auto& obj : get().retry_objects)
+    {
+      const int sectX = (obj.x - worldX) / BLOCKS_XZ;
+			const int sectZ = (obj.z - worldZ) / BLOCKS_XZ;
+      if (sector.getX() == sectX && sector.getZ() == sectZ) return true;
+    }
+    return false;
+  }
+
 }

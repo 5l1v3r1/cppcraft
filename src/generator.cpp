@@ -126,6 +126,8 @@ namespace cppcraft
                     sect.updateAllMeshes();
                 return true;
               });
+          // somehow it needs to be ... in some queue
+          assert(dest.meshgen != 0);
         }
 				// add it to the minimap!!!
 				minimap.addSector(dest);

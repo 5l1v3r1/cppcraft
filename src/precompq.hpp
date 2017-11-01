@@ -24,6 +24,9 @@ namespace cppcraft
 			return queue.size();
 		}
 
+    // for debugging purposes
+    bool contains(Sector&) const;
+
 	private:
 		// starting a job is actually a little complicated
 		void startJob(Sector& sector);
