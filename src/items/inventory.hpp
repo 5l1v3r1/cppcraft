@@ -17,18 +17,17 @@ namespace gui
     virtual Item pull(size_t count) = 0;
     // try pulling from inventory, receive what you would have pulled
     virtual Item try_pull(size_t count) = 0;
-
   };
   // inventory with slots
-  struct InventoryArray : public Inventory
-  {
+  class InventoryArray {
+  public:
     InventoryArray(size_t capacity) : m_storage(capacity) {}
 
     // get size of inventory
-    virtual size_t size() const noexcept = 0;
+    size_t size() const noexcept { return m_storage.size(); };
     // access element at @idx
-    virtual Item& operator() (int idx) = 0;
-    virtual const Item& operator() (int idx) const = 0;
+    Item& at(int idx) { return m_storage.at(idx); }
+    const Item& at(int idx) const { return m_storage.at(idx); }
 
   private:
     std::vector<Item> m_storage;

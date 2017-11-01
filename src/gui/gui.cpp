@@ -4,30 +4,13 @@
 #include "../renderman.hpp"
 #include <nanogui/nanogui.h>
 
-#include "../items/inventory.hpp"
-#include "item_renderer.hpp"
-
-// GUI frontend
-namespace gui
-{
-  struct FrontendInventory : public InventoryArray
-  {
-    FrontendInventory(int tiles_x, int tiles_y);
-
-    // simulate a click on the inventory at @idx into @hand
-    // hand will be modified and item stacks may be swapped
-    virtual void click(int idx, Item& hand);
-
-    nanogui::ArrayTexture* widget;
-
-  };
-}
+#include "frontend_inventory.hpp"
 
 namespace cppcraft
 {
   nanogui::Screen* GUI::m_screen = nullptr;
   nanogui::ref<nanogui::Window> wnd;
-  gui::ItemRenderer irender;
+  std::unique_ptr<gui::FrontendInventory> test_inv = nullptr;
 
   static auto* add_inv(nanogui::FormHelper* gui, const int w, const int h)
   {
@@ -52,33 +35,12 @@ namespace cppcraft
     auto* gui = new nanogui::FormHelper(m_screen);
     wnd = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
 
-    gui->addGroup("Complex types");
+    gui->addGroup("Inventory widget");
 
-    auto* inv = add_inv(gui, 9, 3);
-    inv->onTileMotion(
-      [] (int btn, int mod, int tx, int ty) {
-
-      });
-
-    inv->onContentRender(
-      [] (auto& widget, auto scale, auto offset)
-      {
-        const Item itm(1, 1, Item::BLOCK);
-
-        irender.begin();
-        for (int tx = 0; tx < widget.tilesX(); tx++)
-        for (int ty = 0; ty < widget.tilesY(); ty++)
-        {
-          const float x = widget.tilePos(tx, ty).x();
-          const float y = widget.tilePos(tx, ty).y();
-          const float w = widget.tileSize().x();
-          const float h = widget.tileSize().y();
-          irender.emit(itm, {x, y}, {w, h});
-        }
-        irender.upload();
-
-        irender.render({scale.x(), scale.y()}, {offset.x(), offset.y()});
-      });
+    auto* inv_widget = add_inv(gui, 9, 3);
+    test_inv.reset(new gui::FrontendInventory(inv_widget));
+    for (size_t i = 0; i < test_inv->size(); i++)
+      test_inv->at(i) = Item(i + 1, (i + 1) % 20, Item::BLOCK);
 
     gui->addGroup("Other widgets");
     gui->addButton("A button",

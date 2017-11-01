@@ -52,8 +52,8 @@ namespace cppcraft
 			return this->m_count;
 		}
 
-		bool isValid() const noexcept {
-			return this->getID() != IT_NONE && this->getCount() > 0;
+		bool isNone() const noexcept {
+			return this->getID() == IT_NONE || this->getCount() == 0;
 		}
 
     bool isBlock() const noexcept {
