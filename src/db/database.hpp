@@ -55,7 +55,7 @@ namespace db
 
 	private:
     // the ID of a type is its index into this vector
-		std::vector<Datatype> storage;
+		std::vector<Datatype> storage; // NOTE: its VERY important its a vector
 		// name to id conversion
 		std::unordered_map<std::string, int> names;
 	};
