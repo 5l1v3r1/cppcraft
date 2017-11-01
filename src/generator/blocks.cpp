@@ -54,7 +54,7 @@ namespace terragen
   static uint32_t color_index_from(const rapidjson::Value& obj)
   {
     if (obj.IsArray()) {
-      return BGRA8(obj[0].GetInt(), obj[1].GetInt(), obj[2].GetInt(), obj[3].GetInt());
+      return RGBA8(obj[0].GetInt(), obj[1].GetInt(), obj[2].GetInt(), obj[3].GetInt());
     }
     return color_index_from(obj.GetString());
   }

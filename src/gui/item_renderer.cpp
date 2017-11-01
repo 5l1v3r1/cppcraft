@@ -11,7 +11,6 @@
 
 using namespace cppcraft;
 using namespace library;
-using namespace glm;
 
 namespace gui
 {
@@ -41,6 +40,7 @@ namespace gui
       out vec4 color;
       void main() {
           color = texture(image, uv);
+          if (color.a < 0.1) discard;
           color.rgb = mix(color.rgb, colordata.rgb, colordata.a);
       })";
 
@@ -56,6 +56,7 @@ namespace gui
                 std::vector<std::string>{"vertex", "texCoords", "color"});
     ir_shader.sendInteger("image", 0);
 
+    using namespace glm;
 		// pre-transform cube
 		glm::vec3 GUI_cube[12] =
 		{
@@ -73,7 +74,7 @@ namespace gui
 
 		for (int vert = 0; vert < 12; vert++)
 		{
-			GUI_cube[vert] = vec3(matrot * glm::vec4(GUI_cube[vert], 1.0f));
+			GUI_cube[vert] = glm::vec3(matrot * glm::vec4(GUI_cube[vert], 1.0f));
 		}
 
 		static const float GUIcube_tex[24] = {
@@ -92,7 +93,7 @@ namespace gui
 
 		for (int i = 0; i < 12; i++)
 		{
-			const vec3& v = GUI_cube[i];
+			const auto& v = GUI_cube[i];
 
 			float tu = GUIcube_tex[i * 2 + 0];
 			float tv = GUIcube_tex[i * 2 + 1];
@@ -179,20 +180,17 @@ namespace gui
 	}
 	int ItemRenderer::emitBlock(const Item& itm, glm::vec2 pos, glm::vec2 size)
 	{
-		const glm::vec3 offset(pos + size * 0.5f, 0.0f);
+		const glm::vec2 offset(pos + size * 0.5f);
 
 		for (const auto& vertex : transformedCube)
 		{
-			// move cube to the right position, and scale it down to size
-			glm::vec3 v(vertex.x, vertex.y, vertex.z);
-			v = offset + v * vec3(size, 0.0f);
-
+			const glm::vec2 pos = offset + glm::vec2(vertex.x, vertex.y) * size;
 			// face value is located in vertex.w
 			Block blk = itm.toBlock();
 			blk.setBits(3); // assuming bits are used to determine direction of block
-			float tw = blk.getTexture(vertex.w);
+			const float tile = blk.getTexture(vertex.w);
 			// emit to blockTiles only
-			blockTiles.emplace_back(v.x, v.y, v.z,  vertex.u, vertex.v, tw,  vertex.color);
+			blockTiles.emplace_back(pos.x, pos.y, vertex.z,  vertex.u, vertex.v, tile,  vertex.color);
 		}
 		return transformedCube.size();
 	}

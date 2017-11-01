@@ -27,11 +27,21 @@ namespace gui
   };
 
   inline FrontendInventory::FrontendInventory(Widget* widget)
-    : InventoryArray(widget->tileCount()), m_widget(widget)
+    : InventoryArray(widget->tilesTotal()), m_widget(widget)
   {
     widget->onTileMotion(
-      [] (int btn, int mod, int tx, int ty) {
-
+      [this] (int btn, int mod, int tx, int ty) {
+        if (tx >= 0)  {
+          const auto& item = this->at(tx + ty * this->tilesX());
+          if (item.getCount() > 0)
+          {
+            if (item.isBlock()) {
+               m_widget->setTooltip(item.blockdb().getName(item.toBlock()));
+               return;
+            }
+          }
+        }
+        m_widget->setTooltip("");
       });
 
     widget->onContentRender(
@@ -41,6 +51,9 @@ namespace gui
         {
           this->updated = false;
           this->uploadVertexData();
+          // also update tile counts
+          for (size_t i = 0; i < this->size(); i++)
+              m_widget->setTileCount(i, this->at(i).getCount());
         }
         m_render.render({scale.x(), scale.y()}, {offset.x(), offset.y()});
       });
