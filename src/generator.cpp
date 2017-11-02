@@ -108,7 +108,7 @@ namespace cppcraft
 				// and, swap out the flatland data
 				dest.flat().assign(gdata->flatl.unassign());
 				// toggle sector generated flag, as well as removing generating flag
-				dest.meshgen      = 0; // make sure its added to meshgen
+				dest.meshgen      = false; // make sure its added to meshgen
 				dest.gen_flags    = Sector::GENERATED;
 				dest.objects      = gdata->get_objects().size();
 				dest.atmospherics = false;
@@ -122,12 +122,12 @@ namespace cppcraft
           // are ready to be added to precompq
           sectors.onNxN(dest, 1, // 3x3
               [] (Sector& sect) -> bool {
-                if (sect.isReadyForAtmos() && sect.meshgen == 0)
+                if (sect.isReadyForAtmos() && sect.isUpdatingMesh() == false)
                     sect.updateAllMeshes();
                 return true;
               });
-          // somehow it needs to be ... in some queue
-          assert(dest.meshgen != 0);
+          // in the end the sector needs to be queued up
+          assert(dest.isUpdatingMesh());
         }
 				// add it to the minimap!!!
 				minimap.addSector(dest);

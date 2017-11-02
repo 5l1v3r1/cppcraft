@@ -20,25 +20,27 @@ namespace cppcraft
 {
 	PrecompQ precompq;
 
-	void PrecompQ::add(Sector& sector, uint8_t parts)
+	void PrecompQ::add(Sector& sector)
 	{
 		assert(sector.generated() == true);
     // dont add if already added
-		if (sector.meshgen != 0) return;
+		if (sector.isUpdatingMesh()) return;
     // dont add the edge to queue as its going to get auto-updated by seamless
     if (sector.getX() < 2 || sector.getZ() < 2 || sector.getX() >= sectors.getXZ()-2 || sector.getZ() >= sectors.getXZ()-2)
           return;
+
     // Unfortunately we can't do a full check to see if the sector
     // is completely ready for this queue.
     // On the edge there are sectors that will "never"
     // get their objects done, and so will never let their neighbors
     // qualify for this queue. This happens rarely, but it *DOES* happen.
+
     // We can at least check if the neighbors are generated:
     bool at_least_generated = sectors.onNxN(sector, 1, // 3x3
 		[] (Sector& sect) { return sect.generated(); });
     if (at_least_generated == false) return;
 
-		sector.meshgen |= parts;
+		sector.meshgen = true;
 		queue.push_back(&sector);
 	}
 
@@ -46,37 +48,37 @@ namespace cppcraft
 	{
 		if (!AsyncPool::available()) return;
 
-    if (!queue.empty()) {
-      std::sort(queue.begin(), queue.end(), GenerationOrder);
-    }
+    //std::sort(queue.begin(), queue.end(), GenerationOrder);
 
 		// since we are the only ones that can take stuff
 		// from the available queue, we should be good to just
 		// check if there are any available, and thats it
-		while (!queue.empty())
+		for (auto it = queue.begin(); it != queue.end(); ++it)
 		{
-			Sector* sector = queue.front();
+			Sector* sector = *it;
       assert(sector != nullptr);
 
       // -= try to clear out old shite =-
   		// NOTE: there will always be sectors that cannot be finished
   		// due to objects begin scheduled and not enough room to build them
-      if (sector->generated() == false || sector->meshgen == 0 ||
+      if (sector->generated() == false ||
+          sector->isUpdatingMesh() == false ||
           sector->getX() < 2 || sector->getZ() < 2 ||
           sector->getX() >= sectors.getXZ()-2 ||
           sector->getZ() >= sectors.getXZ()-2)
       {
-        queue.pop_front();
+        sector->meshgen = false;
+        it = queue.erase(it);
         continue;
       }
 
 			// make sure we have proper light
-			sectors.onNxN(*sector, 1, // 3x3
+			bool is_ready = sectors.onNxN(*sector, 1, // 3x3
 			[] (Sector& sect)
 			{
 				if (sect.atmospherics == false)
 				{
-					if (sect.isReadyForAtmos() == false) { return true; }
+					if (sect.isReadyForAtmos() == false) { return false; }
 					#ifdef TIMING
 						Timer timer;
 					#endif
@@ -88,27 +90,21 @@ namespace cppcraft
           // flood takes some time, so lets not do more in one go
 					return true;
 				}
-        return true;
+        return sect.objects == 0;
 			});
-      // we will only accept this sector if
-      // atmospherics is done on all neighbors and no objects scheduled
-      bool is_ready = sectors.onNxN(*sector, 1, // 3x3
-			[] (Sector& sect)
-			{
-				return sect.objects == 0 && sect.atmospherics;
-      });
-			if (is_ready == false)
-				break;
+      // if not ready yet,
+			if (is_ready == false) {
+        // try next in queue
+        queue.splice(queue.end(), queue, it);
+        continue;
+      }
 
 			// check again that there are available slots
 			if (!AsyncPool::available()) break;
 
 			// finally, we can start the job
 			startJob(*sector);
-      queue.pop_front();
-
-			// immediately exit while loop, as the sector was not validated
-			break;
+      it = queue.erase(it);
 		}
 	}
 

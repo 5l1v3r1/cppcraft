@@ -41,7 +41,7 @@ namespace cppcraft
 	}
 	void Sector::updateAllMeshes()
 	{
-		precompq.add(*this, 0xFF);
+		precompq.add(*this);
 	}
 
   void Sector::clear()

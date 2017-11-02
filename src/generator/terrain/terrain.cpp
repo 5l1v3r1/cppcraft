@@ -322,7 +322,7 @@ float noise11 = mix( cave_array[bx+1][bz+1][iy], cave_array[bx+1][bz+1][iy+1], f
 
 				} // y
 
-				// fill the rest with _AIR
+				// fill the rest with skylight air
 				for (int y = MAX_GND; y < BLOCKS_Y; y++)
 				{
 					new (&block[y]) Block(_AIR, 0, 0, 15);

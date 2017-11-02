@@ -4,7 +4,6 @@
 #include "columns.hpp"
 #include "game.hpp"
 #include "player.hpp"
-#include "precompq.hpp"
 #include "compiler_scheduler.hpp"
 #include "sectors.hpp"
 #include "threading.hpp"
@@ -49,8 +48,6 @@ namespace cppcraft
 
 		// flush chunk queue
 		chunks.flushChunks();
-		// finish running jobs
-		///precompq.finish();
 		// clear precomp scheduler
 		CompilerScheduler::reset();
 

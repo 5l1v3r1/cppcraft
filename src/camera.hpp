@@ -18,10 +18,10 @@ namespace cppcraft
 		glm::vec3 worldOffset;
 
 	public:
-		bool recalc;   // recalculate viewing frustum
-		bool rotated;  // camera was rotated, resend rotation matrices
-		bool ref;      // run occlusion tests
-		int  needsupd; // update render list
+		bool recalc = true;    // recalculate viewing frustum
+		bool rotated = true;   // camera was rotated, resend rotation matrices
+		bool ref = false;      // run occlusion tests
+		int  needsupd = false; // update render list
 		int  cameraViewSectors;
 
 		void init(Renderer& wnd);

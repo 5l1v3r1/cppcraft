@@ -9,7 +9,7 @@ namespace cppcraft
 	class Sectors {
 	public:
     Sectors(int xz);
-		~Sectors();
+		~Sectors() = default;
 
 		static const int MAX_SECTORS_XZ_GRIDSIZE = 128;
 
@@ -54,34 +54,36 @@ namespace cppcraft
 		// returns a pointer to the sector at (x, z)
 		inline Sector* getSector(int x, int z)
 		{
-			return this->sectors.at(x * sectors_XZ + z);
+			return this->sectors.at(x * sectors_XZ + z).get();
 		}
 		// returns a reference to a pointer to a sector, which is ONLY used by Seamless
-		inline Sector*& getSectorRef(int x, int z)
+		inline auto& getSectorRef(int x, int z)
 		{
-			return this->sectors.at(x * sectors_XZ + z);
+			return this->sectors[x * sectors_XZ + z];
 		}
 
-		// Seamless: moves sector (x2, z2) to (x, z)
-		inline void move(int x, int z, int x2, int z2)
+    // replace sector (x, z) with (x2, z2)
+		inline void replace(int x, int z, int x2, int z2)
 		{
-			Sector*& s = getSectorRef(x, z);
-			// move to new position
-			s = getSectorRef(x2, z2);
-			s->x = x;
-			s->z = z;
+      auto& dest = getSectorRef(x2, z2);
+      // move to new position
+      dest->x = x;
+			dest->z = z;
+			getSectorRef(x, z) = std::move(dest);
 		}
-    inline void move(int x, int z, Sector* sector)
+    inline auto extract(int x, int z)
+    {
+      return std::move(getSectorRef(x, z));
+    }
+    inline void emplace(int x, int z, std::unique_ptr<Sector> sector)
 		{
-			Sector*& s = getSectorRef(x, z);
-			// move to new position
-			s = sector;
-			s->x = x;
-			s->z = z;
+      sector->x = x;
+			sector->z = z;
+			getSectorRef(x, z) = std::move(sector);
 		}
 
 		// 3d and 2d data containers
-		std::vector<Sector*> sectors;
+		std::vector<std::unique_ptr<Sector>> sectors;
 		// sectors XZ-axes size
 		int sectors_XZ = 0;
 

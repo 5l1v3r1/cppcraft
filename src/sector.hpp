@@ -18,8 +18,6 @@ namespace cppcraft
 		static const int BLOCKS_Y  = cppcraft::BLOCKS_Y;
 		// sector bitshift size constants
 		static const int BLOCKS_XZ_SH = 4;
-		// all parts of sector needs to be rebuilt
-		static const int MESHGEN_ALL = 0xFF;
 
 		static const int GENERATED  = 0x1;
 		static const int GENERATING = 0x2;
@@ -100,10 +98,7 @@ namespace cppcraft
 		// fill sector with air
 		void clear();
 
-		bool isUpdatingMesh() const {
-			return this->meshgen != 0;
-		}
-		auto meshGenStage() const {
+		bool isUpdatingMesh() const noexcept {
 			return this->meshgen;
 		}
 		// returns true if the sector is surrounded by sectors
@@ -112,14 +107,6 @@ namespace cppcraft
 
 		// update relevant parts of this sectors mesh
 		void updateAllMeshes();
-		void updateMeshesAt(int)
-		{
-			updateAllMeshes();
-		}
-		void updateByMask(uint8_t)
-		{
-			updateAllMeshes();
-		}
 
 		// returns reference to a Block at (x, y, z)
 		const Block& operator() (int x, int y, int z) const
@@ -204,13 +191,13 @@ namespace cppcraft
 		friend class Seamstress;
 		friend class Compressor;
 	public:
-		// 8 bits to signify which parts of sector needs update
-		// when an update is needed,
-		uint8_t meshgen = 0;
 		// various flags for generator, minimap etc.
 		uint8_t gen_flags = 0;
 		// non-zero when objects are scheduled directly on this sector
 		uint8_t objects = 0;
+    // 8 bits to signify which parts of sector needs update
+		// when an update is needed,
+		bool meshgen = false;
 
 		// we flooded this with light, or it needs flooding if the player looks at it?
 		bool atmospherics = false;

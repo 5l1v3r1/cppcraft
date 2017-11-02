@@ -56,19 +56,16 @@ namespace cppcraft
 	class Seamstress
 	{
 	public:
-		static void resetSectorColumn(Sector* base);
+		static void resetSectorColumn(Sector& base);
 		static void updateSectorColumn(int x, int z);
 	};
 
-	void Seamstress::resetSectorColumn(Sector* sector)
+	void Seamstress::resetSectorColumn(Sector& sector)
 	{
-		//! NOTE: GRIDTESTING DEALLOCATES VBO DATA
-		//!       IN ANOTHER THREAD! DON'T REMOVE VBODATA!
-
 		// we have to load new block content
-		sector->gen_flags = 0;
+		sector.gen_flags = 0;
 		// add to generator queue
-		Generator::add(*sector);
+		Generator::add(sector);
 	}
 
 	void Seamstress::updateSectorColumn(int x, int z)
@@ -114,20 +111,20 @@ namespace cppcraft
 			for (z = 0; z < sectors.getXZ(); z++)
 			{
 				// remember old sector, at the end of x-axis
-				Sector* oldpointer = sectors.getSectorRef(sectors.getXZ()-1, z);
+				auto oldpointer = sectors.extract(sectors.getXZ()-1, z);
 
 				// move forward on the x-axis
 				for (x = sectors.getXZ() - 1; x >= 1; x--)
 				{
 					// move sector columns on x
-					sectors.move(x,z, x-1,z);
+					sectors.replace(x,z, x-1,z);
 				}
 
 				// set first column on x-axis to old pointer
-        sectors.move(0, z, oldpointer);
+        sectors.emplace(0, z, std::move(oldpointer));
 
 				// reset it completely
-				Seamstress::resetSectorColumn(oldpointer);
+				Seamstress::resetSectorColumn(sectors(0, z));
 				// flag neighboring sector as dirty, if necessary
 				Seamstress::updateSectorColumn(EDGE_NO, z);
 
@@ -160,18 +157,18 @@ namespace cppcraft
 			for (z = 0; z < sectors.getXZ(); z++)
 			{
 				// remember first sector on x-axis
-				Sector* oldpointer = sectors.getSectorRef(0, z);
+				auto oldpointer = sectors.extract(0, z);
 
 				for (x = 0; x < sectors.getXZ()-1; x++)
 				{
-					sectors.move(x,z, x+1,z);
+					sectors.replace(x,z, x+1,z);
 				}
 
 				// move oldpointer-sector to end of x-axis
-        sectors.move(sectors.getXZ()-1, z, oldpointer);
+        sectors.emplace(sectors.getXZ()-1, z, std::move(oldpointer));
 
 				// reset sector completely
-				Seamstress::resetSectorColumn(oldpointer);
+				Seamstress::resetSectorColumn(sectors(sectors.getXZ()-1, z));
 				// update neighbor
 				Seamstress::updateSectorColumn(sectors.getXZ()-1-EDGE_NO, z);
 
@@ -208,17 +205,17 @@ namespace cppcraft
 			for (x = 0; x < sectors.getXZ(); x++)
 			{
 				// recursively move the sector
-				Sector* oldpointer = sectors.getSectorRef(x, sectors.getXZ()-1);
+				auto oldpointer = sectors.extract(x, sectors.getXZ()-1);
 
 				for (z = sectors.getXZ()-1; z >= 1; z--)
 				{
-					sectors.move(x,z,  x,z-1);
+					sectors.replace(x,z,  x,z-1);
 				}
 				// move old pointer to beginning of z axis
-        sectors.move(x, 0, oldpointer);
+        sectors.emplace(x, 0, std::move(oldpointer));
 
 				// reset oldpointer column
-				Seamstress::resetSectorColumn(oldpointer);
+				Seamstress::resetSectorColumn(sectors(x, 0));
 				// only need to update 1 row for Z
 				Seamstress::updateSectorColumn(x, EDGE_NO);
 
@@ -250,18 +247,18 @@ namespace cppcraft
 			// move sectors forwards +z (and rollback last line)
 			for (x = 0; x < sectors.getXZ(); x++)
 			{
-				Sector* oldpointer = sectors.getSectorRef(x, 0);
+				auto oldpointer = sectors.extract(x, 0);
 
 				// recursively move sectors
 				for (z = 0; z < sectors.getXZ()-1; z++)
 				{
-					sectors.move(x,z, x,z+1);
+					sectors.replace(x,z, x,z+1);
 				}
 				// move sector to end of z axis
-        sectors.move(x, sectors.getXZ()-1, oldpointer);
+        sectors.emplace(x, sectors.getXZ()-1, std::move(oldpointer));
 
 				// reset oldpointer column
-				Seamstress::resetSectorColumn(oldpointer);
+				Seamstress::resetSectorColumn(sectors(x, sectors.getXZ()-1));
 				// only need to update 1 row for Z
 				Seamstress::updateSectorColumn(x, sectors.getXZ()-1-EDGE_NO);
 

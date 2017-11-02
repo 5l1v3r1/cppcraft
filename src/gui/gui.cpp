@@ -27,6 +27,10 @@ namespace cppcraft
     this->m_screen = new nanogui::Screen();
     m_screen->initialize(renderer.window(), true);
 
+    renderer.on_resize(
+      [] (Renderer& rend) {
+        m_screen->resizeCallbackEvent(rend.width(), rend.height());
+      });
     renderer.on_terminate([] { delete m_screen; });
 
     /// item renderer ///
@@ -92,10 +96,6 @@ namespace cppcraft
     glfwSetScrollCallback(window,
         [] (GLFWwindow*, double x, double y) {
             m_screen->scrollCallbackEvent(x, y);
-        });
-    glfwSetFramebufferSizeCallback(window,
-        [] (GLFWwindow*, int width, int height) {
-            m_screen->resizeCallbackEvent(width, height);
         });
   }
 }

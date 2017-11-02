@@ -21,11 +21,6 @@ namespace cppcraft
 	{
 		logger << Log::INFO << "* Initializing frustum" << Log::ENDL;
 
-		this->recalc   = true;
-		this->rotated  = true;
-		this->ref      = false;
-		this->needsupd = false;
-
 		if (sectors.getXZ() >= 80)
 			this->gridsize = 32;
 		else if (sectors.getXZ() >= 40)

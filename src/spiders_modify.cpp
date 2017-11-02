@@ -24,7 +24,7 @@ namespace cppcraft
 		// set bitfield directly
 		block.setBits(bits);
 		// make sure the mesh is updated
-		s->updateMeshesAt(by);
+		s->updateAllMeshes();
 
 		// write updated sector to disk
 		//chunks.addSector(*s);
@@ -97,7 +97,7 @@ namespace cppcraft
 		// write updated sector to disk
 		//chunks.addSector(*s);
     // update mesh
-		s->updateMeshesAt(by);
+		s->updateAllMeshes();
 		// update nearby sectors only if we are at certain edges
 		updateSurroundings(*s, bx, by, bz);
 		return true;

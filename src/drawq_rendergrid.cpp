@@ -3,6 +3,7 @@
 #include <library/log.hpp>
 #include <library/math/frustum.hpp>
 #include <library/opengl/opengl.hpp>
+#include "camera.hpp"
 #include "columns.hpp"
 #include "sectors.hpp"
 
@@ -134,7 +135,7 @@ namespace cppcraft
 		int y = y0;
 		x = x0; z = z0;
 		const float CENTER_GRID = sectors.getXZ() / 2;
-		const float MAX_GRIDRAD = (CENTER_GRID - 0.5) * (CENTER_GRID - 0.5);
+		const float MAX_GRIDRAD = (camera.cameraViewSectors + 2.0f) * (camera.cameraViewSectors + 2.0f);
 
 		float fx = (x + 0.5) - CENTER_GRID;
 		float fz = (z + 0.5) - CENTER_GRID;

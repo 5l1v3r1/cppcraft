@@ -63,6 +63,7 @@ namespace cppcraft
     static Renderer* meself = this;
     glfwSetFramebufferSizeCallback(m_window,
     [] (GLFWwindow*, int w, int h) {
+      printf("Resize called\n");
       meself->resize_handler(w, h);
     });
 

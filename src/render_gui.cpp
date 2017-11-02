@@ -131,7 +131,7 @@ namespace cppcraft
     sectlts->setEditable(false);
     sectlts->setFixedSize(Vector2i(50, 20));
 
-    new Label(sector, "Mesh stage");
+    new Label(sector, "Meshgen");
     sectstage = new nanogui::IntBox<int>(sector);
     sectstage->setEditable(false);
     sectstage->setFixedSize(Vector2i(25, 20));
@@ -197,7 +197,7 @@ namespace cppcraft
 		if (sector)
     {
       sectlts->setValue(sector->getLightCount());
-      sectstage->setValue(sector->meshGenStage());
+      sectstage->setValue(sector->isUpdatingMesh());
       sectobjs->setValue(sector->objects);
       // only show flatland values when generated
       if (sector->generated())

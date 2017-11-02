@@ -15,7 +15,7 @@ namespace cppcraft
 		if (x >= 0 && x < BLOCKS_XZ * getXZ() &&
 			  z >= 0 && z < BLOCKS_XZ * getXZ())
 		{
-			return getSectorRef(x / BLOCKS_XZ, z / BLOCKS_XZ);
+			return getSector(x / BLOCKS_XZ, z / BLOCKS_XZ);
 		}
 		return nullptr;
 	}
@@ -25,37 +25,31 @@ namespace cppcraft
 	{
 		// set number of sectors on X/Z axes
 		this->sectors_XZ = sectors_xz;
-		// clear out any old sectors
-    for (auto* sector : this->sectors) {
-      delete sector;
-    }
     // rebuild vector
-		sectors = std::vector<Sector*>(this->sectors_XZ * this->sectors_XZ);
+    size_t sectsz = sizeof(Sector) + sizeof(Sector::sectorblock_t);
+    size_t total = this->sectors_XZ * this->sectors_XZ;
+    size_t bytes = sectsz * total;
+    printf("Allocating %zu * %zu sectors = %zu bytes (%zu MiB)\n",
+            sectsz, total, bytes, bytes / (1024 * 1024));
+    sectors.clear();
+		sectors.reserve(total);
 		// iterate and construct sectors
 		for (int x = 0; x < sectors_XZ; x++)
 		for (int z = 0; z < sectors_XZ; z++)
 		{
-			// place pointer to new sector into (x, z)
-			getSectorRef(x, z) = new Sector(x, z);
+      sectors.emplace_back(new Sector(x, z));
 		} // y, z, x
-	}
-	Sectors::~Sectors()
-	{
-    for (auto* sector : this->sectors) {
-      delete sector;
-    }
+    assert(sectors.size() == total);
 	}
 
 	void Sectors::updateAll()
 	{
-		// iterate sectors
-    for (auto* sector : sectors)
+    for (auto& sector : sectors)
        sector->updateAllMeshes();
 	}
 	void Sectors::regenerateAll()
 	{
-		// iterate sectors
-    for (auto* sector : sectors)
+    for (auto& sector : sectors)
 		{
 			// clear generated flag and add to generator queue
 			sector->gen_flags &= ~1;

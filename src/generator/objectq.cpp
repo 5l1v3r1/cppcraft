@@ -96,10 +96,11 @@ namespace terragen
               // its possible that all its neighbors can be added to precompq
               sectors.onNxN(sector, 1, // 3x3
                   [] (Sector& sect) -> bool {
-                    if (sect.isReadyForAtmos() && sect.meshgen == 0)
+                    if (sect.isReadyForAtmos() && sect.isUpdatingMesh() == false)
                         sect.updateAllMeshes();
                     return true;
                   });
+              assert(sector.isUpdatingMesh());
             } // no longer has objects
           } // has objects
 				}

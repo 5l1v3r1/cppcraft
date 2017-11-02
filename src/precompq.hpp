@@ -2,8 +2,7 @@
 #define PRECOMPQ_HPP
 
 #include <cstdint>
-#include <deque>
-#include <vector>
+#include <list>
 
 namespace cppcraft
 {
@@ -13,7 +12,7 @@ namespace cppcraft
 	class PrecompQ {
 	public:
 		//! \brief Queues a sector for the mesh generator subsystem
-		void add(Sector& sector, uint8_t parts);
+		void add(Sector& sector);
 
 		//! \brief executes one round of mesh generation scheduling
 		//! \warn  very time consuming, running N threads in parallell and waits for them to finish
@@ -32,7 +31,7 @@ namespace cppcraft
 		void startJob(Sector& sector);
 
 		// queue of sectors waiting for mesh generation
-		std::deque<Sector*> queue;
+		std::list<Sector*> queue;
 	};
 	extern PrecompQ precompq;
 }
