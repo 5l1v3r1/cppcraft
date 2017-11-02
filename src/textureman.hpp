@@ -11,13 +11,6 @@ namespace cppcraft
 	public:
 		typedef enum
 		{
-			T_BIG_DIFF,
-			T_BIG_TONE,
-
-			T_DIFFUSE,
-			T_TONEMAP,
-
-			T_ITEMS,
 			T_ACTORS,
 			T_PLAYERMODELS,
 			T_PARTICLES,

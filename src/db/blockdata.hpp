@@ -115,6 +115,9 @@ namespace db
         return this->minimap_color_callback == nullptr && this->minimap_color < 256;
     }
 
+    uint32_t getDiffuseTexture() const noexcept;
+    uint32_t getTonemapTexture() const noexcept;
+
 		// index to voxel registry
 		int voxelModel = 0;
 		// index to shader line

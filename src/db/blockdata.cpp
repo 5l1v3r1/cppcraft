@@ -15,6 +15,25 @@ using namespace cppcraft;
 
 namespace db
 {
+  uint32_t BlockData::getDiffuseTexture() const noexcept
+  {
+    switch (this->shader) {
+    case RenderConst::TX_REPEAT:
+        return tiledb.bigtiles.diff_texture().getHandle();
+    default:
+        return tiledb.tiles.diff_texture().getHandle();
+    }
+  }
+  uint32_t BlockData::getTonemapTexture() const noexcept
+  {
+    switch (this->shader) {
+    case RenderConst::TX_REPEAT:
+        return tiledb.bigtiles.tone_texture().getHandle();
+    default:
+        return tiledb.tiles.tone_texture().getHandle();
+    }
+  }
+
   // create a most default solid registry block, then return it
 	BlockData& BlockData::createSolid(const std::string name)
 	{

@@ -7,7 +7,7 @@
 #include <library/math/toolbox.hpp>
 #include "blockmodels.hpp"
 #include "camera.hpp"
-#include "items.hpp"
+#include "items/item.hpp"
 #include "player.hpp"
 #include "player_actions.hpp"
 #include "player_logic.hpp"
@@ -255,7 +255,7 @@ namespace cppcraft
 		// render held item
 		Item helditem(IT_NONE, 0);
 		// no item, no render
-		if (helditem.isAlive() == false) return;
+		if (helditem.isNone()) return;
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
@@ -272,25 +272,8 @@ namespace cppcraft
 			shd.sendFloat("modulation", modulation);
 			// view matrix
 			glm::mat4 matview = glm::scale(glm::vec3(1.0f));
-			glm::mat4 matrot;
-			if (helditem.isToolItem())
-			{
-				matview *= glm::translate(glm::vec3(lastHand.x, lastHand.y - 0.1f, lastHand.z + 0.1f));
-				matrot = rotationMatrix(0.0f, PI / 2, PI/4);
-			}
-			else
-			{
-				/*if (isVoxelBlock && isDoor(helditem.getID()))
-				{
-					// doors are really tall
-					matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y - 0.8f, lastHand.z + 0.25f));
-				}
-				else*/
-				{
-					matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y, lastHand.z + 0.25f));
-				}
-				matrot = rotationMatrix(0.0f, PI / 2.0f, 0.0f);
-			}
+      matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y, lastHand.z + 0.25f));
+			glm::mat4 matrot = rotationMatrix(0.0f, PI / 2.0f, 0.0f);
 
 			matview *= matrot;
 
@@ -315,7 +298,7 @@ namespace cppcraft
 		else
 		{
 			// bind blocks diffuse texture
-			textureman.bind(0, Textureman::T_DIFFUSE);
+      glBindTexture(GL_TEXTURE_2D_ARRAY, helditem.getTexture());
 			// helditem block mesh shader
 			Shader& shd = shaderman[Shaderman::PHAND_HELDITEM];
 			shd.bind();

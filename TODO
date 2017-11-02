@@ -1,7 +1,12 @@
-1. Fix lys problem
-2. Finn løsning på cave system, lag en ekstra cave funksjon
-3. Musikk per område, musikk i caves
-4.
+1. Lag quickbar
+2. Lag inventory logikk
+3. Fiks opp bygging
+4. Legg til en desert, legg til kaktus
+
+Implement inventory logic
+- Add hotbar (quickbar)
+- Add logic for simple interactions with widget inventories
+- Work on building mechanics
 
 Implement post-processing in Lua
 - [x] Move most of the generic stuff to post-processing in C++
@@ -36,6 +41,7 @@ Resolve issues with time
 - Ability to fast-forward time using ticks
 - Make sure physics doesn't use global time
 - Make sure renderer uses only global time
+- At night the world goes completely black, likely math problem
 
 World simulation
 - Implement random ticks for each sector (near a player?)

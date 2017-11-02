@@ -53,9 +53,11 @@ namespace cppcraft
 		}
 
 		bool isNone() const noexcept {
-			return this->getID() == IT_NONE || this->getCount() == 0;
+			return this->getID() == 0 || this->getCount() == 0;
 		}
-
+    bool isItem() const noexcept {
+      return getType() == ITEM;
+    }
     bool isBlock() const noexcept {
       return getType() == BLOCK;
     }
@@ -82,6 +84,11 @@ namespace cppcraft
       assert(getType() == BLOCK);
 			return ::db::BlockDB::get()[this->getID()];
 		}
+
+    uint32_t getTexture() const {
+      if (isBlock()) return blockdb().getDiffuseTexture();
+      return itemdb().getDiffuseTexture();
+    }
 
 	private:
     uint32_t m_guid; // global unique ID

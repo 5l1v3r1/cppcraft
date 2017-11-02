@@ -14,6 +14,9 @@ namespace db
     short getTileID() const noexcept { return m_tile_id; }
     void setTileID(short tile) noexcept { m_tile_id = tile; }
 
+    uint32_t getDiffuseTexture() const noexcept;
+    uint32_t getTonemapTexture() const noexcept;
+
     ItemData(int ID) : id(ID) {}
   private:
     const int id;

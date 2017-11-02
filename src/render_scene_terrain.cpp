@@ -12,6 +12,7 @@
 #include "renderman.hpp"
 #include "shaderman.hpp"
 #include "sun.hpp"
+#include "tiles.hpp"
 #include "textureman.hpp"
 #include "vertex_block.hpp"
 #include <cmath>
@@ -356,15 +357,15 @@ namespace cppcraft
 			case RenderConst::TX_REPEAT: // repeatable solids (most terrain)
 
 				// big repeatable textures
-				textureman.bind(0, Textureman::T_BIG_DIFF);
-				textureman.bind(1, Textureman::T_BIG_TONE);
+        tiledb.bigtiles.diff_texture().bind(0);
+        tiledb.bigtiles.tone_texture().bind(1);
 				break;
 
 			case RenderConst::TX_SOLID: // solid stuff (most blocks)
 
 				// change to small, repeatable textures
-				textureman.bind(0, Textureman::T_DIFFUSE);
-				textureman.bind(1, Textureman::T_TONEMAP);
+				tiledb.tiles.diff_texture().bind(0);
+        tiledb.tiles.tone_texture().bind(1);
 				break;
 
 			case RenderConst::TX_TRANS: // culled alpha (tree leafs etc.)
@@ -383,9 +384,9 @@ namespace cppcraft
 			case RenderConst::TX_2SIDED: // 2-sided faces (torches, vines etc.)
 
 				// change to small, clamped textures
-				textureman[Textureman::T_TONEMAP].setWrapMode(GL_CLAMP_TO_EDGE);
+        tiledb.tiles.diff_texture().setWrapMode(GL_CLAMP_TO_EDGE);
 				glActiveTexture(GL_TEXTURE0);
-				textureman[Textureman::T_DIFFUSE].setWrapMode(GL_CLAMP_TO_EDGE);
+        tiledb.tiles.diff_texture().setWrapMode(GL_CLAMP_TO_EDGE);
 
 				// change shader-set
 				handleSceneUniforms(renderer.time(),
@@ -415,9 +416,9 @@ namespace cppcraft
 		} // next shaderline
 
 		// change to repeating textures
-		textureman[Textureman::T_DIFFUSE].setWrapMode(GL_REPEAT);
-		glActiveTexture(GL_TEXTURE1);
-		textureman[Textureman::T_DIFFUSE].setWrapMode(GL_REPEAT);
+    tiledb.tiles.diff_texture().setWrapMode(GL_REPEAT);
+    tiledb.tiles.tone_texture().bind(1);
+    tiledb.tiles.diff_texture().setWrapMode(GL_REPEAT);
 	}
 
 	void renderReflectedColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
@@ -465,15 +466,15 @@ namespace cppcraft
 			case RenderConst::TX_REPEAT: // repeatable solids (most terrain)
 
 				// change to big tile textures
-				textureman.bind(0, Textureman::T_BIG_DIFF);
-				textureman.bind(1, Textureman::T_BIG_TONE);
+        tiledb.bigtiles.diff_texture().bind(0);
+        tiledb.bigtiles.tone_texture().bind(1);
 				break;
 
 			case RenderConst::TX_SOLID: // solid stuff (most blocks)
 
 				// change to normal tile textures
-				textureman.bind(0, Textureman::T_DIFFUSE);
-				textureman.bind(1, Textureman::T_TONEMAP);
+        tiledb.tiles.diff_texture().bind(0);
+        tiledb.tiles.tone_texture().bind(1);
 				break;
 
 			case RenderConst::TX_2SIDED: // 2-sided faces (torches, vines etc.)

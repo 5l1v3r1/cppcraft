@@ -260,6 +260,7 @@ namespace terragen
   			});
 			fluid.getName = [] (const Block&) { return "Water"; };
 			fluid.shader = RenderConst::TX_WATER;
+      fluid.useTileID(tiledb.tiles("water"));
 			db.assign("water", fluid);
 		}
 		// create _LAVA
@@ -269,6 +270,7 @@ namespace terragen
 			fluid.setMinimapColor(RGBA8(240, 140, 64, 255));
 			fluid.getName = [] (const Block&) { return "Lava"; };
 			fluid.shader = RenderConst::TX_LAVA;
+      fluid.useTileID(tiledb.tiles("lava"));
 			fluid.setBlock(false);
 			fluid.transparent = false;
 			fluid.setLightColor(10, 7, 3);

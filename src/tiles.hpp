@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <library/bitmap/bitmap.hpp>
+#include <library/opengl/texture.hpp>
 
 namespace cppcraft
 {
@@ -36,6 +37,10 @@ namespace cppcraft
 
     const auto& diffuse() const { return m_diffuse; }
     const auto& tonemap() const { return m_tonemap; }
+    void  create_textures();
+    auto& diff_texture() noexcept { return m_diff_texture; }
+    auto& tone_texture() noexcept { return m_tone_texture; }
+
     tile_database(int);
     tile_database() {};
   private:
@@ -43,6 +48,8 @@ namespace cppcraft
     std::map<std::string, short> namedb;
     library::Bitmap m_diffuse;
     library::Bitmap m_tonemap;
+    library::Texture m_diff_texture;
+    library::Texture m_tone_texture;
   };
 
 	class TileDB {

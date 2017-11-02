@@ -103,6 +103,20 @@ namespace cppcraft
     this->assign(name, TILE_ID);
   }
 
+  void tile_database::create_textures()
+  {
+    /// diffuse tileset ///
+		m_diff_texture = Texture(GL_TEXTURE_2D_ARRAY);
+		m_diff_texture.create(diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		m_diff_texture.setAnisotropy(gameconf.anisotropy);
+		if (OpenGL::checkError()) throw std::runtime_error("Tile database: diffuse error");
+    /// color dye tileset ///
+    m_tone_texture = Texture(GL_TEXTURE_2D_ARRAY);
+		m_tone_texture.create(tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+		m_tone_texture.setAnisotropy(gameconf.anisotropy);
+		if (OpenGL::checkError()) throw std::runtime_error("Tile database: tonemap error");
+  }
+
   const Bitmap& TileDB::get_bitmap(const std::string& fname)
   {
     // create temp store on demand

@@ -23,16 +23,9 @@ namespace cppcraft
 		// create all textures
 		logger << Log::INFO << "* Loading & processing textures" << Log::ENDL;
 
-		/// TERRAIN regular tileset ///
-		textures[T_DIFFUSE] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_DIFFUSE].create(tiledb.tiles.diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-		textures[T_DIFFUSE].setAnisotropy(gameconf.anisotropy);
-		if (OpenGL::checkError())
-		{
-			throw std::runtime_error("Failed to set terrain texture anisotropic filter");
-		}
-
-		if (OpenGL::checkError()) throw std::runtime_error("Materials(1) texture2d array error");
+    tiledb.tiles.create_textures();
+    tiledb.bigtiles.create_textures();
+    //tiledb.items.create_textures();
 
 		// voxelize (some) tiles
 		voxels.createBlockModels(tiledb.tiles.diffuse());
@@ -41,41 +34,10 @@ namespace cppcraft
 		{
 			throw std::runtime_error("Failed to create voxel blocks");
 		}
-
-		textures[T_TONEMAP] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_TONEMAP].create(tiledb.tiles.tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-		textures[T_TONEMAP].setAnisotropy(gameconf.anisotropy);
-
-		if (OpenGL::checkError()) throw std::runtime_error("Materials(2) texture2d array error");
-
-		/// TERRAIN bigger tileset ///
-		textures[T_BIG_DIFF] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_BIG_DIFF].create(tiledb.bigtiles.diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-		textures[T_BIG_DIFF].setAnisotropy(gameconf.anisotropy);
-
-		if (OpenGL::checkError()) throw std::runtime_error("Materials(3) texture2d array error");
-
-		textures[T_BIG_TONE] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_BIG_TONE].create(tiledb.bigtiles.tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-		textures[T_BIG_TONE].setAnisotropy(gameconf.anisotropy);
-
-		if (OpenGL::checkError()) throw std::runtime_error("Materials(4) texture2d array error");
-
-		/// ITEMS tileset ///
-    items.itemSize = 32;
-		auto bmp = Bitmap(config.get("textures.items", "bitmap/default/items.png"), Bitmap::PNG);
-		bmp.parse2D(items.itemSize, items.itemSize);
-
-		items.itemsX = bmp.getTilesX();
-		items.itemsY = bmp.getTilesY();
-
-		textures[T_ITEMS] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_ITEMS].create(bmp, true, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-
-		if (OpenGL::checkError()) throw std::runtime_error("Items texture2d array error");
+    Bitmap bmp;
 
 		// voxelize the items
-		voxels.createItemModels(bmp);
+		//voxels.createItemModels(bmp);
 
 		/// PLAYER MODELS tileset ///
 		bmp = Bitmap(config.get("textures.players", "bitmap/default/playerskins.png"), Bitmap::PNG);

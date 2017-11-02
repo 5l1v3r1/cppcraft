@@ -78,15 +78,15 @@ namespace gui
 		}
 
 		static const float GUIcube_tex[24] = {
-			0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
-			0.0, 1.0,  0.0, 0.0,  1.0, 0.0,  1.0, 1.0,
-			1.0, 0.0,  1.0, 1.0,  0.0, 1.0,  0.0, 0.0,
+			0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0, // front
+			0.0, 1.0,  0.0, 0.0,  1.0, 0.0,  1.0, 1.0, // top
+			1.0, 0.0,  1.0, 1.0,  0.0, 1.0,  0.0, 0.0, // side
 		};
 
 		static const uint32_t GUIcube_colors[3] = {
 			BGRA8(0, 0, 0,   0),
-			BGRA8(0, 0, 0,  20),
-			BGRA8(0, 0, 0,  64)
+			BGRA8(0, 0, 0,  30),
+			BGRA8(0, 0, 0,  74)
 		};
 
 		// create pre-transformed cube mesh
@@ -105,8 +105,7 @@ namespace gui
 
 	void ItemRenderer::begin()
 	{
-		this->blockTiles.clear();
-		this->itemTiles.clear();
+    for (auto& pair : this->db) pair.second.tiles.clear();
 	}
 
 	int ItemRenderer::emit(const Item& itm, glm::vec2 pos, glm::vec2 size)
@@ -134,7 +133,7 @@ namespace gui
 		// face value is "as if" front
 		const float tile = (itm.isBlock()) ? itm.blockdb().getTileID() : itm.itemdb().getTileID();
 		// emit to itemTiles or blockTiles depending on item type
-		auto& dest = (itm.isBlock()) ? blockTiles : itemTiles;
+		auto& dest = this->get(itm.getTexture()).tiles;
 
 		// create single quad
 		dest.emplace_back(
@@ -154,7 +153,7 @@ namespace gui
 		float tileTop = blk.getTexture(2);
 		float tileBot = blk.getTexture(0);
 		// emit to itemTiles or blockTiles depending on item type
-    auto& dest = (itm.isBlock()) ? blockTiles : itemTiles;
+    auto& dest = this->get(itm.getTexture()).tiles;
 		const float xofs = size.x * 0.2;
 
 		// top quad
@@ -181,6 +180,7 @@ namespace gui
 	int ItemRenderer::emitBlock(const Item& itm, glm::vec2 pos, glm::vec2 size)
 	{
 		const glm::vec2 offset(pos + size * 0.5f);
+    auto& dest = this->get(itm.getTexture()).tiles;
 
 		for (const auto& vertex : transformedCube)
 		{
@@ -190,28 +190,29 @@ namespace gui
 			blk.setBits(3); // assuming bits are used to determine direction of block
 			const float tile = blk.getTexture(vertex.w);
 			// emit to blockTiles only
-			blockTiles.emplace_back(pos.x, pos.y, vertex.z,  vertex.u, vertex.v, tile,  vertex.color);
+			dest.emplace_back(pos.x, pos.y, vertex.z,  vertex.u, vertex.v, tile,  vertex.color);
 		}
 		return transformedCube.size();
 	}
 
 	void ItemRenderer::upload()
 	{
-		size_t items  = itemTiles.size();
-		size_t blocks = blockTiles.size();
+		// add everything together
+    std::vector<ivertex_t> verts;
 
-		if (items + blocks == 0) return;
-
-		// add blocks to the end of items
-		if (blocks)
-		{
-			itemTiles.insert(itemTiles.end(), blockTiles.begin(), blockTiles.end());
-		}
+    uint32_t offset = 0;
+    for (auto& pair : db) {
+      auto& info = pair.second;
+      verts.insert(verts.end(), info.tiles.begin(), info.tiles.end());
+      info.offset = offset;
+      offset += info.tiles.size();
+    }
+    if (verts.empty()) return;
 
 		/// upload blocks & items ///
 		if (vao.isGood() == false)
 		{
-			vao.begin(sizeof(ivertex_t), itemTiles.size(), itemTiles.data());
+			vao.begin(sizeof(ivertex_t), verts.size(), verts.data());
 			vao.attrib(0, 3, GL_FLOAT, GL_FALSE, offsetof(ivertex_t, x));
 			vao.attrib(1, 3, GL_FLOAT, GL_FALSE, offsetof(ivertex_t, u));
 			vao.attrib(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(ivertex_t, color));
@@ -219,36 +220,27 @@ namespace gui
 		}
 		else
 		{
-			vao.upload(sizeof(ivertex_t), itemTiles.size(), itemTiles.data(), GL_STATIC_DRAW);
+			vao.upload(sizeof(ivertex_t), verts.size(), verts.data(), GL_STATIC_DRAW);
 		}
 	}
 
 	void ItemRenderer::render(glm::vec2 scale, glm::vec2 offset)
 	{
-		// nothing to do here with no items or blocks
-		if (blockTiles.size() == 0) return;
-
-		const size_t items  = itemTiles.size() - blockTiles.size();
-		const size_t blocks = blockTiles.size();
-
 		/// render all menu items ///
 		ir_shader.bind();
 		ir_shader.sendVec2("scaleFactor", scale);
     ir_shader.sendVec2("position", offset);
 
-		if (items)
+    glActiveTexture(GL_TEXTURE0);
+    for (auto it = db.begin(); it != db.end(); ++it)
 		{
-			// items texture
-			textureman.bind(0, Textureman::T_ITEMS);
+      auto& info = it->second;
+      const size_t count = info.tiles.size();
+      if (count == 0) continue;
+			// texture
+			glBindTexture(GL_TEXTURE_2D_ARRAY, it->first);
 			// render items
-			vao.render(GL_QUADS, 0, items);
-		}
-		if (blocks)
-		{
-			// blocks texture
-			textureman.bind(0, Textureman::T_DIFFUSE);
-			// render blocks
-			vao.render(GL_QUADS, items, blocks);
+			vao.render(GL_QUADS, info.offset, count);
 		}
 	} // render()
 } // ItemRenderer

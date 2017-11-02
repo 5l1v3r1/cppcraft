@@ -8,8 +8,6 @@ namespace cppcraft
 	class RenderConst
 	{
 	public:
-		static const int MAX_FACES_PER_SECTOR   = 10404;
-
 		enum shaderline_t
 		{
 			// before "underwater" screenshot
