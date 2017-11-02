@@ -39,6 +39,8 @@ namespace cppcraft
 		tiles = tile_database(config.get("tiles.size", 32));
     // big tiles (4x)
     bigtiles = tile_database(tiles.tilesize() * TILES_PER_BIG_TILE);
+    // item tiles
+    items = tile_database(config.get("items.size", 32));
 
 		// players
 		this->skinSize = config.get("players.size", 32);
@@ -62,9 +64,15 @@ namespace cppcraft
         auto& bigtiles_obj = doc["bigtiles"];
         parse_tile_database(tiledb.bigtiles, bigtiles_obj);
       }
+      if (doc.HasMember("items"))
+      {
+        auto& items_obj = doc["items"];
+        parse_tile_database(tiledb.items, items_obj);
+      }
     }
-    printf("* Loaded %zu tiles\n", tiledb.tiles.size());
     printf("* Loaded %zu big tiles\n", tiledb.bigtiles.size());
+    printf("* Loaded %zu tiles\n", tiledb.tiles.size());
+    printf("* Loaded %zu item tiles\n", tiledb.items.size());
 
     // free some memory
     this->unload_temp_store();
@@ -92,12 +100,13 @@ namespace cppcraft
                 const int tx, const int ty)
   {
     const Bitmap& diff = tiledb.get_bitmap(f_diffuse);
-    const Bitmap& tone = tiledb.get_bitmap(f_tonemap);
-
     const int TILE_ID = m_diffuse.getTilesX();
 
     m_diffuse.add_tile(diff, tx, ty);
-    m_tonemap.add_tile(tone, tx, ty);
+    if (!f_tonemap.empty()) {
+      const Bitmap& tone = tiledb.get_bitmap(f_tonemap);
+      m_tonemap.add_tile(tone, tx, ty);
+    }
 
     //printf("Tile %s has ID %d\n", name.c_str(), TILE_ID);
     this->assign(name, TILE_ID);
@@ -110,7 +119,7 @@ namespace cppcraft
 		m_diff_texture.create(diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		m_diff_texture.setAnisotropy(gameconf.anisotropy);
 		if (OpenGL::checkError()) throw std::runtime_error("Tile database: diffuse error");
-    /// color dye tileset ///
+    /// (optional) color dye tileset ///
     m_tone_texture = Texture(GL_TEXTURE_2D_ARRAY);
 		m_tone_texture.create(tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		m_tone_texture.setAnisotropy(gameconf.anisotropy);

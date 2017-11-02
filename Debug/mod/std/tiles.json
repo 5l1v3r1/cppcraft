@@ -25,7 +25,7 @@
     "data":
     {
       "bedrock": [2, 5],
-      "molten": [15, 13],
+      "molten": [13, 15],
 
       "ice": [14, 13],
 
@@ -38,8 +38,6 @@
 
       "torch": [0, 13],
 
-      "torch": [0, 13],
-
       "mushroom_top": [13, 8],
       "mushroom_speckle": [14, 8],
       "mushroom_topedge": [15, 8],
@@ -47,7 +45,17 @@
 
       "mushroom_under": [15, 9],
       "mushroom_core": [13, 9],
-      "mushroom_coretop": [14, 9]
+      "mushroom_coretop": [14, 9],
+
+      "water": [15, 13],
+      "lava": [15, 14]
+    }
+  },
+  "items": {
+    "diffuse": "mod/std/bitmaps/items.png",
+    "tonemap": "",
+    "data": {
+      "pickaxe": [1, 0]
     }
   }
 }
