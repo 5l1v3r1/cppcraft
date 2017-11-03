@@ -11,6 +11,27 @@ using namespace library;
 
 namespace cppcraft
 {
+  static std::mutex mtx_compiler;
+	static std::vector<std::unique_ptr<Precomp>> cjobs;
+
+	void CompilerScheduler::add(std::unique_ptr<Precomp> precomp)
+	{
+		std::lock_guard<std::mutex> lock(mtx_compiler);
+		cjobs.push_back(std::move(precomp));
+	}
+
+	inline std::vector<std::unique_ptr<Precomp>> CompilerScheduler::get()
+	{
+    std::lock_guard<std::mutex> lock(mtx_compiler);
+    return std::move(cjobs);
+	}
+
+	void CompilerScheduler::reset()
+	{
+    std::lock_guard<std::mutex> lock(mtx_compiler);
+    cjobs.clear();
+	}
+
 	// initialize compiler data buffers
 	void Compilers::init()
 	{
@@ -21,9 +42,10 @@ namespace cppcraft
 	// run compilers and try to clear queue, if theres enough time
 	void Compilers::run(const int wx, const int wz)
 	{
-		std::unique_ptr<Precomp> precomp = nullptr;
-		while ((precomp = CompilerScheduler::get()) != nullptr)
+    auto scheduled = CompilerScheduler::get();
+		for (auto& precomp : scheduled)
 		{
+      // TODO: find out why wx, wz doesnt work replacing world.getW[X/Z]
 			const int x = precomp->sector.wx - world.getWX();
 			const int z = precomp->sector.wz - world.getWZ();
 
@@ -35,7 +57,6 @@ namespace cppcraft
 				cv.compile(x, 0, z, precomp.get());
 			}
 		}
-
-	} // handleCompilers
+	} // Compilers::run()
 
 }

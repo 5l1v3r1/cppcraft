@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 
 namespace cppcraft
 {
@@ -10,9 +11,8 @@ namespace cppcraft
 	public:
 		static void add(std::unique_ptr<Precomp> prc);
 
-		// unless queue is empty, it will return
-		// a Precomp object (dangling!)
-		static std::unique_ptr<Precomp> get();
+		// returns all objects queued
+		static inline std::vector<std::unique_ptr<Precomp>> get();
 
 		// used by teleport
 		static void reset();

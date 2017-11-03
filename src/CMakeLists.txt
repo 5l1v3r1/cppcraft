@@ -21,7 +21,6 @@ set(SUB_SOURCES
     chat.cpp
     chunks.cpp
     columns.cpp
-    compiler_schedule.cpp
     compilers.cpp
     compressor.cpp
     db/blockdata.cpp
