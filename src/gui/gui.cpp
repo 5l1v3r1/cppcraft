@@ -2,6 +2,7 @@
 #include "../game.hpp"
 #include "../tiles.hpp"
 #include "../renderman.hpp"
+#include <library/opengl/shader.hpp>
 #include <nanogui/nanogui.h>
 
 #include "frontend_inventory.hpp"
@@ -12,6 +13,7 @@ namespace gui
   nanogui::Screen* GUI::m_screen = nullptr;
   nanogui::ref<nanogui::Window> wnd;
   std::unique_ptr<gui::FrontendInventory> test_inv = nullptr;
+  ItemRenderer handheld_renderer;
 
   static auto* add_inv(nanogui::FormHelper* gui, const int w, const int h)
   {
@@ -64,9 +66,26 @@ namespace gui
     wnd->setVisible(this->show_window);
     screen()->drawContents();
     screen()->drawWidgets();
+    // have to re-synchronize shader binding
+    library::Shader::unbind();
 
     // draw whatever is being held by the cursor
-
+    if (!this->held_item().isNone())
+    {
+      if (this->m_held_changed)
+      {
+        this->m_held_changed = false;
+        handheld_renderer.begin();
+        handheld_renderer.emit(this->held_item(), {0.0, 0.0}, {1.0, 1.0});
+        handheld_renderer.upload();
+      }
+      const float ax = 1.0 / screen()->size().x();
+      const float ay = 1.0 / screen()->size().y();
+      const auto mouse = screen()->mousePos();
+      const glm::vec2 pos {mouse.x() * ax, mouse.y() * ay};
+      const glm::vec2 scale { ax, ay };
+      handheld_renderer.render(scale * 50.0f, pos);
+    }
   }
 
   void GUI::restore_game()

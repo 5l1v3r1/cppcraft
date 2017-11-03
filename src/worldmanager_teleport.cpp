@@ -1,5 +1,6 @@
 #include "worldmanager.hpp"
 
+#include <library/opengl/opengl.hpp>
 #include "chunks.hpp"
 #include "columns.hpp"
 #include "game.hpp"

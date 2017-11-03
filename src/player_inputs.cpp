@@ -1,6 +1,7 @@
 #include "player.hpp"
 
 #include <library/log.hpp>
+#include <library/opengl/opengl.hpp>
 #include "chat.hpp"
 #include "game.hpp"
 #include "gameconf.hpp"

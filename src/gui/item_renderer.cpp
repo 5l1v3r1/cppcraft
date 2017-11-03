@@ -224,7 +224,7 @@ namespace gui
 		}
 	}
 
-	void ItemRenderer::render(glm::vec2 scale, glm::vec2 offset)
+	void ItemRenderer::render(const glm::vec2 scale, const glm::vec2 offset)
 	{
 		/// render all menu items ///
 		ir_shader.bind();

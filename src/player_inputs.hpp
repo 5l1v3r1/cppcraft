@@ -2,7 +2,6 @@
 #define PLAYER_INPUTS_HPP
 
 #include <glm/vec2.hpp>
-#include <library/opengl/opengl.hpp>
 #include <library/opengl/input.hpp>
 #include <cmath>
 #include <map>

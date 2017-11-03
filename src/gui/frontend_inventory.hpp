@@ -10,9 +10,6 @@ namespace gui
     using Widget = nanogui::ArrayTexture;
     inline FrontendInventory(Widget*);
 
-    Item& get(int x, int y) { return at(x + y * tilesX()); }
-    const Item& get(int x, int y) const { return at(x + y * tilesX()); }
-
     int tilesX() const noexcept { return m_widget->tilesX(); }
     int tilesY() const noexcept { return m_widget->tilesY(); }
 
@@ -20,11 +17,18 @@ namespace gui
     // hand will be modified and item stacks may be swapped
     void click(int idx, int button, int mod);
 
+    // update mesh after a change
+    void invalidate() { this->updated = true; }
+
   private:
-    inline void uploadVertexData();
     inline int to_idx(int tx, int ty) {
       return tx + ty * this->tilesX();
     }
+    // can't directly modify inventory, unless in the right thread
+    Item& get(int x, int y) { return at(x + y * tilesX()); }
+    const Item& get(int x, int y) const { return at(x + y * tilesX()); }
+
+    inline void uploadVertexData();
     Widget* m_widget;
     gui::ItemRenderer m_render;
     bool updated = true;
@@ -33,9 +37,21 @@ namespace gui
   inline FrontendInventory::FrontendInventory(Widget* widget)
     : InventoryArray(widget->tilesTotal()), m_widget(widget)
   {
+    widget->onTileClicked(
+      [this] (bool down, int btn, int mod, int tx, int ty)
+      {
+        printf("clicked(): t %d, %d  Button %d  Modifier %d\n", tx, ty, btn, mod);
+        if (down && tx >= 0)
+        {
+          this->click(to_idx(tx, ty), btn, mod);
+        }
+      });
     widget->onTileMotion(
-      [this] (int btn, int mod, int tx, int ty) {
-        if (tx >= 0)  {
+      [this] (int btn, int mod, int tx, int ty)
+      {
+        //printf("motion(): t %d, %d  Button %d  Modifier %d\n", tx, ty, btn, mod);
+        if (tx >= 0)
+        {
           const auto& item = this->at(to_idx(tx, ty));
           if (item.getCount() > 0)
           {
@@ -43,9 +59,6 @@ namespace gui
                m_widget->setTooltip(item.blockdb().getName(item.toBlock()));
                return;
             }
-          }
-          if (btn != 0) {
-            this->click(to_idx(tx, ty), btn, mod);
           }
         }
         m_widget->setTooltip("");
