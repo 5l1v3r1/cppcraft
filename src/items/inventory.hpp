@@ -2,13 +2,12 @@
 #include "../items/item.hpp"
 #include <cstdint>
 
-namespace gui
+namespace cppcraft
 {
-  using cppcraft::Item;
-
   // the inventory interface
   struct Inventory
   {
+    using Item = cppcraft::Item;
     // insert @source into inventory, returns the count of items affected
     // eg. if inserting a stack of 64 items its possible only room for 1.
     virtual size_t insert(Item& source) = 0;

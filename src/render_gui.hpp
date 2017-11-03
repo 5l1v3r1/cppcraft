@@ -1,7 +1,6 @@
 #ifndef RENDER_GUI_HPP
 #define RENDER_GUI_HPP
 
-#include <library/opengl/oglfont.hpp>
 #include <glm/mat4x4.hpp>
 
 namespace cppcraft
@@ -21,10 +20,6 @@ namespace cppcraft
 		void init(Renderer& renderer);
 		void render(Renderer& renderer);
 
-		library::SimpleFont& getFont()
-		{
-			return font;
-		}
 		const glm::mat4& getOrtho() const
 		{
 			return ortho;
@@ -35,8 +30,6 @@ namespace cppcraft
 		float height;
 		// the GUIs orthographic projection matrix
 		glm::mat4 ortho;
-		// A wild Font appears!
-		library::SimpleFont font;
 
 		void renderPlayerhand(double frameCounter);
 		void renderMinimap(glm::mat4& ortho);

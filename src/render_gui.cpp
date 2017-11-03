@@ -2,7 +2,6 @@
 
 #include <library/opengl/opengl.hpp>
 #include <library/opengl/window.hpp>
-#include <library/opengl/oglfont.hpp>
 #include "camera.hpp"
 #include "chat.hpp"
 #include "game.hpp"
@@ -55,11 +54,6 @@ namespace cppcraft
 
 		// orthographic projection
 		ortho = ortho2dMatrix(width, height, 0.0f, 2.0f);
-
-		// initialize our font renderer
-		font.createTexture("bitmap/default/gui/font.png", 16);
-		font.createShader();
-		font.setClip(glm::vec2(0.2f, 0.0f));
 
 		// initialize minimap
 		minimap.init();

@@ -314,6 +314,7 @@ namespace cppcraft
 
 	void NetPlayers::renderNameTags()
 	{
+    /*
 		SimpleFont& font = rendergui.getFont();
 
 		font.bind(0);
@@ -348,6 +349,7 @@ namespace cppcraft
 
 			font.print(OFFSET, SCALE, np.name, true);
 		}
+    */
 	}
 
 }

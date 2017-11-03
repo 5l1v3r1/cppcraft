@@ -52,10 +52,11 @@ set(SUB_SOURCES
     generator/terrain/t_grass.cpp
     generator/terrain/t_jungle.cpp
     generator/terrain/t_snow.cpp
+    gui/frontend_inventory.cpp
     gui/gui.cpp
-    gui/inventory.cpp
     gui/item_renderer.cpp
     #items/item.cpp
+    items/inventory.cpp
     items.cpp
     lighting.cpp
     lighting_algos.cpp

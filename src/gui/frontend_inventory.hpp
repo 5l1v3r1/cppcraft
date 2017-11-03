@@ -1,10 +1,11 @@
 #pragma once
 #include "../items/inventory.hpp"
 #include "item_renderer.hpp"
+#include <nanogui/arraytexture.h>
 
 namespace gui
 {
-  struct FrontendInventory : public InventoryArray
+  struct FrontendInventory : public cppcraft::InventoryArray
   {
     using Widget = nanogui::ArrayTexture;
     inline FrontendInventory(Widget*);
