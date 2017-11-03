@@ -5,8 +5,9 @@
 #include <nanogui/nanogui.h>
 
 #include "frontend_inventory.hpp"
+using namespace cppcraft;
 
-namespace cppcraft
+namespace gui
 {
   nanogui::Screen* GUI::m_screen = nullptr;
   nanogui::ref<nanogui::Window> wnd;
@@ -61,6 +62,11 @@ namespace cppcraft
   void GUI::render()
   {
     wnd->setVisible(this->show_window);
+    screen()->drawContents();
+    screen()->drawWidgets();
+
+    // draw whatever is being held by the cursor
+
   }
 
   void GUI::restore_game()

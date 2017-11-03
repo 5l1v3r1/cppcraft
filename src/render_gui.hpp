@@ -2,6 +2,7 @@
 #define RENDER_GUI_HPP
 
 #include <glm/mat4x4.hpp>
+#include "items/item.hpp"
 
 namespace cppcraft
 {

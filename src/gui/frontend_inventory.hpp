@@ -18,10 +18,13 @@ namespace gui
 
     // simulate a click on the inventory at @idx into @hand
     // hand will be modified and item stacks may be swapped
-    void click(int idx, Item& hand);
+    void click(int idx, int button, int mod);
 
   private:
     inline void uploadVertexData();
+    inline int to_idx(int tx, int ty) {
+      return tx + ty * this->tilesX();
+    }
     Widget* m_widget;
     gui::ItemRenderer m_render;
     bool updated = true;
@@ -33,13 +36,16 @@ namespace gui
     widget->onTileMotion(
       [this] (int btn, int mod, int tx, int ty) {
         if (tx >= 0)  {
-          const auto& item = this->at(tx + ty * this->tilesX());
+          const auto& item = this->at(to_idx(tx, ty));
           if (item.getCount() > 0)
           {
             if (item.isBlock()) {
                m_widget->setTooltip(item.blockdb().getName(item.toBlock()));
                return;
             }
+          }
+          if (btn != 0) {
+            this->click(to_idx(tx, ty), btn, mod);
           }
         }
         m_widget->setTooltip("");

@@ -2,8 +2,8 @@
 
 namespace gui
 {
-  void FrontendInventory::click(int idx, Item& hand)
+  void FrontendInventory::click(int idx, int btn, int mod)
   {
-    
+    // 
   }
 }

@@ -5,7 +5,6 @@
 #include "camera.hpp"
 #include "chat.hpp"
 #include "game.hpp"
-#include "gui/gui.hpp"
 #include "minimap.hpp"
 #include "generator/objectq.hpp"
 #include "player_logic.hpp"
@@ -65,7 +64,7 @@ namespace cppcraft
 		chatbox.init(width, height);
 
     using namespace nanogui;
-    auto* helper = new FormHelper(gui.screen());
+    auto* helper = new FormHelper(game.gui().screen());
     stats = helper->addWindow(Eigen::Vector2i(10, 10), "cppcraft v0.2");
     stats->setLayout(new GroupLayout());
 
@@ -136,7 +135,7 @@ namespace cppcraft
     sectobjs->setFixedSize(Vector2i(25, 20));
 
     stats->setPosition({0, 0});
-    gui.screen()->performLayout();
+    game.gui().screen()->performLayout();
 	}
 
 	std::string str_tail(std::string const& source, size_t const length)
@@ -172,13 +171,7 @@ namespace cppcraft
 		/// crosshair ///
 		renderCrosshair(ortho);
 
-		/// render graphical interfaces ///
-    game.gui().render();
-
-		//////////////////
 		/// debug text ///
-		//////////////////
-
     const float fps = renderer.fps();
     fpsbox->setValue(((int) (fps * 128.0)) / 128.0);
 
@@ -205,9 +198,9 @@ namespace cppcraft
       }
     }
 
+    /// render graphical interfaces ///
+    game.gui().render();
 
-    game.gui().screen()->drawContents();
-    game.gui().screen()->drawWidgets();
     /*
 		// determine selection
 		std::lock_guard<std::mutex> lock(mtx.playerselection);

@@ -21,10 +21,10 @@ namespace cppcraft
       return m_script;
     }
 
-    GUI& gui() noexcept {
+    gui::GUI& gui() noexcept {
       return m_gui;
     }
-    const GUI& gui() const noexcept {
+    const gui::GUI& gui() const noexcept {
       return m_gui;
     }
 
@@ -41,9 +41,9 @@ namespace cppcraft
     }
 
   private:
-    Script m_script;
-    Input  m_input;
-    GUI    m_gui;
+    Script   m_script;
+    Input    m_input;
+    gui::GUI m_gui;
     std::vector<Modification> m_mods;
     bool   m_terminate = false;
   };
