@@ -365,12 +365,14 @@ namespace cppcraft
 
 				// change to small, repeatable textures
 				tiledb.tiles.diff_texture().bind(0);
+        tiledb.tiles.diff_texture().setWrapMode(GL_REPEAT);
         tiledb.tiles.tone_texture().bind(1);
+        tiledb.tiles.tone_texture().setWrapMode(GL_REPEAT);
 				break;
 
-			case RenderConst::TX_TRANS: // culled alpha (tree leafs etc.)
+			case RenderConst::TX_TRANS: // see-through (tree leafs etc.)
 
-				// disable face culling (for 2-sidedness)
+				// disable face culling for 2-sidedness
 				glDisable(GL_CULL_FACE);
 
 				// change shader-set
@@ -414,11 +416,6 @@ namespace cppcraft
 			renderColumnSet(i, position, loc_vtrans);
 
 		} // next shaderline
-
-		// change to repeating textures
-    tiledb.tiles.diff_texture().setWrapMode(GL_REPEAT);
-    tiledb.tiles.tone_texture().bind(1);
-    tiledb.tiles.diff_texture().setWrapMode(GL_REPEAT);
 	}
 
 	void renderReflectedColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
