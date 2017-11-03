@@ -63,14 +63,10 @@ namespace db
 		// returns the color used, if applicable
 		delegate <uint32_t(const Block&)> getColor = nullptr;
 
-		// returns true if the block has a special hand-held model
-		// eg. crosses, door, ladder
-		bool isVoxelModel() const noexcept {
-			return voxelModel != 0;
-		}
-
 		// place mesh into PTD buffers (indic), returns number of vertices emitted
 		delegate <void(cppcraft::PTD&, int, int, int, uint16_t)> emit = nullptr;
+
+    int model() const noexcept { return m_model; }
 
 		// returns true if the block has an activation function
 		delegate <bool(const Block&)> hasActivation = nullptr;
@@ -158,6 +154,9 @@ namespace db
     short   tile_id = 0;
     short   colorIndex = -1;
     bool    block = true;
+    // mesh model index
+    int m_model = 0;
+    int m_voxel_model = 0;
     // minimap
     minimap_func_t minimap_color_callback = nullptr;
     uint32_t minimap_color = 0;

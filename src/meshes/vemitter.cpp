@@ -7,9 +7,9 @@ namespace cppcraft
   static void
 	emitCubeVertexPZ(PTD& ptd, const Block& block, int bx, int by, int bz)
 	{
-		// copy cube-mesh object 0 (+z side)
-		auto vtx = blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(0, ptd.current());
     const auto& blockdata = block.db();
+		// copy cube-mesh object 0 (+z side)
+		auto vtx = blockmodels.cubes[blockdata.model()].copyTo(0, ptd.current());
 
 		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
@@ -70,9 +70,9 @@ namespace cppcraft
 
 	void emitCubeVertexNZ(PTD& ptd, const Block& block, int bx, int by, int bz)
 	{
-		// copy cube-mesh object 1 (-z side)
-		auto vtx = blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(1, ptd.current());
     const auto& blockdata = block.db();
+		// copy cube-mesh object 1 (-z side)
+		auto vtx = blockmodels.cubes[blockdata.model()].copyTo(1, ptd.current());
 
 		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
@@ -134,10 +134,10 @@ namespace cppcraft
 	void emitCubeVertexPY(PTD& ptd, const Block& block, int bx, int by, int bz)
 	{
 		(void) by;
+    const auto& blockdata = block.db();
 		// 0.0, 0.0,  0.0, 1.0,  1.0, 1.0,  1.0, 0.0
 		// copy cube-mesh object 2 (+y side)
-		auto vtx = blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(2, ptd.current());
-    const auto& blockdata = block.db();
+		auto vtx = blockmodels.cubes[blockdata.model()].copyTo(2, ptd.current());
 
 		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
@@ -188,9 +188,9 @@ namespace cppcraft
 	void emitCubeVertexNY(PTD& ptd, const Block& block, int bx, int by, int bz)
 	{
 		(void) by;
-		// copy cube-mesh object 3 (-y side)
-		auto vtx = blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(3, ptd.current());
     const auto& blockdata = block.db();
+		// copy cube-mesh object 3 (-y side)
+		auto vtx = blockmodels.cubes[blockdata.model()].copyTo(3, ptd.current());
 
 		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
@@ -241,9 +241,9 @@ namespace cppcraft
 
 	void emitCubeVertexPX(PTD& ptd, const Block& block, int bx, int by, int bz)
 	{
-		// copy cube-mesh object 4 (+x side)
-		auto vtx = blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(4, ptd.current());
     const auto& blockdata = block.db();
+		// copy cube-mesh object 4 (+x side)
+		auto vtx = blockmodels.cubes[blockdata.model()].copyTo(4, ptd.current());
 
 		if (ptd.shader == RenderConst::TX_REPEAT)
 		{
@@ -307,9 +307,9 @@ namespace cppcraft
 
 	void emitCubeVertexNX(PTD& ptd, const Block& block, int bx, int by, int bz)
 	{
-		// copy cube-mesh object 5 (+x side)
-		auto vtx = blockmodels.cubes[BlockModels::MI_BLOCK].copyTo(5, ptd.current());
     const auto& blockdata = block.db();
+		// copy cube-mesh object 5 (+x side)
+		auto vtx = blockmodels.cubes[blockdata.model()].copyTo(5, ptd.current());
 
 		if (ptd.shader == RenderConst::TX_REPEAT)
 		{

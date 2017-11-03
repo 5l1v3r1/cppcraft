@@ -1,7 +1,9 @@
 #pragma once
 #include "../items/inventory.hpp"
+#include "../tiles.hpp"
 #include "item_renderer.hpp"
 #include <nanogui/arraytexture.h>
+#include <nanogui/formhelper.h>
 
 namespace gui
 {
@@ -93,6 +95,16 @@ namespace gui
       m_render.emit(itm, {x, y}, {w, h});
     }
     m_render.upload();
+  }
+
+  static auto* add_inv(nanogui::FormHelper* gui, const int w, const int h)
+  {
+    const int tilesize = cppcraft::tiledb.tiles.tilesize();
+    auto* image = new nanogui::ArrayTexture(gui->window(), tilesize, tilesize, w, h);
+    image->setScaleCentered(3.0f);
+    image->setFixedSize(image->scaledImageSize());
+    gui->addWidget("", image);
+    return image;
   }
 
 } // gui

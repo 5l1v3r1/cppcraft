@@ -35,7 +35,7 @@ namespace cppcraft
 		playerSelection.render();
 	}
 
-	block_t PlayerLogic::determineSelectionFacing(Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize)
+	int PlayerLogic::determineSelectionFacing(const Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize)
 	{
 		// determine selection-box facing value
 		if (block.isLadder())
@@ -108,12 +108,12 @@ namespace cppcraft
 	void PlayerSelection::render()
 	{
 		// determine selection
-		mtx.playerselection.lock();
+		plogic.selection_mtx().lock();
 
 		// exit if we have no selection
 		if (plogic.hasSelection() == false)
 		{
-			mtx.playerselection.unlock();
+			plogic.selection_mtx().unlock();
 			return;
 		}
 
@@ -128,7 +128,7 @@ namespace cppcraft
 		bool updated = plogic.selection.updated;
 		plogic.selection.updated = false;
 
-		mtx.playerselection.unlock();
+		plogic.selection_mtx().unlock();
 
 		if (updated)
 		{
@@ -159,7 +159,6 @@ namespace cppcraft
 
 			// upload only if renderable
 			this->renderable = vertices.empty() == false;
-
 			if (this->renderable)
 			{
 				// upload selection rendering data

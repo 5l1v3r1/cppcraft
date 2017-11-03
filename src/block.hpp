@@ -284,11 +284,6 @@ namespace cppcraft
 			return false;
 		}
 
-		int getVoxelModel() const
-		{
-			return db().voxelModel;
-		}
-
 		// material (automatic) sound
 		inline bool hasSound() const
 		{

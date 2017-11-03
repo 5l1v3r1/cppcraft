@@ -5,7 +5,7 @@
 #include "common.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <stdio.h>
+#include <mutex>
 
 namespace cppcraft
 {
@@ -106,7 +106,12 @@ namespace cppcraft
 			return glm::vec2(light & 0xFF, (light >> 8) & 0xFF) / 255.0f;
 		}
 
-		unsigned short determineSelectionFacing(Block& block, glm::vec3& ray, glm::vec3& fracs, float stepSize);
+		int determineSelectionFacing(const Block&, glm::vec3& ray, glm::vec3& fracs, float stepSize);
+
+    auto& selection_mtx() noexcept { return m_selection_mtx; }
+
+  private:
+    std::mutex m_selection_mtx;
 	};
 	extern PlayerLogic plogic;
 }

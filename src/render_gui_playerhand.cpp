@@ -7,7 +7,7 @@
 #include <library/math/toolbox.hpp>
 #include "blockmodels.hpp"
 #include "camera.hpp"
-#include "items/item.hpp"
+#include "game.hpp"
 #include "player.hpp"
 #include "player_actions.hpp"
 #include "player_logic.hpp"
@@ -32,38 +32,21 @@ namespace cppcraft
 	{
 		VAO vao;
 		VAO cubeVAO;
+    glm::vec3 currentHand;
 		glm::vec3 lastHand;
 		double    lastTime;
 		int       lastMode;
 
-		struct phand_vertex_t
+		struct hvertex_t
 		{
 			float x, y, z;
 			float nx, ny, nz;
 			float u, v, w;
 		};
 
-		phand_vertex_t vertices[2][4] =
-		{
-			{ // top face
-				//  xyz        norm        uvw
-				{ 1, 1, 1,   0, 1, 0,   0, 1.5, 9 },
-				{ 1, 1, 0,   0, 1, 0,   0, 0.0, 9 },
-				{ 0, 1, 0,   0, 1, 0,   1, 0.0, 9 },
-				{ 0, 1, 1,   0, 1, 0,   1, 1.5, 9 }
-			},
-			{ // left face
-				{ 0, 1, 1,  -1, 0, 0,   0, 1.5, 9 },
-				{ 0, 1, 0,  -1, 0, 0,   0, 0.0, 9 },
-				{ 0, 0, 0,  -1, 0, 0,   1, 0.0, 9 },
-				{ 0, 0, 1,  -1, 0, 0,   1, 1.5, 9 }
-			}
-		};
+		std::array<hvertex_t, 8> vertices;
 
-		// hand scale matrix
-		glm::mat4 handScale;
-
-	public:
+  public:
 		PlayerHand();
 		void render(double frameCounter);
 		void renderItem();
@@ -80,7 +63,20 @@ namespace cppcraft
 	{
 		lastMode = -1;
 		lastTime = 0.0;
-		handScale = glm::scale(glm::vec3(0.4f, 0.3f, 2.0f));
+    // hand scale
+    const glm::vec3 scale {0.25, 0.25, 1.0};
+
+              //   x        y        z          norm        uvw
+              // top face
+vertices[0] = { scale.x, scale.y, scale.z,   0, 1, 0,   0, 1.5, 9 };
+vertices[1] = { scale.x, scale.y,       0,   0, 1, 0,   0, 0.0, 9 };
+vertices[2] = {       0, scale.y,       0,   0, 1, 0,   1, 0.0, 9 };
+vertices[3] = {       0, scale.y, scale.z,   0, 1, 0,   1, 1.5, 9 };
+              // left face
+vertices[4] = {       0, scale.y, scale.z,  -1, 0, 0,   0, 1.5, 9 };
+vertices[5] = {       0, scale.y,       0,  -1, 0, 0,   0, 0.0, 9 };
+vertices[6] = {       0,       0,       0,  -1, 0, 0,   1, 0.0, 9 };
+vertices[7] = {       0,       0, scale.z,  -1, 0, 0,   1, 1.5, 9 };
 	}
 
 	void PlayerHand::render(double frameCounter)
@@ -89,7 +85,7 @@ namespace cppcraft
 
 		// manipulate hand
 		double period = (frameCounter - lastTime) * 0.25 / PI;
-		glm::vec3 hand(0.85, -0.75, -1.50);
+		glm::vec3 hand(0.6, -0.5, -1.0);
 		int mode = 0;
 
 		if (paction.getAction() == PlayerActions::PA_Mineblock)
@@ -98,9 +94,9 @@ namespace cppcraft
 			hand.x -= fabs(sin(period * 1.5) * 0.5);
 			hand.y += sin(period * 3) * 0.1;
 			if (false) //helditem.count)
-				hand.z = -1.25 - fabs(sin(period * 1.5)) * 1.25;
+				hand.z = -0.5 - fabs(sin(period * 1.5)) * 0.5;
 			else
-				hand.z = -1.25 - fabs(sin(period * 1.5)) * 1.5;
+				hand.z = -0.5 - fabs(sin(period * 1.5)) * 0.5;
 
 			mode = 1;
 		}
@@ -110,7 +106,7 @@ namespace cppcraft
 			hand.x -= fabs(sin(period * 1.0)) * 0.75;
 			hand.y = -0.5 - period * 0.1;
 
-			hand.z = -1.25 - fabs(sin(period * 1.0)) * 1.2;
+			hand.z = -0.25 - fabs(sin(period * 1.0)) * 0.6;
 			mode = 2;
 		}
 		else if (paction.getAction() == PlayerActions::PA_Cooldown)
@@ -118,9 +114,9 @@ namespace cppcraft
 			// cooldown animation
 			hand.y += sin(period / PI * 2) * 0.1;
 			if (false) //helditem.count)
-				hand.z = -1.25 - fabs(sin(period)) * 1.25;
+				hand.z = -0.5 - fabs(sin(period)) * 1.0;
 			else
-				hand.z = -1.25 - fabs(sin(period)) * 1.5;
+				hand.z = -0.5 - fabs(sin(period)) * 1.0;
 
 			if (lastMode != mode) lastTime = frameCounter - paction.cooldownTime;
 			mode = 3;
@@ -204,6 +200,8 @@ namespace cppcraft
 				lastTime = frameCounter;
 			}
 		}
+    // set the hand actually used this frame
+    this->currentHand = hand;
 
 		// convert shadow & torchlight color to 4-vectors
 		glm::vec2 light = plogic.getLight();
@@ -229,9 +227,10 @@ namespace cppcraft
 		}
 
 		// view translation-matrix
-		glm::mat4 matview = glm::translate(glm::vec3(lastHand.x, lastHand.y, lastHand.z));
+		glm::mat4 matview =
+        glm::translate(glm::vec3(lastHand.x, lastHand.y, lastHand.z));
 
-		shd.sendMatrix("matview", matview * handScale);
+		shd.sendMatrix("matview", matview);
 
 		// bind player models texture
 		textureman.bind(0, Textureman::T_PLAYERMODELS);
@@ -239,10 +238,10 @@ namespace cppcraft
 		// update vertex data
 		if (vao.isGood() == false)
 		{
-			vao.begin(sizeof(phand_vertex_t), 8, &vertices[0][0]);
-			vao.attrib(0, 3, GL_FLOAT, GL_FALSE, offsetof(phand_vertex_t, x));
-			vao.attrib(1, 3, GL_FLOAT, GL_FALSE, offsetof(phand_vertex_t, nx));
-			vao.attrib(2, 3, GL_FLOAT, GL_FALSE, offsetof(phand_vertex_t, u));
+			vao.begin(sizeof(hvertex_t), 8, &vertices[0]);
+			vao.attrib(0, 3, GL_FLOAT, GL_FALSE, offsetof(hvertex_t, x));
+			vao.attrib(1, 3, GL_FLOAT, GL_FALSE, offsetof(hvertex_t, nx));
+			vao.attrib(2, 3, GL_FLOAT, GL_FALSE, offsetof(hvertex_t, u));
 			vao.end();
 		}
 
@@ -253,15 +252,14 @@ namespace cppcraft
 	void PlayerHand::renderHandItem(const glm::vec2& light, float modulation)
 	{
 		// render held item
-		Item helditem(IT_NONE, 0);
+		const auto& helditem = game.gui().hotbar_item();
 		// no item, no render
 		if (helditem.isNone()) return;
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 
-		bool isVoxelBlock = false; //helditem.isBlock() && voxels.isVoxelBlock(helditem.getID());
-
+		const bool isVoxelBlock = false;
 		if (helditem.isItem() || isVoxelBlock)
 		{
 			Shader& shd = shaderman[Shaderman::VOXEL];
@@ -271,10 +269,8 @@ namespace cppcraft
 			// torchlight modulation
 			shd.sendFloat("modulation", modulation);
 			// view matrix
-			glm::mat4 matview = glm::scale(glm::vec3(1.0f));
-      matview *= glm::translate(glm::vec3(lastHand.x + 0.1f, lastHand.y, lastHand.z + 0.25f));
+			glm::mat4 matview = glm::translate(this->lastHand);
 			glm::mat4 matrot = rotationMatrix(0.0f, PI / 2.0f, 0.0f);
-
 			matview *= matrot;
 
 			shd.sendMatrix("matnrot", matrot);
@@ -298,6 +294,7 @@ namespace cppcraft
 		else
 		{
 			// bind blocks diffuse texture
+      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D_ARRAY, helditem.getTexture());
 			// helditem block mesh shader
 			Shader& shd = shaderman[Shaderman::PHAND_HELDITEM];
@@ -319,10 +316,9 @@ namespace cppcraft
 			// view matrix
 			glm::mat4 matview;
 
-			// update vertex data
-			block_t id = helditem.getID();
-
-			std::vector<vertex_t> vertices;
+			// generate held item from item type
+			static std::vector<vertex_t> vertices;
+      vertices.clear();
 
 			/*if (id == _LANTERN)
 			{
@@ -341,13 +337,13 @@ namespace cppcraft
 			}
 			else*/
 			{
-				// normal block model
-				int model = 0; //Block::blockModel(id);
+        // convert item to a block
+				Block held = helditem.toBlock();
+				// block model index
+				const int model = held.db().model();
 
 				blockmodels.cubes[model].copyAll(vertices);
 
-				// convert item to a block
-				Block held = helditem.toBlock();
 				held.setBits(3); // assuming bits are used to determine direction
 				// texture id
 				for (size_t i = 0; i < vertices.size(); i++)
@@ -356,9 +352,8 @@ namespace cppcraft
 				}
 
 				// translation & scaling
-				matview = glm::mat4(1.0f);
-				matview *= glm::translate(glm::vec3(lastHand.x - 0.15, lastHand.y - 0.1, lastHand.z - 0.6));
-				matview *= glm::mat4(0.6f);
+        matview = glm::translate(glm::vec3(-0.25, -0.7, -1));
+        matview *= glm::translate(this->lastHand);
 			}
 
 			if (!vertices.empty())

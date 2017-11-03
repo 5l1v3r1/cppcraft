@@ -1,7 +1,7 @@
 #include "player_actions.hpp"
 
 #include <library/log.hpp>
-#include "items.hpp"
+#include "game.hpp"
 #include "particles.hpp"
 #include "player.hpp"
 #include "player_logic.hpp"
@@ -95,13 +95,13 @@ namespace cppcraft
 	// performs any item action that the item being passed to the function can perform
 	void PlayerActions::itemAction(Item& item)
 	{
-		if (item.getID() == IT_PORTALGUN || item.getID() == IT_CREATORGUN)
+    // items you can shoot with
+		if (false)
 		{
-			// items you can shoot with
 			int FIXME_player_shoot;
 			//PlayerShoot(actionitem);
 		}
-		else //if (item.id >= 1 && item.id <= 49)
+		else
 		{
 			// items you can't build with, but you can swing with
 			swingTool(item);
@@ -120,7 +120,7 @@ namespace cppcraft
 
 		// well, we need to have non-zero amount of items,
 		// and we can really only place blocks atm.
-		bool placement_test = (item.getCount() != 0 && item.getType() == ITT_BLOCK);
+		bool placement_test = (item.getCount() != 0 && item.getType() == Item::BLOCK);
 
 		// additional test for whether the destination face is correct for this block
 		// eg. cant place ladders on top and bottom faces, torches on bottom faces etc.
@@ -175,6 +175,9 @@ namespace cppcraft
 					// send update to network
 					//NetworkBlock nblock(ddx, ddy, ddz, Block(id, bfield), NetworkBlock::BADD);
 					//network.addBlock(Network::OUTGOING, nblock);
+
+          // TODO: do something more meaningful, like setViewDirty();
+          plogic.Moved = true;
 				}
 			}
 
@@ -212,7 +215,7 @@ namespace cppcraft
 		/////////////////////////////////////
 		/// item currently held by player ///
 		/////////////////////////////////////
-		Item helditem(IT_NONE, 0); //
+		Item& helditem = game.gui().hotbar_item();
 
 		if (action == playeraction_t::PA_Addblock)
 		{
@@ -274,6 +277,8 @@ namespace cppcraft
 					//particleSystem.newParticle(center, PARTICLE_M_GENER, 16);
 
 				} // block was removed
+        // TODO: do something more meaningful, like setViewDirty();
+        plogic.Moved = true;
 
 			} // hasSelection()
 
@@ -333,35 +338,32 @@ namespace cppcraft
 						// create new fractionals
 						fracs = glm::fract(ray);
 
-						int ddx = ray.x, ddy = ray.y, ddz = ray.z;
+						const int ddx = ray.x, ddy = ray.y, ddz = ray.z;
 						// find position in local grid
 						Sector* sector = sectors.sectorAt(ddx, ddz);
 
 						// outside of local grid? nothing to select
 						if (sector == nullptr) break;
 
-						Block& selectionBlock = Spiders::getBlock(ddx, ddy, ddz);
-						unsigned short selectionFace = plogic.determineSelectionFacing(selectionBlock, ray, fracs, action_step);
+						const auto& selectionBlock = Spiders::getBlock(ddx, ddy, ddz);
+						auto selectionFace = plogic.determineSelectionFacing(selectionBlock, ray, fracs, action_step);
 
 						// make crc of internal position
 						int CRC = (ddx * Sector::BLOCKS_XZ + ddz) * Sector::BLOCKS_XZ + ddy;
 						// determine if the selection has been updated
-						if (selection.checkSum != CRC || selection.facing != selectionFace
-							|| selection.block.getID() != selectionBlock.getID())
+						bool updated = (selection.checkSum != CRC || selection.facing != selectionFace
+							           || selection.block.getID() != selectionBlock.getID());
 						{
-							// set selection results
-							mtx.playerselection.lock();
-							{
-								// info
-								selection.block = selectionBlock;
-								selection.sector = sector;
-								selection.pos = ray;
-								selection.facing = selectionFace;
-								// update info
-								selection.checkSum = CRC;
-								selection.updated  = true;
-							}
-							mtx.playerselection.unlock();
+              // set selection results
+              std::lock_guard<std::mutex> (plogic.selection_mtx());
+							// info
+							selection.block = selectionBlock;
+							selection.sector = sector;
+							selection.pos = ray;
+							selection.facing = selectionFace;
+							// update info
+							selection.checkSum = CRC;
+							selection.updated  = true;
 						}
 
 						if (action == PA_Mineblock)
@@ -419,7 +421,7 @@ namespace cppcraft
 				minimizer = selection.checkSum;
 
 				// if we got here we have selected a new block to mine from
-				mineTimer = items.getMiningTime(selection.block, helditem);
+				mineTimer = 16; //helditem.itemdb().getMiningTime(helditem, selection.block);
 
 				if (minimizer == -2)
 				{

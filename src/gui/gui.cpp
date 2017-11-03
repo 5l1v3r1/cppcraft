@@ -5,6 +5,7 @@
 #include <nanogui/nanogui.h>
 
 #include "frontend_inventory.hpp"
+#include "hotbar.hpp"
 using namespace cppcraft;
 
 namespace gui
@@ -13,43 +14,6 @@ namespace gui
   nanogui::ref<nanogui::Window> wnd;
   std::unique_ptr<FrontendInventory> test_inv = nullptr;
   ItemRenderer handheld_renderer;
-
-  static auto* add_inv(nanogui::FormHelper* gui, const int w, const int h)
-  {
-    const int tilesize = tiledb.tiles.tilesize();
-    auto* image = new nanogui::ArrayTexture(gui->window(), tilesize, tilesize, w, h);
-    image->setScaleCentered(3.0f);
-    image->setFixedSize(image->scaledImageSize());
-    gui->addWidget("", image);
-    return image;
-  }
-
-  struct hotbar_t
-  {
-    nanogui::ref<nanogui::Window> wnd;
-    std::unique_ptr<FrontendInventory> inv = nullptr;
-
-    void create(nanogui::Screen* m_screen)
-    {
-      using namespace nanogui;
-      auto* gui = new FormHelper(m_screen);
-      this->wnd = gui->addWindow(Eigen::Vector2i(10, 10), "");
-
-      auto* widget = add_inv(gui, 9, 1);
-      this->inv.reset(new FrontendInventory(widget));
-      // fake contents
-      for (size_t i = 0; i < this->inv->size(); i++)
-          this->inv->at(i) = Item(i + 1, i + 1, Item::BLOCK);
-
-      this->wnd->setVisible(true);
-    }
-    void set_position()
-    {
-      // center bottom
-      this->wnd->setPosition({(wnd->screen()->size().x() - wnd->size().x()) / 2,
-                              wnd->screen()->size().y() - wnd->size().y()});
-    }
-  };
   static hotbar_t hotbar;
 
   void GUI::init(Renderer& renderer)
@@ -90,6 +54,19 @@ namespace gui
     m_screen->performLayout();
     wnd->center();
     hotbar.set_position();
+  }
+
+  void GUI::hotbar_select(int idx) {
+    const int size = (int) hotbar.inv->size();
+    idx = (idx < 0) ? 0 : idx;
+    idx = (idx >= size) ? size-1 : idx;
+    this->m_hotbar_index = idx;
+  }
+  Item& GUI::hotbar_item() {
+    return hotbar.inv->at(this->m_hotbar_index);
+  }
+  const Item& GUI::hotbar_item() const {
+    return hotbar.inv->at(this->m_hotbar_index);
   }
 
   void GUI::render()

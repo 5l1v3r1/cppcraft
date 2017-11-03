@@ -246,7 +246,7 @@ namespace cppcraft
 				if (lock_quickbar_scroll == false)
 				{
 					// next quickbar item
-					//gui::menu.quickbarX = (gui::menu.quickbarX + 1) % inventory.getWidth();
+          game.gui().hotbar_select(game.gui().hotbar_index() + 1);
 					lock_quickbar_scroll = true;
 				}
 			}
@@ -255,12 +255,7 @@ namespace cppcraft
 				if (lock_quickbar_scroll == false)
 				{
 					// previous quickbar item
-					/*
-					if (gui::menu.quickbarX)
-						gui::menu.quickbarX -= 1;
-					else
-						gui::menu.quickbarX = inventory.getWidth()-1;
-					*/
+          game.gui().hotbar_select(game.gui().hotbar_index() - 1);
 					lock_quickbar_scroll = true;
 				}
 			}
@@ -272,7 +267,7 @@ namespace cppcraft
 			for (int i = 1; i < 10; i++)
 			if (game.input().key(GLFW_KEY_0 + i))
 			{
-				//gui::menu.quickbarX = (i - 1) % inventory.getWidth();
+        game.gui().hotbar_select(i - 1);
 			}
 
 		} // busyControls
