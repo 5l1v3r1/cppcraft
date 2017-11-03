@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <cstdint>
 #include <mutex>
 
 namespace cppcraft
@@ -21,18 +22,18 @@ namespace cppcraft
 
 	struct playerselect_t
 	{
+    // selected block
+		Block block;
 		// selected sector
 		Sector* sector;
-		// selected block
-		Block block;
 		// grid position
 		glm::vec3 pos;
 		// selection direction
-		unsigned short facing;
+		int facing;
 		// additional info
 		int info[2];
-		// inform rendering thread on updates
-		int checkSum;
+    // location as bits
+    uint32_t checksum;
 		bool updated;
 	};
 

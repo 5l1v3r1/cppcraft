@@ -40,20 +40,18 @@ namespace cppcraft
 	}
 
 	// run compilers and try to clear queue, if theres enough time
-	void Compilers::run(const int wx, const int wz)
+	void Compilers::run(const int wx, const int wz, const int wdx, const int wdz)
 	{
     auto scheduled = CompilerScheduler::get();
 		for (auto& precomp : scheduled)
 		{
       // TODO: find out why wx, wz doesnt work replacing world.getW[X/Z]
-			const int x = precomp->sector.wx - world.getWX();
-			const int z = precomp->sector.wz - world.getWZ();
+			const int x = precomp->getWX() - wx;
+			const int z = precomp->getWZ() - wz;
 
-			// so, what do we do here? I think we just ignore the
-			// mesh for (x, z), since there is nothing to do
 			if (x >= 0 && z >= 0 && x < sectors.getXZ() && z < sectors.getXZ())
 			{
-				Column& cv = columns(x, 0, z);
+				Column& cv = columns(x, z, wdx, wdz);
 				cv.compile(x, 0, z, precomp.get());
 			}
 		}

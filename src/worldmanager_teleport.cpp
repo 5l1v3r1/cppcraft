@@ -69,7 +69,7 @@ namespace cppcraft
 			for (int z = 0; z < sectors.getXZ(); z++)
 			for (int y = 0; y < columns.getHeight(); y++)
 			{
-				columns(x, y, z).reset();
+				columns(x, z, world.getDeltaX(), world.getDeltaZ()).reset();
 			}
 		}
 		mtx.sectorseam.unlock();

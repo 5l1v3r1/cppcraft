@@ -248,14 +248,16 @@ namespace cppcraft
 			}
 
 			/// world coordinate snapshots ///
-			snapWX = world.getWX();
-			snapWZ = world.getWZ();
+			this->snapWX = world.getWX();
+			this->snapWZ = world.getWZ();
+      this->m_delta_x = world.getDeltaX();
+			this->m_delta_z = world.getDeltaZ();
 
 			/// update minimap ///
 			minimap.update(playerPos.x, playerPos.z);
 
 			/// set player positions ///
-			netplayers.positionSnapshots(snapWX, snapWZ, renderer.delta_time());
+			netplayers.positionSnapshots(snap_wx(), snap_wz(), renderer.delta_time());
 
 			/// camera deviations ///
 			double camDev = cameraDeviation(renderer.time(), renderer.delta_time());
@@ -479,7 +481,7 @@ namespace cppcraft
 		/// update particles ///
 		particleSystem.renderUpdate();
 		/// render particles ///
-		particleSystem.render(snapWX, snapWZ, renderer.time());
+		particleSystem.render(snap_wx(), snap_wz(), renderer.time());
 
 		/// render netplayer nametags ///
 		netplayers.renderNameTags();

@@ -1,6 +1,7 @@
 #include "precompiler.hpp"
 
 #include "sectors.hpp"
+#include "world.hpp"
 
 namespace cppcraft
 {
@@ -9,8 +10,5 @@ namespace cppcraft
 	{
 		assert(y1 != 0);
     assert(y0 < y1);
-
-    // this is a new job
-		this->status = STATUS_NEW;
 	}
 }

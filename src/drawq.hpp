@@ -54,6 +54,7 @@ namespace cppcraft
 			int majority;
 			int gridSize;
 			float playerY;
+      int wdx, wdz;
 			const library::Frustum* frustum;
 		};
 

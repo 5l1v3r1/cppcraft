@@ -13,7 +13,7 @@ namespace cppcraft
 	{
 	public:
 		static void init();
-		static void run(const int wx, const int wz);
+		static void run(int wx, int wz, int sdx, int sdz);
 	};
 }
 

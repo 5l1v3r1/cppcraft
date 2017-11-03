@@ -27,12 +27,10 @@ namespace cppcraft
 		}
 
     // return renderers current world position
-    int snap_wx() const {
-      return snapWX;
-    }
-    int snap_wz() const {
-      return snapWZ;
-    }
+    int snap_wx() const noexcept { return snapWX; }
+    int snap_wz() const noexcept { return snapWZ; }
+    int snap_delta_x() const noexcept { return m_delta_x; }
+    int snap_delta_z() const noexcept { return m_delta_z; }
 
 	private:
     Renderer& renderer;
@@ -43,8 +41,8 @@ namespace cppcraft
 		// used when rendering
 		glm::vec3 playerPos;
 		int playerSectorX, playerSectorZ;
-		int snapWX = 0;
-    int snapWZ = 0;
+		int snapWX = 0, snapWZ = 0;
+    int m_delta_x = 0, m_delta_z = 0;
 		bool playerMoved = true;
 		char underwater = 0;
 

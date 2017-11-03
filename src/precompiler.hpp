@@ -18,23 +18,11 @@ namespace cppcraft
 		/// this constructor MUST be called from main world thread
 		explicit Precomp(Sector& sector, int y0, int y1);
 
-		enum jobresult_t
-		{
-			STATUS_NEW,
-			STATUS_CULLED,
-			STATUS_FAILED,
-			STATUS_DONE
-		};
-
-		inline jobresult_t getStatus() const
-		{
-			return status;
-		}
-
 		// our source sector (with additional data)
 		bordered_sector_t sector;
-    // job status
-    jobresult_t status;
+    // absolute world position
+    int getWX() const noexcept { return sector.wx; };
+    int getWZ() const noexcept { return sector.wz; };
 		// resulting mesh data
 		std::vector<vertex_t> datadump;
     // total amount of vertices for each shader line

@@ -1,6 +1,5 @@
 #include "player_actions.hpp"
 
-#include <library/log.hpp>
 #include "game.hpp"
 #include "particles.hpp"
 #include "player.hpp"
@@ -8,7 +7,6 @@
 #include "sectors.hpp"
 #include "soundman.hpp"
 #include "spiders.hpp"
-#include "threading.hpp"
 #include <glm/glm.hpp>
 #include <cmath>
 
@@ -21,11 +19,8 @@
  *
 **/
 
-using namespace library;
-
 namespace cppcraft
 {
-
 	// activates the block in the world selected by the player, if applicable
 	// held_item is the item the player is currently holding
 	void PlayerActions::activate(Item& held_item)
@@ -346,23 +341,18 @@ namespace cppcraft
 						if (sector == nullptr) break;
 
 						const auto& selectionBlock = Spiders::getBlock(ddx, ddy, ddz);
-						auto selectionFace = plogic.determineSelectionFacing(selectionBlock, ray, fracs, action_step);
+						int selectionFace = plogic.determineSelectionFacing(selectionBlock, ray, fracs, action_step);
 
 						// make crc of internal position
-						int CRC = (ddx * Sector::BLOCKS_XZ + ddz) * Sector::BLOCKS_XZ + ddy;
-						// determine if the selection has been updated
-						bool updated = (selection.checkSum != CRC || selection.facing != selectionFace
-							           || selection.block.getID() != selectionBlock.getID());
+						const uint32_t CRC = (ddx * Sector::BLOCKS_XZ + ddz) * Sector::BLOCKS_XZ + ddy;
 						{
-              // set selection results
               std::lock_guard<std::mutex> (plogic.selection_mtx());
-							// info
+              // set selection results
 							selection.block = selectionBlock;
 							selection.sector = sector;
 							selection.pos = ray;
 							selection.facing = selectionFace;
-							// update info
-							selection.checkSum = CRC;
+							selection.checksum = CRC;
 							selection.updated  = true;
 						}
 
@@ -386,11 +376,8 @@ namespace cppcraft
 				if (selection.sector)
 				{
 					// unset our selection
-					mtx.playerselection.lock();
-					{
-						selection.sector = nullptr;
-					}
-					mtx.playerselection.unlock();
+          std::lock_guard<std::mutex> (plogic.selection_mtx());
+					selection.sector = nullptr;
 				}
 
 				if (action == playeraction_t::PA_Mineblock)
@@ -416,9 +403,9 @@ namespace cppcraft
 
 			playerselect_t& selection = plogic.selection;
 
-			if (minimizer != selection.checkSum)
+			if (minimizer != selection.checksum)
 			{
-				minimizer = selection.checkSum;
+				minimizer = selection.checksum;
 
 				// if we got here we have selected a new block to mine from
 				mineTimer = 16; //helditem.itemdb().getMiningTime(helditem, selection.block);

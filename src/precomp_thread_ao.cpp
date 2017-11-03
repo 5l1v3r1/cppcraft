@@ -70,9 +70,6 @@ namespace cppcraft
 		logger << Log::INFO << "Indexing time: " << timer.startNewRound() << Log::ENDL;
 		timingMutex.unlock();
 #endif
-
-		// set result
-		precomp.status = Precomp::STATUS_DONE;
 	}
 
 

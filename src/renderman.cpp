@@ -197,11 +197,12 @@ namespace cppcraft
 			}
 			else framesCounter++;
 
-			// compiling columns
-			Compilers::run(m_scene->snap_wx(), m_scene->snap_wz());
-
 			// rendering function
 			render(dtime);
+
+      // compiling columns
+			Compilers::run(m_scene->snap_wx(), m_scene->snap_wz(),
+                     m_scene->snap_delta_x(), m_scene->snap_delta_z());
 
       // handle inputs (main thread)
       game.input().handle();

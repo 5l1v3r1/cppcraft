@@ -166,6 +166,8 @@ namespace cppcraft
 		rg.zstp = zstp;
 		rg.majority = majority;
 		rg.playerY  = playerPos.y;
+    rg.wdx = this->snap_delta_x();
+    rg.wdz = this->snap_delta_z();
 		rg.frustum = &camera.getFrustum();
 		rg.gridSize = camera.getGridsize();
 

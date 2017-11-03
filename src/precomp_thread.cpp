@@ -51,9 +51,7 @@ namespace cppcraft
 		{
 			printf("[!] No vertices (total) for (%d, %d)\n",
 				      pc.sector.wx, pc.sector.wz);
-			// no vertices, we can exit early, but make sure to
-			// mark the sector as culled
-			pc.status = Precomp::STATUS_CULLED;
+			// no vertices, we can exit early
 			return;
 		}
 
@@ -75,9 +73,6 @@ namespace cppcraft
 		}
 
     assert(pc.datadump.size() == total);
-
-		// set job as done
-		pc.status = Precomp::STATUS_DONE;
 	}
 
 }

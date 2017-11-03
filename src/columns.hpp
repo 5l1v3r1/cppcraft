@@ -58,12 +58,12 @@ namespace cppcraft
 		}
 
 		// column index operator
-		Column& operator() (int x, int y, int z)
+		Column& operator() (int x, int z, int wdx, int wdz)
 		{
-			x = (x + world.getDeltaX()) % sectors.getXZ();
-			z = (z + world.getDeltaZ()) % sectors.getXZ();
+			x = (x + wdx) % sectors.getXZ();
+			z = (z + wdz) % sectors.getXZ();
 
-			return columns.at(((x * sectors.getXZ() + z) * HEIGHT) + y);
+			return columns.at(x * sectors.getXZ() + z);
 		}
 
 	private:

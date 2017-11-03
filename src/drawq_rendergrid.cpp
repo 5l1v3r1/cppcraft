@@ -142,7 +142,7 @@ namespace cppcraft
 
 		while (true)
 		{
-			Column& cv = columns(x, y, z);
+			Column& cv = columns(x, z, rg.wdx, rg.wdz);
 
 			if (cv.renderable)
 			{
