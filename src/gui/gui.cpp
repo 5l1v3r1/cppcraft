@@ -2,7 +2,6 @@
 #include "../game.hpp"
 #include "../tiles.hpp"
 #include "../renderman.hpp"
-#include <library/opengl/shader.hpp>
 #include <nanogui/nanogui.h>
 
 #include "frontend_inventory.hpp"
@@ -12,18 +11,46 @@ namespace gui
 {
   nanogui::Screen* GUI::m_screen = nullptr;
   nanogui::ref<nanogui::Window> wnd;
-  std::unique_ptr<gui::FrontendInventory> test_inv = nullptr;
+  std::unique_ptr<FrontendInventory> test_inv = nullptr;
   ItemRenderer handheld_renderer;
 
   static auto* add_inv(nanogui::FormHelper* gui, const int w, const int h)
   {
     const int tilesize = tiledb.tiles.tilesize();
-    auto* image = new nanogui::ArrayTexture(wnd, tilesize, tilesize, w, h);
+    auto* image = new nanogui::ArrayTexture(gui->window(), tilesize, tilesize, w, h);
     image->setScaleCentered(3.0f);
     image->setFixedSize(image->scaledImageSize());
     gui->addWidget("", image);
     return image;
   }
+
+  struct hotbar_t
+  {
+    nanogui::ref<nanogui::Window> wnd;
+    std::unique_ptr<FrontendInventory> inv = nullptr;
+
+    void create(nanogui::Screen* m_screen)
+    {
+      using namespace nanogui;
+      auto* gui = new FormHelper(m_screen);
+      this->wnd = gui->addWindow(Eigen::Vector2i(10, 10), "");
+
+      auto* widget = add_inv(gui, 9, 1);
+      this->inv.reset(new FrontendInventory(widget));
+      // fake contents
+      for (size_t i = 0; i < this->inv->size(); i++)
+          this->inv->at(i) = Item(i + 1, i + 1, Item::BLOCK);
+
+      this->wnd->setVisible(true);
+    }
+    void set_position()
+    {
+      // center bottom
+      this->wnd->setPosition({(wnd->screen()->size().x() - wnd->size().x()) / 2,
+                              wnd->screen()->size().y() - wnd->size().y()});
+    }
+  };
+  static hotbar_t hotbar;
 
   void GUI::init(Renderer& renderer)
   {
@@ -44,8 +71,8 @@ namespace gui
 
     gui->addGroup("Inventory widget");
 
-    auto* inv_widget = add_inv(gui, 9, 3);
-    test_inv.reset(new gui::FrontendInventory(inv_widget));
+    auto* test_inv_widget = add_inv(gui, 9, 3);
+    test_inv.reset(new FrontendInventory(test_inv_widget));
     for (size_t i = 0; i < test_inv->size(); i++)
       test_inv->at(i) = Item(i + 1, (i + 1) % 20, Item::BLOCK);
 
@@ -57,8 +84,12 @@ namespace gui
     })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");
     wnd->setVisible(false);
 
+    // create permanent hotbar
+    hotbar.create(this->m_screen);
+
     m_screen->performLayout();
     wnd->center();
+    hotbar.set_position();
   }
 
   void GUI::render()
@@ -66,11 +97,9 @@ namespace gui
     wnd->setVisible(this->show_window);
     screen()->drawContents();
     screen()->drawWidgets();
-    // have to re-synchronize shader binding
-    library::Shader::unbind();
 
     // draw whatever is being held by the cursor
-    if (!this->held_item().isNone())
+    if (!this->held_item().isNone() && this->show_window)
     {
       if (this->m_held_changed)
       {

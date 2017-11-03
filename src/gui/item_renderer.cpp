@@ -226,6 +226,8 @@ namespace gui
 
 	void ItemRenderer::render(const glm::vec2 scale, const glm::vec2 offset)
 	{
+    // have to re-synchronize shader binding
+    library::Shader::unbind();
 		/// render all menu items ///
 		ir_shader.bind();
 		ir_shader.sendVec2("scaleFactor", scale);
