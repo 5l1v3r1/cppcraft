@@ -22,3 +22,6 @@
 [submodule "ext/nanogui"]
 	path = ext/nanogui
 	url = git@github.com:fwsGonzo/nanogui.git
+[submodule "inc/SimplexNoise"]
+	path = inc/SimplexNoise
+	url = https://github.com/fwsGonzo/SimplexNoise.git

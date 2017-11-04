@@ -37,7 +37,7 @@ namespace terragen
 		return s;
 	}
 
-	static float getnoise_grass(vec3 p, float hvalue, const vec2& slope)
+	static float getnoise_grass(vec3 p, const glm::vec3 value)
 	{
 		vec2 P(p.x, p.z); P *= 0.001;
 
@@ -56,25 +56,25 @@ namespace terragen
 
 		float depth = cracks(xx + noi*0.6, zz * stretch, width - p.y, 0.5f);
 
-		return p.y - hvalue - depth;
+		return p.y - value.x - depth;
 	}
 
-	static float getheight_grass(vec2 p, const float UNDER)
+	static glm::vec3 getheight_grass(vec2 p, const glm::vec3 UNDER)
 	{
     p *= 0.001f;
 		float lnoise = glm::simplex(p * glm::vec2(0.75f, 0.7f));
 
 		// 0.3 is land base-height, 0.4 is higher up, 0.2 is underwater
-		float land = UNDER + 0.1f + lnoise * 0.05f;
+		float land = UNDER.x + 0.1f + lnoise * 0.05f;
 		land += glm::simplex(p) * 0.03f +
             glm::simplex(p*vec2(2.7f, 2.8f)) * 0.02f +
             glm::simplex(p*vec2(5.8f, 5.6f)) * 0.05f;
-		return land;
+		return {land, 0.0f, 0.0f};
 	}
-  static float getground_grass(vec2 p)
+  static glm::vec3 getground_grass(vec2 p)
   {
     p *= 0.001f;
-    return WATERLEVEL_FLT - 0.1f + lower_grass(p) * 0.4f;
+    return {WATERLEVEL_FLT - 0.1f + lower_grass(p) * 0.4f, 0.0f, 0.0f};
   }
 
 	static void grass_process(gendata_t*, int x, int z, const int Y);

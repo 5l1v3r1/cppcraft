@@ -157,8 +157,8 @@ namespace terragen
 		static const int y_points = BLOCKS_Y / y_step + 1;
 
 		// terrain heightmaps
-		float heightmap_gnd[NGRID+1][NGRID+1] ALIGN_AVX;
-    float heightmap_und[NGRID+1][NGRID+1] ALIGN_AVX;
+		glm::vec3 heightmap_gnd[NGRID+1][NGRID+1] ALIGN_AVX;
+    glm::vec3 heightmap_und[NGRID+1][NGRID+1] ALIGN_AVX;
 		// beach height values
 		float beachhead[NGRID+1][NGRID+1] ALIGN_AVX;
 		// noise (terrain density) values
@@ -174,20 +174,20 @@ namespace terragen
 			const auto& biome = data->getWeights(x * grid_pfac, z * grid_pfac);
 
 			// heightvalues for this position, averaged across terrains
-      float hvalue_und = 0.0f;
+      glm::vec3 hvalue_und{0.0f};
 			for (const auto& v : biome)
 			{
         hvalue_und += terrains[v.first].hmap_und(p2) * v.second;
 			}
       // set heightmap values
-      heightmap_und[x][z] = std::min(0.9999f, hvalue_und);
-      float hvalue_gnd = 0.0f;
+      heightmap_und[x][z] = {glm::clamp(0.f, 0.9999f, hvalue_und.x), hvalue_und.y, hvalue_und.z};
+      glm::vec3 hvalue_gnd{0.0f};
       for (const auto& v : biome)
 			{
         hvalue_gnd += terrains[v.first].hmap_gnd(p2, hvalue_und) * v.second;
 			}
 			// set heightmap values
-			heightmap_gnd[x][z] = std::min(0.9999f, hvalue_gnd);
+			heightmap_gnd[x][z] = {glm::clamp(0.f, 0.9999f, hvalue_gnd.x), hvalue_gnd.y, hvalue_gnd.z};
     }
 
 		// retrieve data for noise biome interpolation
@@ -200,11 +200,11 @@ namespace terragen
 			// beach height/level variance
 			beachhead[x][z] = glm::simplex(p2 * 0.005f);
 
-      const float HVALUE_UND = heightmap_und[x][z];
-      const int MAX_UND = HVALUE_UND * BLOCKS_Y;
+      const glm::vec3& HVALUE_UND = heightmap_und[x][z];
+      const int MAX_UND = HVALUE_UND.x * BLOCKS_Y;
 
-      const float HVALUE_GND = heightmap_gnd[x][z];
-      int MAX_GND = HVALUE_GND * BLOCKS_Y;
+      const glm::vec3& HVALUE_GND = heightmap_gnd[x][z];
+      int MAX_GND = HVALUE_GND.x * BLOCKS_Y;
       // we need this to interpolate properly under water
 			MAX_GND = (MAX_GND < WATERLEVEL) ? WATERLEVEL : MAX_GND;
 
@@ -220,7 +220,7 @@ namespace terragen
 
         // cave density function
 			  float& caves = cave_array[x][z][y / y_step];
-		    caves = cave_terrains[Biome::T_CAVES].func3d(p, HVALUE_UND, slope);
+		    caves = cave_terrains[Biome::T_CAVES].func3d(p, HVALUE_UND);
 
         if (y >= MAX_UND - y_step)
         {
@@ -233,7 +233,7 @@ namespace terragen
   					// Note: using @hvalue directly here (the heightmap value)
   					// noise total is terrain (density function) * (weight) for all 4 weights summed
             auto& terrain = terrains[value.first];
-  					noise += terrain.func3d(p, HVALUE_GND, slope) * value.second;
+  					noise += terrain.func3d(p, HVALUE_GND) * value.second;
 				  } // weights
         } // ground level
 			} // for(y)
@@ -254,13 +254,13 @@ namespace terragen
 
 				float w0, w1;
 				// heightmap weights //
-				w0 = mix( heightmap_gnd[bx][bz  ], heightmap_gnd[bx+1][bz  ], frx );
-				w1 = mix( heightmap_gnd[bx][bz+1], heightmap_gnd[bx+1][bz+1], frx );
+				w0 = mix( heightmap_gnd[bx][bz  ].x, heightmap_gnd[bx+1][bz  ].x, frx );
+				w1 = mix( heightmap_gnd[bx][bz+1].x, heightmap_gnd[bx+1][bz+1].x, frx );
 				int MAX_GND = mix( w0, w1, frz ) * BLOCKS_Y;
 				MAX_GND = (MAX_GND < WATERLEVEL) ? WATERLEVEL : MAX_GND;
 
-        w0 = mix( heightmap_und[bx][bz  ], heightmap_und[bx+1][bz  ], frx );
-				w1 = mix( heightmap_und[bx][bz+1], heightmap_und[bx+1][bz+1], frx );
+        w0 = mix( heightmap_und[bx][bz  ].x, heightmap_und[bx+1][bz  ].x, frx );
+				w1 = mix( heightmap_und[bx][bz+1].x, heightmap_und[bx+1][bz+1].x, frx );
 				const int MAX_UND = mix( w0, w1, frz ) * BLOCKS_Y;
 				// heightmap weights //
 

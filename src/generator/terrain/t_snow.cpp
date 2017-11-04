@@ -10,6 +10,7 @@
 #include <glm/gtc/noise.hpp>
 #include <library/bitmap/colortools.hpp>
 #include <library/math/toolbox.hpp>
+#include <Simplex.h>
 
 #include "../../player.hpp"
 #include "../../sector.hpp"
@@ -23,25 +24,28 @@ using namespace library;
 
 namespace terragen
 {
-  static const float ICECAP_HEIGHT = 0.025f;
+  static const float ICECAP_HEIGHT = 0.25f;
 
-	static float getheight_icecap(vec2 p, const float UNDER)
-	{
-    return UNDER + ICECAP_HEIGHT;
-	}
-  static float getcaves_icecap(vec2 p)
+  static glm::vec3 getcaves_icecap(vec2 p)
   {
     p *= 0.005f;
-		float n1 = glm::simplex(p * 0.5f);
+		glm::vec3 df = Simplex::dFlowNoise(p * 0.5f, 0.1);
 		float n2 = powf(fabsf(glm::simplex(p * 0.04f)), 2.0f);
 
-		return WATERLEVEL_FLT - n1 * 0.0f + n2 * 0.2f;
+		return {WATERLEVEL_FLT - df.x * 0.1f, df.y, df.z};
   }
+  static glm::vec3 getheight_icecap(vec2 p, const vec3 UNDER)
+	{
+    return {UNDER.x + ICECAP_HEIGHT, UNDER.y, UNDER.z};
+	}
 
-	static float getnoise_icecap(vec3 p, float hvalue, const vec2& slope)
+	static float getnoise_icecap(vec3 p, const vec3 value)
 	{
     p *= vec3(0.005f, 1.0f, 0.005f);
-		return p.y - hvalue + ICECAP_HEIGHT * powf(fabsf(glm::simplex(p)), 0.85f);
+    const vec2 slope {value.y, value.z};
+    const bool is_rising = slope.x > 0 && slope.y > 0;
+    const float turb = is_rising * slope.x * slope.y;
+		return p.y - glm::simplex(p) * 0.2;
 	}
 
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
@@ -160,8 +164,7 @@ namespace terragen
 				position += glm::vec3(rndNorm(64), 14 + rndNorm(20), rndNorm(64));
 
 				// now create particle
-				int I = particleSystem.newParticle(position, P_SNOW);
-				assert(I >= 0);
+				particleSystem.newParticle(position, P_SNOW);
 			}
 		};
 

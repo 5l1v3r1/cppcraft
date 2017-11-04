@@ -24,9 +24,9 @@ namespace cppcraft
 
 		threadpool->enqueue(job);
 	}
-	void AsyncPool::release()
+	void AsyncPool::release(int count)
 	{
-    __sync_fetch_and_add(&free_jobs, 1);
+    __sync_fetch_and_add(&free_jobs, count);
 	}
 
 	bool AsyncPool::available()

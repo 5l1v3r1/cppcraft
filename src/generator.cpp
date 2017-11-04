@@ -17,6 +17,7 @@
 #include "generator/objectq.hpp"
 #include <algorithm>
 #include <cstring>
+#include <vector>
 
 using namespace library;
 
@@ -29,7 +30,7 @@ namespace cppcraft
 	// multi-threaded shits, mutex for the finished queue
 	// and the list of containers of finished jobs (gendata_t)
 	static std::mutex mtx_genq;
-	static std::deque<std::unique_ptr<terragen::gendata_t>> finished;
+	static std::vector<std::unique_ptr<terragen::gendata_t>> finished;
 
 	void Generator::init()
 	{
@@ -41,9 +42,8 @@ namespace cppcraft
 		for (int x = 0; x < sectors.getXZ(); x++)
 		for (int z = 0; z < sectors.getXZ(); z++)
 		{
-			// during loading, some additional sectors
-			// may have been loaded through files so, we
-			// check if the sector isnt already generated
+			// during loading, some sectors may have been loaded through files,
+      // so we check if the sector isnt already generated
 			if (sectors(x, z).generated() == false)
 				Generator::add(sectors(x, z));
 		}
@@ -83,15 +83,14 @@ namespace cppcraft
 			AsyncPool::sched(std::move(func));
 		}
 
-		// finished generator jobs
-		mtx_genq.lock();
-		while (!finished.empty())
-		{
-			// retrieve from queue
-			auto gdata = std::move(finished.front());
-			finished.pop_front();
-			mtx_genq.unlock();
+    // retrieve from queue
+    mtx_genq.lock();
+    auto finvec = std::move(finished);
+    mtx_genq.unlock();
 
+		// finished generator jobs
+		for (auto& gdata : finvec)
+		{
 			const int x = gdata->wx - world.getWX();
 			const int z = gdata->wz - world.getWZ();
 			// check that the generated data is still
@@ -138,13 +137,10 @@ namespace cppcraft
 				printf("INVALID sector was generated: (%d, %d)\n", x, z);
 			#endif
 			}
-
-			// allow more jobs in the async pool
-			AsyncPool::release();
-
-			mtx_genq.lock();
 		}
-		mtx_genq.unlock();
+
+    // allow more jobs in the async pool
+    AsyncPool::release(finvec.size());
 	}
 
 	void Generator::loadSector(Sector& sector, std::ifstream& file, unsigned int PL)

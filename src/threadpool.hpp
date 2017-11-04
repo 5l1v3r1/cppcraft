@@ -14,7 +14,7 @@ namespace cppcraft
 		static void sched(job_t job);
 
 		//! \brief releases a job
-		static void release();
+		static void release(int count = 1);
 
 		//! \brief returns true if there are free slots
 		static bool available();

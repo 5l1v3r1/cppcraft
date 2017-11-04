@@ -18,14 +18,14 @@ namespace terragen
 {
 	Terrains terrains;
   Terrains cave_terrains;
-	float getnoise_caves(vec3 p, float hvalue, const vec2&);
+	static float getnoise_caves(vec3 p, vec3);
 	extern float getheight_icecap(vec2 p);
 	extern float getnoise_icecap (vec3 p, float hvalue);
 	extern float getheight_grass(vec2 p);
 	extern float getnoise_grass (vec3 p, float hvalue);
 
-	static float getheight_shitass(glm::vec2, float) { return 0.25f; }
-  static float getcaves_shitass(glm::vec2) { return 0.25f; }
+	static glm::vec3 getheight_shitass(glm::vec2, glm::vec3) { return {0.25f, 0.0f, 0.0f}; }
+  static glm::vec3 getcaves_shitass(glm::vec2) { return {0.25f, 0.0f, 0.0f}; }
 
 	void Terrains::init()
 	{
@@ -50,8 +50,8 @@ namespace terragen
 		extern void terrain_grass_init();
 		terrain_grass_init();
 
-    extern void terrain_jungle_init();
-    terrain_jungle_init();
+    //extern void terrain_jungle_init();
+    //terrain_jungle_init();
 		/*
 		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);
 		terrains[T_AUTUMN ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
@@ -74,7 +74,7 @@ namespace terragen
 		return 1.0;
 	}
 
-	float getnoise_caves(vec3 p, float hvalue, const vec2&)
+	float getnoise_caves(vec3 p, glm::vec3 value)
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 
