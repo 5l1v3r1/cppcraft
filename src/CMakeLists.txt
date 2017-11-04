@@ -29,10 +29,11 @@ set(SUB_SOURCES
     drawq_rendergrid.cpp
     game.cpp
     gameconf.cpp
+    generator.cpp
     generator/biomegen/biome.cpp
     generator/biomegen/biomegen.cpp
     generator/blocks.cpp
-    generator.cpp
+    generator/items.cpp
     generator/objectq.cpp
     generator/objects/basic_house.cpp
     generator/objects/basic_tree.cpp
@@ -56,7 +57,6 @@ set(SUB_SOURCES
     gui/item_renderer.cpp
     #items/item.cpp
     items/inventory.cpp
-    items.cpp
     lighting.cpp
     lighting_algos.cpp
     lighting_remove.cpp

@@ -5,7 +5,6 @@
 #include <library/bitmap/bitmap.hpp>
 #include <library/opengl/opengl.hpp>
 #include "gameconf.hpp"
-#include "items.hpp"
 #include "render_fs.hpp"
 #include "sun.hpp"
 #include "tiles.hpp"
@@ -25,20 +24,9 @@ namespace cppcraft
 
     tiledb.tiles.create_textures();
     tiledb.bigtiles.create_textures();
-    //tiledb.items.create_textures();
+    tiledb.items.create_textures();
 
-		// voxelize (some) tiles
-		voxels.createBlockModels(tiledb.tiles.diffuse());
-
-		if (OpenGL::checkError())
-		{
-			throw std::runtime_error("Failed to create voxel blocks");
-		}
     Bitmap bmp;
-
-		// voxelize the items
-		//voxels.createItemModels(bmp);
-
 		/// PLAYER MODELS tileset ///
 		bmp = Bitmap(config.get("textures.players", "bitmap/default/playerskins.png"), Bitmap::PNG);
 		bmp.parse2D(tiledb.skinSize, tiledb.skinSize);

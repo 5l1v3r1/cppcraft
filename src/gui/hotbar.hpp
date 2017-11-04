@@ -20,8 +20,9 @@ namespace gui
       auto* widget = add_inv(gui, 9, 1);
       this->inv.reset(new FrontendInventory(widget));
       // fake contents
-      for (size_t i = 0; i < this->inv->size(); i++)
-          this->inv->at(i) = Item(i + 1, i + 1, Item::BLOCK);
+      inv->at(0) = Item(1, db::geti("wooden_pick"), Item::ITEM);
+      inv->at(1) = Item(1, db::geti("stone_sword"), Item::ITEM);
+      inv->at(3) = Item(1, db::geti("apple"), Item::ITEM);
 
       this->wnd->setVisible(true);
     }

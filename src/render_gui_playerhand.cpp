@@ -259,8 +259,7 @@ vertices[7] = {       0,       0, scale.z,  -1, 0, 0,   1, 1.5, 9 };
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 
-		const bool isVoxelBlock = false;
-		if (helditem.isItem() || isVoxelBlock)
+		if (helditem.isVoxel())
 		{
 			Shader& shd = shaderman[Shaderman::VOXEL];
 			shd.bind();
@@ -268,9 +267,13 @@ vertices[7] = {       0,       0, scale.z,  -1, 0, 0,   1, 1.5, 9 };
 			shd.sendVec2("lightdata", light);
 			// torchlight modulation
 			shd.sendFloat("modulation", modulation);
+      // rotation to make it LookGood(TM)
+      const glm::vec3 hr = helditem.itemdb().getHandRotation() * 3.14159f / 180.0f;
+      const glm::vec3& ht = helditem.itemdb().getHandTranslation();
 			// view matrix
-			glm::mat4 matview = glm::translate(this->lastHand);
-			glm::mat4 matrot = rotationMatrix(0.0f, PI / 2.0f, 0.0f);
+			glm::mat4 matview = glm::translate(lastHand + ht);
+      matview *= glm::scale(glm::vec3(0.75f));
+			glm::mat4 matrot = rotationMatrix(hr.x, hr.y + PI / 2.0f, hr.z);
 			matview *= matrot;
 
 			shd.sendMatrix("matnrot", matrot);
@@ -285,11 +288,7 @@ vertices[7] = {       0,       0, scale.z,  -1, 0, 0,   1, 1.5, 9 };
 				shd.sendMatrix("matrot", camera.getRotationMatrix());
 			}
 
-			if (isVoxelBlock)
-				voxels.renderBlock(helditem.getID());
-			else
-				voxels.renderItem(helditem.getID());
-
+			VoxelModels::render(helditem.getVoxelModel());
 		}
 		else
 		{

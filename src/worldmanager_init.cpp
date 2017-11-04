@@ -2,7 +2,6 @@
 
 #include "blockmodels.hpp"
 #include "chunks.hpp"
-#include "items.hpp"
 #include "lighting.hpp"
 #include "generator.hpp"
 #include "particles.hpp"

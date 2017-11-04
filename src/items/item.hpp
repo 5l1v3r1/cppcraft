@@ -90,6 +90,14 @@ namespace cppcraft
       return itemdb().getDiffuseTexture();
     }
 
+    bool isVoxel() const noexcept {
+      if (isItem() == false) return false;
+      return itemdb().isVoxelModel();
+    }
+    int getVoxelModel() const noexcept {
+      return itemdb().voxelModel();
+    }
+
 	private:
     uint32_t m_guid; // global unique ID
 		item_t   m_id;

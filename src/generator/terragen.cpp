@@ -6,11 +6,6 @@
 #include <cstdio>
 #include <cassert>
 
-#include <library/compression/lzo.hpp>
-#include <library/timing/timer.hpp>
-#include <library/log.hpp>
-using namespace library;
-
 //#define DEBUG_TERRAGEN
 #ifdef DEBUG_TERRAGEN
 #define PRINT(fmt, ...)  printf(fmt, ##__VA_ARGS__)
@@ -22,9 +17,11 @@ namespace terragen
 {
 	void Generator::init()
 	{
-		// initialize basic blocks
+		// initialize blocks
 		extern void init_blocks();
 		init_blocks();
+    extern void init_items();
+		init_items();
 		// make sure the terrain function list is populated
 		Terrains::init();
 		// basic objects
