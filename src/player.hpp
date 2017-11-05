@@ -54,8 +54,6 @@ namespace cppcraft
 		glm::vec3 getLookVector() const;
 		// returns the cube face that would face the player
 		block_t getBlockFacing() const;
-		// returns the terrain id for current player position (x, z)
-		int getTerrain() const;
 		// returns true if we are using in-game controls, or busy with something else
 		bool busyControls() const;
 	};

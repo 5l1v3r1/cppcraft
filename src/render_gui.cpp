@@ -43,7 +43,6 @@ namespace cppcraft
   static nanogui::IntBox<int>* sectobjs = nullptr;
 
   static nanogui::TextBox* trnbox = nullptr;
-  static nanogui::TextBox* undwbox = nullptr;
   static nanogui::IntBox<int>* skybox = nullptr;
   static nanogui::IntBox<int>* gndbox = nullptr;
 
@@ -109,11 +108,6 @@ namespace cppcraft
     trnbox = new nanogui::TextBox(sector);
     trnbox->setEditable(false);
     trnbox->setFixedSize(Vector2i(160, 20));
-
-    new Label(sector, "Underworld");
-    undwbox = new nanogui::TextBox(sector);
-    undwbox->setEditable(false);
-    undwbox->setFixedSize(Vector2i(160, 20));
 
     new Label(sector, "Sky level");
     skybox = new nanogui::IntBox<int>(sector);
@@ -186,6 +180,7 @@ namespace cppcraft
     objbox->setValue(terragen::ObjectQueue::size());
     objretrybox->setValue(terragen::ObjectQueue::retry_size());
 
+    trnbox->setValue(plogic.terrain().name);
     auto* sector = sectors.sectorAt(player.pos.x, player.pos.z);
 		if (sector)
     {
@@ -195,19 +190,9 @@ namespace cppcraft
       // only show flatland values when generated
       if (sector->generated())
       {
-        int x = (int) player.pos.x;
-        int z = (int) player.pos.z;
+        int x = int(player.pos.x);
+        int z = int(player.pos.z);
         auto& flat = sector->flat()(x & (BLOCKS_XZ-1), z & (BLOCKS_XZ-1));
-        trnbox->setValue(terragen::terrains[flat.terrain].name);
-        // underworld ID from height
-        int y = int(player.pos.y) / 4;
-        if (y >= 0 && y < BLOCKS_Y / 4) {
-          auto& cave = sector->flat().cave(x & (BLOCKS_XZ-1), z & (BLOCKS_XZ-1));
-          undwbox->setValue(terragen::cave_terrains[cave.underworld.at(y)].name);
-        }
-        else {
-          undwbox->setValue("(not in underworld)");
-        }
         skybox->setValue(flat.skyLevel);
         gndbox->setValue(flat.groundLevel);
       }

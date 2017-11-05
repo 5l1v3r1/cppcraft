@@ -27,39 +27,16 @@ namespace cppcraft
 		plogic.sector = nullptr;
 		plogic.block = &air_block;
 
-		plogic.Falling = false;
-		plogic.FullySubmerged = plogic.PS_None;
-		plogic.freefall = false;
-		plogic.EscapeAttempt = false;
-		plogic.Slowfall = false;
-		plogic.Ladderized = false;
-		//plogic.jetpacking = false;
-
-		this->Flying = false;
-
 		// initialize block selection system
 		plogic.selection = playerselect_t();
 
 		// initialize action/interaction system
 		paction.init();
 
-		// misc
-		plogic.terrain = 0;
-		plogic.light   = 0;
-
-		// acceleration
-		this->accel = vec3(0.0f);
-		// rotation
-		this->rot = vec2(0.0f);
-
 		player.snapStage = 0;
 		player.snap_pos = vec3(0.0f);
 	}
 
-	int PlayerClass::getTerrain() const
-	{
-		return plogic.terrain;
-	}
 	bool PlayerClass::busyControls() const
 	{
 		return chatbox.isOpen();
@@ -110,8 +87,8 @@ namespace cppcraft
 		plogic.playerSounds();
 
 		// terrain tick function
-		if (plogic.terrain >= 0)
-		terragen::terrains[plogic.terrain].on_tick(time);
+    if (plogic.terrain().on_tick != nullptr)
+        plogic.terrain().on_tick(time);
 	}
 
 	void PlayerClass::handleActions(double frametime)

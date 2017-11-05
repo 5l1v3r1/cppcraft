@@ -8,6 +8,10 @@
 #include <cstdint>
 #include <mutex>
 
+namespace terragen {
+  class Terrain;
+}
+
 namespace cppcraft
 {
 	class Sector;
@@ -55,22 +59,24 @@ namespace cppcraft
 		playerselect_t selection;
 
 		// current terrain type
-		int terrain;
+    const terragen::Terrain& terrain() const;
+    void detect_terrain();
+
 		// players current shadow/color
-		light_value_t light;
+		light_value_t light = 0;
 
 		// temporary for jump-locking
-		bool jumplock;
+		bool jumplock = false;
 		// temporary for fall testing
-		bool freefall;
+		bool freefall = false;
 		// water escape mechanism
-		bool EscapeAttempt;
+		bool EscapeAttempt = false;
 		// status flags
-		bool Falling;
-		bool Ladderized;
-		bool Slowfall;
-		bool Moved;
-		int  Motion;
+		bool Falling  = false;
+		bool Ladderized = false;
+		bool Slowfall = false;
+		bool Moved  = true;
+		int  Motion = 0;
 		playerSubmerged_t Submerged;
 		playerSubmerged_t FullySubmerged;
 
@@ -113,6 +119,8 @@ namespace cppcraft
 
   private:
     std::mutex m_selection_mtx;
+    bool m_underground = true;
+    int  m_terrain = 0;
 	};
 	extern PlayerLogic plogic;
 }

@@ -60,7 +60,7 @@ namespace cppcraft
 			shd.sendVec3("worldOffset", camera.getWorldOffset());
 		}
 
-		terragen::Terrain& terrain = terragen::terrains[ plogic.terrain ];
+		const terragen::Terrain& terrain = plogic.terrain();
 
 		// avoid shit-ass laggs
 		if (currentTime + 0.1 < timeElapsed)
