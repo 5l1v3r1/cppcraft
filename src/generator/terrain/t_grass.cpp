@@ -33,7 +33,7 @@ namespace terragen
     return {ground, 0.0f, 0.0f};
   }
 
-	static int grass_process(gendata_t*, int x, int z, const int Y);
+	static int grass_process(gendata_t*, int x, int z, const int Y, const int);
 
   static block_t GRASS_ID = 0;
   static block_t CROSS_GRASS_ID = 0;
@@ -87,7 +87,7 @@ namespace terragen
 
 	} // _init();
 
-  int grass_process(gendata_t* gdata, int x, int z, const int MAX_Y)
+  int grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;

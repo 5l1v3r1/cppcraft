@@ -27,8 +27,9 @@ namespace terragen
       //printf("Post-processing for terrain %d\n", tid);
   		int skyLevel = 0;
       int gndLevel = 0;
+      auto& flat = gdata->flatl(x, z);
 
-      const int MAX_Y = gdata->flatl(x, z).skyLevel;
+      const int MAX_Y = flat.skyLevel;
   		for (int y = MAX_Y-1; y > 0; y--)
   		{
   			Block& block = gdata->getb(x, y, z);
@@ -49,17 +50,33 @@ namespace terragen
       gndLevel = std::max(1, gndLevel);
 
   		// set initial groundlevel, skylevel
-  		gdata->flatl(x, z).groundLevel = gndLevel;
-  		gdata->flatl(x, z).skyLevel = skyLevel;
+  		flat.groundLevel = gndLevel;
+  		flat.skyLevel = skyLevel;
 
       // process overworld using terrain postprocessing function
-			const auto tid = gdata->flatl(x, z).terrain;
-			int y = terrains[tid].on_process(gdata, x, z, skyLevel - 1);
+			const auto& terr = terrains[flat.terrain];
+			const int y = terr.on_process(gdata, x, z, skyLevel - 1, 0);
 
-      // process underworld using cave postprocessing function
-			const auto uid = gdata->flatl(x, z).underworld;
-      if (cave_terrains[uid].on_process != nullptr)
-			     cave_terrains[uid].on_process(gdata, x, z, y);
+      // 1. search for next underworld
+      // 2. post-process from Y to nextY **inside** next underworld
+      auto& cave = gdata->flatl.cave(x, z);
+      int uy = y / 4;
+      while (uy > 0)
+      {
+        const auto uid = cave.underworld[uy];
+        // find next terrain ID
+        int nextY = uy-1;
+        for (; nextY > 0; nextY--)
+        {
+          const auto next = cave.underworld[nextY];
+          if (next != uid) break;
+        }
+        // process underworld using cave postprocessing function
+        //printf("Processing %d to %d for ID %d\n", uy * 4, nextY * 4, uid);
+        if (cave_terrains[uid].on_process != nullptr)
+             cave_terrains[uid].on_process(gdata, x, z, uy * 4, nextY * 4);
+        uy = nextY;
+      }
 
 			// guarantee that the bottom block is hard as adminium
 			gdata->getb(x, 0, z) = Block(BEDROCK);

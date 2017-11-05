@@ -199,7 +199,15 @@ namespace cppcraft
         int z = (int) player.pos.z;
         auto& flat = sector->flat()(x & (BLOCKS_XZ-1), z & (BLOCKS_XZ-1));
         trnbox->setValue(terragen::terrains[flat.terrain].name);
-        undwbox->setValue(terragen::cave_terrains[flat.underworld].name);
+        // underworld ID from height
+        int y = int(player.pos.y) / 4;
+        if (y >= 0 && y < BLOCKS_Y / 4) {
+          auto& cave = sector->flat().cave(x & (BLOCKS_XZ-1), z & (BLOCKS_XZ-1));
+          undwbox->setValue(terragen::cave_terrains[cave.underworld.at(y)].name);
+        }
+        else {
+          undwbox->setValue("(not in underworld)");
+        }
         skybox->setValue(flat.skyLevel);
         gndbox->setValue(flat.groundLevel);
       }

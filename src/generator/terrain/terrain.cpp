@@ -178,8 +178,10 @@ namespace terragen
 		for (int x = 0; x <= NGRID; x++)
 		for (int z = 0; z <= NGRID; z++)
 		{
-			const auto p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
-			auto& weights = data->getWeights(x * grid_pfac, z * grid_pfac);
+      const int bx = x * grid_pfac;
+      const int bz = z * grid_pfac;
+			const auto p2 = data->getBaseCoords2D(bx, bz);
+			auto& weights = data->getWeights(bx, bz);
       const int x2d = x * GRID2D / NGRID;
       const int z2d = z * GRID2D / NGRID;
 
@@ -192,8 +194,14 @@ namespace terragen
       const glm::vec3& HVALUE_GND = heightmap_gnd[x2d][z2d];
       // we need this to interpolate properly under water
       const int MAX_GND = std::max(int(HVALUE_GND.x * BLOCKS_Y), WATERLEVEL);
+      // retrieve flatland for inside-area
+      cppcraft::Flatland::caveland_t* cavedata;
+      if (x < NGRID && z < NGRID) {
+        cavedata = &data->flatl.cave(bx, bz);
+        std::memset(cavedata->underworld.data(), 0, sizeof(cavedata->underworld));
+      }
 
-			// create unprocessed 3D volume
+			// create unprocessed 3D volumes
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 
       for (int y = 0; y < MAX_GND + y_step; y += y_step)
@@ -205,14 +213,12 @@ namespace terragen
           auto res = Biome::first(Biome::underworldGen(p * UNDERGEN_SCALE), cave_terrains);
           // cave density function
           cave_noise = cave_terrains[res.first].func3d(p, HVALUE_UND, HVALUE_GND) * res.second;
+
+          // store terrain ID in flatland array
+          if (x < NGRID && z < NGRID) {
+            cavedata->underworld[y / y_step] = res.first;
+          }
         }
-        /*
-        cave_noise = 0.0f;
-        for (auto& value : weights.caves)
-        {
-          auto& cave = cave_terrains[value.first];
-          cave_noise = cave.func3d(p, HVALUE_UND, HVALUE_GND) * value.second;
-        }*/
 
         if (y >= MAX_UND - y_step)
         {

@@ -23,17 +23,18 @@ namespace terragen
     typedef delegate<glm::vec3(glm::vec2, glm::vec3)> ground_func_t;
 		typedef delegate<float(glm::vec3, glm::vec3, glm::vec3)> terfunc3d;
 		typedef delegate<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
-		typedef delegate<int(gendata_t*, int, int, const int)> process_func_t;
+		typedef delegate<int(gendata_t*, int, int, const int, const int)> process_func_t;
 
 		// returns RGBA8(0, 0, 0, 255)
 		static uint32_t justBlack(uint16_t, uint8_t, glm::vec2) { return 255 << 24; }
 
-		Terrain(const std::string& Name, Biome::biome_t coord,
+		Terrain(const int ID, const std::string& Name,
+            Biome::biome_t coord,
             ground_func_t  gnd,  // ground level
             under_func_t   und,  // caves level
             terfunc3d      t3d,  // terrain density (caves <-> ground)
             process_func_t proc) // terrain post-processing function
-			: name(Name), biome {coord},
+			: id(ID), name(Name), biome {coord},
         hmap_gnd(gnd), hmap_und(und), func3d(t3d), on_process(proc)
     {
       for (auto& color : colors) color = nullptr;
@@ -55,6 +56,7 @@ namespace terragen
 			this->fog_height = height;
 		}
 
+    const int id;
 		// human-readable name of this terrain
 		const std::string name;
     // terrain location (biome)

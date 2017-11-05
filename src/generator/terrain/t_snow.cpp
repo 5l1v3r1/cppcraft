@@ -44,7 +44,7 @@ namespace terragen
 
   static block_t SNOW_ID = 0;
   static block_t ICE_ID = 0;
-	static int icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
+	static int icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;

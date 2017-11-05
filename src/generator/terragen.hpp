@@ -24,23 +24,6 @@ namespace terragen
 
 	struct gendata_t
 	{
-		gendata_t(int WX, int WZ)
-			: wx(WX), wz(WZ)
-		{
-			// position we use to generate with:
-			genx = (wx - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
-			genz = (wz - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
-
-			// allocate new block data to avoid a copy at the end
-			sblock.reset(new Sector::sectorblock_t);
-      // clear light bits, just to be sure
-      for (auto& bits : sblock->lights) bits = 0;
-			// create new flatland data, since it isnt allocated by default :(
-			flatl.assign(std::vector<Flatland::flatland_t> (BLOCKS_XZ*BLOCKS_XZ));
-		}
-		gendata_t(const gendata_t&) = delete;
-		gendata_t& operator= (const gendata_t&) = delete;
-
 		auto& getWeights(int x, int z) {
 			return weights.at(x * (BLOCKS_XZ+1) + z);
 		}
@@ -72,8 +55,27 @@ namespace terragen
       return objects;
     }
 
-		auto unassignBlocks()
+    gendata_t(int WX, int WZ)
+			: wx(WX), wz(WZ)
 		{
+			// position we use to generate with:
+			genx = (wx - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
+			genz = (wz - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
+
+			// allocate new block data to avoid a copy at the end
+			sblock.reset(new Sector::sectorblock_t);
+      // clear light bits, just to be sure
+      for (auto& bits : sblock->lights) bits = 0;
+			// create new flatland data, since it isnt allocated by default :(
+			flatl.assign({
+        Flatland::data_array_t(BLOCKS_XZ*BLOCKS_XZ),
+        Flatland::cave_array_t(4 * 4)
+      });
+		}
+		gendata_t(const gendata_t&) = delete;
+		gendata_t& operator= (const gendata_t&) = delete;
+
+		auto unassignBlocks() {
 			return std::move(sblock);
 		}
 

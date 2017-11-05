@@ -26,18 +26,34 @@ namespace terragen
   static float getnoise_test(vec3 p, vec3, vec3);
   static float getnoise_basin(vec3 p, vec3, vec3);
 
-  static int process_caves(gendata_t* gdata, int x, int z, const int MAX_Y)
+  static int process_caves(gendata_t* gdata, int x, int z, const int MAX_Y, const int MIN_Y)
   {
     const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
+    auto& cave = gdata->flatl.cave(x, z);
 
+    int air = 0;
     int lastID = STONE_BLOCK;
-		for (int y = MAX_Y; y > 0; y--)
+		for (int y = MAX_Y; y >= MIN_Y; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
 
       if (block.getID() == STONE_BLOCK && lastID == _AIR)
       {
+        int uid = cave.underworld[y / 4];
+        if (uid == cave_terrains["basin"])
+        {
+          // Basin
+          block.setID(db::getb("basin_murksoil"));
+          if (air > 18)
+          {
+            float rand = randf(wx, y, wz);
+            if (rand < 0.0025) {
+              gdata->add_object("mushroom_wild", wx, y+1, wz, 12);
+            }
+          }
+        } // basin
+
         float rand = randf(wx, y, wz);
         if (rand < 0.02)
         {
@@ -46,6 +62,7 @@ namespace terragen
             (rand < 0.01) ? db::getb("mushroom_red") : db::getb("mushroom_brown"));
         }
       }
+      if (block.isAir()) air++; else air = 0;
       lastID = block.getID();
     }
     return 0;
@@ -53,16 +70,16 @@ namespace terragen
 
 	void Terrains::init()
 	{
+    auto& test = cave_terrains.add("test", "(empty)", Biome::biome_t{0.5f, 0.5f, 0.0f},
+                 nullptr, nullptr, getnoise_test, nullptr);
+		test.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
+
 		auto& cave = cave_terrains.add("caves", "Caves", Biome::biome_t{0.25f, 0.0f, 0.25f},
                  nullptr, nullptr, getnoise_caves, process_caves);
 		cave.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
-    auto& test = cave_terrains.add("test", "Test", Biome::biome_t{0.5f, 0.5f, 0.0f},
-                 nullptr, nullptr, getnoise_test, nullptr);
-		test.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
-
     auto& basin = cave_terrains.add("basin", "Basin", Biome::biome_t{0.75f, 0.0f, 0.5f},
-                 nullptr, nullptr, getnoise_basin, nullptr);
+                 nullptr, nullptr, getnoise_basin, process_caves);
 		basin.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
 		// add T_SNOW

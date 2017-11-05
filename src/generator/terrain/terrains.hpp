@@ -23,7 +23,7 @@ namespace terragen
 		Terrain& add(const std::string& name, Args&&... args)
 		{
 			size_t index = tvec.size();
-			tvec.emplace_back(args...);
+			tvec.emplace_back(index, args...);
 			names[name] = index;
 			return tvec.back();
 		}

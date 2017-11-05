@@ -131,6 +131,16 @@
       "tile": ["tiles", "torch"],
       "sound": "wood",
       "light": 13
+    },
+
+    "basin_murksoil": {
+      "type": "solid",
+      "name": "Basin Murky Soil",
+      "color": [104, 90, 250, 255],
+      "minimap": [104, 90, 250, 255],
+      "tile": ["big", "grass_top"],
+      "sound": "grass"
     }
+
   }
 }
