@@ -36,6 +36,9 @@
       "leaf": [15, 0],
       "grass_bush": [6, 1],
 
+      "mushroom_brown": [7, 2],
+      "mushroom_red": [8, 2],
+
       "torch": [0, 13],
 
       "mushroom_top": [13, 8],

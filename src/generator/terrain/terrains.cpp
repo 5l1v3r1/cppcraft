@@ -4,8 +4,12 @@
 #include <library/noise/simplex1234.h> // snoise1
 #include <library/math/toolbox.hpp>
 #include "../biomegen/biome.hpp"
+#include "../blocks.hpp"
+#include "../terragen.hpp"
+#include "../random.hpp"
 #include "noise.hpp"
 #include "helpers.hpp"
+#undef NDEBUG
 #include <cassert>
 
 #include <glm/gtc/noise.hpp>
@@ -21,10 +25,35 @@ namespace terragen
 	static float getnoise_caves(vec3 p, vec3, vec3);
   static float getnoise_test(vec3 p, vec3, vec3);
 
+  static int process_caves(gendata_t* gdata, int x, int z, const int MAX_Y)
+  {
+    const int wx = gdata->wx * BLOCKS_XZ + x;
+		const int wz = gdata->wz * BLOCKS_XZ + z;
+
+    int lastID = STONE_BLOCK;
+		for (int y = MAX_Y; y > 0; y--)
+		{
+			Block& block = gdata->getb(x, y, z);
+
+      if (block.getID() == STONE_BLOCK && lastID == _AIR)
+      {
+        float rand = randf(wx, y, wz);
+        if (rand < 0.02)
+        {
+          // create some cavey fauna
+          gdata->getb(x, y+1, z).setID(
+            (rand < 0.01) ? db::getb("mushroom_red") : db::getb("mushroom_brown"));
+        }
+      }
+      lastID = block.getID();
+    }
+    return 0;
+  } // process_caves()
+
 	void Terrains::init()
 	{
 		auto& cave = cave_terrains.add("caves", "Caves", Biome::biome_t{0.25f, 0.0f, 0.5f},
-                 nullptr, nullptr, getnoise_caves, nullptr);
+                 nullptr, nullptr, getnoise_caves, process_caves);
 		cave.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
     auto& test = cave_terrains.add("test", "Test", Biome::biome_t{0.75f, 0.0f, 0.0f},

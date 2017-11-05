@@ -44,7 +44,7 @@ namespace terragen
 
   static block_t SNOW_ID = 0;
   static block_t ICE_ID = 0;
-	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
+	static int icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
@@ -57,6 +57,8 @@ namespace terragen
 		for (int y = MAX_Y; y > 0; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
+      // exit early if we reached stone
+      if (block.getID() == STONE_BLOCK) return y;
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
@@ -101,6 +103,7 @@ namespace terragen
       // count air
       if (block.isAir()) air++; else air = 0;
 		} // y
+    return 1;
 	}
 
 	void terrain_icecap_init()

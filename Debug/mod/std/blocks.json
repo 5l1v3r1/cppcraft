@@ -93,6 +93,20 @@
       "minimap": "grass",
       "tile": ["tiles", "grass_bush"]
     },
+    "mushroom_red": {
+      "type": "cross",
+      "name": "Red Mushroom",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "mushroom_red"]
+    },
+    "mushroom_brown": {
+      "type": "cross",
+      "name": "Red Mushroom",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "mushroom_brown"]
+    },
 
     "ore_coal": {
       "type": "solid",

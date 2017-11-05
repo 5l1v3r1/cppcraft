@@ -24,9 +24,7 @@ namespace terragen
 		for (int x = 0; x < BLOCKS_XZ; x++)
 		for (int z = 0; z < BLOCKS_XZ; z++)
 		{
-      //printf("Generating for terrain %d\n", tid);
-
-  		// start counting from top (pretend really high)
+      //printf("Post-processing for terrain %d\n", tid);
   		int skyLevel = 0;
       int gndLevel = 0;
 
@@ -48,15 +46,20 @@ namespace terragen
   			// use skylevel to determine when we are below sky
   			block.setLight((skyLevel == 0) ? 15 : 0, 0);
   		} // y
+      gndLevel = std::max(1, gndLevel);
 
   		// set initial groundlevel, skylevel
-  		gdata->flatl(x, z).groundLevel = std::max(1, gndLevel);
+  		gdata->flatl(x, z).groundLevel = gndLevel;
   		gdata->flatl(x, z).skyLevel = skyLevel;
 
-      // terrain ID
+      // process overworld using terrain postprocessing function
 			const auto tid = gdata->flatl(x, z).terrain;
-			// process terrain using terrain-specific function
-			terrains[tid].on_process(gdata, x, z, skyLevel - 1);
+			int y = terrains[tid].on_process(gdata, x, z, skyLevel - 1);
+
+      // process underworld using cave postprocessing function
+			const auto uid = gdata->flatl(x, z).underworld;
+      if (cave_terrains[uid].on_process != nullptr)
+			     cave_terrains[uid].on_process(gdata, x, z, y);
 
 			// guarantee that the bottom block is hard as adminium
 			gdata->getb(x, 0, z) = Block(BEDROCK);

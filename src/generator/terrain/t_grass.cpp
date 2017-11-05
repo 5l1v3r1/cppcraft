@@ -36,7 +36,7 @@ namespace terragen
     return {ground, 0.0f, 0.0f};
   }
 
-	static void grass_process(gendata_t*, int x, int z, const int Y);
+	static int grass_process(gendata_t*, int x, int z, const int Y);
 
   static block_t GRASS_ID = 0;
   static block_t CROSS_GRASS_ID = 0;
@@ -90,7 +90,7 @@ namespace terragen
 
 	} // _init();
 
-  void grass_process(gendata_t* gdata, int x, int z, const int MAX_Y)
+  int grass_process(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
@@ -103,6 +103,7 @@ namespace terragen
 		for (int y = MAX_Y; y > 0; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
+      if (block.getID() == STONE_BLOCK) return y;
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
@@ -172,6 +173,7 @@ namespace terragen
 			// count air
 			if (block.isAir()) air++; else air = 0;
 		} // y
+    return 1;
 	}
 
 }
