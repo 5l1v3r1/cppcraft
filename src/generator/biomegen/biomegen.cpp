@@ -75,8 +75,7 @@ namespace terragen
       const auto& b = terrains[i].biome;
       float dx = b.temperature   - in_coords.x;
       float dy = b.precipitation - in_coords.y;
-      float dz = b.height        - in_coords.z;
-      values[i] = {i, sqrtf(dx*dx + dy*dy + dz*dz)};
+      values[i] = {i, sqrtf(dx*dx + dy*dy) + b.height};
     }
     // sort by distance
     std::sort(values.begin(), values.begin() + terrains.size(),
@@ -101,10 +100,10 @@ namespace terragen
 
     return {b1, b2, h};
 	}
-  glm::vec3 Biome::underworldGen(const glm::vec3 pos)
+  glm::vec3 Biome::underworldGen(const glm::vec3 p)
 	{
-		float b1 = 0.5f + 0.5f * Simplex::noise(pos * 1.62f);
-		float b2 = 0.0f;
-    return {b1, b2, 0.0f};
+    const glm::vec3 npos(p.x * 1.62f, p.y * 6.6f, p.z * 1.63f);
+		float b1 = 0.5f + 0.5f * glm::simplex(npos);
+    return {b1, p.y, 0.0f};
 	}
 }

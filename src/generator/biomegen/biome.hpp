@@ -39,9 +39,6 @@ namespace terragen
     static glm::vec3 underworldGen(glm::vec3);
     static terrain_value_t first(glm::vec3, const Terrains&);
     static result_t solve(glm::vec3, const float MAX_DIST, const Terrains&);
-
-		// constant terrain IDs
-		static const int T_CAVES    = 0;
 	};
 }
 
