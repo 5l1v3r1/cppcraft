@@ -1,7 +1,6 @@
 #include "../blocks.hpp"
 
 #include "terrains.hpp"
-#include "helpers.hpp"
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "../random.hpp"
@@ -24,34 +23,29 @@ using namespace library;
 
 namespace terragen
 {
-  static const float ICECAP_HEIGHT = 0.25f;
+  static const float ICECAP_HEIGHT = 0.2f;
 
-  static glm::vec3 getcaves_icecap(vec2 p)
+  static glm::vec3 icecap_cave_height(vec2 p, float height)
   {
-    p *= 0.005f;
-		glm::vec3 df = Simplex::dFlowNoise(p * 0.5f, 0.1);
-		float n2 = powf(fabsf(glm::simplex(p * 0.04f)), 2.0f);
-
-		return {WATERLEVEL_FLT - df.x * 0.1f, df.y, df.z};
+    p *= 0.0025f;
+		glm::vec3 df = Simplex::dnoise(p);
+		return {WATERLEVEL_FLT + df.x * 0.1f, df.y, df.z};
   }
-  static glm::vec3 getheight_icecap(vec2 p, const vec3 UNDER)
+  static glm::vec3 icecap_ground_height(vec2, const vec3 UNDER)
 	{
     return {UNDER.x + ICECAP_HEIGHT, UNDER.y, UNDER.z};
 	}
 
-	static float getnoise_icecap(vec3 p, const vec3 value)
+	static float getnoise_icecap(vec3 p, const vec3 under, const vec3 over)
 	{
     p *= vec3(0.005f, 1.0f, 0.005f);
-    const vec2 slope {value.y, value.z};
-    const bool is_rising = slope.x > 0 && slope.y > 0;
-    const float turb = is_rising * slope.x * slope.y;
-		return p.y - glm::simplex(p) * 0.2;
+		return p.y - over.x;
 	}
 
+  static block_t SNOW_ID = 0;
+  static block_t ICE_ID = 0;
 	static void icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y)
 	{
-    const block_t snow_id  = db::getb("snow");
-    const block_t ice_id   = db::getb("ice");
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
@@ -78,7 +72,7 @@ namespace terragen
 				else if (block.getID() != BEACH_BLOCK)
 				{
 					// from soil to full-snow
-					block.setID(snow_id);
+					block.setID(SNOW_ID);
 				}
 			}
 			else soilCounter = 0;
@@ -90,7 +84,7 @@ namespace terragen
 				///- create objects, and litter crosses -///
 				///-////////////////////////////////////-///
 				if (block.getID() == SOIL_BLOCK)
-					    block.setID(snow_id);
+					    block.setID(SNOW_ID);
 
 				/// terrain specific objects ///
 				// TODO: use poisson disc here
@@ -102,7 +96,7 @@ namespace terragen
 			}
 			if (air > 0 && block.getID() == WATER_BLOCK)
 			{
-				block.setID(ice_id);
+				block.setID(ICE_ID);
 			}
       // count air
       if (block.isAir()) air++; else air = 0;
@@ -112,8 +106,11 @@ namespace terragen
 	void terrain_icecap_init()
 	{
     auto& terrain =
-		  terrains.add("icecap", "Icecap", Biome::biome_t{50.0f, -8.0f},
-      getheight_icecap, getcaves_icecap, getnoise_icecap, icecap_process);
+		  terrains.add("icecap", "Icecap", Biome::biome_t{-8.0f, 50.0f, 0.6f},
+      icecap_ground_height, icecap_cave_height, getnoise_icecap, icecap_process);
+
+    SNOW_ID  = db::getb("snow");
+    ICE_ID   = db::getb("ice");
 
 		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);
     //terrain.music_name = "amb_winter";

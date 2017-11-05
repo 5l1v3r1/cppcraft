@@ -50,7 +50,7 @@ namespace terragen
   		} // y
 
   		// set initial groundlevel, skylevel
-  		gdata->flatl(x, z).groundLevel = gndLevel;
+  		gdata->flatl(x, z).groundLevel = std::max(1, gndLevel);
   		gdata->flatl(x, z).skyLevel = skyLevel;
 
       // terrain ID

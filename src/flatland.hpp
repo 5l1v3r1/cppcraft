@@ -17,6 +17,7 @@ namespace cppcraft
 		{
 			color_t fcolor[FLATCOLORS];
 			int16_t terrain;
+      int16_t underworld;
 			int16_t skyLevel;
 			int16_t groundLevel;
 		};

@@ -14,7 +14,6 @@
 #include "seamless.hpp"
 #include "soundman.hpp"
 #include "sun.hpp"
-//#include "threading.hpp"
 #include "world.hpp"
 
 using namespace library;

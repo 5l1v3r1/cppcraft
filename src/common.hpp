@@ -12,6 +12,7 @@ namespace cppcraft
 
 	// scale up and down all terrains
 	const float BIOME_SCALE = 0.001;
+  const float UNDERGEN_SCALE = 0.001;
 
 	typedef uint16_t light_value_t;
 }

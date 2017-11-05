@@ -43,6 +43,7 @@ namespace cppcraft
   static nanogui::IntBox<int>* sectobjs = nullptr;
 
   static nanogui::TextBox* trnbox = nullptr;
+  static nanogui::TextBox* undwbox = nullptr;
   static nanogui::IntBox<int>* skybox = nullptr;
   static nanogui::IntBox<int>* gndbox = nullptr;
 
@@ -108,6 +109,11 @@ namespace cppcraft
     trnbox = new nanogui::TextBox(sector);
     trnbox->setEditable(false);
     trnbox->setFixedSize(Vector2i(160, 20));
+
+    new Label(sector, "Underworld");
+    undwbox = new nanogui::TextBox(sector);
+    undwbox->setEditable(false);
+    undwbox->setFixedSize(Vector2i(160, 20));
 
     new Label(sector, "Sky level");
     skybox = new nanogui::IntBox<int>(sector);
@@ -193,6 +199,7 @@ namespace cppcraft
         int z = (int) player.pos.z;
         auto& flat = sector->flat()(x & (BLOCKS_XZ-1), z & (BLOCKS_XZ-1));
         trnbox->setValue(terragen::terrains[flat.terrain].name);
+        undwbox->setValue(terragen::cave_terrains[flat.underworld].name);
         skybox->setValue(flat.skyLevel);
         gndbox->setValue(flat.groundLevel);
       }

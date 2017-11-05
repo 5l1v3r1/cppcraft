@@ -7,9 +7,9 @@
 #include "noise.hpp"
 #include "helpers.hpp"
 #include <cassert>
-#include <csignal>
 
 #include <glm/gtc/noise.hpp>
+#include <Simplex.h>
 
 using namespace glm;
 using namespace library;
@@ -18,29 +18,18 @@ namespace terragen
 {
 	Terrains terrains;
   Terrains cave_terrains;
-	static float getnoise_caves(vec3 p, vec3);
-	extern float getheight_icecap(vec2 p);
-	extern float getnoise_icecap (vec3 p, float hvalue);
-	extern float getheight_grass(vec2 p);
-	extern float getnoise_grass (vec3 p, float hvalue);
-
-	static glm::vec3 getheight_shitass(glm::vec2, glm::vec3) { return {0.25f, 0.0f, 0.0f}; }
-  static glm::vec3 getcaves_shitass(glm::vec2) { return {0.25f, 0.0f, 0.0f}; }
+	static float getnoise_caves(vec3 p, vec3, vec3);
+  static float getnoise_test(vec3 p, vec3, vec3);
 
 	void Terrains::init()
 	{
-		auto& terrain =
-		  cave_terrains.add("caves", "Caves", Biome::biome_t{1.0f, 1.0f},
-      getheight_shitass, getcaves_shitass, getnoise_caves, nullptr);
+		auto& cave = cave_terrains.add("caves", "Caves", Biome::biome_t{0.25f, 0.0f, 0.5f},
+                 nullptr, nullptr, getnoise_caves, nullptr);
+		cave.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
-		// fog settings
-		terrain.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
-
-		terrain.on_tick =
-		[] (double)
-		{
-			// ... particles here & there, dripping etc.
-		};
+    auto& test = cave_terrains.add("test", "Test", Biome::biome_t{0.75f, 0.0f, 0.0f},
+                 nullptr, nullptr, getnoise_test, nullptr);
+		test.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
 		// add T_SNOW
 		extern void terrain_icecap_init();
@@ -52,13 +41,6 @@ namespace terragen
 
     //extern void terrain_jungle_init();
     //terrain_jungle_init();
-		/*
-		terrains[T_SNOW  ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.7f), 64);
-		terrains[T_AUTUMN ].setFog(glm::vec4(0.5f, 0.6f, 0.7f, 0.25f), 48);
-		terrains[T_ISLANDS].setFog(glm::vec4(0.4f, 0.5f, 0.8f, 0.40f), 32);
-		terrains[T_MARSH ].setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
-		terrains[T_DESERT].setFog(glm::vec4(0.8f, 0.6f, 0.5f, 0.8f), 96);
-		*/
 	}
 
 	///////////////////////////////////////////////////
@@ -74,7 +56,15 @@ namespace terragen
 		return 1.0;
 	}
 
-	float getnoise_caves(vec3 p, glm::vec3 value)
+  float getnoise_test(vec3 p, glm::vec3 under, glm::vec3 over)
+  {
+    return 1;
+    vec3 npos = p * vec3(0.005f, 5.0f, 0.005f);
+    float updown = 0.1f * Simplex::worleyfBm(npos);
+    return updown + Simplex::fBm(npos) * ((over.x - p.y) / over.x);
+  }
+
+	float getnoise_caves(vec3 p, glm::vec3, glm::vec3)
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 

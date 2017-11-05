@@ -116,7 +116,7 @@ namespace terragen
 	void terrain_jungle_init()
 	{
 		auto& terrain =
-		terrains.add("jungle", "Jungle", Biome::biome_t{350.0f, 25.0f},
+		terrains.add("jungle", "Jungle", Biome::biome_t{25.0f, 350.0f},
         getheight_jungle, getcaves_jungle, getnoise_jungle, process_jungle);
 
     terrain.setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
