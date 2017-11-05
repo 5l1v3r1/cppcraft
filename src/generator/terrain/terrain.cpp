@@ -21,10 +21,6 @@ namespace terragen
 		return a * (1.0f - level) + b * level;
 	}
 
-  void Terrain::init()
-  {
-  }
-
 	// produces basic blocks based on some input properties
 	// such as world y-value, the variable beach-height, density of the point and whether we are inside caves
 	Block Terrain::getBlock(float y, float in_beachhead, float density, float caves)
@@ -43,9 +39,7 @@ namespace terragen
 		const float stone_lower = -0.1;
 		const float stone_upper = -0.05; // density treshold for stone upper / lower hemisphere
 
-		const float lava_height = 0.025 + in_beachhead * 0.025;
-		//const float molten_densdx = 0.04; // difference between stone and cave
-		//const float molten_height = 0.05;
+		const float lava_height = 0.05;
 
 		// middle = waterlevel + beachhead
 		float beachhead  = in_beachhead * 0.025; // sand above water (0.0075 + ...)
@@ -70,20 +64,6 @@ namespace terragen
 				if (density < stone_lower)
 				{
 					// lower stone
-
-					// density > cave_lower
-					// density < cave_lower + molten_densdx
-					/*
-					if (density < 1.0-molten_densdx)
-					{
-						float deltadens = -density / (1.0-molten_densdx);
-						//printf("density %f, molten_densdx %f, deltadens %f, y %f\n",
-						//	density, molten_densdx, deltadens, y);
-						//if (y < (1.0 - deltadens) * molten_height)
-						if (y < deltadens * molten_height)
-							return MOLTEN_BLOCK;
-					}*/
-
 					return STONE_BLOCK;
 				}
 
@@ -199,7 +179,7 @@ namespace terragen
 		for (int z = 0; z <= NGRID; z++)
 		{
 			const auto p2 = data->getBaseCoords2D(x * grid_pfac, z * grid_pfac);
-			const auto& weights = data->getWeights(x * grid_pfac, z * grid_pfac);
+			auto& weights = data->getWeights(x * grid_pfac, z * grid_pfac);
       const int x2d = x * GRID2D / NGRID;
       const int z2d = z * GRID2D / NGRID;
 
@@ -221,9 +201,11 @@ namespace terragen
 				p.y = y / float(BLOCKS_Y);
 
         float& cave_noise = cave_array[x][z][y / y_step];
-        // cave density function
-        auto& cvec = weights.caves.front();
-        cave_noise = cave_terrains[cvec.first].func3d(p, HVALUE_UND, HVALUE_GND) * cvec.second;
+        {
+          auto res = Biome::first(Biome::underworldGen(p * UNDERGEN_SCALE), cave_terrains);
+          // cave density function
+          cave_noise = cave_terrains[res.first].func3d(p, HVALUE_UND, HVALUE_GND) * res.second;
+        }
         /*
         cave_noise = 0.0f;
         for (auto& value : weights.caves)

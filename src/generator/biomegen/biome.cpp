@@ -47,12 +47,8 @@ namespace terragen
       // 10 = bad, 25 = decent, 50 = good
       auto biome = solve(terr_values, 25.0f, terrains);
 
-      // generate cave terrain weights
-      auto cave_values = underworldGen(p * cppcraft::UNDERGEN_SCALE); // see common.hpp
-      auto cave_biome = solve(cave_values, 0.15f, cave_terrains);
-
       // set final weights for area
-      gdata->setWeights(x, z, {std::move(biome), std::move(cave_biome), terr_values.z});
+      gdata->setWeights(x, z, {std::move(biome), terr_values.z});
 
 			// reset vertex colors all in one swoooop
 			for (auto& color : biomecl) color = RGB(0);
@@ -83,10 +79,10 @@ namespace terragen
 				{
 					fdata.fcolor[i] = biomecl[i].toColor();
 				}
-        auto& r_caves = gdata->getWeights(x, z).caves;
 				// set terrain-id to the strongest weight
 				fdata.terrain    = r_terrains.front().first;
-        fdata.underworld = r_caves.front().first;
+        //auto& r_caves = gdata->getWeights(x, z).caves;
+        //fdata.underworld = r_caves.front().first;
 			}
 
 		} // x, z

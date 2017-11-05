@@ -6,8 +6,8 @@
 namespace cppcraft
 {
 	static const int BLOCKS_XZ  =   16;
-	static const int BLOCKS_Y   =  320;
-	static const int WATERLEVEL =  128;
+	static const int BLOCKS_Y   =  256;
+	static const int WATERLEVEL =   80;
   static const float WATERLEVEL_FLT = WATERLEVEL / float(BLOCKS_Y-1);
 
 	// scale up and down all terrains

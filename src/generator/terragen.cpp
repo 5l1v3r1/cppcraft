@@ -27,7 +27,6 @@ namespace terragen
 		// basic objects
     Generator::init_objects();
 		// initialize subsystems
-    Terrain::init();
     PostProcess::init();
 	}
 

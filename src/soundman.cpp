@@ -17,12 +17,17 @@ using namespace glm;
 using namespace sound;
 using namespace library;
 
+#define DISABLE_AUDIO
+
 namespace cppcraft
 {
  	Soundman soundman;
 
 	void Soundman::init()
 	{
+#ifdef DISABLE_AUDIO
+    return;
+#endif
     static const float DISTANCEFACTOR = 1.0f;
 		logger << Log::INFO << "* Initializing audio system" << Log::ENDL;
 
@@ -155,6 +160,9 @@ namespace cppcraft
 	// returns the id of a random song in the playlist
 	void Soundman::sound_processing()
 	{
+#ifdef DISABLE_AUDIO
+    return;
+#endif
     const glm::vec3 forw = library::lookVector(player.rot);
     const glm::vec3 right = glm::normalize(glm::cross(forw, glm::vec3(0.0f, 1.0f, 0.0f)));
     const glm::vec3 upv  = glm::cross(right, forw);

@@ -17,7 +17,6 @@ namespace terragen
     static const float CROSS_FADE = 2.0f;
 
     // suitability vector
-    typedef std::pair<int, float> terrain_value_t;
     std::vector<terrain_value_t> values;
 
     // generate suitability for each terrain
@@ -60,6 +59,32 @@ namespace terragen
     // downsize to acceptable size
     return values;
   }
+  Biome::terrain_value_t Biome::first(
+      glm::vec3 in_coords,
+      const Terrains& terralist)
+  {
+    // suitability vector
+    std::array<terrain_value_t, 16> values;
+
+    // generate suitability for each terrain
+    const auto& terrains = terralist.get();
+
+    assert(!terrains.empty());
+    for (size_t i = 0; i < terrains.size(); i++)
+    {
+      const auto& b = terrains[i].biome;
+      float dx = b.temperature   - in_coords.x;
+      float dy = b.precipitation - in_coords.y;
+      float dz = b.height        - in_coords.z;
+      values[i] = {i, sqrtf(dx*dx + dy*dy + dz*dz)};
+    }
+    // sort by distance
+    std::sort(values.begin(), values.begin() + terrains.size(),
+      [] (auto left, auto right) {
+          return left.second < right.second;
+      });
+    return values.front();
+  }
 
 	glm::vec3 Biome::overworldGen(const glm::vec2 pos)
 	{
@@ -76,7 +101,7 @@ namespace terragen
 
     return {b1, b2, h};
 	}
-  glm::vec3 Biome::underworldGen(const glm::vec2 pos)
+  glm::vec3 Biome::underworldGen(const glm::vec3 pos)
 	{
 		float b1 = 0.5f + 0.5f * Simplex::noise(pos * 1.62f);
 		float b2 = 0.0f;

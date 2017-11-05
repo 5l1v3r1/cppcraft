@@ -81,6 +81,5 @@ namespace terragen
 
 		static Block getBlock(float y, float in_beachhead, float density, float caves);
 		static void generate(gendata_t* gdata);
-    static void init();
 	};
 }

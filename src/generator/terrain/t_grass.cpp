@@ -8,6 +8,7 @@
 #include "terrains.hpp"
 #include <library/bitmap/colortools.hpp>
 #include <glm/gtc/noise.hpp>
+#include <Simplex.h>
 
 using namespace glm;
 using namespace cppcraft;
@@ -17,22 +18,18 @@ namespace terragen
 {
 	static float getnoise_grass(vec3 p, const glm::vec3 under, const glm::vec3 over)
 	{
-		return p.y - over.x;
+		return p.y - over.x + Simplex::ridgedMF(p * 0.00222f) * 0.1f;
 	}
 
 	static glm::vec3 getover_grass(vec2 p, const glm::vec3 UNDER)
 	{
-    p *= 0.001f;
-		float land = UNDER.x + 0.1f;
-		land += glm::simplex(p) * 0.03f +
-            glm::simplex(p*vec2(2.7f, 2.8f)) * 0.02f +
-            glm::simplex(p*vec2(5.8f, 5.6f)) * 0.05f;
-		return {land, 0.0f, 0.0f};
+		return {UNDER.x + 0.1f, UNDER.y, UNDER.z};
 	}
   static glm::vec3 getunder_grass(vec2 p, const float height)
   {
     p *= 0.001f;
-    float ground = height - 0.1f;
+    float land = Simplex::ridgedMF(p);
+    float ground = height - 0.2f + land * 0.25f;
     return {ground, 0.0f, 0.0f};
   }
 
