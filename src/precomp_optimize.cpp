@@ -9,10 +9,10 @@ using namespace library;
 
 namespace cppcraft
 {
-	int colorDistance(unsigned int c1, unsigned int c2)
+	inline int colorDistance(unsigned int c1, unsigned int c2)
 	{
-		unsigned char* b1 = (unsigned char*) &c1;
-		unsigned char* b2 = (unsigned char*) &c2;
+		auto* b1 = (unsigned char*) &c1;
+		auto* b2 = (unsigned char*) &c2;
 
 		int d1 = std::abs(b1[0] - b2[0]);
 		int d2 = std::abs(b1[1] - b2[1]);

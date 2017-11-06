@@ -1,8 +1,9 @@
 cmake_minimum_required (VERSION 3.0.2)
 project (cppcraft C CXX)
 
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2 -g -stdlib=libc++ -flto=thin")
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pthread -stdlib=libc++ -flto=thin")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer")
@@ -55,6 +56,7 @@ add_subdirectory(ext)
 
 ### linker stage ###
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/Debug)
+SET(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=lld-5.0")
 
 add_executable(cppcraft ${SOURCES})
 set_target_properties(cppcraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -76,9 +78,9 @@ if (UNIX)
   set_target_properties(fmod PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(fmod PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Debug/libfmod.so.10.0)
 
-  target_link_libraries(cppcraft -static-libgcc -static-libstdc++ -pthread)
-  target_link_libraries(cppcraft library tacopie nanogui fmod ${LUA_LIBS})
-  target_link_libraries(cppcraft glfw ${GLFW_LIBRARIES} libGLEW.a GL)
+  target_link_libraries(cppcraft -pthread)
+  target_link_libraries(cppcraft nanogui library tacopie nanogui fmod ${LUA_LIBS})
+  target_link_libraries(cppcraft glfw ${GLFW3_LIBRARIES} libGLEW.a GL)
 
   if (GPERF)
     target_link_libraries(cppcraft /usr/local/lib/libprofiler.a)

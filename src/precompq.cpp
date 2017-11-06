@@ -113,7 +113,7 @@ namespace cppcraft
 		// create new Precomp
 		//printf("Precompiler scheduling (%d, %d) size: %lu\n",
 		//	sector->getX(), sector->getZ(), sizeof(Precomp));
-		sector.meshgen = 0;
+		sector.meshgen = false;
     // sneak in a minimap update if scheduled
     if (sector.has_flag(Sector::MINIMAP)) {
       minimap.addSector(sector);

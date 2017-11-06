@@ -7,6 +7,7 @@
 #include <deque>
 #include <map>
 #include <mutex>
+#include <string>
 #include <vector>
 
 using namespace glm;
@@ -109,12 +110,9 @@ namespace cppcraft
 		{
 			return types[i];
 		}
-		int operator[] (std::string name)
+		int operator[] (const std::string& name) const
 		{
-			auto it = names.find(name);
-			if (it == names.end())
-				return -1;
-			return it->second;
+			return names.at(name);
 		}
 
 		// shared thread-unsafe flag that we don't really care about, since

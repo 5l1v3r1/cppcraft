@@ -34,7 +34,7 @@ namespace cppcraft
 	bool Spiders::setBlock(int bx, int by, int bz, const Block& newblock)
 	{
 		Sector* s = Spiders::wrap(bx, by, bz);
-		if (UNLIKELY(s == nullptr))
+		if (UNLIKELY(s == nullptr) || by > TOP_BLOCK_Y)
 		{
 			printf("Could not setblock(%d, %d, %d): out of bounds\t",
 					   bx, by, bz);

@@ -162,7 +162,7 @@ namespace terragen
 			{
         underground_ref += terrains[v.first].hmap_und(p2, weights.height) * v.second;
 			}
-      underground_ref.x = glm::clamp(underground_ref.x, 0.f, 0.9999f);
+      underground_ref.x = glm::clamp(underground_ref.x, 0.f, TOP_BLOCK_FLT);
 
       // set ground heightmap
       glm::vec3& ground_ref = heightmap_gnd[x][z];
@@ -171,7 +171,7 @@ namespace terragen
 			{
         ground_ref += terrains[v.first].hmap_gnd(p2, underground_ref) * v.second;
 			}
-			ground_ref.x = glm::clamp(ground_ref.x, 0.f, 0.9999f);
+			ground_ref.x = glm::clamp(ground_ref.x, 0.f, TOP_BLOCK_FLT);
     }
 
 		// retrieve data for noise biome interpolation

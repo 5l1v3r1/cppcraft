@@ -2,6 +2,7 @@
 
 #include <delegate.hpp>
 #include <cstdint>
+#include <string>
 
 namespace cppcraft
 {

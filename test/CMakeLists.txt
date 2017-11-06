@@ -37,8 +37,6 @@ set(SOURCES
 set(LIB_SOURCES
     ../library/library/config.cpp
     ../library/library/log.cpp
-    ../library/library/timing/timer.cpp
-    ../library/library/timing/highperf.cpp
     ../library/library/bitmap/bitmap.cpp
     ../library/library/bitmap/lodepng.cpp
     ../library/library/opengl/fbo.cpp

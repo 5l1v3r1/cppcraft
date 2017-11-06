@@ -9,6 +9,9 @@ namespace cppcraft
 	static const int BLOCKS_Y   =  256;
 	static const int WATERLEVEL =   80;
   static const float WATERLEVEL_FLT = WATERLEVEL / float(BLOCKS_Y-1);
+  // we cannot build or generate blocks above this block height
+  static const int TOP_BLOCK_Y = BLOCKS_Y-2;
+  static const float TOP_BLOCK_FLT = TOP_BLOCK_Y / float(BLOCKS_Y);
 
 	// scale up and down all terrains
 	const float BIOME_SCALE = 0.001;

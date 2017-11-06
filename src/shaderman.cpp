@@ -8,7 +8,6 @@
 #include "renderconst.hpp"
 #include <cmath>
 #include <sstream>
-#include <string>
 #include <vector>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
@@ -19,49 +18,43 @@ namespace cppcraft
 {
 	Shaderman shaderman;
 
-	template <typename R>
-	std::string toString(R x)
-	{
-		return static_cast<std::ostringstream*>( &(std::ostringstream() << x) )->str();
-	}
-
 	std::string tokenizer(std::string text)
 	{
 		if (text == "const int TX_REPEAT")
 		{
-			text += " = " + toString(RenderConst::TX_REPEAT) + ";";
+			text += " = " + std::to_string(RenderConst::TX_REPEAT) + ";";
 		}
 		else if (text == "const int TX_SOLID")
 		{
-			text += " = " + toString(RenderConst::TX_SOLID) + ";";
+			text += " = " + std::to_string(RenderConst::TX_SOLID) + ";";
 		}
 		else if (text == "const int TX_2SIDED")
 		{
-			text += " = " + toString(RenderConst::TX_2SIDED) + ";";
+			text += " = " + std::to_string(RenderConst::TX_2SIDED) + ";";
 		}
 		else if (text == "const int TX_CROSS")
 		{
-			text += " = " + toString(RenderConst::TX_CROSS) + ";";
+			text += " = " + std::to_string(RenderConst::TX_CROSS) + ";";
 		}
 		else if (text == "const int TX_WATER")
 		{
-			text += " = " + toString(RenderConst::TX_WATER) + ";";
+			text += " = " + std::to_string(RenderConst::TX_WATER) + ";";
 		}
 		else if (text == "const float VERTEX_SCALE")
 		{
-			text += " = " + toString(RenderConst::VERTEX_SCALE) + ";";
+			text += " = " + std::to_string(RenderConst::VERTEX_SCALE) + ";";
 		}
 		else if (text == "const float VERTEX_SCALE_INV")
 		{
-			text += " = " + toString(1.0 / RenderConst::VERTEX_SCALE) + ";";
+			text += " = " + std::to_string(1.0 / RenderConst::VERTEX_SCALE) + ";";
 		}
 		else if (text == "const float ZNEAR")
 		{
-			text += " = " + toString(camera.getZNear()) + ";";
+			text += " = " + std::to_string(camera.getZNear()) + ";";
 		}
 		else if (text == "const float ZFAR")
 		{
-			text += " = " + toString(camera.getZFar()) + ";";
+			text += " = " + std::to_string(camera.getZFar()) + ";";
 		}
 		// settings
 		else if (text == "#define POSTPROCESS")

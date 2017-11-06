@@ -18,10 +18,11 @@ target_include_directories(tacopie PUBLIC tacopie/includes)
 
 ### GUI
 option(NANOGUI_USE_GLAD "" OFF)
-option(NANOGUI_BUILD_EXAMPLE "" OFF)
 option(NANOGUI_BUILD_SHARED "" OFF)
-option(NANOGUI_BUILD_PYTHON "" OFF)
-option(NANOGUI_INSTALL "" OFF)
+
+set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
+set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
 
 add_subdirectory(nanogui)
 # from manual:

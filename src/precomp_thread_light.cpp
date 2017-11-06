@@ -38,16 +38,16 @@ namespace cppcraft
     {
   		uint8_t V = 0;
       int total = 0;
-  		for (int i = 0; i < 4; i++)
+  		for (auto& blk : bl)
   		{
         if (ch == 0) {
-          if (bl[i]->isTransparent()) {
-  			     V += bl[i]->getChannel(ch);
+          if (blk->isTransparent()) {
+  			     V += blk->getChannel(ch);
              total++;
           }
         }
-        else if (bl[i]->isTransparent() || bl[i]->isLight()) {
-            V += bl[i]->getChannel(ch);
+        else if (blk->isTransparent() || blk->isLight()) {
+            V += blk->getChannel(ch);
             total++;
         }
   		}
