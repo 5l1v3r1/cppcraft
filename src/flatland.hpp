@@ -44,14 +44,20 @@ namespace cppcraft
 			return m_cave.at(x / 4 * 4 + z / 4);
 		}
 
+    void assign_new()
+    {
+      m_data = data_array_t(BLOCKS_XZ * BLOCKS_XZ);
+      m_cave = cave_array_t(4 * 4);
+    }
 		// assigns new data from some source, eg. a terrain generator
-		void assign(std::pair<data_array_t, cave_array_t> new_data)
+    typedef std::pair<data_array_t, cave_array_t> assign_pair;
+		void assign(assign_pair new_data)
 		{
 			m_data = std::move(new_data.first);
       m_cave = std::move(new_data.second);
 		}
 		// unassigns the current data, and returns it
-		std::pair<data_array_t, cave_array_t> unassign() {
+		assign_pair unassign() {
 			return { std::move(m_data), std::move(m_cave) };
 		}
 

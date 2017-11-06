@@ -7,7 +7,7 @@ using namespace cppcraft;
 TEST_CASE("Sector blockdata tests")
 {
   auto& sector = sectors(0, 0);
-  sector.flat().assign(std::vector<Flatland::flatland_t> (BLOCKS_XZ * BLOCKS_XZ));
+  sector.flat().assign_new();
   sector.clear();
 
   sector.add_genflag(Sector::GENERATED);

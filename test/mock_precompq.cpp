@@ -4,7 +4,7 @@ namespace cppcraft
 {
   PrecompQ precompq;
 
-  void PrecompQ::add(Sector&, uint8_t)
+  void PrecompQ::add(Sector&)
   {
 
   }

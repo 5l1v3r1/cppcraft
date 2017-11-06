@@ -23,7 +23,7 @@ static void close_sector(Sector& sector)
 TEST_CASE("Various light filling tests")
 {
   auto& s = sectors(1, 1);
-  s.flat().assign(std::vector<Flatland::flatland_t> (BLOCKS_XZ * BLOCKS_XZ));
+  s.flat().assign_new();
   s.atmospherics = true;
   // for this test we also have to fake generating all sectors
   sectors(0, 0).add_genflag(Sector::GENERATED);

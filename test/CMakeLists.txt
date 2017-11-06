@@ -18,8 +18,9 @@ set(SOURCES
     mock_player.cpp
     mock_precompq.cpp
     mock_sectors.cpp
+    mock_stuff.cpp
     ../src/block.cpp
-    ../src/db/blockdb.cpp
+    #../src/db/blockdata.cpp
     ../src/gameconf.cpp
     ../src/lighting.cpp
     ../src/lighting_algos.cpp
@@ -38,6 +39,15 @@ set(LIB_SOURCES
     ../library/library/log.cpp
     ../library/library/timing/timer.cpp
     ../library/library/timing/highperf.cpp
+    ../library/library/bitmap/bitmap.cpp
+    ../library/library/bitmap/lodepng.cpp
+    ../library/library/opengl/fbo.cpp
+    ../library/library/opengl/opengl.cpp
+    ../library/library/opengl/texture.cpp
   )
 
+include(FindPkgConfig)
+pkg_search_module(GLFW REQUIRED glfw3)
+
 add_executable(unittests ${SOURCES} ${LIB_SOURCES})
+target_link_libraries(unittests ${GLFW_LIBRARIES} libGLEW.a GL)
