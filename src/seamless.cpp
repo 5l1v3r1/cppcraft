@@ -89,7 +89,6 @@ namespace cppcraft
 	// writeme
 	bool Seamless::seamlessness()
 	{
-		int x, y, z;
 		int halfworld = sectors.getXZ() * Sector::BLOCKS_XZ / 2;
 		bool returnvalue = false;
 
@@ -108,13 +107,13 @@ namespace cppcraft
 			world.increaseDelta(-1, 0);
 
 			// only 25% left on the negative side
-			for (z = 0; z < sectors.getXZ(); z++)
+			for (int z = 0; z < sectors.getXZ(); z++)
 			{
 				// remember old sector, at the end of x-axis
 				auto oldpointer = sectors.extract(sectors.getXZ()-1, z);
 
 				// move forward on the x-axis
-				for (x = sectors.getXZ() - 1; x >= 1; x--)
+				for (int x = sectors.getXZ() - 1; x >= 1; x--)
 				{
 					// move sector columns on x
 					sectors.replace(x,z, x-1,z);
@@ -153,12 +152,12 @@ namespace cppcraft
 			world.increaseDelta(1, 0);
 
 			// only 25% left on the positive side
-			for (z = 0; z < sectors.getXZ(); z++)
+			for (int z = 0; z < sectors.getXZ(); z++)
 			{
 				// remember first sector on x-axis
 				auto oldpointer = sectors.extract(0, z);
 
-				for (x = 0; x < sectors.getXZ()-1; x++)
+				for (int x = 0; x < sectors.getXZ()-1; x++)
 				{
 					sectors.replace(x,z, x+1,z);
 				}
@@ -200,12 +199,12 @@ namespace cppcraft
 			world.increaseDelta(0, -1);
 
 			// only 25% left on the negative side
-			for (x = 0; x < sectors.getXZ(); x++)
+			for (int x = 0; x < sectors.getXZ(); x++)
 			{
 				// recursively move the sector
 				auto oldpointer = sectors.extract(x, sectors.getXZ()-1);
 
-				for (z = sectors.getXZ()-1; z >= 1; z--)
+				for (int z = sectors.getXZ()-1; z >= 1; z--)
 				{
 					sectors.replace(x,z,  x,z-1);
 				}
@@ -242,12 +241,12 @@ namespace cppcraft
 			world.increaseDelta(0, 1);
 
 			// move sectors forwards +z (and rollback last line)
-			for (x = 0; x < sectors.getXZ(); x++)
+			for (int x = 0; x < sectors.getXZ(); x++)
 			{
 				auto oldpointer = sectors.extract(x, 0);
 
 				// recursively move sectors
-				for (z = 0; z < sectors.getXZ()-1; z++)
+				for (int z = 0; z < sectors.getXZ()-1; z++)
 				{
 					sectors.replace(x,z, x,z+1);
 				}

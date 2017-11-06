@@ -55,7 +55,8 @@ namespace terragen
 
       // process overworld using terrain postprocessing function
 			const auto& terr = terrains[flat.terrain];
-			const int y = terr.on_process(gdata, x, z, skyLevel - 1, 0);
+			int y = gndLevel;
+      if (terr.on_process) y = terr.on_process(gdata, x, z, skyLevel - 1, 0);
 
       // 1. search for next underworld
       // 2. post-process from Y to nextY **inside** next underworld

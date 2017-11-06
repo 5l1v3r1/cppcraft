@@ -16,7 +16,6 @@ set(SUB_SOURCES
     blockmodels_stairs.cpp
     blocks_bordered.cpp
     block.cpp
-    blocks_vfaces.cpp
     camera.cpp
     chat.cpp
     chunks.cpp

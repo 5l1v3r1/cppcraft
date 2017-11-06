@@ -6,8 +6,8 @@
 namespace cppcraft
 {
 	static const int BLOCKS_XZ  =   16;
-	static const int BLOCKS_Y   =  256;
-	static const int WATERLEVEL =   80;
+	static const int BLOCKS_Y   =  320;
+	static const int WATERLEVEL =  128;
   static const float WATERLEVEL_FLT = WATERLEVEL / float(BLOCKS_Y-1);
   // we cannot build or generate blocks above this block height
   static const int TOP_BLOCK_Y = BLOCKS_Y-2;

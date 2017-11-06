@@ -177,7 +177,7 @@ namespace cppcraft
     }
 
 		// run visibility tests, revealing visible sides of this cube by comparing neighbors
-		unsigned short visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const;
+		inline uint16_t visibleFaces(bordered_sector_t& bsb, int bx, int by, int bz) const;
 		// run visibility tests using spiders
 		unsigned short visibleFaces(Sector& sector, int bx, int by, int bz) const;
 		//! face visibility test, returning the same mask for each face that is visible
