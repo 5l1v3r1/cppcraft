@@ -24,11 +24,17 @@ namespace cppcraft
     {
       CC_ASSERT(itr->value.IsArray(), "Tile must be array of two coordinates");
       const auto v = itr->value.GetArray();
-      const int TILE_X = v[0].GetInt();
-      const int TILE_Y = v[1].GetInt();
+      const int DIFF_X = v[0].GetInt();
+      const int DIFF_Y = v[1].GetInt();
+      int TONE_X = DIFF_X;
+      int TONE_Y = DIFF_Y;
+      if  (v.Size() >= 4) {
+        TONE_X = v[2].GetInt();
+        TONE_Y = v[3].GetInt();
+      }
       // add tile
       db.add_tile(itr->name.GetString(),
-                  diffuse, tonemap, TILE_X, TILE_Y);
+          diffuse, DIFF_X, DIFF_Y, tonemap, TONE_X, TONE_Y);
     }
   }
 
@@ -97,16 +103,17 @@ namespace cppcraft
 
   void tile_database::add_tile(const std::string& name,
                 const std::string& f_diffuse,
+                const int DIFF_X, const int DIFF_Y,
                 const std::string& f_tonemap,
-                const int tx, const int ty)
+                const int TONE_X, const int TONE_Y)
   {
     const Bitmap& diff = tiledb.get_bitmap(f_diffuse);
     const int TILE_ID = m_diffuse.getTilesX();
 
-    m_diffuse.add_tile(diff, tx, ty);
+    m_diffuse.add_tile(diff, DIFF_X, DIFF_Y);
     if (!f_tonemap.empty()) {
       const Bitmap& tone = tiledb.get_bitmap(f_tonemap);
-      m_tonemap.add_tile(tone, tx, ty);
+      m_tonemap.add_tile(tone, TONE_X, TONE_Y);
     }
 
     //printf("Tile %s has ID %d\n", name.c_str(), TILE_ID);

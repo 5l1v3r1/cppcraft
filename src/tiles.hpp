@@ -32,7 +32,7 @@ namespace cppcraft
     // add diffuse from @d and tonemap from @t
     // returns tile id
     void add_tile(const std::string& name,
-                  const std::string& d,
+                  const std::string& d, int dx, int dy,
                   const std::string& t, int tx, int ty);
 
     const auto& diffuse() const { return m_diffuse; }
