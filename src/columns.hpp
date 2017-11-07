@@ -21,9 +21,13 @@ namespace cppcraft
 		Column();
 
 		// used by: Seamless
-		void reset();
+		void reset() {
+      this->renderable = false;
+    }
 		// used by: Compiler pipeline
 		void compile(int x, int y, int z, Precomp* pc);
+    // column unique index
+    int index() const noexcept { return m_idx; }
 
 		// flags
 		bool renderable = false; // is renderable
@@ -44,6 +48,10 @@ namespace cppcraft
 
 		unsigned int  occlusion[RenderConst::MAX_UNIQUE_SHADERS];
 		char          occluded [RenderConst::MAX_UNIQUE_SHADERS];
+
+  private:
+    int m_idx = 0;
+    static int m_current_idx;
 	};
 
 	class Columns {
@@ -65,6 +73,10 @@ namespace cppcraft
 
 			return columns.at(x * sectors.getXZ() + z);
 		}
+
+    size_t size() const noexcept {
+      return columns.size();
+    }
 
 	private:
 		std::vector<Column> columns;

@@ -1,8 +1,9 @@
 #include "render_scene.hpp"
 
 #include <library/log.hpp>
-#include <library/opengl/opengl.hpp>
 #include <library/opengl/fbo.hpp>
+#include <library/opengl/opengl.hpp>
+#include <library/opengl/texture_buffer.hpp>
 #include "columns.hpp"
 #include "drawq.hpp"
 #include "camera.hpp"
@@ -24,14 +25,18 @@ using namespace library;
 namespace cppcraft
 {
 	static const double PI = 4 * atan(1);
-	GLuint renderVAO;
+  static std::unique_ptr<BufferTexture> m_buffer_texture = nullptr;
+  // setup the scene buffer texture array
+  static std::unique_ptr<glm::vec3[]> m_bt_data = nullptr;
 
 	void SceneRenderer::initTerrain()
 	{
 		// initialize column drawing queue
 		drawq.init();
 
-		glGenVertexArrays(1, &renderVAO);
+    // column translation array
+    m_bt_data = std::make_unique<glm::vec3[]> (columns.size());
+    m_buffer_texture.reset(new BufferTexture(0, GL_RGB32F));
 	}
 
 	void SceneRenderer::recalculateFrustum()
@@ -221,40 +226,32 @@ namespace cppcraft
 					// add to new position, effectively compressing
 					// and linearizing queue internally
           drawq[i][items++] = cv;
+          // if the column is still rising up, let it rise
+          if (cv->pos.y < 0.0) {
+            cv->pos.y += 0.25f * renderer.delta_time();
+            if (cv->pos.y > 0.0f) cv->pos.y = 0.0f;
+          }
+          // set position for column
+          m_bt_data.get()[cv->index()] = cv->pos;
 				}
 			}
       drawq[i].resize(items);
 
 		} // next shaderline
 
+    // upload array of vec3
+    m_buffer_texture->upload(m_bt_data.get(), columns.size() * 3 * sizeof(float));
+
 	} // sort render queue
 
-	void SceneRenderer::renderColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
+	void SceneRenderer::renderColumn(Column* cv, int i)
 	{
-		// make sure we don't resend same position again
-		// around 10k+ skips per second with axis=64
-		if (position.x != cv->pos.x ||
-			position.y != cv->pos.y ||
-			position.z != cv->pos.z)
-		{
-			// set new position
-			position = cv->pos;
-			// send new position to shader
-			glUniform3fv(loc_vtrans, 1, &position.x);
-
-			// cool effect
-			if (cv->pos.y < 0.0f)
-			{
-				cv->pos.y += 0.5f * renderer.delta_time();
-				if (cv->pos.y > 0.0f) cv->pos.y = 0.0f;
-			}
-		}
 		glBindVertexArray(cv->vao);
 		//glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
 		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
 	}
 
-	void SceneRenderer::renderColumnSet(int i, glm::vec3& position, GLint loc_vtrans)
+	void SceneRenderer::renderColumnSet(int i)
 	{
 		if (camera.needsupd)
 		{
@@ -266,7 +263,7 @@ namespace cppcraft
 					// start counting samples passed
 					glBeginQuery(GL_ANY_SAMPLES_PASSED, cv->occlusion[i]);
 
-					renderColumn(cv, i, position, loc_vtrans);
+					renderColumn(cv, i);
 
 					// end counting
 					glEndQuery(GL_ANY_SAMPLES_PASSED);
@@ -275,7 +272,7 @@ namespace cppcraft
 					break;
 				case 1:
 				case 2:
-					renderColumn(cv, i, position, loc_vtrans);
+					renderColumn(cv, i);
 					break;
 				default: //case 3:
 					cv->occluded[i] = 0;
@@ -287,7 +284,7 @@ namespace cppcraft
 			// direct render
 			for (auto* column : drawq[i])
 			{
-				renderColumn(column, i, position, loc_vtrans);
+				renderColumn(column, i);
 			}
 		}
 	}
@@ -296,8 +293,6 @@ namespace cppcraft
 			double frameCounter,
 			Shader& shd,
 			GLint& location,
-			GLint& loc_vtrans,
-			glm::vec3& position,
 			cppcraft::Camera& camera
 		)
 	{
@@ -320,27 +315,22 @@ namespace cppcraft
 
 		shd.sendFloat("modulation", 1.0f); //torchlight.getModulation(frameCounter));
 
-		// translation uniform location
-		loc_vtrans = shd.getUniform("vtrans");
-		position.x = -1.0f; // invalidate position
-
-		// texrange, because too lazy to create all shaders
-		location = shd.getUniform("texrange");
+    // texrange, because too lazy to create all shaders
+    location = shd.getUniform("texrange");
 	}
 
 	void SceneRenderer::renderScene(cppcraft::Camera& renderCam)
 	{
-		GLint loc_vtrans, location;
-		glm::vec3 position(-1.0f);
+		GLint location;
 
 		textureman.bind(2, Textureman::T_SKYBOX);
+    // translation buffer texture
+    m_buffer_texture->bind(8);
 
 		// bind standard shader
 		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::STD_BLOCKS],
-							location,
-							loc_vtrans,
-							position, renderCam);
+							location, renderCam);
 
 		// check for errors
 		#ifdef DEBUG
@@ -380,9 +370,7 @@ namespace cppcraft
 				// change shader-set
 				handleSceneUniforms(renderer.time(),
 									shaderman[Shaderman::CULLED_BLOCKS],
-									location,
-									loc_vtrans,
-									position, renderCam);
+									location, renderCam);
 				break;
 
 			case RenderConst::TX_2SIDED: // 2-sided faces (torches, vines etc.)
@@ -395,9 +383,7 @@ namespace cppcraft
 				// change shader-set
 				handleSceneUniforms(renderer.time(),
 									shaderman[Shaderman::ALPHA_BLOCKS],
-									location,
-									loc_vtrans,
-									position, renderCam);
+									location, renderCam);
 
 				// safe to increase step from this -->
 				if (drawq[i].size() == 0) continue;
@@ -415,21 +401,13 @@ namespace cppcraft
 			}
 
 			// render it all
-			renderColumnSet(i, position, loc_vtrans);
+			renderColumnSet(i);
 
 		} // next shaderline
 	}
 
-	void renderReflectedColumn(Column* cv, int i, glm::vec3& position, GLint loc_vtrans)
+	static void renderReflectedColumn(Column* cv, int i)
 	{
-		if (position.x != cv->pos.x ||
-			position.z != cv->pos.z)
-		{
-			// remember position
-			position = glm::vec3(cv->pos.x, 0.0f, cv->pos.z);
-			// translate to new position
-			glUniform3fv(loc_vtrans, 1, &position.x);
-		}
 		glBindVertexArray(cv->vao);
 		//glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
 		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
@@ -437,15 +415,12 @@ namespace cppcraft
 
 	void SceneRenderer::renderReflectedScene(cppcraft::Camera& renderCam)
 	{
-		GLint loc_vtrans, location;
-		glm::vec3  position(-1);
+		GLint location;
 
 		// bind standard shader
 		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::BLOCKS_REFLECT],
-							location,
-							loc_vtrans,
-							position, renderCam);
+							location, renderCam);
 
 		// check for errors
 		#ifdef DEBUG
@@ -487,7 +462,7 @@ namespace cppcraft
 			// direct render
       for (auto* cv : reflectionq[i])
 			{
-				renderReflectedColumn(cv, i, position, loc_vtrans);
+				renderReflectedColumn(cv, i);
 			}
 		} // next shaderline
 
@@ -495,8 +470,9 @@ namespace cppcraft
 
 	void SceneRenderer::renderSceneWater()
 	{
-		GLint loc_vtrans, location;
-		glm::vec3  position(-1);
+		GLint location;
+    // translation buffer texture
+    m_buffer_texture->bind(8);
 
 		// check for errors
 		#ifdef DEBUG
@@ -516,9 +492,7 @@ namespace cppcraft
 			// underwater shader-set
 			handleSceneUniforms(renderer.time(),
 								shaderman[Shaderman::BLOCKS_DEPTH],
-								location,
-								loc_vtrans,
-								position, camera);
+								location, camera);
 			// cull only front water-faces inside water
 			glCullFace(GL_FRONT);
 		}
@@ -559,9 +533,7 @@ namespace cppcraft
 					// water shader-set
 					handleSceneUniforms(renderer.time(),
 										shaderman[Shaderman::BLOCKS_WATER],
-										location,
-										loc_vtrans,
-										position, camera);
+										location, camera);
 					// sun view angle
 					shaderman[Shaderman::BLOCKS_WATER].sendVec3 ("v_ldir", thesun.getRealtimeViewAngle());
 					// update world offset
@@ -579,9 +551,7 @@ namespace cppcraft
 					// lava shader-set
 					handleSceneUniforms(renderer.time(),
 										shaderman[Shaderman::BLOCKS_LAVA],
-										location,
-										loc_vtrans,
-										position, camera);
+										location, camera);
 					// update world offset
 					if (camera.ref)
 						shaderman[Shaderman::BLOCKS_LAVA].sendVec3("worldOffset", camera.getWorldOffset());
@@ -589,7 +559,7 @@ namespace cppcraft
 				}
 
 				// render it all
-				renderColumnSet(i, position, loc_vtrans);
+				renderColumnSet(i);
 
 			} // each shader
 
@@ -599,12 +569,12 @@ namespace cppcraft
 			if (this->isUnderwater() == 1)
 			{
 				// render water meshes
-				renderColumnSet(RenderConst::TX_WATER, position, loc_vtrans);
+				renderColumnSet(RenderConst::TX_WATER);
 			}
 			else
 			{
 				// render lava meshes
-				renderColumnSet(RenderConst::TX_LAVA, position, loc_vtrans);
+				renderColumnSet(RenderConst::TX_LAVA);
 			}
 			// restore cullface setting
 			glCullFace(GL_BACK);

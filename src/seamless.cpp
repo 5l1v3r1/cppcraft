@@ -13,9 +13,7 @@
 #include "generator.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
-#include "precompq.hpp"
-#include "sector.hpp"
-#include "sun.hpp"
+#include "sectors.hpp"
 #include "threading.hpp"
 #include "world.hpp"
 
@@ -81,8 +79,6 @@ namespace cppcraft
 	// things that must be done prior to moving the world
 	void Seamless::preconditions()
 	{
-		// FIXME: think about what needs to be done here
-		///precompq.finish();
 	}
 
 	// big huge monster function

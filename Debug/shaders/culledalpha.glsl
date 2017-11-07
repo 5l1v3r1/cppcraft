@@ -5,12 +5,12 @@
 #ifdef VERTEX_PROGRAM
 uniform mat4 matmvp;
 uniform mat4 matview;
-uniform vec3 vtrans;
+uniform samplerBuffer buftex;
 
 uniform float daylight;
 uniform vec3  lightVector;
 
-in vec3 in_vertex;
+in vec4 in_vertex;
 in vec4 in_normal;
 in vec4 in_texture;
 in vec4 in_biome;
@@ -25,15 +25,16 @@ const float VERTEX_SCALE_INV
 
 void main(void)
 {
-	vec4 position = vec4(in_vertex * VERTEX_SCALE_INV + vtrans, 1.0);
+  vec3 translation = texelFetch(buftex, int(in_vertex.w)).xyz;
+  vec4 position = vec4(in_vertex.xyz * VERTEX_SCALE_INV + translation, 1.0);
 	gl_Position = matmvp * position;
-	
+
 #ifdef VIEW_NORMALS
 	v_normals = mat3(matview) * in_normal.xyz;
 #endif
-	
+
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
-	
+
   #include "unpack_light.glsl"
 	biomeColor = in_biome;
 	out_normal = in_normal.xyz;
@@ -68,17 +69,17 @@ void main(void)
 {
 	color = texture(diffuse, texCoord.stp);
 	if (color.a < 0.25) discard;
-	
+
 	// read tonecolor from tonemap
 	vec4 toneColor = texture(tonemap, texCoord.stp);
 	color.rgb = mix(color.rgb, biomeColor.rgb * toneColor.rgb, toneColor.a);
-	
+
 	#include "worldlight_frag.glsl"
-	
+
 	#include "degamma.glsl"
 	#include "stdlight.glsl"
 	#include "finalcolor.glsl"
-	
+
 #ifdef VIEW_NORMALS
 	normals = vec4(v_normals, 1.0);
 #endif

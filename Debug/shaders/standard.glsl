@@ -5,12 +5,12 @@
 #ifdef VERTEX_PROGRAM
 uniform mat4 matproj;
 uniform mat4 matview;
-uniform vec3 vtrans;
+uniform samplerBuffer buftex;
 
 uniform vec3  lightVector;
 uniform float daylight;
 
-in vec3 in_vertex;
+in vec4 in_vertex;
 in vec4 in_normal;
 in vec4 in_texture;
 in vec4 in_biome;
@@ -29,7 +29,8 @@ const float VERTEX_SCALE_INV
 
 void main(void)
 {
-	vec4 position = vec4(in_vertex * VERTEX_SCALE_INV + vtrans, 1.0);
+  vec3 translation = texelFetch(buftex, int(in_vertex.w)).xyz;
+	vec4 position = vec4(in_vertex.xyz * VERTEX_SCALE_INV + translation, 1.0);
 	position = matview * position;
 	gl_Position = matproj * position;
 

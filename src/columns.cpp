@@ -13,6 +13,7 @@ using namespace library;
 namespace cppcraft
 {
 	const float Column::COLUMN_DEPRESSION = 16.0f;
+  int Column::m_current_idx = 0;
 
 	// all the columns you'll ever need
 	Columns columns;
@@ -35,11 +36,8 @@ namespace cppcraft
 		// set initial flags
 		this->renderable = false;
 		this->hasdata = false;
-	}
-
-	void Column::reset()
-	{
-		renderable = false;
+    // generate new index for this column
+    this->m_idx = m_current_idx++;
 	}
 
 	void Column::compile(int x, int y, int z, Precomp* pc)
@@ -70,6 +68,11 @@ namespace cppcraft
 			this->bufferoffset[n] = pc->bufferoffset[n];
 		}
 
+    // set each vertex to the columns unique ID
+    for (auto& vtx : pc->datadump) {
+      vtx.face = this->m_idx;
+    }
+
 		// bind vao
 		glBindVertexArray(this->vao);
 
@@ -88,7 +91,7 @@ namespace cppcraft
 		if (updateAttribs)
 		{
 		// attribute pointers
-		glVertexAttribPointer(0, 3, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), (GLvoid*) offsetof(vertex_t, x)); // vertex
+		glVertexAttribPointer(0, 4, GL_SHORT,		  GL_FALSE, sizeof(vertex_t), (GLvoid*) offsetof(vertex_t, x)); // vertex
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1, 4, GL_BYTE,		  GL_TRUE,  sizeof(vertex_t), (GLvoid*) offsetof(vertex_t, nx)); // normal
 		glEnableVertexAttribArray(1);

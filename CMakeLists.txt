@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0.2)
 project (cppcraft C CXX)
 
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2 -g -stdlib=libc++ -flto=thin")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2 -g -flto=thin")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pthread -stdlib=libc++ -flto=thin")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -O2")

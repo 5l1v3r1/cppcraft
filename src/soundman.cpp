@@ -16,7 +16,7 @@
 using namespace glm;
 using namespace sound;
 using namespace library;
-//#define DISABLE_AUDIO
+#define DISABLE_AUDIO
 
 namespace cppcraft
 {

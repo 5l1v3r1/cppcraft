@@ -64,8 +64,8 @@ namespace cppcraft
 		void renderReflectedScene(cppcraft::Camera& camera);
 		void renderSceneWater();
 
-    void renderColumn(Column*, int i, glm::vec3& position, int loc_vtrans);
-    void renderColumnSet(int i, glm::vec3& position, int loc_vtrans);
+    static void renderColumn(Column*, int i);
+    void renderColumnSet(int i);
 
 		friend class SkyRenderer;
 		friend class GUIRenderer;
