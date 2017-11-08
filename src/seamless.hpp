@@ -15,7 +15,6 @@ namespace cppcraft
 
 	private:
 		static bool seamlessness();
-		static void preconditions();
 	};
 
 }

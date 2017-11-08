@@ -3,14 +3,6 @@
 #include <library/log.hpp>
 #include <library/opengl/fbo.hpp>
 #include <library/opengl/opengl.hpp>
-#include <library/opengl/window.hpp>
-#include <library/opengl/camera.hpp>
-
-//#define TIMING
-#ifdef TIMING
-#include <library/timing/timer.hpp>
-#endif
-
 #include "camera.hpp"
 #include "drawq.hpp"
 #include "gameconf.hpp"
@@ -31,6 +23,11 @@
 #include "threading.hpp"
 #include "world.hpp"
 #include <cmath>
+
+//#define TIMING
+#ifdef TIMING
+#include <library/timing/timer.hpp>
+#endif
 
 using namespace library;
 
@@ -286,14 +283,13 @@ namespace cppcraft
 
 #ifdef TIMING
 				Timer timer;
-				timer.startNewRound();
 #endif
 
 				// process columns & modify occlusion
 				recalculateFrustum();
 
 #ifdef TIMING
-				logger << Log::INFO << "Time spent recalculate frustum: " << timer.getDeltaTime() * 1000.0 << Log::ENDL;
+				printf("Time spent recalculate frustum: %f\n", timer.getTime());
 #endif
 			}
 			else
@@ -312,8 +308,15 @@ namespace cppcraft
 		}
 
 		// compress rendering queue to minimal size by occlusion culling
-		compressRenderingQueue();
-
+    {
+#ifdef TIMING
+		  Timer timer;
+#endif
+      compressRenderingQueue();
+#ifdef TIMING
+			printf("Time spent on draw queue: %f\n", timer.getTime());
+#endif
+    }
 		/// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
 
 
@@ -374,7 +377,6 @@ namespace cppcraft
 
 #ifdef TIMING
 		Timer timerScene;
-		timerScene.startNewRound();
 #endif
 
 		// scene
@@ -408,7 +410,7 @@ namespace cppcraft
 		renderSceneWater();
 
 #ifdef TIMING
-		logger << Log::INFO << "Time spent on scene: " << timerScene.getDeltaTime() * 1000.0 << Log::ENDL;
+    printf("Time spent on scene: %f\n", timerScene.getTime());
 #endif
 
 		glDisable(GL_CULL_FACE);

@@ -51,6 +51,7 @@ namespace cppcraft
 
 	void Generator::run()
 	{
+    bool minimap_updated = false;
 		// sort by distance from center (radius)
     // the queue should on average be mostly sorted
 		std::sort(queue.begin(), queue.end(), GenerationOrder);
@@ -130,6 +131,7 @@ namespace cppcraft
         }
 				// add it to the minimap!!!
 				minimap.addSector(dest);
+        minimap_updated = true;
 			}
 			else
 			{
@@ -139,6 +141,8 @@ namespace cppcraft
 			}
 		}
 
+    // re-upload minimap texture on render thread
+    if (minimap_updated) minimap.setUpdated();
     // allow more jobs in the async pool
     AsyncPool::release(finvec.size());
 	}

@@ -13,9 +13,14 @@
 #include "generator.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
+#include "precompq.hpp"
 #include "sectors.hpp"
 #include "threading.hpp"
 #include "world.hpp"
+#include <library/timing/timer.hpp>
+
+using namespace library;
+//#define TIMING
 
 namespace cppcraft
 {
@@ -30,6 +35,9 @@ namespace cppcraft
 	// essentially moving the player until he is on a local grid, near center
 	bool Seamless::run()
 	{
+#ifdef TIMING
+    Timer timer;
+#endif
 		// only run seamless if the player actually moved, one way or another
 		// -=- COULD DO STRANGE STUFF -=-
 		bool seam = false;
@@ -43,6 +51,9 @@ namespace cppcraft
     // call event handlers when transition happened
     if (seam) {
       for (auto& func : transition_signal) func();
+#ifdef TIMING
+      printf("Seamless::run() took %f seconds\n", timer.getTime());
+#endif
     }
 		return seam;
 	}
@@ -54,35 +65,25 @@ namespace cppcraft
 	class Seamstress
 	{
 	public:
-		static void resetSectorColumn(Sector& base);
-		static void updateSectorColumn(int x, int z);
+		static void resetSectorColumn(Sector& sector)
+  	{
+  		// we have to load new block content
+  		sector.gen_flags = 0;
+  		// add to generator queue
+  		Generator::add(sector);
+  	}
+		static void updateSectorColumn(int x, int z)
+    {
+  		Sector& sector = sectors(x, z);
+
+  		// if the sector was generated, we will regenerate mesh
+  		if (sector.generated() && sector.isUpdatingMesh() == false)
+          precompq.add(sector);
+
+  	} // updateSectorColumn
 	};
 
-	void Seamstress::resetSectorColumn(Sector& sector)
-	{
-		// we have to load new block content
-		sector.gen_flags = 0;
-		// add to generator queue
-		Generator::add(sector);
-	}
-
-	void Seamstress::updateSectorColumn(int x, int z)
-	{
-		Sector& sector = sectors(x, z);
-
-		// if the sector was generated, we will regenerate mesh
-		if (sector.generated())
-			sector.updateAllMeshes();
-
-	} // updateSectorColumn
-
-	// things that must be done prior to moving the world
-	void Seamless::preconditions()
-	{
-	}
-
 	// big huge monster function
-	// writeme
 	bool Seamless::seamlessness()
 	{
 		int halfworld = sectors.getXZ() * Sector::BLOCKS_XZ / 2;
@@ -91,8 +92,6 @@ namespace cppcraft
 		// if player is beyond negative seam offset point on x axis
 		if (player.pos.x <= halfworld - Seamless::OFFSET)
 		{
-			preconditions();
-
 			mtx.sectorseam.lock();
 
 			// move player forward one sector (in blocks)
@@ -127,17 +126,13 @@ namespace cppcraft
 				columns(0, z, world.getDeltaX(), world.getDeltaZ()).reset();
 
 			} // sectors z
-
-			// minimap rollover +x
-			minimap.roll(-1, 0);
-
 			mtx.sectorseam.unlock();
+      // minimap rollover +x
+			minimap.roll(-1, 0);
 			returnvalue = true;
 		}
 		else if (player.pos.x >= halfworld + Seamless::OFFSET)
 		{
-			preconditions();
-
 			mtx.sectorseam.lock();
 
 			// move player back one sector (in blocks)
@@ -170,11 +165,9 @@ namespace cppcraft
 				columns(sectors.getXZ()-1, z, world.getDeltaX(), world.getDeltaZ()).reset();
 
 			} // sectors z
-
-			// minimap rollover -x
+		  mtx.sectorseam.unlock();
+      // minimap rollover -x
 			minimap.roll(1, 0);
-
-			mtx.sectorseam.unlock();
 			returnvalue = true;
 
 		} // seamless +/- x
@@ -183,8 +176,6 @@ namespace cppcraft
 
 		if (player.pos.z <= halfworld - Seamless::OFFSET)
 		{
-			preconditions();
-
 			mtx.sectorseam.lock();
 
 			// offset player +z
@@ -216,17 +207,13 @@ namespace cppcraft
 				columns(x, 0, world.getDeltaX(), world.getDeltaZ()).reset();
 
 			} // sectors x
-
-			// minimap rollover +z
-			minimap.roll(0, -1);
-
 			mtx.sectorseam.unlock();
+      // minimap rollover +z
+			minimap.roll(0, -1);
 			return true;
 		}
 		else if (player.pos.z >= halfworld + Seamless::OFFSET)
 		{
-			preconditions();
-
 			mtx.sectorseam.lock();
 
 			// move player backward on the Z axis
@@ -258,11 +245,9 @@ namespace cppcraft
 				columns(x, sectors.getXZ()-1, world.getDeltaX(), world.getDeltaZ()).reset();
 
 			} // sectors x
-
-			// minimap rollover -z
-			minimap.roll(0, 1);
-
 			mtx.sectorseam.unlock();
+      // minimap rollover -z
+			minimap.roll(0, 1);
 			return true;
 
 		} // seamless +/- z

@@ -233,7 +233,6 @@ namespace cppcraft
 	void handleSceneUniforms(
 			double frameCounter,
 			Shader& shd,
-			GLint& location,
 			cppcraft::Camera& camera
 		)
 	{
@@ -255,15 +254,11 @@ namespace cppcraft
 		shd.sendFloat("frameCounter", frameCounter);
 
 		shd.sendFloat("modulation", 1.0f); //torchlight.getModulation(frameCounter));
-
-    // texrange, because too lazy to create all shaders
-    location = shd.getUniform("texrange");
 	}
 
 	void SceneRenderer::renderScene(cppcraft::Camera& renderCam)
 	{
-		GLint location;
-
+    GLint shader_texrange = 0;
 		textureman.bind(2, Textureman::T_SKYBOX);
     // translation buffer texture
     m_buffer_texture->bind(8);
@@ -271,10 +266,10 @@ namespace cppcraft
 		// bind standard shader
 		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::STD_BLOCKS],
-							location, renderCam);
+							renderCam);
 
 #ifdef OPENGL_DO_CHECKS
-		if (OpenGL::checkError())
+		if (UNLIKELY(OpenGL::checkError()))
 		{
 			logger << Log::ERR << "Renderer::renderScene(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderScene(): OpenGL state error");
@@ -310,7 +305,7 @@ namespace cppcraft
 				// change shader-set
 				handleSceneUniforms(renderer.time(),
 									shaderman[Shaderman::CULLED_BLOCKS],
-									location, renderCam);
+									renderCam);
 				break;
 
 			case RenderConst::TX_2SIDED: // 2-sided faces (torches, vines etc.)
@@ -321,22 +316,25 @@ namespace cppcraft
         tiledb.tiles.diff_texture().setWrapMode(GL_CLAMP_TO_EDGE);
 
 				// change shader-set
-				handleSceneUniforms(renderer.time(),
-									shaderman[Shaderman::ALPHA_BLOCKS],
-									location, renderCam);
+        {
+          auto& shd = shaderman[Shaderman::ALPHA_BLOCKS];
+				  handleSceneUniforms(renderer.time(), shd, renderCam);
+          // texrange, because too lazy to create all shaders
+          shader_texrange = shd.getUniform("texrange");
+        }
 
 				// safe to increase step from this -->
 				if (drawq[i].size() == 0) continue;
 				// <-- safe to increase step from this
 
 				// set texrange
-				glUniform1i(location, i);
+				glUniform1i(shader_texrange, i);
 				break;
 
 			case RenderConst::TX_CROSS:
 
 				// set new texrange
-				glUniform1i(location, i);
+				glUniform1i(shader_texrange, i);
 				break;
 			}
 
@@ -355,12 +353,10 @@ namespace cppcraft
 
 	void SceneRenderer::renderReflectedScene(cppcraft::Camera& renderCam)
 	{
-		GLint location;
-
 		// bind standard shader
 		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::BLOCKS_REFLECT],
-							location, renderCam);
+							renderCam);
 
 #ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
@@ -409,12 +405,11 @@ namespace cppcraft
 
 	void SceneRenderer::renderSceneWater()
 	{
-		GLint location;
     // translation buffer texture
     m_buffer_texture->bind(8);
 
 #ifdef OPENGL_DO_CHECKS
-		if (OpenGL::checkError())
+		if (UNLIKELY(OpenGL::checkError()))
 		{
 			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ top. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
@@ -430,7 +425,7 @@ namespace cppcraft
 			// underwater shader-set
 			handleSceneUniforms(renderer.time(),
 								shaderman[Shaderman::BLOCKS_DEPTH],
-								location, camera);
+								camera);
 			// cull only front water-faces inside water
 			glCullFace(GL_FRONT);
 		}
@@ -444,7 +439,7 @@ namespace cppcraft
 		}
 
 #ifdef OPENGL_DO_CHECKS
-		if (OpenGL::checkError())
+    if (UNLIKELY(OpenGL::checkError()))
 		{
 			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ middle. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
@@ -470,7 +465,7 @@ namespace cppcraft
 					// water shader-set
 					handleSceneUniforms(renderer.time(),
 										shaderman[Shaderman::BLOCKS_WATER],
-										location, camera);
+										camera);
 					// sun view angle
 					shaderman[Shaderman::BLOCKS_WATER].sendVec3 ("v_ldir", thesun.getRealtimeViewAngle());
 					// update world offset
@@ -488,7 +483,7 @@ namespace cppcraft
 					// lava shader-set
 					handleSceneUniforms(renderer.time(),
 										shaderman[Shaderman::BLOCKS_LAVA],
-										location, camera);
+										camera);
 					// update world offset
 					if (camera.ref)
 						shaderman[Shaderman::BLOCKS_LAVA].sendVec3("worldOffset", camera.getWorldOffset());
@@ -518,7 +513,7 @@ namespace cppcraft
 		}
 
 #ifdef OPENGL_DO_CHECKS
-		if (OpenGL::checkError())
+    if (UNLIKELY(OpenGL::checkError()))
 		{
 			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ bottom. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");

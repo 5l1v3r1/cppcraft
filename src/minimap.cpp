@@ -207,11 +207,6 @@ namespace cppcraft
 		pixels[(pz + 1) * scan + px] = colors[1];
 		pixels[ pz      * scan + px + 1] = colors[2];
 		pixels[(pz + 1) * scan + px + 1] = colors[3];
-
-		// mark minimap as updated
-		minimapMutex.lock();
-		this->needs_update = true;
-		minimapMutex.unlock();
 	}
 
 	void Minimap::roll(int x, int z)
@@ -234,8 +229,8 @@ namespace cppcraft
 					pixels[p + 1] = pixels[p + 3];
 				}
 				// set to black
-				pixels[ py * page + page-2 ] = 0;
-				pixels[ py * page + page-1 ] = 0;
+				//pixels[ py * page + page-2 ] = 0;
+				//pixels[ py * page + page-1 ] = 0;
 			}
 		}
 		else if (x < 0)
@@ -250,8 +245,8 @@ namespace cppcraft
 					pixels[p + 1] = pixels[p - 1];
 				}
 				// set to black
-				pixels[ py * page + 0 ] = 0;
-				pixels[ py * page + 1 ] = 0;
+				//pixels[ py * page + 0 ] = 0;
+				//pixels[ py * page + 1 ] = 0;
 			}
 		} // x-axis
 
@@ -264,7 +259,7 @@ namespace cppcraft
 				memcpy(pixels + p, pixels + p + page * 2, page * 2 * sizeof(Bitmap::rgba8_t));
 			}
 			// clear last 2 scanlines
-			memset(pixels + (bitmap->getHeight()-2) * page, 0, page * 2 * sizeof(Bitmap::rgba8_t));
+			//memset(pixels + (bitmap->getHeight()-2) * page, 0, page * 2 * sizeof(Bitmap::rgba8_t));
 		}
 		else if (z < 0)
 		{
@@ -275,7 +270,7 @@ namespace cppcraft
 				memcpy(pixels + p, pixels + p - page * 2, page * 2 * sizeof(Bitmap::rgba8_t));
 			}
 			// clear first 2 scanlines
-			memset(pixels, 0, page * 2 * sizeof(Bitmap::rgba8_t));
+			//memset(pixels, 0, page * 2 * sizeof(Bitmap::rgba8_t));
 		}
 
 		minimapMutex.lock();
