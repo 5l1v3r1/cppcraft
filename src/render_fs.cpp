@@ -34,7 +34,7 @@ namespace cppcraft
 
 		initFlare(renderer);
 
-		if (OpenGL::checkError())
+    if (UNLIKELY(OpenGL::checkError()))
 		{
 			logger << Log::ERR << "FSRenderer::init(): Failed to initialize framebuffers" << Log::ENDL;
 			throw std::runtime_error("Failed to initialize screenspace framebuffers");
@@ -137,12 +137,12 @@ namespace cppcraft
 		// render fullscreen quad
 		screenVAO.render(GL_QUADS);
 
-		#ifdef DEBUG
-		if (ogl.checkError())
+#ifdef OPENGL_DO_CHECKS
+		if (UNLIKELY(OpenGL::checkError()))
 		{
 			throw std::string("OpenGL state error after post process");
 		}
-		#endif
+#endif
 	}
 
 }

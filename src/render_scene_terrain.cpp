@@ -15,10 +15,8 @@
 #include "sun.hpp"
 #include "tiles.hpp"
 #include "textureman.hpp"
-#include "vertex_block.hpp"
 #include <cmath>
 #include <glm/gtx/transform.hpp>
-#include <library/math/matrix.hpp>
 
 using namespace library;
 
@@ -36,7 +34,8 @@ namespace cppcraft
 
     // column translation array
     m_bt_data = std::make_unique<glm::vec3[]> (columns.size());
-    m_buffer_texture.reset(new BufferTexture(0, GL_RGB32F));
+    m_buffer_texture.reset(
+      new BufferTexture(columns.size() * 3 * sizeof(float), GL_RGB32F));
 	}
 
 	void SceneRenderer::recalculateFrustum()
@@ -195,45 +194,16 @@ namespace cppcraft
 			// loop through this shader line
 			for (auto* cv : drawq[i])
 			{
-				// get/set occlusion status
-				if (cv->occluded[i] == 1)
-				{
-          GLuint occlusion_result;
-					glGetQueryObjectuiv(cv->occlusion[i], GL_QUERY_RESULT_AVAILABLE, &occlusion_result);
-
-					if (occlusion_result)
-					{
-						// get result immediately
-						glGetQueryObjectuiv(cv->occlusion[i], GL_QUERY_RESULT, &occlusion_result);
-
-						if (occlusion_result)
-						{
-							// add since there was at least 1 sample visible
-							cv->occluded[i] = 2;
-						}
-						else cv->occluded[i] = 4;
-					}
-					else
-					{
-						// we need to update again :(
-						camera.needsupd = 2;
-					}
-				}
-
-				// finally, as long as not completely occluded/discarded
-				if (cv->occluded[i] != 4)
-				{
-					// add to new position, effectively compressing
-					// and linearizing queue internally
-          drawq[i][items++] = cv;
-          // if the column is still rising up, let it rise
-          if (cv->pos.y < 0.0) {
-            cv->pos.y += 0.25f * renderer.delta_time();
-            if (cv->pos.y > 0.0f) cv->pos.y = 0.0f;
-          }
-          // set position for column
-          m_bt_data.get()[cv->index()] = cv->pos;
-				}
+				// add to new position, effectively compressing
+				// and linearizing queue internally
+        drawq[i][items++] = cv;
+        // if the column is still rising up, let it rise
+        if (cv->pos.y < 0.0) {
+          cv->pos.y += 0.25f * renderer.delta_time();
+          if (cv->pos.y > 0.0f) cv->pos.y = 0.0f;
+        }
+        // set position for column
+        m_bt_data.get()[cv->index()] = cv->pos;
 			}
       drawq[i].resize(items);
 
@@ -253,39 +223,10 @@ namespace cppcraft
 
 	void SceneRenderer::renderColumnSet(int i)
 	{
-		if (camera.needsupd)
+		// direct render
+		for (auto* column : drawq[i])
 		{
-			// render and count visible samples
-      for(auto* cv : drawq[i])
-			{
-				switch (cv->occluded[i]) {
-				case 0:
-					// start counting samples passed
-					glBeginQuery(GL_ANY_SAMPLES_PASSED, cv->occlusion[i]);
-
-					renderColumn(cv, i);
-
-					// end counting
-					glEndQuery(GL_ANY_SAMPLES_PASSED);
-					// set this as having been sampled
-					cv->occluded[i] = 1;
-					break;
-				case 1:
-				case 2:
-					renderColumn(cv, i);
-					break;
-				default: //case 3:
-					cv->occluded[i] = 0;
-				}
-			}
-		}
-		else
-		{
-			// direct render
-			for (auto* column : drawq[i])
-			{
-				renderColumn(column, i);
-			}
+			renderColumn(column, i);
 		}
 	}
 
@@ -332,14 +273,13 @@ namespace cppcraft
 							shaderman[Shaderman::STD_BLOCKS],
 							location, renderCam);
 
-		// check for errors
-		#ifdef DEBUG
+#ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
 		{
 			logger << Log::ERR << "Renderer::renderScene(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderScene(): OpenGL state error");
 		}
-		#endif
+#endif
 
 		// render all nonwater shaders
 
@@ -422,14 +362,13 @@ namespace cppcraft
 							shaderman[Shaderman::BLOCKS_REFLECT],
 							location, renderCam);
 
-		// check for errors
-		#ifdef DEBUG
+#ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
 		{
 			logger << Log::ERR << "Renderer::renderReflectedScene(): OpenGL error. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderReflectedScene(): OpenGL state error");
 		}
-		#endif
+#endif
 
 		// render everything above water plane
 
@@ -474,14 +413,13 @@ namespace cppcraft
     // translation buffer texture
     m_buffer_texture->bind(8);
 
-		// check for errors
-		#ifdef DEBUG
+#ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
 		{
 			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ top. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
 		}
-		#endif
+#endif
 
 		// bind underwater scene
 		textureman.bind(0, Textureman::T_UNDERWATERMAP);
@@ -505,14 +443,13 @@ namespace cppcraft
 			}
 		}
 
-		// check for errors
-		#ifdef DEBUG
+#ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
 		{
 			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ middle. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
 		}
-		#endif
+#endif
 
 		// FIXME: need to render water running_water and lava separately instead of "accepting fully submerged"
 		// as not rendering anything but depth values
@@ -580,14 +517,13 @@ namespace cppcraft
 			glCullFace(GL_BACK);
 		}
 
-		// check for errors
-		#ifdef DEBUG
+#ifdef OPENGL_DO_CHECKS
 		if (OpenGL::checkError())
 		{
 			logger << Log::ERR << "Renderer::renderSceneWater(): OpenGL error @ bottom. Line: " << __LINE__ << Log::ENDL;
 			throw std::string("Renderer::renderSceneWater(): OpenGL state error");
 		}
-		#endif
+#endif
 
 	} // renderSceneWater()
 

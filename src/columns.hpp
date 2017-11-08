@@ -46,9 +46,6 @@ namespace cppcraft
 		uint32_t bufferoffset[RenderConst::MAX_UNIQUE_SHADERS];
 		uint32_t vertices    [RenderConst::MAX_UNIQUE_SHADERS];
 
-		unsigned int  occlusion[RenderConst::MAX_UNIQUE_SHADERS];
-		char          occluded [RenderConst::MAX_UNIQUE_SHADERS];
-
   private:
     int m_idx = 0;
     static int m_current_idx;

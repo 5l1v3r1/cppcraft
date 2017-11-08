@@ -164,14 +164,6 @@ namespace cppcraft
 						{
 							if (cv.vertices[i] != 0)
 							{
-								// try to hide hidden at least one more frame
-								if (cv.occluded[i] == 4)
-									cv.occluded[i] = 3;
-								else //if (cv.occluded[i] > 1)
-								{
-									cv.occluded[i] = 0;
-								}
-
 								// add to draw queue
                 lines[i].push_back(&cv);
 							}

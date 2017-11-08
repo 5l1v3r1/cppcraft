@@ -41,7 +41,6 @@ namespace cppcraft
 			for (auto& vec : lines) cnt += vec.size();
 			return cnt;
 		}
-		int size(int occlusion_status);
 
 		/// octtree-like frustum culling ///
 		// building a new draw queue, but ignoring columns that are too far out

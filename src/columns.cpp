@@ -51,8 +51,6 @@ namespace cppcraft
 
 		if (this->vao == 0)
 		{
-			// occlusion culling
-			glGenQueries(RenderConst::MAX_UNIQUE_SHADERS, this->occlusion);
 			// vertex array object
 			glGenVertexArrays(1, &this->vao);
 			// vertex and index buffer object
@@ -128,10 +126,6 @@ namespace cppcraft
 		this->renderable = true;
 		// the vbo has data stored in gpu
 		this->hasdata = true;
-
-		// reset occluded state
-		for (size_t i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
-			this->occluded[i] = 0;
 	}
 
 }
