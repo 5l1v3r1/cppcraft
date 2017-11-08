@@ -88,7 +88,7 @@ namespace cppcraft
 							timer.getTime());
 					#endif
           // flood takes some time, so lets not do more in one go
-					return true;
+					return false;
 				}
         return sect.objects == 0;
 			});

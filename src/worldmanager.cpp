@@ -17,6 +17,7 @@
 #include "world.hpp"
 
 using namespace library;
+//#define TIMING
 
 namespace cppcraft
 {
@@ -94,19 +95,35 @@ namespace cppcraft
 				break;
 			}
 
+#ifdef TIMING
+      double timings[8] = {0.0};
+#endif
 			while (true)
 			{
 				///----------------------------------///
 				///        SEAMLESS TRANSITION       ///
 				///----------------------------------///
-				if (Seamless::run()) break;
+#ifdef TIMING
+        Timer seamless_timer;
+#endif
+				bool transition = Seamless::run();
+#ifdef TIMING
+        timings[0] = seamless_timer.getTime();
+#endif
+        if (transition) break;
 
 				double timeOut = localTime + MAX_TIMING_WAIT;
 
 				///----------------------------------///
 				/// ---------- OBJECT GEN ---------- ///
 				///----------------------------------///
+#ifdef TIMING
+        Timer objectq_timer;
+#endif
 				terragen::ObjectQueue::run();
+#ifdef TIMING
+        timings[1] = objectq_timer.getTime();
+#endif
 
 				// check for timeout
 				if (timer.getTime() > timeOut) break;
@@ -114,29 +131,28 @@ namespace cppcraft
 				///----------------------------------///
 				/// --------- PRECOMPILER ---------- ///
 				///----------------------------------///
-				//double t0 = timer.getTime();
-				//double t0 = _localtime;
-
-				// as long as not currently 'generating' world:
-				// start precompiling sectors
+#ifdef TIMING
+        Timer meshgen_timer;
+#endif
+				// start scheduling sectors for meshgen
 				precompq.run();
+#ifdef TIMING
+        timings[2] = meshgen_timer.getTime();
+#endif
 
         // check for timeout
 				if (timer.getTime() > timeOut) break;
 
-				//double t1 = timer.getTime() - t0;
-				//if (t1 > 0.020)
-				//{
-				//	logger << "Precomp delta: " << t1 * 1000 << Log::ENDL;
-				//}
-
-				//double t1 = timer.getTime();
-				//logger << "pcq time: " << t1 - t0 << Log::ENDL;
-
 				///----------------------------------///
 				/// ---------- GENERATOR ----------- ///
 				///----------------------------------///
+#ifdef TIMING
+        Timer generator_timer;
+#endif
 				Generator::run();
+#ifdef TIMING
+        timings[3] = generator_timer.getTime();
+#endif
 
         // check for timeout
 				if (timer.getTime() > timeOut) break;
@@ -150,12 +166,24 @@ namespace cppcraft
 
 				teleportHandler();
 
+#ifdef TIMING
+        Timer lighting_timer;
+#endif
         // make scheduled corrections to lighting
         Lighting::handleDeferred();
-
+#ifdef TIMING
+        timings[4] = lighting_timer.getTime();
+#endif
 				break;
 			} // world tick
 
+#ifdef TIMING
+      double sum = timings[0] + timings[1] + timings[2] + timings[3] + timings[4];
+      if (sum > 0.001) {
+      printf("Timings: SEAM %f  OBJQ %f  MESH %f  GEN %f  LIGHT %f\n",
+            timings[0], timings[1], timings[2], timings[3], timings[4]);
+      }
+#endif
 			// send & receive stuff
 			//network.handleNetworking();
 
