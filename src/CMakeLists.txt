@@ -45,6 +45,7 @@ set(SUB_SOURCES
     generator/terragen.cpp
     generator/terragen_objects.cpp
     generator/terrain/helpers.cpp
+    generator/terrain/poisson.cpp
     generator/terrain/noise.cpp
     generator/terrain/terrain.cpp
     generator/terrain/terrains.cpp

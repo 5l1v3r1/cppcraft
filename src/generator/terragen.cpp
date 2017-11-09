@@ -1,5 +1,6 @@
 #include "terragen.hpp"
 
+#include "terrain/poisson.hpp"
 #include "terrain/terrain.hpp"
 #include "terrain/terrains.hpp"
 #include "postproc.hpp"
@@ -22,6 +23,8 @@ namespace terragen
 		init_blocks();
     extern void init_items();
 		init_items();
+    // some terrain helpers
+    Poisson::init();
 		// make sure the terrain function list is populated
 		Terrains::init();
 		// basic objects

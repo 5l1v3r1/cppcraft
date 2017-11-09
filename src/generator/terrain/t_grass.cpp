@@ -5,6 +5,7 @@
 #include "../random.hpp"
 #include "../postproc.hpp"
 #include "helpers.hpp"
+#include "poisson.hpp"
 #include "terrains.hpp"
 #include <library/bitmap/colortools.hpp>
 #include <glm/gtc/noise.hpp>
@@ -16,6 +17,8 @@ using namespace library;
 
 namespace terragen
 {
+  FastPlacement fastdistr(64, 8.0f, 256);
+
 	static float getnoise_grass(vec3 p, const glm::vec3 under, const glm::vec3 over)
 	{
 		return p.y - over.x + Simplex::ridgedMF(p * 0.00222f) * 0.1f;
@@ -135,16 +138,7 @@ namespace terragen
           if (rand >= 0.6 && rand <= 0.61)
                 block.setID(db::getb("grass_random"));
 
-					/// terrain specific objects ///
-          if (rand < 0.00005 && air > 40) {
-            if (y < BLOCKS_Y - 44)
-            gdata->add_object("mushroom_huge", wx, y+1, wz, 40);
-          }
-          else if (rand < 0.00025 && air > 24) {
-            if (y < BLOCKS_Y - 28)
-            gdata->add_object("mushroom_wild", wx, y+1, wz, 20);
-          }
-					else if (rand < 0.05 && air > 16)
+          if (fastdistr.test(wx, wz, 16) && air > 16)
 					{
             glm::vec2 p = gdata->getBaseCoords2D(x, z);
 						if (glm::simplex(p * 0.005f) < -0.2)
@@ -156,6 +150,14 @@ namespace terragen
 							}
 						}
 					}
+          else if (rand < 0.00005 && air > 40) {
+            if (y < BLOCKS_Y - 44)
+            gdata->add_object("mushroom_huge", wx, y+1, wz, 40);
+          }
+          else if (rand < 0.00025 && air > 24) {
+            if (y < BLOCKS_Y - 28)
+            gdata->add_object("mushroom_wild", wx, y+1, wz, 20);
+          }
 					else if (rand > 0.75)
 					{
 						// note: this is an inverse of the otreeHuge noise

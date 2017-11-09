@@ -100,7 +100,6 @@ namespace terragen
                         sect.updateAllMeshes();
                     return true;
                   });
-              assert(sector.isUpdatingMesh());
             } // no longer has objects
           } // has objects
 				}

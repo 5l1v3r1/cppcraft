@@ -126,8 +126,6 @@ namespace cppcraft
                     sect.updateAllMeshes();
                 return true;
               });
-          // in the end the sector needs to be queued up
-          assert(dest.isUpdatingMesh());
         }
 				// add it to the minimap!!!
 				minimap.addSector(dest);
