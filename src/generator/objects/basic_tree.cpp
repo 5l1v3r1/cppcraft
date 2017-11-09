@@ -23,20 +23,23 @@ namespace terragen
 		const int y = obj.y;
 		const int z = obj.z;
 
-		if (Spiders::getBlock(x+1, y, z).isAir() == false) return;
-		if (Spiders::getBlock(x-1, y, z).isAir() == false) return;
-		if (Spiders::getBlock(x, y, z+1).isAir() == false) return;
-		if (Spiders::getBlock(x, y, z-1).isAir() == false) return;
+    auto walker = cppcraft::GridWalker(x, y, z);
+    if (walker.move_x(1).get().isAir() == false) return;
+    if (walker.move_x(-2).get().isAir() == false) return;
+    if (walker.move(1, 0, 1).get().isAir() == false) return;
+    if (walker.move_z(-2).get().isAir() == false) return;
 
     // randomness
     const int rvalue = ihash(x, z);
     // height of tree
 		int height = (rvalue & 1) ? obj.data : obj.data - 3;
 
+    walker = cppcraft::GridWalker(x, y, z);
 		for (int i = 0; i < height; i++)
 		{
 			// overwrite with trunk (removing light)
-			Spiders::setBlock(x, y + i, z, trunk);
+      walker.set(trunk);
+      walker.move_y(1);
 		}
 
 		const int base = height / 3;
@@ -52,17 +55,18 @@ namespace terragen
         radius = 2.5 * std::sqrt(curve);
 
 			for (int dx = -radius; dx <= radius; dx++)
-			for (int dz = -radius; dz <= radius; dz++)
-			{
-				int fx = x + dx;
-        int fy = y + dy + base;
-        int fz = z + dz;
-
-				Block& block = Spiders::getBlock(fx, fy, fz);
-				// set ID to leaf, preserve light
-				if (block.triviallyOverwriteable())
-					   block.setID(LEAF_ID);
-			}
+      {
+        auto walker = cppcraft::GridWalker(x + dx, y + dy + base, z - radius);
+        const int axis_length = 2 * radius + 1;
+  			for (int i = 0; i < axis_length; i++)
+  			{
+          if (walker.get().triviallyOverwriteable())
+          {
+            walker.set(Block(LEAF_ID));
+          }
+          walker.move_z(1);
+  			}
+      }
 		}
 	}
 

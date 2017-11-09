@@ -6,8 +6,6 @@
 #include <glm/vec3.hpp>
 #include <cmath>
 
-using namespace library;
-
 namespace cppcraft
 {
 	glm::vec3 Spiders::distanceToWorldXZ(int wx, int wz)

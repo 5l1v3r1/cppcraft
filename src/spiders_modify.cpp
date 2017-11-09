@@ -16,16 +16,15 @@ namespace cppcraft
 	{
 		Sector* s = Spiders::wrap(bx, by, bz);
 		if (s == nullptr) return false;
-		// if the area isn't loaded we don't have the ability to modify it,
-		// only the server can do that on-the-fly anyways
-		if (s->generated() == false) return false;
-
-		Block& block = s[0](bx, by, bz);
+    return updateBlock(*s, bx, by, bz, bits);
+  }
+  bool Spiders::updateBlock(Sector& sector, int bx, int by, int bz, block_t bits)
+  {
+		Block& block = sector(bx, by, bz);
 		// set bitfield directly
 		block.setBits(bits);
 		// make sure the mesh is updated
-		s->updateAllMeshes();
-
+		sector.updateAllMeshes();
 		// write updated sector to disk
 		//chunks.addSector(*s);
 		return true;
@@ -40,36 +39,38 @@ namespace cppcraft
 					   bx, by, bz);
 			return false;
 		}
-		// if the area isn't loaded we don't have the ability to modify it,
-		// only the server can do that on-the-fly anyways
-		if (UNLIKELY(s->generated() == false))
+    if (UNLIKELY(s->generated() == false))
 		{
 			printf("Could not setblock(%d, %d, %d): not generated\t",
 					   bx, by, bz);
 			return false;
 		}
+    return setBlock(*s, bx, by, bz, newblock);
+  }
+  bool Spiders::setBlock(Sector& sector, int bx, int by, int bz, const Block& newblock)
+  {
     ::total_blocks_placed++;
 		// set new block
-		Block& blk = s[0](bx, by, bz);
+		Block& blk = sector(bx, by, bz);
 		blk = newblock;
 		// if setting this block changes the skylevel, propagate zero-light down
-		int skylevel = s->flat()(bx, bz).skyLevel;
+		int skylevel = sector.flat()(bx, bz).skyLevel;
 		if (by >= skylevel)
 		{
 			// from hero to zero
 			for (int y = skylevel; y <= by; y++) {
-				s[0](bx, y, bz).setSkyLight(0);
+				sector(bx, y, bz).setSkyLight(0);
       }
 
 			// re-flood skylight down to old skylevel
-			if (s->atmospherics) {
+			if (sector.atmospherics) {
         // only if atmospherics is already finished for this sector
-        Lighting::deferredRemove(*s, bx, skylevel, by, bz, 15-1);
+        Lighting::deferredRemove(sector, bx, skylevel, by, bz, 15-1);
       }
       // set new skylevel?
-      s->flat()(bx, bz).skyLevel = by+1;
+      sector.flat()(bx, bz).skyLevel = by+1;
       // update minimap since top-level changed
-      minimap.sched(*s);
+      minimap.sched(sector);
 		}
 		else
 		{
@@ -77,9 +78,9 @@ namespace cppcraft
       blk.setSkyLight(0);
 			// for all 6 sides of the block we added, theres a possibility that we blocked off light
 			// re-flood light on all sides
-			if (s->atmospherics && level > 1) {
+			if (sector.atmospherics && level > 1) {
         // only if atmospherics is already finished for this sector
-        Lighting::deferredRemove(*s, bx, by, by, bz, level-1);
+        Lighting::deferredRemove(sector, bx, by, by, bz, level-1);
       }
 		}
 
@@ -87,19 +88,22 @@ namespace cppcraft
 		if (UNLIKELY(blk.isLight()))
 		{
       // mark light existing at by
-      s->getBlocks().setLight(by);
+      sector.getBlocks().setLight(by);
       // set light source level for block
 			blk.setTorchLight(blk.getOpacity(0));
       // start flooding
-			Lighting::floodOutof(s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz, 1, blk.getTorchLight());
+			Lighting::floodOutof(sector.getX()*BLOCKS_XZ + bx,
+                           by,
+                           sector.getZ()*BLOCKS_XZ + bz,
+                           1, blk.getTorchLight());
 		}
 
 		// write updated sector to disk
-		//chunks.addSector(*s);
+		//chunks.addSector(sector);
     // update mesh
-		s->updateAllMeshes();
+		sector.updateAllMeshes();
 		// update nearby sectors only if we are at certain edges
-		updateSurroundings(*s, bx, by, bz);
+		updateSurroundings(sector, bx, by, bz);
 		return true;
 	}
 
@@ -108,44 +112,53 @@ namespace cppcraft
 		Sector* s = Spiders::wrap(bx, by, bz);
 		// if the given position is outside the local area, null will be returned
 		if (s == nullptr) return air_block;
-		// if the area isn't loaded we don't have the ability to modify it,
-		// only the server can do that on-the-fly anyways
-		if (s->generated() == false) return air_block;
+    if (UNLIKELY(s->generated() == false))
+		{
+			printf("Could not removeBlock(%d, %d, %d): not generated\t",
+					   bx, by, bz);
+			return false;
+		}
+    return removeBlock(*s, bx, by, bz);
+  }
 
+  Block Spiders::removeBlock(Sector& sector, int bx, int by, int bz)
+  {
 		// make a copy of the block, so we can return it
-		Block block = s[0](bx, by, bz);
+		Block block = sector(bx, by, bz);
 		assert(block.getID() != _AIR);
 
 		// set the block to _AIR
-		s[0](bx, by, bz).setID(_AIR);
+		sector(bx, by, bz).setID(_AIR);
 
 		// when the skylevel is the current height, we know that the it must be propagated down
-		int skylevel = s->flat()(bx, bz).skyLevel;
+		int skylevel = sector.flat()(bx, bz).skyLevel;
 		if (by >= skylevel-1)
 		{
-			Lighting::skyrayDownwards(*s, bx, by, bz);
+			Lighting::skyrayDownwards(sector, bx, by, bz);
       // update minimap since top-level changed
-      minimap.sched(*s);
+      minimap.sched(sector);
 		}
     else if (block.isTransparent() == false) {
       // try to flood this new fancy empty space with light
-      Lighting::floodInto(s, bx, by, bz, 0);
+      Lighting::floodInto(&sector, bx, by, bz, 0);
     }
 
     // to remove lights we will have to do a more.. thorough job
 		if (block.isLight()) {
-			Lighting::removeLight(block, s->getX()*BLOCKS_XZ + bx, by, s->getZ()*BLOCKS_XZ + bz);
+			Lighting::removeLight(block, sector.getX()*BLOCKS_XZ + bx,
+                                   by,
+                                   sector.getZ()*BLOCKS_XZ + bz);
     }
     else {
-      Lighting::floodInto(s, bx, by, bz, 1);
+      Lighting::floodInto(&sector, bx, by, bz, 1);
     }
 
 		// write updated sector to disk
 		//chunks.addSector(*s);
     // update the mesh, so we can see the change!
-		s->updateAllMeshes();
+		sector.updateAllMeshes();
 		// update neighboring sectors (depending on edges)
-		updateSurroundings(*s, bx, by, bz);
+		updateSurroundings(sector, bx, by, bz);
 		// return COPY of block
 		return block;
 	}

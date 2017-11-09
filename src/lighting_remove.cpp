@@ -4,8 +4,6 @@
 #include "spiders.hpp"
 #include <queue>
 
-using namespace library;
-
 namespace cppcraft
 {
 	using emitter_t = Lighting::emitter_t;
