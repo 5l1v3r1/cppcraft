@@ -3,17 +3,18 @@
 #include "../blocks.hpp"
 #include "../object.hpp"
 #include "../random.hpp"
-#include "../../spiders.hpp"
 #include "../../biome.hpp"
-#include "../../renderconst.hpp"
+#include "../../grid_walker.hpp"
 #include "../../tiles.hpp"
+#include "../../renderconst.hpp"
 #include "helpers.hpp"
+#include <library/timing/timer.hpp>
 #include <library/bitmap/colortools.hpp>
-#include <cstdlib>
 #include <cmath>
 
 using namespace cppcraft;
 using namespace library;
+//#define TIMING
 
 namespace terragen
 {
@@ -91,6 +92,8 @@ namespace terragen
   	{
   		for (int dz = -radius; dz <= radius; dz++)
   		{
+        GridWalker walker(x+dx, 0, z+dz);
+
   			for (int dy = -4; dy <= radius; dy++)
   			{
   				fdx = (float)(dx * dx);
@@ -117,7 +120,8 @@ namespace terragen
   					if (rad > hoodradix)
   					{
               float bell = radius * (1.0f - stretch_y);
-              Spiders::setBlock(x+dx, y - bell + dy * stretch_y, z+dz, mat);
+              //Spiders::setBlock(x+dx, y - bell + dy * stretch_y, z+dz, mat);
+              walker.set_y(y - bell + dy * stretch_y).set(mat);
   					}
 
   				} // rad <= radius
@@ -131,6 +135,9 @@ namespace terragen
   void Mushroom::huge_shroom(const SchedObject& obj)
   {
     const block_t SHROOM_BLOCK = db::getb("mushroom_block");
+#ifdef TIMING
+    Timer timer;
+#endif
 
     const int height = obj.data;
   	const float lowrad = randf(obj.x, obj.z, obj.y) * 4 + 8;
@@ -168,11 +175,18 @@ namespace terragen
   	// create hood
   	const int RAD = (int)(currad * 8);
   	omushHood((int)dx, obj.y+height-1, (int)dz, RAD, SHROOM_BLOCK);
+
+#ifdef TIMING
+    printf("Huge mushroom took %f seconds\n", timer.getTime());
+#endif
   }
 
   void Mushroom::wild_shroom(const SchedObject& obj)
   {
     const block_t SHROOM_BLOCK = db::getb("mushroom_block");
+#ifdef TIMING
+    Timer timer;
+#endif
 
     const int height = obj.data;
   	const float lowrad = (float)height / 2.8f;
@@ -226,28 +240,31 @@ namespace terragen
   	const float shift_pos_startslope = 0.0f;
   	const float shift_pos_cap        = rad_y * 0.5f;
 
-  	for (int dy = -rad_xz; dy <= rad_xz; dy++)
-  	{
-  		for (int hx = -rad_xz; hx <= rad_xz; hx++)
-  		{
-  			for (int hz = -rad_xz; hz <= rad_xz; hz++)
-  			{
-  				inner_rad = sqrtf( hx*hx + hz*hz );
-  				shiftup = (inner_rad - rad_y) * shift_strength;
+		for (int hx = -rad_xz; hx <= rad_xz; hx++)
+		{
+			for (int hz = -rad_xz; hz <= rad_xz; hz++)
+			{
+				inner_rad = sqrtf( hx*hx + hz*hz );
+				shiftup = (inner_rad - rad_y) * shift_strength;
 
-  				if (shiftup < shift_top_startslope)
-  				{
-  					shiftup = shift_top_startslope - powf(fabsf(shiftup - shift_top_startslope), shift_top_slope);
-  				}
-  				if (shiftup > shift_pos_startslope)
-  				{
-  					shiftup = shift_pos_startslope + powf(shiftup - shift_pos_startslope, shift_pos_slope);
-  				}
-  				if (shiftup > shift_pos_cap) shiftup = shift_pos_cap;
+				if (shiftup < shift_top_startslope)
+				{
+					shiftup = shift_top_startslope - powf(fabsf(shiftup - shift_top_startslope), shift_top_slope);
+				}
+				if (shiftup > shift_pos_startslope)
+				{
+					shiftup = shift_pos_startslope + powf(shiftup - shift_pos_startslope, shift_pos_slope);
+				}
+				if (shiftup > shift_pos_cap) shiftup = shift_pos_cap;
 
-  				shiftup += dy;
+        // start walking at bottom of Y-axis
+        GridWalker walker((int)dx + hx, obj.y + height - rad_xz, (int)dz + hz);
 
-  				dist = sqrtf( hx*hx*0.35 + hz*hz*0.35 + shiftup*shiftup );
+        for (int dy = -rad_xz; dy <= rad_xz; dy++)
+      	{
+  				int final_shiftup = (dy + shiftup) * (dy + shiftup);
+
+  				dist = sqrtf( hx*hx*0.35 + hz*hz*0.35 + final_shiftup );
 
   				if (dist <= rad_y)
   				{
@@ -275,15 +292,17 @@ namespace terragen
   					{	// inside
               shroom_set_type(mat, TYPE_UNDER);
   					}
-
-            Spiders::setBlock((int)dx + hx, obj.y+dy + height, (int)dz + hz, mat);
+            // set final material
+            walker.set(mat);
   				} // inside bell radius
 
-  			} // hz
-  		} // hx
-
-  	} // dy
-
+          walker.move_y(1);
+        } // dy
+  		} // hz
+  	} // hx
+#ifdef TIMING
+    //printf("Wild mushroom took %f seconds\n", timer.getTime());
+#endif
   }
 
 } // terragen

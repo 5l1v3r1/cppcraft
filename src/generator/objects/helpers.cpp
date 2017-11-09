@@ -1,6 +1,6 @@
 #include "helpers.hpp"
 
-#include "../../spiders.hpp"
+#include "../../grid_walker.hpp"
 #include "../random.hpp"
 #include <cmath>
 
@@ -62,41 +62,51 @@ namespace terragen
 	}
 
   static void
-	downSpider(int x, int y, int z, Block blk, int tries)
+	fill_down(GridWalker walker, int tries, const Block blk)
 	{
-		Block currentBlock = Spiders::getBlock(x, y, z);
-
-		// air, crosses, water
-		if (currentBlock.isTransparent())
-		{
-			if (tries--) downSpider(x, y-1, z, blk, tries);
-			Spiders::setBlock(x, y, z, blk);
-		}
+    assert(walker.good());
+		while (tries-- > 0)
+    {
+      walker.move_y(-1);
+  		if (walker.get().isTransparent()) walker.set(blk);
+      else break;
+    }
 	}
 
 	void ocircleXZroots(int x, int y, int z, int radius, Block blk)
 	{
-		int dx, dz, r = radius*radius;
-		for (dx = -radius; dx <= radius; dx++)
-		for (dz = -radius; dz <= radius; dz++)
-		{
-			if (dx*dx + dz*dz <= r)
-			{
-				Spiders::setBlock(x+dx, y, z+dz, blk);
-				downSpider(x+dx, y-1, z+dz, blk, 6);
-			}
-		}
+    GridWalker walker(x - radius, y, z - radius);
+    assert(walker.good());
+		for (int dx = -radius; dx <= radius; dx++)
+    {
+      GridWalker temp(walker);
+  		for (int dz = -radius; dz <= radius; dz++)
+  		{
+  			if (dx*dx + dz*dz <= radius*radius) {
+  				temp.set(blk);
+          fill_down(temp, 6, blk);
+        }
+        temp.move_z(1);
+  		}
+      walker.move_x(1);
+    }
 	}
 
-	void ocircleXZ(int x, int y, int z, int radius, Block blk)
+	void ocircleXZ(int x, int y, int z, int radius, const Block blk)
 	{
-		const int maxrad = radius*radius;
+    GridWalker walker(x - radius, y, z - radius);
 		for (int dx = -radius; dx <= radius; dx++)
-		for (int dz = -radius; dz <= radius; dz++)
-		{
-			if (dx*dx + dz*dz <= maxrad)
-				Spiders::setBlock(x+dx, y, z+dz, blk);
-		}
+    {
+      GridWalker temp(walker);
+  		for (int dz = -radius; dz <= radius; dz++)
+  		{
+  			if (dx*dx + dz*dz <= radius*radius) {
+  				temp.set(blk);
+        }
+        temp.move_z(1);
+  		}
+      walker.move_x(1);
+    }
 	}
 	void ocircleXZstencil(int gx, int gy, int gz, int rad, Block blk, float chance)
 	{
@@ -155,10 +165,10 @@ namespace terragen
              float understrength, float stencilchance)
 	{
 		float radf, lradf, midd, dr;
-		int dx, dy, dz, radxz;
+		int radxz;
 		int r, l;
 
-		for (dy = lower; dy <= height; dy++)
+		for (int dy = lower; dy <= height; dy++)
 		{
 			midd = 1.0 - std::abs(dy - midlevel) / (height-midlevel);
 			midd *= midstrength;
@@ -171,8 +181,8 @@ namespace terragen
 			radf = r - dr*dr;
 			lradf = l - dr*dr;
 
-			for (dx = -radius; dx <= radius; dx++)
-			for (dz = -radius; dz <= radius; dz++)
+			for (int dx = -radius; dx <= radius; dx++)
+			for (int dz = -radius; dz <= radius; dz++)
 			{
 				radxz = dx*dx + dz*dz;
 				if (radxz >= lradf && radxz <= radf)

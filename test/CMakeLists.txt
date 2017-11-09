@@ -11,6 +11,7 @@ include_directories(../inc/glm)
 include_directories(Catch/include)
 
 set(SOURCES
+    test_gridwalker.cpp
     test_lighting.cpp
     test_sector.cpp
     catch.cpp

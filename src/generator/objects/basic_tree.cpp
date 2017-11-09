@@ -1,7 +1,7 @@
 #include "../object.hpp"
 #include "../random.hpp"
 #include "../blocks.hpp"
-#include "../../spiders.hpp"
+#include "../../grid_walker.hpp"
 #include <library/math/toolbox.hpp>
 #include "helpers.hpp"
 
@@ -23,7 +23,9 @@ namespace terragen
 		const int y = obj.y;
 		const int z = obj.z;
 
-    auto walker = cppcraft::GridWalker(x, y, z);
+    cppcraft::GridWalker walker(x, y, z);
+    assert(walker.buildable());
+
     if (walker.move_x(1).get().isAir() == false) return;
     if (walker.move_x(-2).get().isAir() == false) return;
     if (walker.move(1, 0, 1).get().isAir() == false) return;
@@ -34,12 +36,12 @@ namespace terragen
     // height of tree
 		int height = (rvalue & 1) ? obj.data : obj.data - 3;
 
-    walker = cppcraft::GridWalker(x, y, z);
+    cppcraft::GridWalker trunk_walker(x, y, z);
 		for (int i = 0; i < height; i++)
 		{
 			// overwrite with trunk (removing light)
-      walker.set(trunk);
-      walker.move_y(1);
+      trunk_walker.set(trunk);
+      trunk_walker.move_y(1);
 		}
 
 		const int base = height / 3;
@@ -56,7 +58,7 @@ namespace terragen
 
 			for (int dx = -radius; dx <= radius; dx++)
       {
-        auto walker = cppcraft::GridWalker(x + dx, y + dy + base, z - radius);
+        cppcraft::GridWalker walker(x + dx, y + dy + base, z - radius);
         const int axis_length = 2 * radius + 1;
   			for (int i = 0; i < axis_length; i++)
   			{

@@ -154,10 +154,6 @@ namespace terragen
             if (y < BLOCKS_Y - 44)
             gdata->add_object("mushroom_huge", wx, y+1, wz, 40);
           }
-          else if (rand < 0.00025 && air > 24) {
-            if (y < BLOCKS_Y - 28)
-            gdata->add_object("mushroom_wild", wx, y+1, wz, 20);
-          }
 					else if (rand > 0.75)
 					{
 						// note: this is an inverse of the otreeHuge noise
