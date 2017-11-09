@@ -22,13 +22,16 @@ namespace terragen
 		const int x = obj.x;
 		const int y = obj.y;
 		const int z = obj.z;
-		// height of tree
-		int height = obj.data;
 
 		if (Spiders::getBlock(x+1, y, z).isAir() == false) return;
 		if (Spiders::getBlock(x-1, y, z).isAir() == false) return;
 		if (Spiders::getBlock(x, y, z+1).isAir() == false) return;
 		if (Spiders::getBlock(x, y, z-1).isAir() == false) return;
+
+    // randomness
+    const int rvalue = ihash(x, z);
+    // height of tree
+		int height = (rvalue & 1) ? obj.data : obj.data - 3;
 
 		for (int i = 0; i < height; i++)
 		{
@@ -36,17 +39,24 @@ namespace terragen
 			Spiders::setBlock(x, y + i, z, trunk);
 		}
 
-		int base = height / 3;
-		int leaf_height = height * 1.5;
+		const int base = height / 3;
+    const int leaf_height = height * 1.5f;
 
-		for (int dy = base; dy < leaf_height; dy++)
+		for (int dy = 0; dy < leaf_height; dy++)
 		{
-			int radius = 3.0 * (1.0 - dy / (float)leaf_height);
+      const float curve = 1.0 - dy / (float)leaf_height;
+			int radius;
+      if (rvalue & 1)
+        radius = 3 * curve;
+      else
+        radius = 2.5 * std::sqrt(curve);
 
 			for (int dx = -radius; dx <= radius; dx++)
 			for (int dz = -radius; dz <= radius; dz++)
 			{
-				int fx = x + dx; int fy = y + dy; int fz = z + dz;
+				int fx = x + dx;
+        int fy = y + dy + base;
+        int fz = z + dz;
 
 				Block& block = Spiders::getBlock(fx, fy, fz);
 				// set ID to leaf, preserve light

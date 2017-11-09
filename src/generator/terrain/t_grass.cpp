@@ -17,7 +17,7 @@ using namespace library;
 
 namespace terragen
 {
-  FastPlacement fastdistr(64, 8.0f, 256);
+  FastPlacement place_trees(64, 7.0f, 256);
 
 	static float getnoise_grass(vec3 p, const glm::vec3 under, const glm::vec3 over)
 	{
@@ -138,7 +138,7 @@ namespace terragen
           if (rand >= 0.6 && rand <= 0.61)
                 block.setID(db::getb("grass_random"));
 
-          if (fastdistr.test(wx, wz, 16) && air > 16)
+          if (place_trees.test(wx, wz) && air > 16)
 					{
             glm::vec2 p = gdata->getBaseCoords2D(x, z);
 						if (glm::simplex(p * 0.005f) < -0.2)

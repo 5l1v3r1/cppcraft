@@ -19,7 +19,7 @@ namespace terragen
   {
     FastPlacement(size_t size, float rad, const int total);
 
-    bool test(int x, int z, int16_t) const noexcept {
+    bool test(int x, int z) const noexcept {
       return get(x, z);
     }
 

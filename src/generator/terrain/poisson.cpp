@@ -15,6 +15,18 @@ namespace terragen
       std::swap(v[n], v.back());
       v.pop_back();
   }
+  template <typename T>
+  inline T delta(const T x1, const T x2, const T size) {
+    auto dx = std::abs(x1 - x2);
+    if (dx <= size / 2) return dx;
+    return size - dx;
+  }
+  glm::vec2 wrap_around(glm::vec2 p, float rw, float rh) noexcept
+  {
+    while (p.x >= rw) p.x -= rw; while (p.x < 0.0f) p.x += rw;
+    while (p.y >= rh) p.y -= rh; while (p.y < 0.0f) p.y += rh;
+    return p;
+  }
 
   struct point_t {
     glm::vec2 pos;
@@ -28,30 +40,33 @@ namespace terragen
         for (auto& p : points) p.valid = false;
       }
 
-    bool in_neighborhood(const glm::vec2 p, const float dist)
+    bool in_neighborhood(const glm::vec2 p, const float dist, float rw, float rh)
     {
       const int x = (int) (p.x / cell_size);
       const int y = (int) (p.y / cell_size);
-      const int x_min = std::max(0,   x - 2);
-      const int x_max = std::min(w-1, x + 2);
-      const int y_min = std::max(0,   y - 2);
-      const int y_max = std::min(h-1, y + 2);
 
-      for (int dy = y_min; dy <= y_max; dy++)
-  		for (int dx = x_min; dx <= x_max; dx++)
+      for (int dy = -2; dy <= 2; dy++)
+  		for (int dx = -2; dx <= 2; dx++)
   		{
-        auto& cell = get(dx, dy);
-				if (cell.valid && glm::distance(p, cell.pos) < dist) return true;
+        auto& cell = get(x + dx, y + dy);
+        const glm::vec2 wrap(delta(p.x, cell.pos.x, rw),
+                             delta(p.y, cell.pos.y, rh));
+				if (cell.valid && glm::length(wrap) < dist) return true;
       }
       return false;
     }
 
     point_t& get(int x, int y) noexcept
     {
-      return points.at(x + y * w);
+      while (x < 0) x += w;
+      while (y < 0) y += h;
+      return points.at((x % w) + (y % h) * w);
     }
     void set(const glm::vec2 p) {
-      auto& cell = get((int) (p.x / cell_size), (int) (p.y / cell_size));
+      const int x = (int) (p.x / cell_size);
+      const int y = (int) (p.y / cell_size);
+      auto& cell = get(x, y);
+      //printf("Setting point(%f, %f) at grid (%d, %d) = %p\n", p.x, p.y, x, y, &cell);
       assert(cell.valid == false);
       cell = point_t{p, true};
     }
@@ -74,7 +89,7 @@ namespace terragen
     const float cellSize = min_dist / sqrtf(2.0f);
     const uint32_t gridW = std::ceil(w / cellSize);
     const uint32_t gridH = std::ceil(h / cellSize);
-    printf("Grid size: %u, %u  Cell: %f\n", gridW, gridH, cellSize);
+    //printf("Grid size: %u, %u  Cell: %f\n", gridW, gridH, cellSize);
     // create grid
     grid_t grid(gridW, gridH, cellSize);
     // create first point
@@ -84,22 +99,21 @@ namespace terragen
     points_t m_points;
     m_points.reserve(total);
     m_points.push_back(first);
-    int iterations = 0;
+    uint32_t iterations = 0;
 
     while (m_points.size() < total)
     {
       // generate new random points around already existing ones
       for (auto& origin : m_points)
       {
-        const glm::vec2 p = point_around(origin, min_dist);
-        if (p.x >= 0 && p.x < w && p.y >= 0 && p.y < h)
-        if (not grid.in_neighborhood(p, min_dist)) {
+        const glm::vec2 p = wrap_around(point_around(origin, min_dist), w, h);
+        if (not grid.in_neighborhood(p, min_dist, w, h)) {
           grid.set(p);
           m_points.push_back(p);
           break;
         }
       }
-      if (++iterations > 999) {
+      if (++iterations >= total * 2) {
         printf("PoissonDisc: Max iterations exceeded\n");
         break;
       }

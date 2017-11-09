@@ -38,24 +38,27 @@ namespace terragen
 		{
 			Block& block = gdata->getb(x, y, z);
 
-      if (block.getID() == STONE_BLOCK && lastID == _AIR)
+      if (block.getID() == STONE_BLOCK && air > 0)
       {
         int uid = cave.underworld[y / 4];
         if (uid == cave_terrains["basin"])
         {
           // Basin
-          block.setID(db::getb("basin_murksoil"));
-          if (air > 18)
+          if (y > 8)
           {
-            float rand = randf(wx, y, wz);
-            if (rand < 0.0025) {
-              gdata->add_object("mushroom_wild", wx, y+1, wz, 12);
+            block.setID(db::getb("basin_murksoil"));
+            if (air > 18)
+            {
+              float rand = randf(wx, y, wz);
+              if (rand < 0.0025) {
+                gdata->add_object("mushroom_wild", wx, y+1, wz, 12);
+              }
             }
           }
         } // basin
 
         float rand = randf(wx, y, wz);
-        if (rand < 0.02)
+        if (rand < 0.02 && air > 1)
         {
           // create some cavey fauna
           gdata->getb(x, y+1, z).setID(

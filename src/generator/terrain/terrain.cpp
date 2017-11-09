@@ -39,7 +39,7 @@ namespace terragen
 		const float stone_lower = -0.1;
 		const float stone_upper = -0.05; // density treshold for stone upper / lower hemisphere
 
-		const float lava_height = 0.05;
+		const float lava_height = 0.025;
 
 		// middle = waterlevel + beachhead
 		float beachhead  = in_beachhead * 0.025; // sand above water (0.0075 + ...)
