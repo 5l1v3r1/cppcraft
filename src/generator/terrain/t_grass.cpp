@@ -92,6 +92,7 @@ namespace terragen
 
   int grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{
+    const block_t GRAVEL_BLOCK = db::getb("gravel_dirt");
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
@@ -104,6 +105,29 @@ namespace terragen
 		{
 			Block& block = gdata->getb(x, y, z);
       if (block.getID() == STONE_BLOCK) return y;
+
+      // count air
+			if (block.isAir()) {
+        air++; continue;
+      }
+
+
+      if (block.getID() == SOIL_BLOCK)
+			{
+        auto p2d = gdata->getBaseCoords2D(x, z);
+        const float bubble = glm::simplex(p2d * 0.00154f);
+        if (bubble < -0.9) {
+          block.setID(db::getb("clay_blue"));
+        }
+        else if (bubble > 0.6)
+        {
+          block.setID(GRAVEL_BLOCK);
+        }
+        else if (bubble >= -0.2 && bubble < 0.2)
+        {
+          block.setID(STONE_BLOCK);
+        }
+      }
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach
@@ -129,14 +153,31 @@ namespace terragen
 				///-////////////////////////////////////-///
 				///- create objects, and litter crosses -///
 				///-////////////////////////////////////-///
-				if (block.getID() == SOIL_BLOCK)
+				if (block.getID() == SOIL_BLOCK || block.getID() == GRAVEL_BLOCK)
 				{
-					block.setID(GRASS_ID);
+          float rand = randf(wx, y, wz);
 
-					// TODO: use poisson disc here
-					float rand = randf(wx, y, wz);
-          if (rand >= 0.6 && rand <= 0.61)
+					if (block.getID() == SOIL_BLOCK) {
+            block.setID(GRASS_ID);
+            // grass with random letters on it
+            if (rand >= 0.6 && rand <= 0.61) {
                 block.setID(db::getb("grass_random"));
+            }
+            else if (rand > 0.75)
+  					{
+  						// note: this is an inverse of the otreeHuge noise
+              glm::vec2 p = gdata->getBaseCoords2D(x, z);
+  						if (glm::simplex(p * 0.005f) > 0.0) {
+                if (rand > 0.775)
+  							   gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
+                else if (rand > 0.765)
+ 							     gdata->getb(x, y+1, z).setID(db::getb("flower_red"));
+                else
+ 							     gdata->getb(x, y+1, z).setID(db::getb("flower_yellow"));
+  						}
+  					}
+
+          }
 
           if (place_trees.test(wx, wz) && air > 16)
 					{
@@ -154,19 +195,10 @@ namespace terragen
             if (y < BLOCKS_Y - 44)
             gdata->add_object("mushroom_huge", wx, y+1, wz, 40);
           }
-					else if (rand > 0.75)
-					{
-						// note: this is an inverse of the otreeHuge noise
-            glm::vec2 p = gdata->getBaseCoords2D(x, z);
-						if (glm::simplex(p * 0.005f) > 0.0) {
-							gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
-						}
-					}
 				}
 			}
+      air = 0;
 
-			// count air
-			if (block.isAir()) air++; else air = 0;
 		} // y
     return 1;
 	}

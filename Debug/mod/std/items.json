@@ -27,6 +27,14 @@
       "hand_rotation": [0, 75, 0],
       "hand_translation": [0.5, -0.2, 0],
       "tile": "apple"
+    },
+    "torch": {
+      "name": "Torch",
+      "voxelize": true,
+      "hand_rotation": [0, 75, 0],
+      "hand_translation": [0.5, 0.1, 0],
+      "tile": "torch",
+      "activation": ["build", "torch"]
     }
   }
 }

@@ -91,8 +91,8 @@ namespace cppcraft
     }
 
     bool isVoxel() const noexcept {
-      if (isItem() == false) return false;
-      return itemdb().isVoxelModel();
+      if (isItem()) return itemdb().isVoxelModel();
+      return false;
     }
     int getVoxelModel() const noexcept {
       return itemdb().voxelModel();

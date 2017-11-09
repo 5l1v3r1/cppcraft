@@ -61,6 +61,34 @@
       "tile": ["big", "desert_sand", "repeat"],
       "sound": "sand"
     },
+    "gravel": {
+      "type": "solid",
+      "name": "Gravel",
+      "minimap": [220, 210, 174, 255],
+      "tile": ["big", "gravel", "repeat"],
+      "sound": "gravel"
+    },
+    "gravel_dirt": {
+      "type": "solid",
+      "name": "Gravel Dirt",
+      "minimap": [220, 210, 174, 255],
+      "tile": ["tiles", "gravel_dirt"],
+      "sound": "gravel"
+    },
+    "clay_blue": {
+      "type": "solid",
+      "name": "Blue Clay",
+      "minimap": [174, 210, 220, 255],
+      "tile": ["tiles", "clay_blue"],
+      "sound": "gravel"
+    },
+    "clay_brown": {
+      "type": "solid",
+      "name": "Brown Clay",
+      "minimap": [220, 210, 174, 255],
+      "tile": ["tiles", "clay_brown"],
+      "sound": "gravel"
+    },
 
     "wood_brown": {
       "type": "solid",
@@ -93,6 +121,21 @@
       "minimap": "grass",
       "tile": ["tiles", "grass_bush"]
     },
+    "flower_red": {
+      "type": "cross",
+      "name": "Red Flower",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "flower_red"]
+    },
+    "flower_yellow": {
+      "type": "cross",
+      "name": "Yellow Flower",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "flower_yellow"]
+    },
+
     "mushroom_red": {
       "type": "cross",
       "name": "Red Mushroom",

@@ -42,6 +42,17 @@ namespace db
     void setHandTranslation(glm::vec3 pos) { m_hand_pos = pos; }
     auto getHandTranslation() const noexcept { return m_hand_pos; }
 
+    enum ActivationMode {
+      ACT_NONE  = 0,  // wave with item
+      ACT_BUILD = 1   // build something from item
+    };
+    void setActivation(ActivationMode mode, const std::string& result) {
+      this->m_act_mode = mode;
+      this->m_act_result = result;
+    }
+    auto getActivationMode() const noexcept { return m_act_mode; }
+    const std::string& getActivationResult() const noexcept { return m_act_result; }
+
     ItemData(int ID) : id(ID) {}
   private:
     const int id;
@@ -50,5 +61,8 @@ namespace db
     short m_voxel_id = -1;
     glm::vec3 m_hand_rotation;
     glm::vec3 m_hand_pos;
+
+    ActivationMode m_act_mode = ACT_NONE;
+    std::string    m_act_result;
 	};
 }

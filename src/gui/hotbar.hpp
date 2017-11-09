@@ -21,8 +21,9 @@ namespace gui
       this->inv.reset(new FrontendInventory(widget));
       // fake contents
       inv->at(0) = Item(1, db::geti("wooden_pick"), Item::ITEM);
-      inv->at(1) = Item(1, db::geti("stone_sword"), Item::ITEM);
-      inv->at(3) = Item(1, db::geti("apple"), Item::ITEM);
+      inv->at(1) = Item(2, db::geti("stone_sword"), Item::ITEM);
+      inv->at(3) = Item(3, db::geti("apple"), Item::ITEM, 4);
+      inv->at(8) = Item(4, db::geti("torch"), Item::ITEM, 100);
 
       this->wnd->setVisible(true);
     }

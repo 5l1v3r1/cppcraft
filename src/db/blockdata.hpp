@@ -115,8 +115,6 @@ namespace db
     uint32_t getDiffuseTexture() const noexcept;
     uint32_t getTonemapTexture() const noexcept;
 
-		// index to voxel registry
-		int voxelModel = 0;
 		// index to shader line
 		uint8_t shader = 0;
 		bool repeat_y = true;
@@ -157,7 +155,6 @@ namespace db
     bool    block = true;
     // mesh model index
     int m_model = 0;
-    int m_voxel_model = 0;
     // minimap
     minimap_func_t minimap_color_callback = nullptr;
     uint32_t minimap_color = 0;

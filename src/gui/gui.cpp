@@ -38,7 +38,7 @@ namespace gui
     auto* test_inv_widget = add_inv(gui, 9, 3);
     test_inv.reset(new FrontendInventory(test_inv_widget));
     for (size_t i = 0; i < test_inv->size(); i++)
-      test_inv->at(i) = Item(i + 1, (i + 1) % 20, Item::BLOCK);
+      test_inv->at(i) = Item(i + 1, (i + 1) % 26, Item::BLOCK);
 
     gui->addGroup("Other widgets");
     gui->addButton("A button",

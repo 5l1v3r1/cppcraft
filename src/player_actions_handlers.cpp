@@ -107,20 +107,34 @@ namespace cppcraft
 	// at the correct position relative to the players selected block (in the world)
 	void PlayerActions::build(Item& item)
 	{
+    // must be non-zero count on item
+    if (item.getCount() == 0) return;
+    // the item must be either a block or an item that builds
+    Block buildingBlock;
+    if (item.isItem()) {
+      if (item.itemdb().getActivationMode() == db::ItemData::ACT_BUILD) {
+        block_t id = db::getb(item.itemdb().getActivationResult());
+        buildingBlock = Block(id);
+      }
+      else {
+        // don't accept any other activation modes
+        return;
+      }
+    }
+    else {
+      buildingBlock = item.toBlock();
+    }
+
 		// add a block to the opposite of the selected face
 		playerselect_t& selection = plogic.selection;
 
 		// the cube facing that would face player
 		block_t facing = player.getBlockFacing();
 
-		// well, we need to have non-zero amount of items,
-		// and we can really only place blocks atm.
-		bool placement_test = (item.getCount() != 0 && item.getType() == Item::BLOCK);
-
 		// additional test for whether the destination face is correct for this block
 		// eg. cant place ladders on top and bottom faces, torches on bottom faces etc.
 		glm::vec3 fpos = glm::fract(selection.pos);
-		placement_test &= item.toBlock().placeToFace(selection.facing, fpos.x, fpos.y, fpos.z);
+		bool placement_test = item.toBlock().placeToFace(selection.facing, fpos.x, fpos.y, fpos.z);
 
 		// make sure we can place <here>
 		int ddx = selection.pos.x;
@@ -151,7 +165,7 @@ namespace cppcraft
 			if (newBlock.triviallyOverwriteable())
 			{
 				// add block to world
-				bool placed = Spiders::setBlock(ddx, ddy, ddz, item.toBlock());
+				bool placed = Spiders::setBlock(ddx, ddy, ddz, buildingBlock);
 				if (placed)
 				{
 					//item.setCount(item.getCount() - 1); //decrease count (directly)!

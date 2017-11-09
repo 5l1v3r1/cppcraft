@@ -55,6 +55,19 @@ namespace terragen
       assert(pos.Size() == 3);
       item.setHandTranslation({pos[0].GetFloat(), pos[1].GetFloat(), pos[2].GetFloat()});
     }
+    // activation
+    if (v.HasMember("activation"))
+    {
+      auto act = v["activation"].GetArray();
+      assert(act.Size() == 2);
+      const std::string mode = act[0].GetString();
+      if (mode == "build")
+        item.setActivation(ItemData::ACT_BUILD, act[1].GetString());
+      else {
+        printf("Unknown activation mode: %s\n", mode.c_str());
+      }
+    }
+
   }
 
 	void init_items()

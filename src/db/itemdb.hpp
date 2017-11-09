@@ -6,7 +6,7 @@ namespace db
 {
   using ItemDB = Database<ItemData>;
 
-	inline int geti(const char* name)
+	inline int geti(const std::string& name)
 	{
 		return ItemDB::get()[name];
 	}
