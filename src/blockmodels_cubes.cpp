@@ -64,7 +64,7 @@ namespace cppcraft
 					else if (model == MI_INSET || model == MI_LEAF)
 					{
             const short INSET_LEVEL = VERTEX_SCALE / 16;
-            const short LEAF_LEVEL  = VERTEX_SCALE / 8;
+            const short LEAF_LEVEL  = VERTEX_SCALE / 4;
             const auto inset = (model == MI_INSET) ? INSET_LEVEL : LEAF_LEVEL;
 						if (face < 2)
 						{

@@ -289,8 +289,8 @@ namespace cppcraft
 
 			case RenderConst::TX_TRANS: // see-through (tree leafs etc.)
 
-				// disable face culling for 2-sidedness
-				glDisable(GL_CULL_FACE);
+        // disable face culling for 2-sidedness
+        glDisable(GL_CULL_FACE);
 
 				// change shader-set
 				handleSceneUniforms(renderer.time(),

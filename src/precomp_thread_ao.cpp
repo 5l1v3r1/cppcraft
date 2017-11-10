@@ -47,7 +47,7 @@ namespace cppcraft
 #endif
 
 #ifdef TIMING
-		logger << Log::INFO << "AO time: " << timer.startNewRound() << Log::ENDL;
+		logger << Log::INFO << "AO time: " << timer.getTime() << Log::ENDL;
 #endif
 
 		/*

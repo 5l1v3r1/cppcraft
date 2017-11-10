@@ -18,7 +18,8 @@ in vec4 in_biome;
 out vec3 texCoord;
 out vec3 lightdata;
 out vec4 biomeColor;
-out vec3 out_normal;
+flat out float worldLight;
+
 out vec3 v_normals;
 
 const float VERTEX_SCALE_INV
@@ -35,9 +36,9 @@ void main(void)
 
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
 
+  #include "worldlight.glsl"
   #include "unpack_light.glsl"
 	biomeColor = in_biome;
-	out_normal = in_normal.xyz;
 }
 #endif
 
@@ -55,7 +56,7 @@ uniform float modulation;
 in vec3 texCoord;
 in vec3 lightdata;
 in vec4 biomeColor;
-in vec3 out_normal;
+flat in float worldLight;
 in vec3 v_normals;
 
 layout(location = 0) out vec4 color;
@@ -73,8 +74,6 @@ void main(void)
 	// read tonecolor from tonemap
 	vec4 toneColor = texture(tonemap, texCoord.stp);
 	color.rgb = mix(color.rgb, biomeColor.rgb * toneColor.rgb, toneColor.a);
-
-	#include "worldlight_frag.glsl"
 
 	#include "degamma.glsl"
 	#include "stdlight.glsl"

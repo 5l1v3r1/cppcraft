@@ -301,18 +301,20 @@ namespace cppcraft
 
 	void PrecompThread::optimizeShadedMesh(Precomp& pc, int shaderline)
 	{
-		static const unsigned short WATER_MAX_VERTS = Sector::BLOCKS_XZ * Sector::BLOCKS_XZ * 4;
+		static const int WATER_MAX_VERTS = Sector::BLOCKS_XZ * Sector::BLOCKS_XZ * 4;
 
-		unsigned short verts = pc.vertices[shaderline];
+		int verts = pc.vertices[shaderline];
 		vertex_t* water = &pc.datadump.at(pc.bufferoffset[shaderline]);
 
 		if (verts == WATER_MAX_VERTS)
 		{
-			const unsigned long long C = water->light;
+			const auto L = water->light;
+      const auto C = water->color;
 
 			for (int i = 1; i < WATER_MAX_VERTS; i++)
 			{
-				if (water[i].light != C) goto optimizeManuallyShaded;
+				if (water[i].light != L || water[i].color != C)
+            goto optimizeManuallyShaded;
 			}
 
 			water[0].x = 0;
@@ -329,16 +331,16 @@ namespace cppcraft
 
 			// set final number of vertices
 			pc.vertices[shaderline] = 4;
-			return;
 		}
 		// try to optimize the water plane manually
 		else if (verts >= 8)
 		{
 		optimizeManuallyShaded:
+      (void) verts;
 			// verts is sent by reference
-			optimizeShaderPlane(verts, water);
+			//optimizeShaderPlane(verts, water);
 			// set final number of vertices
-			pc.vertices[shaderline] = verts;
+			//pc.vertices[shaderline] = verts;
 		}
 	}
 }

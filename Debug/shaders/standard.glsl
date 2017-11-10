@@ -38,9 +38,7 @@ void main(void)
 
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
 
-	// dotlight
 	#include "worldlight.glsl"
-
   #include "unpack_light.glsl"
 	biomeColor = in_biome;
 }
