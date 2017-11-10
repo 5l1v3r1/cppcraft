@@ -95,8 +95,6 @@ namespace cppcraft
 		// initialize compilers
 		Compilers::init();
 
-		// initialize camera
-		camera.init(*this);
 		// initialize sun, and lens textures at half-size
 		thesun.init(SunClass::SUN_DEF_ANGLE);
 
@@ -105,8 +103,10 @@ namespace cppcraft
 
 		// initialize texture manager
 		textureman.init(*this);
+    // initialize camera
+		camera.init(*this);
 		// initialize shader manager
-		shaderman.init(*this, camera);
+		shaderman.init(*this);
 
 		// initialize scene renderer
 		m_scene.reset(new SceneRenderer(*this));

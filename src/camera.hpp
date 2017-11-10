@@ -25,6 +25,8 @@ namespace cppcraft
 		int  cameraViewSectors;
 
 		void init(Renderer& wnd);
+    // after resizing window
+    void update(Renderer& renderer);
 
 		int getGridsize() const { return this->gridsize; }
 		const glm::mat4& getProjectionLong() const

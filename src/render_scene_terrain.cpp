@@ -55,7 +55,7 @@ namespace cppcraft
 			matref *= glm::translate(glm::vec3(0.f, WATERLEVEL * 2.0f, 0.f));
 			matref *= glm::scale(glm::vec3(1.0f, -1.0f, 1.0f));
 
-			reflectionCamera.setRotationMatrix(extractRotation(matref));
+			reflectionCamera.setRotationMatrix(camera.getRotationMatrix());
 			reflectionCamera.setViewMatrix(matref);
 
 			if (gameconf.reflectTerrain)
@@ -185,18 +185,11 @@ namespace cppcraft
 		// reset after 2nd run
 		else if (camera.needsupd == 2) camera.needsupd = 0;
 
-		// update and compress the draw queue
-		// by counting visible entries for each shader line, and re-adding as we go
 		for (int i = 0; i < RenderConst::MAX_UNIQUE_SHADERS; i++)
 		{
-      size_t items = 0;
-
 			// loop through this shader line
 			for (auto* cv : drawq[i])
 			{
-				// add to new position, effectively compressing
-				// and linearizing queue internally
-        drawq[i][items++] = cv;
         // if the column is still rising up, let it rise
         if (cv->pos.y < 0.0) {
           cv->pos.y += 0.25f * renderer.delta_time();
@@ -205,14 +198,11 @@ namespace cppcraft
         // set position for column
         m_bt_data.get()[cv->index()] = cv->pos;
 			}
-      drawq[i].resize(items);
-
 		} // next shaderline
 
     // upload array of vec3
     m_buffer_texture->upload(m_bt_data.get(), columns.size() * 3 * sizeof(float));
-
-	} // sort render queue
+	}
 
 	void SceneRenderer::renderColumn(Column* cv, int i)
 	{
@@ -344,15 +334,10 @@ namespace cppcraft
 		} // next shaderline
 	}
 
-	static void renderReflectedColumn(Column* cv, int i)
-	{
-		glBindVertexArray(cv->vao);
-		//glDrawElements(GL_TRIANGLES, cv->indices[i], GL_UNSIGNED_SHORT, (GLvoid*) (intptr_t) cv->indexoffset[i]);
-		glDrawArrays(GL_QUADS, cv->bufferoffset[i], cv->vertices[i]);
-	} // renderReflectedColumn()
-
 	void SceneRenderer::renderReflectedScene(cppcraft::Camera& renderCam)
 	{
+    // translation buffer texture
+    m_buffer_texture->bind(8);
 		// bind standard shader
 		handleSceneUniforms(renderer.time(),
 							shaderman[Shaderman::BLOCKS_REFLECT],
@@ -365,8 +350,6 @@ namespace cppcraft
 			throw std::string("Renderer::renderReflectedScene(): OpenGL state error");
 		}
 #endif
-
-		// render everything above water plane
 
 		for (int i = 0; i < (int) RenderConst::TX_WATER; i++)
 		{
@@ -397,7 +380,7 @@ namespace cppcraft
 			// direct render
       for (auto* cv : reflectionq[i])
 			{
-				renderReflectedColumn(cv, i);
+				renderColumn(cv, i);
 			}
 		} // next shaderline
 

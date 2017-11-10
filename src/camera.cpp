@@ -35,11 +35,16 @@ namespace cppcraft
 		this->znear = 0.136;
 		this->zfar  = cameraViewSectors * Sector::BLOCKS_XZ;
 
-		setProjection(this->FOV, renderer.aspect(), this->znear, this->zfar);
+    this->update(renderer);
+    renderer.on_resize({this, &Camera::update});
+	}
+  void Camera::update(Renderer& renderer)
+  {
+    setProjection(this->FOV, renderer.aspect(), this->znear, this->zfar);
 
 		// long projection matrix
 		matproj_long = perspectiveMatrix(this->FOV, renderer.aspect(), this->znear, this->zfar * 1.6);
-	}
+  }
 
 	void Camera::setWorldOffset(double posX, double posY, double posZ)
 	{

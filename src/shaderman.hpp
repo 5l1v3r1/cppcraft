@@ -13,12 +13,10 @@ namespace library
 
 namespace cppcraft
 {
-	class Camera;
-
 	class Shaderman
 	{
 	public:
-		void init(Renderer& renderer, const Camera& camera);
+		void init(Renderer& renderer);
 
 		typedef enum
 		{

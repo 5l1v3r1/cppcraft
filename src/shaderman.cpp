@@ -56,6 +56,10 @@ namespace cppcraft
 		{
 			text += " = " + std::to_string(camera.getZFar()) + ";";
 		}
+    else if (text == "const float WATERLEVEL")
+		{
+			text += " = " + std::to_string(WATERLEVEL) + ".0;";
+		}
 		// settings
 		else if (text == "#define POSTPROCESS")
 		{
@@ -73,7 +77,7 @@ namespace cppcraft
 		return text;
 	}
 
-	void Shaderman::init(Renderer& renderer, const Camera& camera)
+	void Shaderman::init(Renderer& renderer)
 	{
 		logger << Log::INFO << "* Loading & processing shaders" << Log::ENDL;
 
@@ -118,8 +122,6 @@ namespace cppcraft
 
 			int sbase = (int)STD_BLOCKS;
 
-			// projection matrix
-			shaders[sbase + i].sendMatrix("matproj", camera.getProjection());
 			// texture units
       shaders[sbase + i].sendInteger("buftex", 8);
 			shaders[sbase + i].sendInteger("diffuse", 0);
@@ -132,8 +134,6 @@ namespace cppcraft
 		shaders[BLOCKS_WATER].sendInteger("underwatermap", 0);
 		shaders[BLOCKS_WATER].sendInteger("depthtexture",  1);
 		shaders[BLOCKS_WATER].sendInteger("reflectionmap", 2);
-		// near plane half size
-		shaders[BLOCKS_WATER].sendVec2("nearPlaneHalfSize", camera.getNearPlaneHalfSize());
 
 		// extra textures for lava
 		shaders[BLOCKS_LAVA].bind();
@@ -215,9 +215,6 @@ namespace cppcraft
 		shaders[FSTERRAINFOG].sendInteger("skytexture",   1);
 		shaders[FSTERRAINFOG].sendInteger("depthtexture", 2);
 
-		// near plane half size
-		shaders[FSTERRAINFOG].sendVec2("nearPlaneHalfSize", camera.getNearPlaneHalfSize());
-
 		// screenspace terrain shader
 		shaders[FSTERRAIN] = Shader("shaders/fsterrain.glsl", tokenizer, linkstage);
 		shaders[FSTERRAIN].sendInteger("terrain",     0);
@@ -295,6 +292,21 @@ namespace cppcraft
         // send updated screen size
     		glm::vec3 vecScreen(renderer.width(), renderer.height(), renderer.aspect());
         glm::vec3 vecSuperScreen(renderer.width() * gameconf.supersampling, renderer.height() * gameconf.supersampling, renderer.aspect());
+
+        for (int i = 0; i < 8; i++)
+    		{
+          const int sbase = (int)STD_BLOCKS;
+          // update projection matrix
+          shaders[sbase + i].bind();
+          shaders[sbase + i].sendMatrix("matproj", camera.getProjection());
+        }
+
+        // update near plane half size
+        shaders[BLOCKS_WATER].bind();
+    		shaders[BLOCKS_WATER].sendVec2("nearPlaneHalfSize", cppcraft::camera.getNearPlaneHalfSize());
+
+        shaders[FSTERRAINFOG].bind();
+    		shaders[FSTERRAINFOG].sendVec2("nearPlaneHalfSize", cppcraft::camera.getNearPlaneHalfSize());
 
         shaders[PARTICLE].bind();
         shaders[PARTICLE].sendVec2("screensize", glm::vec2(vecScreen));

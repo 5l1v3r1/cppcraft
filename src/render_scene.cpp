@@ -50,6 +50,9 @@ namespace cppcraft
     // initialize sky renderer
 		skyrenderer.init();
 
+    // inverted camera (mirrored on water plane)
+    reflectionCamera.init(renderer);
+
     // initialize terrain renderer
 		initTerrain();
   }
@@ -108,10 +111,6 @@ namespace cppcraft
 			reflectionFBO.bind();
 			reflectionFBO.attachColor(0, reflections);
 			reflectionFBO.createDepthRBO(reflections.getWidth(), reflections.getHeight(), GL_DEPTH_COMPONENT24);
-
-			// initialize reflection camera to be the same as regular camera,
-			// except it will be mirrored on Y-axis from water-plane level
-			reflectionCamera.init(renderer);
 		}
 
 		// initialize some shaders with (late) texture sizes
@@ -343,8 +342,10 @@ namespace cppcraft
 
 				if (gameconf.reflectTerrain)
 				{
-					glEnable(GL_CLIP_DISTANCE0); // we are using this to discard stuff under water
-					glEnable(GL_DEPTH_TEST);
+          // using clip plane to discard stuff under water
+					glEnable(GL_CLIP_DISTANCE0);
+
+          glEnable(GL_DEPTH_TEST);
 					glDepthMask(GL_TRUE);
 					glClear(GL_DEPTH_BUFFER_BIT);
 

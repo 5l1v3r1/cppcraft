@@ -159,15 +159,15 @@ void main(void)
 
 #ifdef REFLECTIONS
 	// world/terrain reflection
-  vec4 wreflection = texture(reflectionmap, texCoord);
-	wreflection.rgb = pow(wreflection.rgb, vec3(1.0 / 2.2));
+  vec3 wreflection = texture(reflectionmap, texCoord).rgb;
+	wreflection = pow(wreflection, vec3(1.0 / 2.2));
 
 	//----- fresnel term -----
 	float fresnel = max(0.0, dot(vEye, viewNormal));
 	fresnel = pow(1.0 - fresnel, 2.0);
 
 	// add reflections to final color
-	color.rgb = mix(color.rgb, wreflection.rgb, fresnel);
+	color.rgb = mix(color.rgb, wreflection, fresnel);
 	//color.rgb = vec3(fresnel);
 #endif
 
