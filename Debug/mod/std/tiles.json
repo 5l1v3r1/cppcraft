@@ -3,27 +3,25 @@
     "source": "mod/std/bitmaps/bigdiff.png",
     "data":
     {
-      "beach_sand": [3, 1],
-      "desert_sand": [2, 1]
+      "soil": [0, 1],
+      "grass_top": [0,0, 2,0],
+      "grass_random": [1,2,  2,2],
+      "grass_side": [0,1,  2,1],
 
+      "snow": [1, 0],
+      "snow_side": [1, 1],
+
+      "stone": [3,0,  3,1],
+      "gravel": [0, 2],
+
+      "desert_sand": [2, 3],
+      "beach_sand": [3, 3]
     }
   },
   "tiles": {
     "source": "mod/std/bitmaps/diffuse.png",
     "data":
     {
-      "soil": [0,1],
-      "grass_top": [1,0, 1,0],
-      "grass_side": [0,1,  1,1],
-      "grass_random": [0,1,  1,1],
-      "snow": [3, 0],
-      "snow_side": [3, 1],
-
-      "beach_sand": [2, 2],
-
-      "stone": [0, 3],
-      "gravel": [4, 0],
-
       "bedrock": [2, 5],
       "molten": [13, 15],
 

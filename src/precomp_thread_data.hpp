@@ -18,14 +18,6 @@ namespace cppcraft
 		// working buffers
 		alignas(32)
     std::array<std::vector<vertex_t>, RenderConst::MAX_UNIQUE_SHADERS> vertices;
-    // precomputed smooth light
-    alignas(32)
-    std::array<int, (BLOCKS_XZ+2) * (BLOCKS_XZ+2) * BLOCKS_Y> light_info;
-
-    inline auto& get_light(int bx, int by, int bz)
-		{
-			return light_info[(bx+1) * (BLOCKS_XZ+2) * BLOCKS_Y + (bz+1) * BLOCKS_Y + by];
-		}
 
 		// all the blocks
 		bordered_sector_t* sector = nullptr;

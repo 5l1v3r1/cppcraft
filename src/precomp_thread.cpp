@@ -15,9 +15,6 @@ namespace cppcraft
 
 	void PrecompThread::precompile(Precomp& pc)
 	{
-    // make sure light info is all zeroes
-    std::memset(ptd.light_info.data(), 0, sizeof(ptd.light_info));
-
 		// set sector from precomp
 		ptd.sector = &pc.sector;
 

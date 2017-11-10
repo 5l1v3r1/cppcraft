@@ -128,7 +128,7 @@ namespace terragen
 		terrains.add("jungle", "Jungle", Biome::biome_t{25.0f, 350.0f, 0.6f},
         getheight_jungle, getground_jungle, getnoise_jungle, process_jungle);
 
-    terrain.setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 160);
+    terrain.setFog(glm::vec4(0.9f, 0.9f, 1.0f, 0.7f), 180);
 		terrain.on_tick =
 		[] (double)
 		{

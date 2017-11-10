@@ -24,9 +24,6 @@ namespace cppcraft
                                  int x3, int y3, int z3,
                                  int x4, int y4, int z4)
 	{
-    auto& pcl = get_light(x1, y1, z1);
-    //if (pcl) return pcl & 0xFFFF;
-
 		// TODO: calculate the actual light values...
 		Block* bl[4];
 		bl[0] = &sector->get(x1, y1, z1);
@@ -77,7 +74,6 @@ namespace cppcraft
         }
       }
     }
-    pcl = final_light | 0x1000000;
     return final_light;
 	}
 

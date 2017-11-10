@@ -22,22 +22,22 @@
       "name": "Stone",
       "color": "stone",
       "minimap": "stone",
-      "tile": ["tiles", "stone"],
+      "tile": ["big", "stone", "repeat"],
       "sound": "stone"
     },
     "soil": {
       "type": "solid",
       "name": "Dirt",
-      "color": "grass",
+      "color": [97, 57, 14, 255],
       "minimap": [97, 57, 14, 255],
-      "tile": ["tiles", "soil"],
+      "tile": ["big", "soil", "repeat"],
       "sound": "grass"
     },
     "snow": {
       "type": "solid",
       "name": "Snow Block",
       "minimap": [255, 255, 255, 255],
-      "tile": ["tiles", "snow"],
+      "tile": ["big", "snow", "repeat"],
       "sound": "snow"
     },
     "ice": {
@@ -51,7 +51,7 @@
       "type": "solid",
       "name": "Beach Sand",
       "minimap": [220, 210, 174, 255],
-      "tile": ["tiles", "beach_sand"],
+      "tile": ["big", "beach_sand", "repeat"],
       "sound": "sand"
     },
     "desert": {

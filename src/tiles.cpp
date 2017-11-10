@@ -2,6 +2,7 @@
 
 #include <library/log.hpp>
 #include <library/opengl/opengl.hpp>
+#include <library/bitmap/colortools.hpp>
 #include "game.hpp"
 #include "gameconf.hpp"
 #include <common.hpp>
@@ -94,8 +95,10 @@ namespace cppcraft
   tile_database::tile_database(int tilesize, bool tone)
       : m_tile_size(tilesize), m_tone_enabled(tone)
   {
-    m_diffuse.convert_to_tilesheet(tilesize);
-    m_tonemap.convert_to_tilesheet(tilesize);
+    m_diffuse.convert_to_tilesheet(tilesize, RGBA8(255, 0, 255, 255));
+    if (m_tone_enabled) {
+      m_tonemap.convert_to_tilesheet(tilesize, 0);
+    }
   }
 
   void tile_database::assign(std::string name, const short TILE_ID)
@@ -119,7 +122,10 @@ namespace cppcraft
     m_diffuse.add_tile(source_img, DIFF_X, DIFF_Y);
     // if tonemap is enabled, use it always
     if (m_tone_enabled) {
-      m_tonemap.add_tile(source_img, TONE_X, TONE_Y);
+      if (TONE_X == 0 && TONE_Y == 0)
+        m_tonemap.add_tile(m_tonemap, 0, 0);
+      else
+        m_tonemap.add_tile(source_img, TONE_X, TONE_Y);
     }
 
     //printf("Tile %s has ID %d\n", name.c_str(), TILE_ID);
@@ -134,10 +140,13 @@ namespace cppcraft
 		m_diff_texture.setAnisotropy(gameconf.anisotropy);
 		if (OpenGL::checkError()) throw std::runtime_error("Tile database: diffuse error");
     /// (optional) color dye tileset ///
-    m_tone_texture = Texture(GL_TEXTURE_2D_ARRAY);
-		m_tone_texture.create(tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
-		m_tone_texture.setAnisotropy(gameconf.anisotropy);
-		if (OpenGL::checkError()) throw std::runtime_error("Tile database: tonemap error");
+    if (this->m_tone_enabled)
+    {
+      m_tone_texture = Texture(GL_TEXTURE_2D_ARRAY);
+	    m_tone_texture.create(tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
+      m_tone_texture.setAnisotropy(gameconf.anisotropy);
+      if (OpenGL::checkError()) throw std::runtime_error("Tile database: tonemap error");
+    }
   }
 
   const Bitmap& TileDB::get_bitmap(const std::string& fname)

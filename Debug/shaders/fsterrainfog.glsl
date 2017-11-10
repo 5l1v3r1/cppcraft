@@ -44,13 +44,14 @@ out vec4 color;
 
 const float ZFAR
 const float ZNEAR
+const float WATERLEVEL
 
 float fog(in vec3  ray,
 		  in vec3  point,
 		  in float depth)
 {
 	// fog is strongest at the waterline
-	const float fogY = 64.0;
+	const float fogY = WATERLEVEL;
 
 	// distance in fog
 	float foglen = depth;
