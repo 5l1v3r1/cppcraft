@@ -64,7 +64,7 @@ namespace cppcraft
 		}
 
     // calculate lighting
-    ptd.applyFaceLighting_PZ(vtx, bx, by, bz + 1);
+    ptd.faceLighting_PZ(block, vtx, bx, by, bz + 1);
 
 	} // emitCubeVertexPZ()
 
@@ -127,7 +127,7 @@ namespace cppcraft
 		}
 
     // calculate lighting
-    ptd.applyFaceLighting_NZ(vtx, bx, by, bz - 1);
+    ptd.faceLighting_NZ(block, vtx, bx, by, bz - 1);
 
 	} // emitCubeVertexNZ()
 
@@ -181,7 +181,7 @@ namespace cppcraft
 		}
 
     // calculate lighting
-    ptd.applyFaceLighting_PY(vtx, bx, by + 1, bz);
+    ptd.faceLighting_PY(block, vtx, bx, by + 1, bz);
 
 	} // emitBlockvertexPY()
 
@@ -235,7 +235,7 @@ namespace cppcraft
 		}
 
     // calculate lighting
-    ptd.applyFaceLighting_NY(vtx, bx, by - 1, bz);
+    ptd.faceLighting_NY(block, vtx, bx, by - 1, bz);
 
 	} // emitCubeVertexPY()
 
@@ -301,7 +301,7 @@ namespace cppcraft
 		}
 
     // calculate lighting
-    ptd.applyFaceLighting_PX(vtx, bx + 1, by, bz);
+    ptd.faceLighting_PX(block, vtx, bx + 1, by, bz);
 
 	} // exitBlockVertexPX()
 
@@ -364,7 +364,7 @@ namespace cppcraft
 		}
 
     // calculate lighting
-    ptd.applyFaceLighting_NX(vtx, bx - 1, by, bz);
+    ptd.faceLighting_NX(block, vtx, bx - 1, by, bz);
 
 	} // emitCubeVertexNX()
 

@@ -72,6 +72,10 @@ namespace terragen
       [m_name] (const Block&) {
         return m_name;
       });
+    // model
+    if (v.HasMember("model")) {
+      block.setModel(v["model"].GetInt());
+    }
     // color
     if (v.HasMember("color")) {
       uint32_t color = color_index_from(v["color"]);

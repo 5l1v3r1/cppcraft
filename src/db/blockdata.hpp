@@ -68,6 +68,7 @@ namespace db
 		delegate <void(cppcraft::PTD&, int, int, int, uint16_t)> emit = nullptr;
 
     int model() const noexcept { return m_model; }
+    void setModel(int model) noexcept { m_model = model; }
 
 		// returns true if the block has an activation function
 		delegate <bool(const Block&)> hasActivation = nullptr;

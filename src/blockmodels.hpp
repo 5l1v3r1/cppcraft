@@ -18,14 +18,14 @@ namespace cppcraft
     }
 		auto copyTo(size_t id, std::vector<T>& dest) const
     {
-      std::copy(meshes.at(id).begin(), meshes[id].end(), std::back_inserter(dest));
+      dest.insert(dest.end(), meshes.at(id).begin(), meshes[id].end());
       return dest.end() - meshes[id].size();
     }
 		auto copyAll(std::vector<T>& dest) const
     {
       size_t total = 0;
       for (const auto& mesh : meshes) {
-          std::copy(mesh.begin(), mesh.end(), std::back_inserter(dest));
+          dest.insert(dest.end(), mesh.begin(), mesh.end());
           total += mesh.size();
       }
       return dest.end() - total;
@@ -50,10 +50,11 @@ namespace cppcraft
 	public:
 		enum modid_t
 		{	// cube mesh types
-			MI_BLOCK,
+			MI_BLOCK = 0,
 			MI_LOWBLOCK,
 			MI_HALFBLOCK,
 			MI_INSET,
+      MI_LEAF,
 			MI_MODEL_COUNT
 		};
 

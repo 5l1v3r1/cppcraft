@@ -65,14 +65,18 @@ namespace cppcraft
 
 		// resolve (x, y, z) to vertex lighting
 		light_value_t getLight(int x, int y, int z);
-		light_value_t smoothLight(int x1, int y1, int z1,  int x2, int y2, int z2,  int x3, int y3, int z3,  int x4, int y4, int z4);
+		light_value_t smoothLight(const Block&,
+                              int x1, int y1, int z1,
+                              int x2, int y2, int z2,
+                              int x3, int y3, int z3,
+                              int x4, int y4, int z4);
 
-		void applyFaceLighting_PZ(vtx_iterator, int bx, int by, int bz);
-		void applyFaceLighting_NZ(vtx_iterator, int bx, int by, int bz);
-		void applyFaceLighting_PY(vtx_iterator, int bx, int by, int bz);
-		void applyFaceLighting_NY(vtx_iterator, int bx, int by, int bz);
-		void applyFaceLighting_PX(vtx_iterator, int bx, int by, int bz);
-		void applyFaceLighting_NX(vtx_iterator, int bx, int by, int bz);
+		void faceLighting_PZ(const Block&, vtx_iterator, int bx, int by, int bz);
+		void faceLighting_NZ(const Block&, vtx_iterator, int bx, int by, int bz);
+		void faceLighting_PY(const Block&, vtx_iterator, int bx, int by, int bz);
+		void faceLighting_NY(const Block&, vtx_iterator, int bx, int by, int bz);
+		void faceLighting_PX(const Block&, vtx_iterator, int bx, int by, int bz);
+		void faceLighting_NX(const Block&, vtx_iterator, int bx, int by, int bz);
 	};
 
 }

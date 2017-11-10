@@ -100,6 +100,7 @@
     "leaf_colored": {
       "type": "leaf",
       "name": "Leaf Block",
+      "model": 4,
       "color": "trees_a",
       "minimap": "trees_a",
       "tile": ["tiles", "leaf"],
@@ -108,6 +109,7 @@
     "leaf_green": {
       "type": "leaf",
       "name": "Leaf Block",
+      "model": 4,
       "color": "trees_b",
       "minimap": "trees_b",
       "tile": ["tiles", "leaf"],

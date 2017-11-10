@@ -40,14 +40,13 @@ namespace cppcraft
 			{0, 0, -128}, { 0  ,  0,  127}  // right left
 		};*/
 
-		const short VERTEX_SCALE = RenderConst::VERTEX_SCALE;
+    const short VERTEX_SCALE = RenderConst::VERTEX_SCALE;
 
-		// huge monstrous loop, creating sides of different types of cubes
+		// create sides of different types of cubes
 		// cube model type
 		for (int model = 0; model < MI_MODEL_COUNT; model++)
 		{
-			// each side of cube (aka. face)
-			// in this order: +z -z +y -y +x -x
+			// face order: +z -z +y -y +x -x
 			for (int face = 0; face < 6; face++)
 			{
 				// create mesh object with 4 vertices
@@ -60,22 +59,28 @@ namespace cppcraft
 					bm[vertex].y = cube_vertices[face][vertex * 3 + 1] * VERTEX_SCALE; // y
 					bm[vertex].z = cube_vertices[face][vertex * 3 + 2] * VERTEX_SCALE; // z
 
-					const short INSET_LEVEL = VERTEX_SCALE / 16;
-
 					if (model == MI_HALFBLOCK)     bm[vertex].y /= 2;
 					else if (model == MI_LOWBLOCK) bm[vertex].y /= 8;
-					else if (model == MI_INSET)
+					else if (model == MI_INSET || model == MI_LEAF)
 					{
+            const short INSET_LEVEL = VERTEX_SCALE / 16;
+            const short LEAF_LEVEL  = VERTEX_SCALE / 8;
+            const auto inset = (model == MI_INSET) ? INSET_LEVEL : LEAF_LEVEL;
 						if (face < 2)
 						{
-							if (bm[vertex].z == 0) bm[vertex].z = INSET_LEVEL;
-							if (bm[vertex].z == VERTEX_SCALE) bm[vertex].z = VERTEX_SCALE - INSET_LEVEL;
+							if (bm[vertex].z == 0) bm[vertex].z = inset;
+							if (bm[vertex].z == VERTEX_SCALE) bm[vertex].z = VERTEX_SCALE - inset;
 						}
 						if (face > 3)
 						{
-							if (bm[vertex].x == 0) bm[vertex].x = INSET_LEVEL;
-							if (bm[vertex].x == VERTEX_SCALE) bm[vertex].x = VERTEX_SCALE - INSET_LEVEL;
+							if (bm[vertex].x == 0) bm[vertex].x = inset;
+							if (bm[vertex].x == VERTEX_SCALE) bm[vertex].x = VERTEX_SCALE - inset;
 						}
+            if ((face == 2 || face == 3) && model == MI_LEAF)
+            {
+              if (bm[vertex].y == 0) bm[vertex].y = inset;
+							if (bm[vertex].y == VERTEX_SCALE) bm[vertex].y = VERTEX_SCALE - inset;
+            }
 					}
 
 					if (model != MI_LOWBLOCK && model != MI_HALFBLOCK)

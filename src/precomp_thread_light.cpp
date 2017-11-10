@@ -18,13 +18,14 @@ namespace cppcraft
 		return RGBA;
 	}
 
-	light_value_t PTD::smoothLight(int x1, int y1, int z1,
+	light_value_t PTD::smoothLight(const Block& source,
+                                 int x1, int y1, int z1,
                                  int x2, int y2, int z2,
                                  int x3, int y3, int z3,
                                  int x4, int y4, int z4)
 	{
     auto& pcl = get_light(x1, y1, z1);
-    if (pcl) return pcl & 0xFFFF;
+    //if (pcl) return pcl & 0xFFFF;
 
 		// TODO: calculate the actual light values...
 		Block* bl[4];
@@ -34,6 +35,7 @@ namespace cppcraft
 		bl[3] = &sector->get(x4, y4, z4);
 
     light_value_t final_light = 0;
+    int ramp = 0;
     for (int ch = 0; ch < Block::CHANNELS; ch++)
     {
   		uint8_t V = 0;
@@ -45,6 +47,10 @@ namespace cppcraft
   			     V += blk->getChannel(ch);
              total++;
           }
+          // ambient occlusion gradients
+          if (source.isTransparent() && blk->isTransparent() && !blk->isAir())
+            ramp++;
+          else if (blk->isBlock()) ramp++;
         }
         else if (blk->isTransparent() || blk->isLight()) {
             V += blk->getChannel(ch);
@@ -59,6 +65,10 @@ namespace cppcraft
           float factor = 1.0f - std::min(y1 , WATERLEVEL) / (float) BLOCKS_Y;
           float light = powf(0.88f, (15.0f - lv) * factor * factor);
           final_light |= int(25 + 230.0f * light);
+          // ambient occlusion gradients
+          static unsigned char shadowRamp[] =
+              { 127, 127 - 28, 127 - 40, 127 - 56, 127 - 64 };
+          final_light |= shadowRamp[ramp] << 16;
         }
         else
         {
@@ -67,57 +77,62 @@ namespace cppcraft
         }
       }
     }
-    pcl = final_light | 0x10000;
+    pcl = final_light | 0x1000000;
     return final_light;
 	}
 
+  inline void set_light(vertex_t& vtx, uint32_t light)
+  {
+    vtx.ao = light >> 16;
+    vtx.light = light & 0xFFFF;
+  }
 
-	void PTD::applyFaceLighting_PZ(vtx_iterator vtx, int bx, int by, int bz)
+	void PTD::faceLighting_PZ(const Block& blk, vtx_iterator vtx, int bx, int by, int bz)
 	{
-		vtx[0].light = smoothLight(bx  , by,   bz,  bx-1,by,bz,   bx-1,by-1,bz,  bx,by-1,bz);
-		vtx[1].light = smoothLight(bx+1, by,   bz,  bx, by, bz,   bx,by-1,bz,  bx+1,by-1,bz);
-		vtx[2].light = smoothLight(bx+1, by+1, bz,  bx,by+1,bz,   bx,by,bz,    bx+1,by,bz);
-		vtx[3].light = smoothLight(bx  , by+1, bz,  bx-1,by+1,bz, bx-1,by,bz,    bx,by,bz);
+		set_light(vtx[0], smoothLight(blk, bx  , by,   bz,  bx-1,by,bz,   bx-1,by-1,bz,  bx,by-1,bz));
+		set_light(vtx[1], smoothLight(blk, bx+1, by,   bz,  bx, by, bz,   bx,by-1,bz,  bx+1,by-1,bz));
+		set_light(vtx[2], smoothLight(blk, bx+1, by+1, bz,  bx,by+1,bz,   bx,by,bz,    bx+1,by,bz));
+		set_light(vtx[3], smoothLight(blk, bx  , by+1, bz,  bx-1,by+1,bz, bx-1,by,bz,    bx,by,bz));
 	}
 
-	void PTD::applyFaceLighting_NZ(vtx_iterator vtx, int bx, int by, int bz)
+	void PTD::faceLighting_NZ(const Block& blk, vtx_iterator vtx, int bx, int by, int bz)
 	{
-		vtx[0].light = smoothLight(bx  , by  , bz,   bx-1, by  ,bz,  bx, by-1, bz,  bx-1, by-1, bz);
-		vtx[1].light = smoothLight(bx  , by+1, bz,   bx-1, by+1,bz,  bx, by  , bz,  bx-1, by  , bz);
-		vtx[2].light = smoothLight(bx+1, by+1, bz,   bx,  by+1, bz,  bx+1, by, bz,  bx, by  ,   bz);
-		vtx[3].light = smoothLight(bx+1, by  , bz,   bx,  by,   bz,  bx+1,by-1,bz,  bx, by-1,   bz);
+		set_light(vtx[0], smoothLight(blk, bx  , by  , bz,   bx-1, by  ,bz,  bx, by-1, bz,  bx-1, by-1, bz));
+		set_light(vtx[1], smoothLight(blk, bx  , by+1, bz,   bx-1, by+1,bz,  bx, by  , bz,  bx-1, by  , bz));
+		set_light(vtx[2], smoothLight(blk, bx+1, by+1, bz,   bx,  by+1, bz,  bx+1, by, bz,  bx, by  ,   bz));
+		set_light(vtx[3], smoothLight(blk, bx+1, by  , bz,   bx,  by,   bz,  bx+1,by-1,bz,  bx, by-1,   bz));
 	}
 
-	void PTD::applyFaceLighting_PY(vtx_iterator vtx, int bx, int by, int bz)
+	void PTD::faceLighting_PY(const Block& blk, vtx_iterator vtx, int bx, int by, int bz)
 	{
-		vtx[0].light = smoothLight(bx, by, bz,    bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
-		vtx[1].light = smoothLight(bx, by, bz+1,  bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
-		vtx[2].light = smoothLight(bx+1, by, bz+1,  bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
-		vtx[3].light = smoothLight(bx+1, by, bz,  bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
+		set_light(vtx[0], smoothLight(blk, bx, by, bz,    bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1));
+		set_light(vtx[1], smoothLight(blk, bx, by, bz+1,  bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz));
+		set_light(vtx[2], smoothLight(blk, bx+1, by, bz+1,  bx, by, bz+1,  bx+1, by, bz,  bx, by, bz));
+		set_light(vtx[3], smoothLight(blk, bx+1, by, bz,  bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1));
 	}
 
-	void PTD::applyFaceLighting_NY(vtx_iterator vtx, int bx, int by, int bz)
+	void PTD::faceLighting_NY(const Block& blk, vtx_iterator vtx, int bx, int by, int bz)
 	{
-		vtx[0].light = smoothLight(bx  , by, bz  , bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
-		vtx[1].light = smoothLight(bx+1, by, bz  , bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
-		vtx[2].light = smoothLight(bx+1, by, bz+1, bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
-		vtx[3].light = smoothLight(bx  , by, bz+1, bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
+		set_light(vtx[0], smoothLight(blk, bx  , by, bz  , bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1));
+		set_light(vtx[1], smoothLight(blk, bx+1, by, bz  , bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1));
+		set_light(vtx[2], smoothLight(blk, bx+1, by, bz+1, bx, by, bz+1,  bx+1, by, bz,  bx, by, bz));
+		set_light(vtx[3], smoothLight(blk, bx  , by, bz+1, bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz));
 	}
 
-	void PTD::applyFaceLighting_PX(vtx_iterator vtx, int bx, int by, int bz)
+	void PTD::faceLighting_PX(const Block& blk, vtx_iterator vtx, int bx, int by, int bz)
 	{
-		vtx[0].light = smoothLight(bx, by,   bz  ,   bx,by,bz-1,   bx,by-1,bz-1,   bx,by-1,bz);
-		vtx[1].light = smoothLight(bx, by+1, bz  ,   bx,by+1,bz-1, bx,by,bz-1,     bx,by,bz);
-		vtx[2].light = smoothLight(bx, by+1, bz+1,   bx,by+1,bz,   bx,by,bz,       bx,by,bz+1);
-		vtx[3].light = smoothLight(bx, by,   bz+1,   bx,by,bz,     bx,by-1,bz,     bx,by-1,bz+1);
+		set_light(vtx[0], smoothLight(blk, bx, by,   bz  ,   bx,by,bz-1,   bx,by-1,bz-1,   bx,by-1,bz));
+		set_light(vtx[1], smoothLight(blk, bx, by+1, bz  ,   bx,by+1,bz-1, bx,by,bz-1,     bx,by,bz));
+		set_light(vtx[2], smoothLight(blk, bx, by+1, bz+1,   bx,by+1,bz,   bx,by,bz,       bx,by,bz+1));
+		set_light(vtx[3], smoothLight(blk, bx, by,   bz+1,   bx,by,bz,     bx,by-1,bz,     bx,by-1,bz+1));
 	}
 
-	void PTD::applyFaceLighting_NX(vtx_iterator vtx, int bx, int by, int bz)
+	void PTD::faceLighting_NX(const Block& blk, vtx_iterator vtx, int bx, int by, int bz)
 	{
-		vtx[0].light   = smoothLight(bx, by,   bz  , bx,by,bz-1,   bx,by-1,bz-1,   bx,by-1,bz);
-		vtx[1].light = smoothLight(bx, by,   bz+1, bx,by,bz,     bx,by-1,bz,     bx,by-1,bz+1);
-		vtx[2].light = smoothLight(bx, by+1, bz+1, bx,by+1,bz,   bx,by,bz,       bx,by,bz+1);
-		vtx[3].light = smoothLight(bx, by+1, bz  , bx,by+1,bz-1, bx,by,bz-1,     bx,by,bz);
+		set_light(vtx[0], smoothLight(blk, bx, by,   bz  , bx,by,bz-1,   bx,by-1,bz-1,   bx,by-1,bz));
+		set_light(vtx[1], smoothLight(blk, bx, by,   bz+1, bx,by,bz,     bx,by-1,bz,     bx,by-1,bz+1));
+		set_light(vtx[2], smoothLight(blk, bx, by+1, bz+1, bx,by+1,bz,   bx,by,bz,       bx,by,bz+1));
+		set_light(vtx[3], smoothLight(blk, bx, by+1, bz  , bx,by+1,bz-1, bx,by,bz-1,     bx,by,bz));
 	}
 
 }

@@ -11,16 +11,17 @@ namespace cppcraft
 
 	void emitCross(PTD& ptd, int bx, int by, int bz, block_t)
 	{
+    const Block& block = ptd.sector->get(bx, by, bz);
     // copy cross-mesh object 0 (cross)
 		auto vtx = blockmodels.crosses.copyTo(0, ptd.current());
 
 		// huge boring list of cross-lighting
-		vtx[0].light = ptd.smoothLight(bx, by, bz,  bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
-		vtx[1].light = ptd.smoothLight(bx+1, by, bz+1,  bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
+		vtx[0].light = ptd.smoothLight(block, bx, by, bz,  bx-1, by, bz,  bx, by, bz-1,  bx-1, by, bz-1);
+		vtx[1].light = ptd.smoothLight(block, bx+1, by, bz+1,  bx, by, bz+1,  bx+1, by, bz,  bx, by, bz);
 		vtx[2].light = vtx[1].light;
 		vtx[3].light = vtx[0].light;
-		vtx[4].light = ptd.smoothLight(bx+1, by, bz,  bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
-		vtx[5].light = ptd.smoothLight(bx, by, bz+1,  bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
+		vtx[4].light = ptd.smoothLight(block, bx+1, by, bz,  bx, by, bz,  bx+1, by, bz-1,  bx, by, bz-1);
+		vtx[5].light = ptd.smoothLight(block, bx, by, bz+1,  bx-1, by, bz+1,  bx, by, bz,  bx-1, by, bz);
 		vtx[6].light = vtx[5].light;
 		vtx[7].light = vtx[4].light;
 
