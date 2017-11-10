@@ -115,7 +115,7 @@ namespace terragen
     SNOW_ID  = db::getb("snow");
     ICE_ID   = db::getb("ice");
 
-		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 32);
+		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 200);
     //terrain.music_name = "amb_winter";
 
 		// snow particle

@@ -16,8 +16,7 @@ namespace cppcraft
   static void
   parse_tile_database(tile_database& db, rapidjson::Value& obj)
   {
-    const std::string diffuse = obj["diffuse"].GetString();
-    const std::string tonemap = obj["tonemap"].GetString();
+    const std::string source_file = obj["source"].GetString();
 
     auto& data = obj["data"];
     for (auto itr = data.MemberBegin(); itr != data.MemberEnd(); ++itr)
@@ -26,15 +25,15 @@ namespace cppcraft
       const auto v = itr->value.GetArray();
       const int DIFF_X = v[0].GetInt();
       const int DIFF_Y = v[1].GetInt();
-      int TONE_X = DIFF_X;
-      int TONE_Y = DIFF_Y;
-      if  (v.Size() >= 4) {
+      int TONE_X = 0;
+      int TONE_Y = 0;
+      if (v.Size() >= 4) {
         TONE_X = v[2].GetInt();
         TONE_Y = v[3].GetInt();
       }
       // add tile
       db.add_tile(itr->name.GetString(),
-          diffuse, DIFF_X, DIFF_Y, tonemap, TONE_X, TONE_Y);
+          source_file, DIFF_X, DIFF_Y, TONE_X, TONE_Y);
     }
   }
 
@@ -43,13 +42,13 @@ namespace cppcraft
 		logger << Log::INFO << "* Initializing tiles" << Log::ENDL;
 
 		// normal tiles
-		tiles = tile_database(config.get("tiles.size", 32));
+		tiles = tile_database(config.get("tiles.size", 32), true);
     // big tiles (4x)
-    bigtiles = tile_database(tiles.tilesize() * TILES_PER_BIG_TILE);
+    bigtiles = tile_database(tiles.tilesize() * TILES_PER_BIG_TILE, true);
     // item tiles
-    items = tile_database(config.get("items.size", 32));
+    items = tile_database(config.get("items.size", 32), false);
     // particle tiles
-    particles = tile_database(config.get("partic.size", 32));
+    particles = tile_database(config.get("partic.size", 32), false);
 
 		// players
 		this->skinSize = config.get("players.size", 32);
@@ -92,8 +91,8 @@ namespace cppcraft
     this->unload_temp_store();
 	}
 
-  tile_database::tile_database(int tilesize)
-      : m_tile_size(tilesize)
+  tile_database::tile_database(int tilesize, bool tone)
+      : m_tile_size(tilesize), m_tone_enabled(tone)
   {
     m_diffuse.convert_to_tilesheet(tilesize);
     m_tonemap.convert_to_tilesheet(tilesize);
@@ -109,18 +108,18 @@ namespace cppcraft
   }
 
   void tile_database::add_tile(const std::string& name,
-                const std::string& f_diffuse,
+                const std::string& source_file,
                 const int DIFF_X, const int DIFF_Y,
-                const std::string& f_tonemap,
                 const int TONE_X, const int TONE_Y)
   {
-    const Bitmap& diff = tiledb.get_bitmap(f_diffuse);
+    const Bitmap& source_img = tiledb.get_bitmap(source_file);
+    // generate tile ID
     const int TILE_ID = m_diffuse.getTilesX();
-
-    m_diffuse.add_tile(diff, DIFF_X, DIFF_Y);
-    if (!f_tonemap.empty()) {
-      const Bitmap& tone = tiledb.get_bitmap(f_tonemap);
-      m_tonemap.add_tile(tone, TONE_X, TONE_Y);
+    // add to tile array
+    m_diffuse.add_tile(source_img, DIFF_X, DIFF_Y);
+    // if tonemap is enabled, use it always
+    if (m_tone_enabled) {
+      m_tonemap.add_tile(source_img, TONE_X, TONE_Y);
     }
 
     //printf("Tile %s has ID %d\n", name.c_str(), TILE_ID);

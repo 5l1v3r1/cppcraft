@@ -32,8 +32,9 @@ namespace cppcraft
     // add diffuse from @d and tonemap from @t
     // returns tile id
     void add_tile(const std::string& name,
-                  const std::string& d, int dx, int dy,
-                  const std::string& t, int tx, int ty);
+                  const std::string& d,
+                  int dx, int dy,
+                  int tx, int ty);
 
     const auto& diffuse() const { return m_diffuse; }
     const auto& tonemap() const { return m_tonemap; }
@@ -41,10 +42,11 @@ namespace cppcraft
     auto& diff_texture() noexcept { return m_diff_texture; }
     auto& tone_texture() noexcept { return m_tone_texture; }
 
-    tile_database(int);
+    tile_database(int tile_size, bool enable_tonemap);
     tile_database() {};
   private:
     int m_tile_size = 0;
+    bool m_tone_enabled = false;
     std::map<std::string, short> namedb;
     library::Bitmap m_diffuse;
     library::Bitmap m_tonemap;

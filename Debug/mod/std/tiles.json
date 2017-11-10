@@ -1,34 +1,34 @@
 {
   "bigtiles": {
-    "diffuse": "mod/std/bitmaps/bigdiff.png",
-    "tonemap": "mod/std/bitmaps/bigtone.png",
+    "source": "mod/std/bitmaps/bigdiff.png",
     "data":
     {
-      "soil": [0,1,  2,0],
-      "grass_top": [0, 0],
-      "grass_side": [0,1,  0,1],
-      "grass_random": [1, 2],
-      "snow": [1, 0],
-      "snow_side": [1, 1],
-
-      "stone": [3, 0],
-      "gravel": [0, 2],
-
       "beach_sand": [3, 1],
       "desert_sand": [2, 1]
 
     }
   },
   "tiles": {
-    "diffuse": "mod/std/bitmaps/diffuse.png",
-    "tonemap": "mod/std/bitmaps/tonemap.png",
+    "source": "mod/std/bitmaps/diffuse.png",
     "data":
     {
+      "soil": [0,1],
+      "grass_top": [1,0, 1,0],
+      "grass_side": [0,1,  1,1],
+      "grass_random": [0,1,  1,1],
+      "snow": [3, 0],
+      "snow_side": [3, 1],
+
+      "beach_sand": [2, 2],
+
+      "stone": [0, 3],
+      "gravel": [4, 0],
+
       "bedrock": [2, 5],
       "molten": [13, 15],
 
-      "gravel": [13, 11],
-      "gravel_dirt": [14, 11],
+      "gravel": [0, 2],
+      "gravel_dirt": [0, 2],
 
       "clay_blue": [15, 10],
       "clay_brown": [15, 11],
@@ -39,7 +39,7 @@
       "ore_iron": [3, 3],
 
       "wood_oak": [0, 7],
-      "leaf": [15, 0],
+      "leaf": [14,1, 14,0],
       "grass_bush": [6, 1],
 
       "flower_red": [10, 0],
@@ -64,8 +64,7 @@
     }
   },
   "items": {
-    "diffuse": "mod/std/bitmaps/items.png",
-    "tonemap": "",
+    "source": "mod/std/bitmaps/items.png",
     "data": {
       "wooden_stick": [0, 0],
       "stone_sword": [1, 0],
@@ -84,8 +83,7 @@
     }
   },
   "particles": {
-    "diffuse": "mod/std/bitmaps/particles.png",
-    "tonemap": "",
+    "source": "mod/std/bitmaps/particles.png",
     "data": {
       "leaf": [0, 0],
       "snowflake": [1, 1]

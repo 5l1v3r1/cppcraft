@@ -14,8 +14,6 @@ Debug/gmon.out
 *.compressed
 # raw chunks
 *.chunk
-# temporary files
-*.temp
 
 # Music
 *.mp3
@@ -23,12 +21,12 @@ Debug/gmon.out
 # Executable & logs
 *.exe
 *.log
-Debug/cppcraft
-Debug/Worlds/*
 Debug/config.ini
 
 # Other
 *.rar
 build/
+Debug/config.ini
 Debug/world/world.data
 Debug/gprof_callgraph.png
+stuff/

@@ -22,7 +22,7 @@
       "name": "Stone",
       "color": "stone",
       "minimap": "stone",
-      "tile": ["big", "stone", "repeat"],
+      "tile": ["tiles", "stone"],
       "sound": "stone"
     },
     "soil": {
@@ -30,14 +30,14 @@
       "name": "Dirt",
       "color": "grass",
       "minimap": [97, 57, 14, 255],
-      "tile": ["big", "soil", "repeat"],
+      "tile": ["tiles", "soil"],
       "sound": "grass"
     },
     "snow": {
       "type": "solid",
       "name": "Snow Block",
       "minimap": [255, 255, 255, 255],
-      "tile": ["big", "snow", "repeat"],
+      "tile": ["tiles", "snow"],
       "sound": "snow"
     },
     "ice": {
@@ -51,7 +51,7 @@
       "type": "solid",
       "name": "Beach Sand",
       "minimap": [220, 210, 174, 255],
-      "tile": ["big", "beach_sand", "repeat"],
+      "tile": ["tiles", "beach_sand"],
       "sound": "sand"
     },
     "desert": {
@@ -100,7 +100,6 @@
     "leaf_colored": {
       "type": "leaf",
       "name": "Leaf Block",
-      "model": 4,
       "color": "trees_a",
       "minimap": "trees_a",
       "tile": ["tiles", "leaf"],
@@ -109,7 +108,6 @@
     "leaf_green": {
       "type": "leaf",
       "name": "Leaf Block",
-      "model": 4,
       "color": "trees_b",
       "minimap": "trees_b",
       "tile": ["tiles", "leaf"],
@@ -183,7 +181,7 @@
       "name": "Basin Murky Soil",
       "color": [104, 90, 250, 255],
       "minimap": [104, 90, 250, 255],
-      "tile": ["big", "grass_top"],
+      "tile": ["tiles", "grass_top"],
       "sound": "grass"
     }
 

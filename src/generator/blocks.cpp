@@ -214,9 +214,9 @@ namespace terragen
 			solid.setColorIndex(Biomes::CL_GRASS);
       solid.setMinimapColor(Biomes::CL_GRASS);
 			solid.getName = [] (const Block&) { return "Grass Block"; };
-      const short soil = tiledb.bigtiles("soil");
-      const short grass_top = tiledb.bigtiles("grass_top");
-      const short grass_side = tiledb.bigtiles("grass_side");
+      const short soil = tiledb.tiles("soil");
+      const short grass_top = tiledb.tiles("grass_top");
+      const short grass_side = tiledb.tiles("grass_side");
       solid.useTextureFunction(
 			[soil, grass_top, grass_side] (const Block&, uint8_t face)
 			{
@@ -225,7 +225,7 @@ namespace terragen
 				return soil; // bottom
 			});
 			solid.repeat_y = false;
-      solid.shader = RenderConst::TX_REPEAT;
+      solid.shader = RenderConst::TX_SOLID;
 			solid.getSound = [] (const Block&) { return "grass"; };
 			db.assign("grass_block", solid);
 		}
@@ -235,9 +235,9 @@ namespace terragen
 			solid.setColorIndex(Biomes::CL_GRASS);
       solid.setMinimapColor(Biomes::CL_GRASS);
 			solid.getName = [] (const Block&) { return "Grass Block w/Flowers"; };
-      const short soil = tiledb.bigtiles("soil");
-      const short grass_top = tiledb.bigtiles("grass_random");
-      const short grass_side = tiledb.bigtiles("grass_side");
+      const short soil = tiledb.tiles("soil");
+      const short grass_top = tiledb.tiles("grass_random");
+      const short grass_side = tiledb.tiles("grass_side");
       solid.useTextureFunction(
 			[soil, grass_top, grass_side] (const Block&, uint8_t face)
 			{
@@ -246,7 +246,7 @@ namespace terragen
 				return soil; // bottom
 			});
 			solid.repeat_y = false;
-      solid.shader = RenderConst::TX_REPEAT;
+      solid.shader = RenderConst::TX_SOLID;
 			solid.getSound = [] (const Block&) { return "grass"; };
 			db.assign("grass_random", solid);
 		}
