@@ -15,19 +15,8 @@ using namespace library;
 namespace terragen
 {
   static const float COSN_HEIGHT = 0.2f;
-  static float getnoise_jungle(vec3 p, float hvalue, const vec2& slope)
-	{
-    vec3 N = p * vec3(0.01f, 8.0f, 0.01f);
-    float n1 = glm::simplex(N);
-		return p.y - hvalue +
-      0.5f * COSN_HEIGHT * (1.0f + cosnoise(N, n1, 1.0f, 1.0f, 1.0 + fabsf(n1), 1.0f, 0.0f));
-	}
 
-	static float getheight_jungle(vec2 p, const float UNDER)
-	{
-    return UNDER + COSN_HEIGHT;
-	}
-  static float getcaves_jungle(vec2 p)
+  static glm::vec3 getground_jungle(vec2 p, float height)
   {
     p *= 0.001f;
 		float land = glm::simplex(p * vec2(0.7f, 0.7f)) * 0.05f;
@@ -35,13 +24,24 @@ namespace terragen
           + simplex(p * vec2(2.7f, 2.8f)) * 0.02f
           + simplex(p * vec2(5.8f, 5.6f)) * 0.05f;
 
-		return WATERLEVEL_FLT - 0.05f + land;
+		return {height - 0.075f + land, 0.0f, 0.0f};
   }
-
-	static void process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y)
+  static glm::vec3 getheight_jungle(vec2 p, const glm::vec3 UNDER)
 	{
-    const block_t GRASS_BLOCK = db::getb("grass_block");
-    const block_t CROSS_GRASS_ID = db::getb("cross_grass");
+    return {UNDER.x + COSN_HEIGHT, UNDER.y, UNDER.z};
+	}
+  static float getnoise_jungle(vec3 p, glm::vec3 under, glm::vec3 over)
+	{
+    vec3 N = p * vec3(0.01f, 8.0f, 0.01f);
+    float n1 = glm::simplex(N);
+		return p.y - over.x +
+      0.5f * COSN_HEIGHT * (1.0f + cosnoise(N, n1, 1.0f, 1.0f, 1.0 + fabsf(n1), 1.0f, 0.0f));
+	}
+
+  static block_t GRASS_BLOCK;
+  static block_t CROSS_GRASS_ID;
+	static int process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
+	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
@@ -70,6 +70,11 @@ namespace terragen
 					block.setID(STONE_BLOCK);
 				}
 			}
+      else if (block.getID() == STONE_BLOCK)
+      {
+        // we are done
+        return y;
+      }
 			else soilCounter = 0;
 
 			// place greenery when enough air
@@ -111,13 +116,17 @@ namespace terragen
       // count air
       if (block.isAir()) air++; else air = 0;
 		} // y
+    return 1;
 	}
 
 	void terrain_jungle_init()
 	{
+    GRASS_BLOCK = db::getb("grass_block");
+    CROSS_GRASS_ID = db::getb("cross_grass");
+
 		auto& terrain =
-		terrains.add("jungle", "Jungle", Biome::biome_t{25.0f, 350.0f},
-        getheight_jungle, getcaves_jungle, getnoise_jungle, process_jungle);
+		terrains.add("jungle", "Jungle", Biome::biome_t{25.0f, 350.0f, 0.6f},
+        getheight_jungle, getground_jungle, getnoise_jungle, process_jungle);
 
     terrain.setFog(glm::vec4(0.4f, 0.8f, 0.4f, 0.7f), 24);
 		terrain.on_tick =

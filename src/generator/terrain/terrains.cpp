@@ -93,8 +93,8 @@ namespace terragen
 		extern void terrain_grass_init();
 		terrain_grass_init();
 
-    //extern void terrain_jungle_init();
-    //terrain_jungle_init();
+    extern void terrain_jungle_init();
+    terrain_jungle_init();
 	}
 
 	///////////////////////////////////////////////////
