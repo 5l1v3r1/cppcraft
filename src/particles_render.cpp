@@ -2,9 +2,11 @@
 
 #include <library/log.hpp>
 #include <library/opengl/opengl.hpp>
+#include <library/opengl/vao.hpp>
 #include "camera.hpp"
 #include "shaderman.hpp"
 #include "textureman.hpp"
+#include "tiles.hpp"
 #include "sector.hpp"
 #include "sun.hpp"
 #include "world.hpp"
@@ -14,54 +16,41 @@ using namespace library;
 
 namespace cppcraft
 {
+  VAO vao;
+
 	void Particles::renderUpdate()
 	{
 		this->mtx.lock();
+    if (physics.updated == true)
+    {
+      snapshot = std::move(physics);
+      physics.updated = false;
+    }
+    this->mtx.unlock();
 
-		// set snapshots
-		snapRenderCount = renderCount;
+    // exit when nothing to do
+		if (snapshot.vertices.empty()) return;
 
-		if (snapRenderCount == 0)
+		if (snapshot.updated)
 		{
-			this->mtx.unlock();
-			return;
-		}
-		snapWX = currentWX;
-		snapWZ = currentWZ;
+			snapshot.updated = false;
+      auto* data = snapshot.vertices.data();
+      int   len  = snapshot.vertices.size();
 
-		if (particleSystem.updated)
-		{
-			particleSystem.updated = false;
-
-			bool updateAttribs = false;
-			if (vao == 0)
+			if (vao.good())
 			{
-				glGenVertexArrays(1, &vao);
-				glGenBuffers(1, &vbo);
-				updateAttribs = true;
+        vao.upload(sizeof(particle_vertex_t), len, data);
 			}
-			glBindVertexArray(vao);
-
-			// particles vbo
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, renderCount * sizeof(particle_vertex_t), vertices, GL_STREAM_DRAW);
-
-			if (updateAttribs)
-			{
-				for (int i = 0; i < 4; i++)
-					glEnableVertexAttribArray(i);
-
-				// position
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(particle_vertex_t), 0);
-				// unnormalized 8-bit channels
-				glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(particle_vertex_t), (GLvoid*) 12);
-				// normalized 8-bit channels (alpha, brightness, offset X, offset Y)
-				glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(particle_vertex_t), (GLvoid*) 16);
-				// color
-				glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(particle_vertex_t), (GLvoid*) 20);
-			}
+      else
+      {
+        vao.begin(sizeof(particle_vertex_t), len, data, GL_STREAM_DRAW);
+    		vao.attrib(0, 3, GL_FLOAT, GL_FALSE, 0);
+        vao.attrib(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, 12);
+        vao.attrib(2, 4, GL_UNSIGNED_BYTE, GL_TRUE,  16);
+        vao.attrib(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  20);
+    		vao.end();
+      }
 		}
-		this->mtx.unlock();
 	}
 
 	void Particles::render(int snapWX, int snapWZ, double timeElapsed)
@@ -77,8 +66,8 @@ namespace cppcraft
 
 		if (camera.ref)
 		{
-			float tx = (this->snapWX - snapWX) * Sector::BLOCKS_XZ;
-			float tz = (this->snapWZ - snapWZ) * Sector::BLOCKS_XZ;
+			float tx = (snapshot.currentWX - snapWX) * Sector::BLOCKS_XZ;
+			float tz = (snapshot.currentWZ - snapWZ) * Sector::BLOCKS_XZ;
 
 			glm::mat4 matview = camera.getViewMatrix();
 			matview *= glm::translate(glm::vec3(tx, 0.0f, tz));
@@ -87,16 +76,15 @@ namespace cppcraft
 			shd.sendMatrix("matview", matview);
 		}
 
-		if (vao == 0 || snapRenderCount == 0) return;
+		if (snapshot.vertices.empty()) return;
 
 		glEnable(GL_POINT_SPRITE);
 
 		// bind 2d array of textures/tiles
-		textureman.bind(0, Textureman::T_PARTICLES);
+    tiledb.particles.diff_texture().bind(0);
 
-		// bind and render particles
-		glBindVertexArray(vao);
-		glDrawArrays(GL_POINTS, 0, snapRenderCount);
+		// render particles
+    vao.render(GL_POINTS, 0, snapshot.vertices.size());
 
 		glDisable(GL_POINT_SPRITE);
 	}

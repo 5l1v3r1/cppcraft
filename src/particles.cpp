@@ -22,30 +22,21 @@ namespace cppcraft
 
 		srand(time(0));
 
-		particles = new Particle[MAX_PARTICLES]();
-		vertices  = new particle_vertex_t[MAX_PARTICLES];
-
-		for (int i = 0; i < MAX_PARTICLES; i++)
+		for (size_t i = 0; i < particles.size(); i++)
 			deadParticles.push_back(i);
 
-		this->updated = true;
     // initialize world position properly
-    snapWX = world.getWX(); currentWX = snapWX;
-    snapWZ = world.getWZ(); currentWZ = snapWZ;
+    physics.currentWX = world.getWX();
+    physics.currentWZ = world.getWZ();
+    snapshot = physics;
 	}
 
 	// execute one update-tick
 	void Particles::update(double timeElapsed)
 	{
-		this->mtx.lock();
-		{
-			this->updated = false;
-		}
-		this->mtx.unlock();
-
 		int lastAlive = -1;
-		int rCount = 0;
-		particle_vertex_t* pv = vertices;
+    // particle vertices
+    std::vector<particle_vertex_t> vertices;
 
 		// player look vector & position
 		glm::vec3 look = player.getLookVector();
@@ -88,16 +79,17 @@ namespace cppcraft
 			// check that the particle is somewhat in camera
 			if (dot(direction, look) > 0.5f)
 			{
+        particle_vertex_t pv;
+
 				// rendering position
-				pv->x = fpos.x;
-				pv->y = fpos.y;
-				pv->z = fpos.z;
+				pv.x = fpos.x;
+				pv.y = fpos.y;
+				pv.z = fpos.z;
 
 				ParticleType& type = types[p.id];
-				type.on_tick(p, *pv);
+				type.on_tick(p, pv);
 
-				// next render-particle (and keep track of renderCount)
-				pv++;  rCount++;
+        vertices.push_back(pv);
 			}
 			// helper for particle count
 			lastAlive = i;
@@ -106,10 +98,10 @@ namespace cppcraft
 
 		this->mtx.lock();
 		{
-			this->updated = true;
-			this->renderCount = rCount;
-			this->currentWX = world.getWX();
-			this->currentWZ = world.getWZ();
+      physics.updated = true;
+			physics.currentWX = world.getWX();
+			physics.currentWZ = world.getWZ();
+      physics.vertices = std::move(vertices);
 		}
 		this->mtx.unlock();
 	}
@@ -130,7 +122,7 @@ namespace cppcraft
 		// update particle count
 		if (this->count <= index) this->count = index + 1;
 
-		Particle& p = particles[index];
+		Particle& p = particles.at(index);
 		// set common values
 		p.alive = true;
 		p.id = id;
@@ -140,18 +132,5 @@ namespace cppcraft
 
 		types[id].on_create(p, position);
 		return index;
-	}
-
-	void Particles::auto_create()
-	{
-		//glm::vec3 position(player.pos);
-		//Flatland::flatland_t* fs = sectors.flatland_at(position.x, position.z);
-
-		if (plogic.FullySubmerged)
-		{
-			// use either liquid type as base for particle name
-			// or some other voodoo shit
-
-		}
 	}
 }

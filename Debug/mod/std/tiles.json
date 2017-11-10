@@ -82,5 +82,13 @@
       "apple": [0, 6],
       "torch": [1, 6]
     }
+  },
+  "particles": {
+    "diffuse": "mod/std/bitmaps/particles.png",
+    "tonemap": "",
+    "data": {
+      "leaf": [0, 0],
+      "snowflake": [1, 1]
+    }
   }
 }

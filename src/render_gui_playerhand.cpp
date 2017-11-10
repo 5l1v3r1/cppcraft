@@ -236,7 +236,7 @@ vertices[7] = {       0,       0, scale.z,  -1, 0, 0,   1, 1.5, 9 };
 		textureman.bind(0, Textureman::T_PLAYERMODELS);
 
 		// update vertex data
-		if (vao.isGood() == false)
+		if (vao.good() == false)
 		{
 			vao.begin(sizeof(hvertex_t), 8, &vertices[0]);
 			vao.attrib(0, 3, GL_FLOAT, GL_FALSE, offsetof(hvertex_t, x));

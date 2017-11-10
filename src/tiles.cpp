@@ -48,6 +48,8 @@ namespace cppcraft
     bigtiles = tile_database(tiles.tilesize() * TILES_PER_BIG_TILE);
     // item tiles
     items = tile_database(config.get("items.size", 32));
+    // particle tiles
+    particles = tile_database(config.get("partic.size", 32));
 
 		// players
 		this->skinSize = config.get("players.size", 32);
@@ -63,18 +65,23 @@ namespace cppcraft
       CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
       if (doc.HasMember("tiles"))
       {
-        auto& tiles_obj = doc["tiles"];
-        parse_tile_database(tiledb.tiles, tiles_obj);
+        auto& obj = doc["tiles"];
+        parse_tile_database(tiledb.tiles, obj);
       }
       if (doc.HasMember("bigtiles"))
       {
-        auto& bigtiles_obj = doc["bigtiles"];
-        parse_tile_database(tiledb.bigtiles, bigtiles_obj);
+        auto& obj = doc["bigtiles"];
+        parse_tile_database(tiledb.bigtiles, obj);
       }
       if (doc.HasMember("items"))
       {
-        auto& items_obj = doc["items"];
-        parse_tile_database(tiledb.items, items_obj);
+        auto& obj = doc["items"];
+        parse_tile_database(tiledb.items, obj);
+      }
+      if (doc.HasMember("particles"))
+      {
+        auto& obj = doc["particles"];
+        parse_tile_database(tiledb.particles, obj);
       }
     }
     printf("* Loaded %zu big tiles\n", tiledb.bigtiles.size());

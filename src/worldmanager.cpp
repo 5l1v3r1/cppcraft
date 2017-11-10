@@ -63,7 +63,6 @@ namespace cppcraft
 					player.handlePlayerTicks(_ticktimer);
 
 					// handle actors & particles & objects
-					particleSystem.auto_create();
 					particleSystem.update(_ticktimer);
 
 					// handle sound, music & ambience

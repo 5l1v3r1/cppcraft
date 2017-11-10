@@ -4,6 +4,7 @@
 #include "delegate.hpp"
 #include <glm/vec3.hpp>
 #include <cstdint>
+#include <array>
 #include <deque>
 #include <map>
 #include <mutex>
@@ -11,29 +12,6 @@
 #include <vector>
 
 using namespace glm;
-
-#define PARTICLE_SMOKE     0
-#define PARTICLE_SMOKE_R   1
-
-#define PARTICLE_ARLY_NICE 8
-
-#define PARTICLE_M_GENER  16
-#define PARTICLE_M_STONE  17
-#define PARTICLE_M_SOIL   18
-
-#define PARTICLE_LAVA     24
-#define PARTICLE_WATER    25
-#define PARTICLE_MARSH    26
-#define PARTICLE_RAIN     27
-
-#define PARTICLE_LEAF     30
-#define PARTICLE_LEAF_B   31
-#define PARTICLE_FOREST   32
-#define PARTICLE_SNOW     33
-#define PARTICLE_AUTUMN   34
-#define PARTICLE_SAND     35
-
-#define PARTICLE_DANDELION  40
 
 namespace cppcraft
 {
@@ -85,14 +63,12 @@ namespace cppcraft
 	class Particles
 	{
 	public:
-		const int MAX_PARTICLES = 1024;
+		static const int MAX_PARTICLES = 1024;
 
 		// initialize system
 		void init();
 		// one round of updates, as an integrator
 		void update(double timeElapsed);
-		// auto-create a particle
-		void auto_create();
 		// rendering
 		void renderUpdate();
 		void render(int snapWX, int snapWZ, double time);
@@ -115,35 +91,30 @@ namespace cppcraft
 			return names.at(name);
 		}
 
-		// shared thread-unsafe flag that we don't really care about, since
-		// it's pretty much updated every damn time
-		bool updated = true;
-
 		// returns -1 if there isnt enough room to create more particles
 		int newParticle(glm::vec3 position, short id);
 
 	private:
-		int snapRenderCount = 0;
-		int snapWX, snapWZ;
-		particle_vertex_t* vertices = nullptr;
-		unsigned int vao = 0;
-    unsigned int vbo = 0;
-
-		int renderCount = 0;
-		int currentWX, currentWZ;
-
-		void autoCreateFromTerrain(int terrain, glm::vec3& position);
-
-		// returns a new particle ID from queue, or -1
+    // returns a new particle ID from queue, or -1
 		int newParticleID();
 
-		std::deque<int> deadParticles;
-		Particle* particles = nullptr;
-		int count = 0;
-		std::mutex mtx;
-
+    std::mutex mtx;
+    // database
 		std::map<std::string, size_t> names;
 		std::vector<ParticleType>     types;
+
+    struct info_t {
+  		bool updated = true;
+		  int currentWX, currentWZ;
+      std::vector<particle_vertex_t> vertices;
+    };
+    info_t physics;
+    info_t snapshot;
+
+    // simulation
+    std::array<Particle, MAX_PARTICLES> particles;
+    int count = 0;
+		std::deque<int> deadParticles;
 	};
 	extern Particles particleSystem;
 }

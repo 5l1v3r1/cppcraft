@@ -210,7 +210,7 @@ namespace gui
     if (verts.empty()) return;
 
 		/// upload blocks & items ///
-		if (vao.isGood() == false)
+		if (vao.good() == false)
 		{
 			vao.begin(sizeof(ivertex_t), verts.size(), verts.data());
 			vao.attrib(0, 3, GL_FLOAT, GL_FALSE, offsetof(ivertex_t, x));

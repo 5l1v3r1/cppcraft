@@ -72,9 +72,6 @@ namespace cppcraft
 		// player model texture size
 		int skinSize;
 
-		// particle tiles
-		int partsX, partsY;
-
 		void init();
   private:
 

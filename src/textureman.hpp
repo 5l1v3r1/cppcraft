@@ -13,7 +13,6 @@ namespace cppcraft
 		{
 			T_ACTORS,
 			T_PLAYERMODELS,
-			T_PARTICLES,
 
 			T_SELECTION,
 			T_MINING,

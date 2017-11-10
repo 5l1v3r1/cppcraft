@@ -25,6 +25,7 @@ namespace cppcraft
     tiledb.tiles.create_textures();
     tiledb.bigtiles.create_textures();
     tiledb.items.create_textures();
+    tiledb.particles.create_textures();
 
     Bitmap bmp;
 		/// PLAYER MODELS tileset ///
@@ -36,20 +37,6 @@ namespace cppcraft
 		textures[T_PLAYERMODELS].setAnisotropy(gameconf.anisotropy);
 
 		if (OpenGL::checkError()) throw std::runtime_error("Player skins texture2d array error");
-
-		/// PARTICLES tileset ///
-		bmp = Bitmap(config.get("textures.partic", "bitmap/default/particles.png"), Bitmap::PNG);
-		int partSize = config.get("partic.size", 32);
-    // need to invert Y axis for the particles
-		bmp.parse2D(partSize, partSize, true);
-
-		tiledb.partsX = bmp.getTilesX();
-		tiledb.partsY = bmp.getTilesY();
-
-		textures[T_PARTICLES] = Texture(GL_TEXTURE_2D_ARRAY);
-		textures[T_PARTICLES].create(bmp, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-
-		if (OpenGL::checkError()) throw std::runtime_error("Particles texture2d array error");
 
 		/// PlayerSelection textures ///
 		bmp = Bitmap(config.get("textures.selection", "bitmap/default/selection.png"), Bitmap::PNG);

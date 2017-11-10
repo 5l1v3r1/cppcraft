@@ -204,7 +204,7 @@ namespace cppcraft
 		//shd.sendFloat("modulation", torchlight.getModulation(frameCounter));
 
 		// head mesh
-		if (vao.isGood() == false)
+		if (vao.good() == false)
 		{
 			// create ccube and copy all centerCube vertices to ccube
 			std::vector<player_vertex_t> ccube;
