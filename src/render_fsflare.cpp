@@ -41,8 +41,10 @@ namespace cppcraft
 	{
 		// create sun coordinate 2-vector
 		vec4 sunproj = lensMatrix * matsun * vec4(0.0, 0.0, 0.0, 1.0);
-		sunproj.x /= sunproj.w;
-		sunproj.y /= sunproj.w;
+    if (sunproj.w > 0.0f) {
+		  sunproj.x /= sunproj.w;
+		  sunproj.y /= sunproj.w;
+    }
 		return vec2(sunproj);
 	}
 
