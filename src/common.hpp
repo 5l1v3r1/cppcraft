@@ -14,8 +14,8 @@ namespace cppcraft
   static const float TOP_BLOCK_FLT = TOP_BLOCK_Y / float(BLOCKS_Y);
 
 	// scale up and down all terrains
-	const float BIOME_SCALE = 0.001;
-  const float UNDERGEN_SCALE = 0.001;
+	const float BIOME_SCALE = 0.0005f;
+  const float UNDERGEN_SCALE = 0.001f;
 
 	typedef uint32_t light_value_t;
 }

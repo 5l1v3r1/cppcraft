@@ -22,9 +22,9 @@ namespace terragen
 {
 	Terrains terrains;
   Terrains cave_terrains;
-	static float getnoise_caves(vec3 p, vec3, vec3);
-  static float getnoise_test(vec3 p, vec3, vec3);
-  static float getnoise_basin(vec3 p, vec3, vec3);
+	static float getnoise_caves(vec3 p, vec3);
+  static float getnoise_test(vec3 p, vec3);
+  static float getnoise_basin(vec3 p, vec3);
 
   static int process_caves(gendata_t* gdata, int x, int z, const int MAX_Y, const int MIN_Y)
   {
@@ -74,15 +74,15 @@ namespace terragen
 	void Terrains::init()
 	{
     auto& test = cave_terrains.add("test", "(empty)", Biome::biome_t{0.5f, 0.5f, 0.0f},
-                 nullptr, nullptr, getnoise_test, nullptr);
+                 nullptr, 0.0f, getnoise_test, nullptr);
 		test.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
 		auto& cave = cave_terrains.add("caves", "Caves", Biome::biome_t{0.25f, 0.0f, 0.25f},
-                 nullptr, nullptr, getnoise_caves, process_caves);
+                 nullptr, 0.0f, getnoise_caves, process_caves);
 		cave.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
     auto& basin = cave_terrains.add("basin", "Basin", Biome::biome_t{0.75f, 0.0f, 0.5f},
-                 nullptr, nullptr, getnoise_basin, process_caves);
+                 nullptr, 0.0f, getnoise_basin, process_caves);
 		basin.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
 		// add T_SNOW
@@ -110,18 +110,18 @@ namespace terragen
 		return 1.0;
 	}
 
-  float getnoise_test(vec3 p, glm::vec3 under, glm::vec3 over)
+  float getnoise_test(vec3 p, glm::vec3 under)
   {
     return 0.1f;
   }
-  float getnoise_basin(vec3 p, glm::vec3 under, glm::vec3 over)
+  float getnoise_basin(vec3 p, glm::vec3 under)
   {
     vec3 npos = p * vec3(0.005f, 5.0f, 0.005f);
     float updown = 0.1f * Simplex::worleyfBm(npos);
-    return updown + Simplex::fBm(npos) * ((over.x - p.y) / over.x);
+    return updown + Simplex::fBm(npos) * ((under.x - p.y) / under.x);
   }
 
-	float getnoise_caves(vec3 p, glm::vec3, glm::vec3)
+	float getnoise_caves(vec3 p, glm::vec3)
 	{
 		vec3 npos = p * vec3(0.01, 2.5, 0.01);
 

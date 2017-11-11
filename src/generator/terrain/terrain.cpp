@@ -139,8 +139,8 @@ namespace terragen
 		static const int y_points = BLOCKS_Y / y_step + 1;
 
 		// terrain heightmaps
-		glm::vec3 heightmap_gnd[GRID2D+1][GRID2D+1] ALIGN_AVX;
     glm::vec3 heightmap_und[GRID2D+1][GRID2D+1] ALIGN_AVX;
+    float     heightmap_gnd[GRID2D+1][GRID2D+1] ALIGN_AVX;
 		// beach height values
 		float beachhead[NGRID+1][NGRID+1] ALIGN_AVX;
 		// noise (terrain density) values
@@ -157,21 +157,16 @@ namespace terragen
 
 			// set underground heightmap
       glm::vec3& underground_ref = heightmap_und[x][z];
+      float& ground_ref = heightmap_gnd[x][z];
       underground_ref = glm::vec3(0.0f);
+      ground_ref = 0.0f;
 			for (const auto& v : weights.terrains)
 			{
         underground_ref += terrains[v.first].hmap_und(p2, weights.height) * v.second;
+        ground_ref += terrains[v.first].height3d * v.second;
 			}
+      ground_ref = glm::clamp(underground_ref.x + ground_ref, 0.f, TOP_BLOCK_FLT);
       underground_ref.x = glm::clamp(underground_ref.x, 0.f, TOP_BLOCK_FLT);
-
-      // set ground heightmap
-      glm::vec3& ground_ref = heightmap_gnd[x][z];
-      ground_ref = glm::vec3(0.0f);
-      for (const auto& v : weights.terrains)
-			{
-        ground_ref += terrains[v.first].hmap_gnd(p2, underground_ref) * v.second;
-			}
-			ground_ref.x = glm::clamp(ground_ref.x, 0.f, TOP_BLOCK_FLT);
     }
 
 		// retrieve data for noise biome interpolation
@@ -191,9 +186,9 @@ namespace terragen
       const glm::vec3& HVALUE_UND = heightmap_und[x2d][z2d];
       const int MAX_UND = HVALUE_UND.x * BLOCKS_Y;
 
-      const glm::vec3& HVALUE_GND = heightmap_gnd[x2d][z2d];
+      const float HVALUE_GND = heightmap_gnd[x2d][z2d];
       // we need this to interpolate properly under water
-      const int MAX_GND = std::max(int(HVALUE_GND.x * BLOCKS_Y), WATERLEVEL);
+      const int MAX_GND = std::max(int(HVALUE_GND * BLOCKS_Y), WATERLEVEL);
       // retrieve flatland for inside-area
       cppcraft::Flatland::caveland_t* cavedata;
       if (x < NGRID && z < NGRID) {
@@ -204,6 +199,13 @@ namespace terragen
 			// create unprocessed 3D volumes
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 
+      // let's zero out everything above the max value to avoid interp. errors
+      for (int y = MAX_GND + y_step-1; y < BLOCKS_Y; y += y_step)
+      {
+        cave_array[x][z][y / y_step] = 1.0f;
+        noisearray[x][z][y / y_step] = 1.0f;
+      }
+
       for (int y = 0; y < MAX_GND + y_step; y += y_step)
 			{
 				p.y = y / float(BLOCKS_Y);
@@ -212,7 +214,7 @@ namespace terragen
         {
           auto res = Biome::first(Biome::underworldGen(p * UNDERGEN_SCALE), cave_terrains);
           // cave density function
-          cave_noise = cave_terrains[res.first].func3d(p, HVALUE_UND, HVALUE_GND) * res.second;
+          cave_noise = cave_terrains[res.first].func3d(p, HVALUE_UND) * res.second;
 
           // store terrain ID in flatland array
           if (x < NGRID && z < NGRID) {
@@ -229,7 +231,7 @@ namespace terragen
   				for (auto& value : weights.terrains)
   				{
             auto& terrain = terrains[value.first];
-  					noise += terrain.func3d(p, HVALUE_UND, HVALUE_GND) * value.second;
+  					noise += terrain.func3d(p, HVALUE_UND) * value.second;
 				  } // weights
         } // ground level
 			} // for(y)
@@ -258,8 +260,8 @@ namespace terragen
 
 				float w0, w1;
 				// heightmap weights //
-				w0 = mix( heightmap_gnd[x2d][z2d  ].x, heightmap_gnd[x2d+1][z2d  ].x, frx2d );
-				w1 = mix( heightmap_gnd[x2d][z2d+1].x, heightmap_gnd[x2d+1][z2d+1].x, frx2d );
+				w0 = mix( heightmap_gnd[x2d][z2d  ], heightmap_gnd[x2d+1][z2d  ], frx2d );
+				w1 = mix( heightmap_gnd[x2d][z2d+1], heightmap_gnd[x2d+1][z2d+1], frx2d );
 				int MAX_GND = mix( w0, w1, frz2d ) * BLOCKS_Y;
 				MAX_GND = std::max(MAX_GND, WATERLEVEL);
 

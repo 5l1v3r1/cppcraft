@@ -1,6 +1,7 @@
 #include "biome.hpp"
 
 #include <common.hpp>
+#include <library/math/toolbox.hpp>
 #include "../terrain/terrains.hpp"
 #include <glm/vec2.hpp>
 #include <glm/gtc/noise.hpp>
@@ -8,14 +9,14 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace library;
+
 namespace terragen
 {
   Biome::result_t Biome::solve(glm::vec3 in_coords,
                                const float MAX_DISTANCE,
                                const Terrains& terralist)
   {
-    static const float CROSS_FADE = 2.0f;
-
     // suitability vector
     std::vector<terrain_value_t> values;
 
@@ -48,7 +49,9 @@ namespace terragen
     values[0].second = 1.0f;
     float norma = 1.0f;
     for (size_t i = 1; i < total; i++) {
-      values[i].second = 1.0f / (1.0f + (values[i].second - closest) * CROSS_FADE);
+      float weight = (values[i].second - closest) / MAX_DISTANCE;
+      weight = hermite(weight);
+      values[i].second = 1.0f / (1.0f + weight * 40.0f);
       norma += values[i].second;
     }
     norma = 1.0f / norma;
@@ -64,7 +67,7 @@ namespace terragen
       const Terrains& terralist)
   {
     // suitability vector
-    std::array<terrain_value_t, 16> values;
+    std::array<terrain_value_t, 32> values;
 
     // generate suitability for each terrain
     const auto& terrains = terralist.get();
@@ -87,16 +90,16 @@ namespace terragen
 
 	glm::vec3 Biome::overworldGen(const glm::vec2 pos)
 	{
-		const float climateBias = 0.9f; // <1.0 more warm, >1.0 more cold
+		const float climateBias = 1.0f; // <1.0 more warm, >1.0 more cold
 
 		float b1 = 0.5f + 0.45f*glm::simplex(pos*0.3f) + 0.05f*glm::simplex(pos*3.0f);
 		float b2 = 0.5f + 0.45f*glm::simplex(pos*1.0f) + 0.05f*glm::simplex(pos*7.0f) + 0.025*glm::simplex(pos*14.0f);
-    float h = cppcraft::WATERLEVEL_FLT + 0.25f*glm::simplex(pos*0.111f);
+    float h = cppcraft::WATERLEVEL_FLT + 0.05f + 0.2f*glm::simplex(pos*2.12f);
 
 		b1 = powf(b1, climateBias);
 		b1 /= 0.95f; // b1 only reaches 0.95
-    b1 = glm::clamp(b1, 0.0f, 1.0f) * 40.0f;  // temperature
-    b2 = glm::clamp(b2, 0.0f, 1.0f) * 400.0f; // precipitation
+    b1 = glm::clamp(b1, 0.0f, 1.0f);  // temperature
+    b2 = glm::clamp(b2, 0.0f, 1.0f); // precipitation
 
     return {b1, b2, h};
 	}

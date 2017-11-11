@@ -26,15 +26,11 @@ namespace terragen
 
 		return {height - 0.075f + land, 0.0f, 0.0f};
   }
-  static glm::vec3 getheight_jungle(vec2 p, const glm::vec3 UNDER)
-	{
-    return {UNDER.x + COSN_HEIGHT, UNDER.y, UNDER.z};
-	}
-  static float getnoise_jungle(vec3 p, glm::vec3 under, glm::vec3 over)
+  static float getnoise_jungle(vec3 p, glm::vec3 under)
 	{
     vec3 N = p * vec3(0.01f, 8.0f, 0.01f);
     float n1 = glm::simplex(N);
-		return p.y - over.x +
+		return p.y - under.x + COSN_HEIGHT +
       0.5f * COSN_HEIGHT * (1.0f + cosnoise(N, n1, 1.0f, 1.0f, 1.0 + fabsf(n1), 1.0f, 0.0f));
 	}
 
@@ -125,8 +121,8 @@ namespace terragen
     CROSS_GRASS_ID = db::getb("cross_grass");
 
 		auto& terrain =
-		terrains.add("jungle", "Jungle", Biome::biome_t{25.0f, 350.0f, 0.6f},
-        getheight_jungle, getground_jungle, getnoise_jungle, process_jungle);
+		terrains.add("jungle", "Jungle", Biome::biome_t{0.8f, 0.8f, 0.3f},
+        getground_jungle, COSN_HEIGHT, getnoise_jungle, process_jungle);
 
     terrain.setFog(glm::vec4(0.9f, 0.9f, 1.0f, 0.7f), 180);
 		terrain.on_tick =

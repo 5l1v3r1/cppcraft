@@ -18,16 +18,8 @@ using namespace library;
 namespace terragen
 {
   FastPlacement place_trees(64, 7.0f, 256);
+  static const float GRASS_OVER = 0.1f;
 
-	static float getnoise_grass(vec3 p, const glm::vec3 under, const glm::vec3 over)
-	{
-		return p.y - over.x + Simplex::ridgedMF(p * 0.00222f) * 0.1f;
-	}
-
-	static glm::vec3 getover_grass(vec2 p, const glm::vec3 UNDER)
-	{
-		return {UNDER.x + 0.1f, UNDER.y, UNDER.z};
-	}
   static glm::vec3 getunder_grass(vec2 p, const float height)
   {
     p *= 0.001f;
@@ -35,6 +27,10 @@ namespace terragen
     float ground = height - 0.2f + land * 0.25f;
     return {ground, 0.0f, 0.0f};
   }
+  static float getnoise_grass(vec3 p, const glm::vec3 under)
+	{
+		return p.y - under.x - GRASS_OVER + Simplex::ridgedMF(p * 0.00222f) * GRASS_OVER;
+	}
 
 	static int grass_process(gendata_t*, int x, int z, const int Y, const int);
 
@@ -43,8 +39,8 @@ namespace terragen
 	void terrain_grass_init()
 	{
 		auto& terrain =
-		terrains.add("grass",  "Grasslands", Biome::biome_t{15.0f, 150.0f, 0.4f},
-        getover_grass, getunder_grass, getnoise_grass, grass_process);
+		terrains.add("grass",  "Grasslands", Biome::biome_t{0.45f, 0.5f, 0.4f},
+        getunder_grass, GRASS_OVER, getnoise_grass, grass_process);
 
     GRASS_ID = db::getb("grass_block");
     CROSS_GRASS_ID = db::getb("cross_grass");

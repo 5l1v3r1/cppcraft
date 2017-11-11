@@ -20,8 +20,7 @@ namespace terragen
 		typedef delegate<void(double)> tick_func_t;
 		// GENERATOR
     typedef delegate<glm::vec3(glm::vec2, float)> under_func_t;
-    typedef delegate<glm::vec3(glm::vec2, glm::vec3)> ground_func_t;
-		typedef delegate<float(glm::vec3, glm::vec3, glm::vec3)> terfunc3d;
+		typedef delegate<float(glm::vec3, glm::vec3)> terfunc3d;
 		typedef delegate<uint32_t(uint16_t, uint8_t, glm::vec2)> color_func_t;
 		typedef delegate<int(gendata_t*, int, int, const int, const int)> process_func_t;
 
@@ -30,12 +29,12 @@ namespace terragen
 
 		Terrain(const int ID, const std::string& Name,
             Biome::biome_t coord,
-            ground_func_t  gnd,  // ground level
-            under_func_t   und,  // caves level
+            under_func_t   und,  // caves transition height
+            float          h3d,  // ground level
             terfunc3d      t3d,  // terrain density (caves <-> ground)
             process_func_t proc) // terrain post-processing function
 			: id(ID), name(Name), biome {coord},
-        hmap_gnd(gnd), hmap_und(und), func3d(t3d), on_process(proc)
+        hmap_und(und), height3d(h3d), func3d(t3d), on_process(proc)
     {
       for (auto& color : colors) color = nullptr;
     }
@@ -61,10 +60,11 @@ namespace terragen
 		const std::string name;
     // terrain location (biome)
     const Biome::biome_t biome;
-		// 2d terrain function that return a heightvalue for this terrain
-    const ground_func_t hmap_gnd;
+    // 2d terrain function that returns a heightvalue for ground level
     const under_func_t  hmap_und;
-		// vector of 3d terrain functions, taking in a vector of 2d heightvalues
+    // distance between ground and 3d max level
+    const float height3d;
+		// 3d terrain function, taking in a 3d point and heightvalues
 		const terfunc3d func3d;
     // terrain post-processing function
 		const process_func_t on_process;

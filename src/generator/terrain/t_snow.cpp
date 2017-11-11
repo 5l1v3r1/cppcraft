@@ -28,18 +28,14 @@ namespace terragen
   static glm::vec3 icecap_cave_height(vec2 p, float height)
   {
     p *= 0.0025f;
-		glm::vec3 df = Simplex::dnoise(p);
-		return {WATERLEVEL_FLT + df.x * 0.1f, df.y, df.z};
+		float n = 0.5f + 0.5f * glm::simplex(p);
+		return {WATERLEVEL_FLT + powf(n, 0.55) * 0.1f, 0.0f, 0.0f};
   }
-  static glm::vec3 icecap_ground_height(vec2, const vec3 UNDER)
+	static float getnoise_icecap(vec3 p, const vec3 under)
 	{
-    return {UNDER.x + ICECAP_HEIGHT, UNDER.y, UNDER.z};
-	}
-
-	static float getnoise_icecap(vec3 p, const vec3 under, const vec3 over)
-	{
-    p *= vec3(0.005f, 1.0f, 0.005f);
-		return p.y - over.x;
+    p *= vec3(0.006f, 1.0f, 0.006f);
+    float noise = 0.5f + 0.5f * Simplex::worleyfBm(p, 4, 1.2f);
+		return p.y - under.x + ICECAP_HEIGHT * (noise - 1.0f);
 	}
 
   static block_t SNOW_ID = 0;
@@ -109,8 +105,8 @@ namespace terragen
 	void terrain_icecap_init()
 	{
     auto& terrain =
-		  terrains.add("icecap", "Icecap", Biome::biome_t{-8.0f, 50.0f, 0.6f},
-      icecap_ground_height, icecap_cave_height, getnoise_icecap, icecap_process);
+		  terrains.add("icecap", "Icecap", Biome::biome_t{0.05f, 0.1f, 0.6f},
+      icecap_cave_height, ICECAP_HEIGHT, getnoise_icecap, icecap_process);
 
     SNOW_ID  = db::getb("snow");
     ICE_ID   = db::getb("ice");
