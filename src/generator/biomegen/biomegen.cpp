@@ -51,7 +51,7 @@ namespace terragen
     for (size_t i = 1; i < total; i++) {
       float weight = (values[i].second - closest) / MAX_DISTANCE;
       weight = hermite(weight);
-      values[i].second = 1.0f / (1.0f + weight * 40.0f);
+      values[i].second = 1.0f / (1.0f + weight * 35.0f);
       norma += values[i].second;
     }
     norma = 1.0f / norma;

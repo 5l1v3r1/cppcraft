@@ -6,14 +6,14 @@
 uniform mat4 matproj;
 uniform mat4 matview;
 uniform samplerBuffer buftex;
-
 uniform float frameCounter;
-uniform int texrange;
 
 in vec4 in_vertex;
 in vec4 in_normal;
 in vec4 in_texture;
 in vec4 in_biome;
+in vec4 in_data1;
+in vec4 in_data2;
 
 out vec3 texCoord;
 out vec3 lightdata;
@@ -21,12 +21,9 @@ out vec4 biomeColor;
 flat out vec3 out_normal;
 flat out vec3 v_normals;
 
-const int TX_2SIDED
-const int TX_CROSS
-
 const float ZFAR
 const float VERTEX_SCALE_INV
-const float CROSSWIND_STRENGTH  = 0.125;
+const float CROSSWIND_STRENGTH  = 0.5;
 const float PI2                 = 6.28318530717;
 
 void main(void)
@@ -37,21 +34,12 @@ void main(void)
 
 	texCoord = vec3(in_texture.st * VERTEX_SCALE_INV, in_texture.p);
 
-	if (texrange == TX_CROSS)
-	{
-		// fire animation
-		/*if (texCoord.z == 224.0)
-		{
-			texCoord.z += mod(int(frameCounter / PI2 * 32.0 + length(in_vertex.xz) / 2.0), 8.0);
-		}*/
-
-		// standing
-		float speed  = frameCounter * 0.01;
-		float factor = CROSSWIND_STRENGTH * texCoord.t;
-		// crosses waving in the wind
-		vec2 pos = in_vertex.xz * VERTEX_SCALE_INV / 16.0;
-		position.x += sin(PI2 * (2.0*pos.x + pos.y) + speed) * factor;
-	}
+	// standing
+	float speed  = frameCounter * 0.02;
+	float factor = CROSSWIND_STRENGTH * in_data1.r;
+	// crosses waving in the wind
+	vec2 pos = in_vertex.xz * VERTEX_SCALE_INV / 16.0;
+	position.x += factor * sin(PI2 * (2.0*pos.x + pos.y) + speed);
 
 	gl_Position = matproj * position;
 	v_normals = mat3(matview) * in_normal.xyz;

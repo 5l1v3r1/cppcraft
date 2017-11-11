@@ -36,14 +36,6 @@ namespace cppcraft
 				vtx[3].v = 3 * ptd.REPEAT_FACTOR;
 			}
 		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				vtx[i].u += bx << RenderConst::VERTEX_SHL;
-				vtx[i].v += by << RenderConst::VERTEX_SHL;
-			}
-		}
     vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 0);
     vtx[1].w = vtx->w;
     vtx[2].w = vtx->w;
@@ -99,14 +91,6 @@ namespace cppcraft
 				vtx[3].v = 2 * ptd.REPEAT_FACTOR;
 			}
 		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				vtx[i].u += bx << RenderConst::VERTEX_SHL;
-				vtx[i].v += by << RenderConst::VERTEX_SHL;
-			}
-		}
     vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 1);
     vtx[1].w = vtx->w;
     vtx[2].w = vtx->w;
@@ -153,14 +137,6 @@ namespace cppcraft
 			vtx[3].u = (1 + bx) * ptd.REPEAT_FACTOR; // 1, 0
 			vtx[3].v = bz * ptd.REPEAT_FACTOR;
 		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				vtx[i].u += bx << RenderConst::VERTEX_SHL;
-				vtx[i].v += bz << RenderConst::VERTEX_SHL;
-			}
-		}
     vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 2);
     vtx[1].w = vtx[0].w;
     vtx[2].w = vtx[0].w;
@@ -206,14 +182,6 @@ namespace cppcraft
 
 			vtx[3].u = bx * ptd.REPEAT_FACTOR; // 0, 1
 			vtx[3].v = (1 + bz) * ptd.REPEAT_FACTOR;
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				vtx[i].u += bx << RenderConst::VERTEX_SHL;
-				vtx[i].v += bz << RenderConst::VERTEX_SHL;
-			}
 		}
     vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 3);
     vtx[1].w = vtx->w;
@@ -273,14 +241,6 @@ namespace cppcraft
 				vtx[3].v = 2  * ptd.REPEAT_FACTOR;
 			}
 		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				vtx[i].u += bz << RenderConst::VERTEX_SHL;
-				vtx[i].v += by << RenderConst::VERTEX_SHL;
-			}
-		}
     vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 4);
     vtx[1].w = vtx->w;
     vtx[2].w = vtx->w;
@@ -334,14 +294,6 @@ namespace cppcraft
 				vtx[2].v = 3 * ptd.REPEAT_FACTOR;
 				vtx[3].u = bz * ptd.REPEAT_FACTOR;       // 0, 1
 				vtx[3].v = 3 * ptd.REPEAT_FACTOR;
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				vtx[i].u += bz << RenderConst::VERTEX_SHL;
-				vtx[i].v += by << RenderConst::VERTEX_SHL;
 			}
 		}
     vtx->w   = ptd.getConnectedTexture(block, bx, by, bz, 5);

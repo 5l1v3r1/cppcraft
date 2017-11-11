@@ -62,7 +62,7 @@ namespace terragen
         {
           // create some cavey fauna
           gdata->getb(x, y+1, z).setID(
-            (rand < 0.01) ? db::getb("mushroom_red") : db::getb("mushroom_brown"));
+            (rand < 0.01) ? db::getb("mushroom_blue") : db::getb("mushroom_flat"));
         }
       }
       if (block.isAir()) air++; else air = 0;

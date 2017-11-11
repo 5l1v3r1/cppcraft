@@ -70,110 +70,62 @@ namespace cppcraft
 	{
 		// recalculate camera frustum
 		camera.calculateFrustum();
-
-		static const int safety_border = 2;
 		#define VISIBILITY_BORDER  DrawQueue::VISIBILITY_BORDER
 
-		static const float half_fov = 0.65; // sin(30 * degToRad) = +/- 0.5
-
-		// major direction scheme
-		int xstp = 1;
-		int x0, x1;
-		if (look.x >= 0.0f)
-		{
-			if (look.x > half_fov)
-				x0 = playerSectorX - safety_border;
-			else
-				x0 = playerSectorX - camera.cameraViewSectors;
-
-			x1 = playerSectorX + camera.cameraViewSectors;
-
-			if (x0 < VISIBILITY_BORDER)
-				x0 = VISIBILITY_BORDER;
-			if (x1 >= sectors.getXZ() - VISIBILITY_BORDER)
-				x1 = sectors.getXZ()-1-VISIBILITY_BORDER;
-		}
-		else
-		{
-			x1 = playerSectorX - camera.cameraViewSectors;
-
-			if (look.x < -half_fov)
-				x0 = playerSectorX + safety_border;
-			else
-				x0 = playerSectorX + camera.cameraViewSectors;
-
-			if (x1 < VISIBILITY_BORDER)
-				x1 = VISIBILITY_BORDER;
-			if (x0 >= sectors.getXZ()-VISIBILITY_BORDER)
-				x0 = sectors.getXZ()-1-VISIBILITY_BORDER;
-
-			xstp = -1;
-		}
-
-		int zstp = 1;
-		int z0, z1;
-		if (look.z >= 0.0f)
-		{
-			if (look.z > half_fov)
-				z0 = playerSectorZ - safety_border;
-			else
-				z0 = playerSectorZ - camera.cameraViewSectors;
-
-			z1 = playerSectorZ + camera.cameraViewSectors;
-
-			if (z0 < VISIBILITY_BORDER)
-				z0 = VISIBILITY_BORDER;
-			if (z1 >= sectors.getXZ()-VISIBILITY_BORDER)
-				z1 = sectors.getXZ()-1-VISIBILITY_BORDER;
-		}
-		else
-		{
-			z1 = playerSectorZ - camera.cameraViewSectors;
-
-			if (look.z < -half_fov)
-				z0 = playerSectorZ + safety_border;
-			else
-				z0 = playerSectorZ + camera.cameraViewSectors;
-
-			if (z1 < VISIBILITY_BORDER)
-				z1 = VISIBILITY_BORDER;
-			if (z0 >= sectors.getXZ()-VISIBILITY_BORDER)
-				z0 = sectors.getXZ()-1-VISIBILITY_BORDER;
-
-			zstp = -1;
-		}
-
-		int ystp = (look.y < 0.0f) ? -1 : 1;
-
-		int majority = 0;
-
-		// determine iteration direction
-		if (fabsf(look.x) > fabsf(look.z))
-		{
-			if (look.x >= 0)
-				majority = 0; // +x
-			else
-				majority = 1; // -x
-		}
-		else if (look.z >= 0)
-			majority = 2; // +z
-		else
-			majority = 3; // -z
-
-		// reset drawqing queue
-		drawq.reset();
-
-		// set frustum culling settings
-		DrawQueue::rendergrid_t rg;
-		rg.xstp = xstp;
-		rg.ystp = ystp;
-		rg.zstp = zstp;
-		rg.majority = majority;
+    DrawQueue::rendergrid_t rg;
+    // set frustum culling settings
 		rg.playerY  = playerPos.y;
     rg.wdx = this->snap_delta_x();
     rg.wdz = this->snap_delta_z();
 		rg.frustum = &camera.getFrustum();
 		rg.gridSize = camera.getGridsize();
+
+		// major direction scheme
+		int x0, x1;
+		if (look.x >= 0.0f)
+		{
+			x0 = VISIBILITY_BORDER;
+			x1 = sectors.getXZ()-1-VISIBILITY_BORDER;
+      rg.xstp = 1;
+		}
+		else
+		{
+			x1 = VISIBILITY_BORDER;
+			x0 = sectors.getXZ()-1-VISIBILITY_BORDER;
+      rg.xstp = -1;
+		}
+
+		int z0, z1;
+		if (look.z >= 0.0f)
+		{
+			z0 = VISIBILITY_BORDER;
+			z1 = sectors.getXZ()-1-VISIBILITY_BORDER;
+      rg.zstp = 1;
+		}
+		else
+		{
+			z1 = VISIBILITY_BORDER;
+			z0 = sectors.getXZ()-1-VISIBILITY_BORDER;
+      rg.zstp = -1;
+		}
+
+		rg.ystp = (look.y < 0.0f) ? -1 : 1;
+
+		// determine iteration direction
+		if (fabsf(look.x) > fabsf(look.z))
+		{
+			if (look.x >= 0)
+				rg.majority = 0; // +x
+			else
+				rg.majority = 1; // -x
+		}
+		else if (look.z >= 0)
+			rg.majority = 2; // +z
+		else
+			rg.majority = 3; // -z
+
+		// reset drawing queue
+		drawq.reset();
 
 		// start at roomsize 1, avoiding "everything"
 		drawq.uniformGrid(rg, x0, x1, z0, z1, 1);
@@ -248,7 +200,6 @@ namespace cppcraft
 
 	void SceneRenderer::renderScene(cppcraft::Camera& renderCam)
 	{
-    GLint shader_texrange = 0;
 		textureman.bind(2, Textureman::T_SKYBOX);
     // translation buffer texture
     m_buffer_texture->bind(8);
@@ -287,10 +238,7 @@ namespace cppcraft
         tiledb.tiles.tone_texture().setWrapMode(GL_REPEAT);
 				break;
 
-			case RenderConst::TX_TRANS: // see-through (tree leafs etc.)
-
-        // disable face culling for 2-sidedness
-        glDisable(GL_CULL_FACE);
+			case RenderConst::TX_TRANS_1SIDED: // see-through (tree leafs etc.)
 
 				// change shader-set
 				handleSceneUniforms(renderer.time(),
@@ -298,33 +246,25 @@ namespace cppcraft
 									renderCam);
 				break;
 
-			case RenderConst::TX_2SIDED: // 2-sided faces (torches, vines etc.)
+			case RenderConst::TX_TRANS_2SIDED: // 2-sided faces (torches, vines etc.)
 
-				// change to small, clamped textures
+        // change shader-set
+        {
+          auto& shd = shaderman[Shaderman::ALPHA_BLOCKS];
+          handleSceneUniforms(renderer.time(), shd, renderCam);
+        }
+
+        // disable face culling for 2-sidedness
+        glDisable(GL_CULL_FACE);
+
+				// enable texture clamping
         tiledb.tiles.diff_texture().setWrapMode(GL_CLAMP_TO_EDGE);
 				glActiveTexture(GL_TEXTURE0);
         tiledb.tiles.diff_texture().setWrapMode(GL_CLAMP_TO_EDGE);
 
-				// change shader-set
-        {
-          auto& shd = shaderman[Shaderman::ALPHA_BLOCKS];
-				  handleSceneUniforms(renderer.time(), shd, renderCam);
-          // texrange, because too lazy to create all shaders
-          shader_texrange = shd.getUniform("texrange");
-        }
-
 				// safe to increase step from this -->
 				if (drawq[i].size() == 0) continue;
 				// <-- safe to increase step from this
-
-				// set texrange
-				glUniform1i(shader_texrange, i);
-				break;
-
-			case RenderConst::TX_CROSS:
-
-				// set new texrange
-				glUniform1i(shader_texrange, i);
 				break;
 			}
 
@@ -369,12 +309,11 @@ namespace cppcraft
         tiledb.tiles.tone_texture().bind(1);
 				break;
 
-			case RenderConst::TX_2SIDED: // 2-sided faces (torches, vines etc.)
+			case RenderConst::TX_TRANS_2SIDED: // 2-sided faces (crosses, vines etc.)
 
 				// disable face culling (for 2-sidedness)
 				glDisable(GL_CULL_FACE);
 				break;
-
 			}
 
 			// direct render

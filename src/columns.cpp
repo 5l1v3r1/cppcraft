@@ -97,6 +97,10 @@ namespace cppcraft
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), (GLvoid*) offsetof(vertex_t, color)); // biome color
 		glEnableVertexAttribArray(3);
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), (GLvoid*) offsetof(vertex_t, data1));
+		glEnableVertexAttribArray(4);
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(vertex_t), (GLvoid*) offsetof(vertex_t, data2));
+		glEnableVertexAttribArray(5);
 		}
 
 #ifdef OPENGL_DO_CHECKS

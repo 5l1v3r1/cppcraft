@@ -3,6 +3,14 @@
 3. Fiks opp bygging
 4. Legg til en desert, legg til kaktus
 
+Tall grass
+- Find a way to animate tall grass
+- Use same light as below vertices to save time
+- Use cross shader
+
+Add new data tile
+- Enable data channel that can cancel out shadows (emissive)
+
 Implement inventory logic
 - Add hotbar (quickbar)
 - Add logic for simple interactions with widget inventories

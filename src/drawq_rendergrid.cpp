@@ -62,7 +62,7 @@ namespace cppcraft
 				{
 					if (rg.frustum->column(x * Sector::BLOCKS_XZ + sizex, z2, 0, Sector::BLOCKS_Y, size))
 					{
-						if (gridtest)
+            if (gridtest)
 							gridTesting(rg, x, z, stepsize);
 						else
 							uniformGrid(rg, x, x + bigstpx - rg.xstp, z, z + bigstpz - rg.zstp, quant + 1);
@@ -99,18 +99,6 @@ namespace cppcraft
 			if (x1 >= sectors.getXZ() - VISIBILITY_BORDER || x1 > x0) return;
 		}
 
-		int y0, y1;
-		if (rg.ystp == 1)
-		{
-			y0 = 0; // start bottom, go up
-			y1 = columns.getHeight() - 1;
-		}
-		else
-		{
-			y0 = columns.getHeight() - 1;
-			y1 = 0; // start top, go down
-		}
-
 		if (rg.zstp == 1)
 		{
 			if (z0 < VISIBILITY_BORDER) z0 = VISIBILITY_BORDER;
@@ -132,7 +120,6 @@ namespace cppcraft
 			if (z1 >= sectors.getXZ() - VISIBILITY_BORDER || z1 > z0) return;
 		}
 
-		int y = y0;
 		x = x0; z = z0;
 		const float CENTER_GRID = sectors.getXZ() / 2;
 		const float MAX_GRIDRAD = (camera.cameraViewSectors + 2.0f) * (camera.cameraViewSectors + 2.0f);
@@ -142,19 +129,17 @@ namespace cppcraft
 
 		while (true)
 		{
-			Column& cv = columns(x, z, rg.wdx, rg.wdz);
-
+			auto& cv = columns(x, z, rg.wdx, rg.wdz);
 			if (cv.renderable)
 			{
 				if (fx*fx + fz*fz < MAX_GRIDRAD)
 				{
-					static const float gs_half = BLOCKS_XZ * 0.5;
+					static const float gs_half = BLOCKS_XZ / 2;
 
 					if (rg.frustum->column(
 							(x * BLOCKS_XZ) + gs_half,
 							(z * BLOCKS_XZ) + gs_half,
-							0, BLOCKS_Y,  gs_half
-						))
+							0, BLOCKS_Y,  gs_half))
 					{
 						// this column is likely visible, and so we add all its meshes to queue
 						cv.pos.x = x * BLOCKS_XZ;
@@ -178,54 +163,41 @@ namespace cppcraft
 			{
 				// DONT DISABLE THIS, GPU WILL RUN OUT OF MEMORY IN A HEARTBEAT!!!!!!!!
 				cv.hasdata = false;
-
-				// free data from VAO/VBO (GPU is going to free or re-use this eventually)
+				// free data from VAO/VBO (GPU is going to re-use this eventually)
 				glBindVertexArray(cv.vao);
 				glBindBuffer(GL_ARRAY_BUFFER, cv.vbo);
 				glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
-
 			} // render test
 
 			if (rg.majority < 2)
 			{
 				// Y -> Z -> X
-				if (y == y1)
+				if (z == z1)
 				{
-					if (z == z1)
-					{
-						if (x == x1) return;
+					if (x == x1) return;
 
-						x += rg.xstp;
-						z = z0;
-					}
-					else z += rg.zstp;
-					y = y0;
-					// set new (fx, fy) centroidal position
-					fx = (x + 0.5) - CENTER_GRID;
-					fz = (z + 0.5) - CENTER_GRID;
+					x += rg.xstp;
+					z = z0;
 				}
-				else y += rg.ystp;
+				else z += rg.zstp;
+				// set new (fx, fy) centroidal position
+				fx = (x + 0.5) - CENTER_GRID;
+				fz = (z + 0.5) - CENTER_GRID;
 			}
 			else
 			{
 				// Y -> X -> Z
-				if (y == y1)
+				if (x == x1)
 				{
-					if (x == x1)
-					{
-						if (z == z1) return;
+					if (z == z1) return;
 
-						z += rg.zstp;
-						x = x0;
-					}
-					else x += rg.xstp;
-					y = y0;
-					// set new (fx, fy) centroidal position
-					fx = (x + 0.5) - CENTER_GRID;
-					fz = (z + 0.5) - CENTER_GRID;
+					z += rg.zstp;
+					x = x0;
 				}
-				else y += rg.ystp;
-
+				else x += rg.xstp;
+				// set new (fx, fy) centroidal position
+				fx = (x + 0.5) - CENTER_GRID;
+				fz = (z + 0.5) - CENTER_GRID;
 			} // majority
 
 		} // do loop

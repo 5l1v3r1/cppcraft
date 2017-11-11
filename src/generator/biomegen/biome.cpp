@@ -44,8 +44,7 @@ namespace terragen
 			// generate overworld terrain weights
 			auto terr_values = overworldGen(p * cppcraft::BIOME_SCALE); // see common.hpp
       // max distance between terrains before discard
-      // 10 = bad, 25 = decent, 50 = good
-      auto biome = solve(terr_values, 0.15f, terrains);
+      auto biome = solve(terr_values, 0.075f, terrains);
 
       // set final weights for area
       gdata->setWeights(x, z, {std::move(biome), terr_values.z});

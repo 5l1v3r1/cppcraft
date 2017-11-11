@@ -43,8 +43,9 @@
       "flower_red": [10, 0],
       "flower_yellow": [11, 0],
 
-      "mushroom_brown": [7, 2],
-      "mushroom_red": [8, 2],
+      "mushroom_blue":  [9, 2],
+      "mushroom_red":  [10, 2],
+      "mushroom_flat": [11, 2],
 
       "torch": [0, 13],
 

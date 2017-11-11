@@ -22,9 +22,6 @@ flat out float worldLight;
 
 out vec3 v_normals;
 
-const int TX_REPEAT
-const int TX_SOLID
-
 const float VERTEX_SCALE_INV
 
 void main(void)
@@ -65,10 +62,7 @@ flat in vec3 v_normals;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 normals;
-
 const float ZFAR
-const int TX_SOLID
-const int TX_CROSS
 
 void main(void)
 {

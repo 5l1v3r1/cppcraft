@@ -48,6 +48,9 @@ namespace cppcraft
 				bm[vert].u = cross_texcoords[vert * 2 + 0] * RenderConst::VERTEX_SCALE; // u
 				bm[vert].v = cross_texcoords[vert * 2 + 1] * RenderConst::VERTEX_SCALE; // v
 				bm[vert].w = 0;
+
+        // waving crosses
+        bm[vert].data1 = bm[vert].v;
 			}
 			// first mesh object in crosses are... crosses :)
 			crosses.push_back(bm);

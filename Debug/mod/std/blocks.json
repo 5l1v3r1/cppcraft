@@ -143,12 +143,19 @@
       "minimap": "grass",
       "tile": ["tiles", "mushroom_red"]
     },
-    "mushroom_brown": {
+    "mushroom_blue": {
       "type": "cross",
-      "name": "Red Mushroom",
+      "name": "Blue Mushroom",
       "color": "grass",
       "minimap": "grass",
-      "tile": ["tiles", "mushroom_brown"]
+      "tile": ["tiles", "mushroom_blue"]
+    },
+    "mushroom_flat": {
+      "type": "cross",
+      "name": "Flat Mushroom",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "mushroom_flat"]
     },
 
     "ore_coal": {
@@ -181,7 +188,7 @@
       "name": "Basin Murky Soil",
       "color": [104, 90, 250, 255],
       "minimap": [104, 90, 250, 255],
-      "tile": ["tiles", "grass_top"],
+      "tile": ["big", "grass_top"],
       "sound": "grass"
     }
 

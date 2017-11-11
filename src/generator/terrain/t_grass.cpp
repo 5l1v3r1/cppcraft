@@ -20,16 +20,30 @@ namespace terragen
   FastPlacement place_trees(64, 7.0f, 256);
   static const float GRASS_OVER = 0.1f;
 
+  float step(float x, float step)
+  {
+    return std::trunc(x * step) / step;
+  }
+
   static glm::vec3 getunder_grass(vec2 p, const float height)
   {
-    p *= 0.001f;
-    float land = Simplex::ridgedMF(p);
-    float ground = height - 0.2f + land * 0.25f;
+    float mod_x = Simplex::noise(p * 0.006f);
+    p.x += mod_x * 100.0f;
+    float land =
+          Simplex::worleyNoise(p * vec2(0.006f, 0.004f))
+          + 0.2f * glm::perlin(p * 0.01f);
+    float platforms = mod_x * mod_x *
+          0.2f * step(glm::perlin(p * vec2(0.01f, 0.04f)), 8.0f);
+
+    float ground = height - 0.2f + land * 0.1f;
     return {ground, 0.0f, 0.0f};
   }
   static float getnoise_grass(vec3 p, const glm::vec3 under)
 	{
-		return p.y - under.x - GRASS_OVER + Simplex::ridgedMF(p * 0.00222f) * GRASS_OVER;
+    float noise = 0.0f;
+          //Simplex::ridgedMF(p * 0.00222f);
+        //+ Simplex::noise(p * 0.222f);
+		return p.y - under.x - GRASS_OVER + noise * GRASS_OVER;
 	}
 
 	static int grass_process(gendata_t*, int x, int z, const int Y, const int);

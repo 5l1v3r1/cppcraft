@@ -9,20 +9,19 @@ namespace cppcraft
 	typedef unsigned short GLushort;
 	typedef int GLint;
 	typedef unsigned int GLuint;
-	
-	#pragma pack(push, 4)
+
 	struct vertex_t
 	{
 		GLshort x; // 0
 		GLshort y;
 		GLshort z;
 		unsigned short face;
-		
+
 		GLbyte nx; // 8
 		GLbyte ny;
 		GLbyte nz;
 		GLbyte ao; // ambient occlusion 1-channel
-		
+
 		GLshort u; // 12
 		GLshort v;
 		GLshort w;
@@ -30,10 +29,13 @@ namespace cppcraft
 		GLushort light;
 		// 4-channels terrain color
 		GLuint color; // 20
-		
-	};  // 24
-	#pragma pack(pop)
-	
+
+    GLuint data1; // 24
+    GLuint data2; // 28
+
+	}; // 32
+  static_assert(sizeof(vertex_t) == 32, "Vertex should be exactly 32 bytes");
+
 	typedef GLushort indice_t;
 }
 

@@ -33,6 +33,7 @@ namespace cppcraft
 	GUIRenderer rendergui;
   static nanogui::ref<nanogui::Window> stats;
   static nanogui::IntBox<float>* fpsbox = nullptr;
+  static nanogui::IntBox<size_t>* drawbox = nullptr;
   static nanogui::IntBox<size_t>* genbox = nullptr;
   static nanogui::IntBox<size_t>* prqbox = nullptr;
   static nanogui::IntBox<size_t>* objbox = nullptr;
@@ -77,6 +78,11 @@ namespace cppcraft
     fpsbox->setEditable(false);
     fpsbox->setFontSize(16);
     fpsbox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(main, "DrawQ");
+    drawbox = new nanogui::IntBox<size_t>(main);
+    drawbox->setEditable(false);
+    drawbox->setFixedSize(Vector2i(100, 20));
 
     new Label(main, "Generator");
     genbox = new nanogui::IntBox<size_t>(main);
@@ -174,6 +180,7 @@ namespace cppcraft
 		/// debug text ///
     const float fps = renderer.fps();
     fpsbox->setValue(((int) (fps * 128.0)) / 128.0);
+    drawbox->setValue(drawq.size());
 
     genbox->setValue(Generator::size());
     prqbox->setValue(precompq.size());

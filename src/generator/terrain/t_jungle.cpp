@@ -30,7 +30,7 @@ namespace terragen
 	{
     vec3 N = p * vec3(0.01f, 8.0f, 0.01f);
     float n1 = glm::simplex(N);
-		return p.y - under.x + COSN_HEIGHT +
+		return p.y - under.x - COSN_HEIGHT +
       0.5f * COSN_HEIGHT * (1.0f + cosnoise(N, n1, 1.0f, 1.0f, 1.0 + fabsf(n1), 1.0f, 0.0f));
 	}
 

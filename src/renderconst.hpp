@@ -13,12 +13,11 @@ namespace cppcraft
 			// before "underwater" screenshot
 			TX_REPEAT = 0,
 			TX_SOLID,
-			TX_TRANS,
-			TX_2SIDED,
-			TX_CROSS,
+			TX_TRANS_1SIDED,
+			TX_TRANS_2SIDED,
 			// after screenshot
 			TX_WATER,
-			TX_RUNNING_WATER,
+			TX_FLUIDS,
 			TX_LAVA,
 
 			MAX_UNIQUE_SHADERS

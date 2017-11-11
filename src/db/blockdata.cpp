@@ -80,8 +80,7 @@ namespace db
 		leaf.hasActivation = [] (const Block&) { return false; };
 		leaf.transparent = true;
 		leaf.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
-		leaf.repeat_y = false;
-		leaf.shader = RenderConst::TX_TRANS;
+		leaf.shader = RenderConst::TX_TRANS_1SIDED;
 		leaf.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
 		leaf.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		leaf.visibilityComp =
@@ -110,7 +109,7 @@ namespace db
     blk.setMinimapColor(Biomes::CL_GRASS);
 		blk.physicalHitbox3D = [] (const Block&, float, float, float) { return true; };
 		blk.repeat_y = false;
-		blk.shader = RenderConst::TX_CROSS;
+		blk.shader = RenderConst::TX_TRANS_2SIDED;
 		blk.selectionHitbox3D = [] (const Block&, float, float, float) { return true; };
 		blk.transparentSides = BlockData::SIDE_ALL; // none of them solid
 		blk.visibilityComp =

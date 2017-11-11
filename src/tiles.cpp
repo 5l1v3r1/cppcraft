@@ -138,6 +138,7 @@ namespace cppcraft
 		m_diff_texture = Texture(GL_TEXTURE_2D_ARRAY);
 		m_diff_texture.create(diffuse(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
 		m_diff_texture.setAnisotropy(gameconf.anisotropy);
+    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 		if (OpenGL::checkError()) throw std::runtime_error("Tile database: diffuse error");
     /// (optional) color dye tileset ///
     if (this->m_tone_enabled)
@@ -145,6 +146,7 @@ namespace cppcraft
       m_tone_texture = Texture(GL_TEXTURE_2D_ARRAY);
 	    m_tone_texture.create(tonemap(), true, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR);
       m_tone_texture.setAnisotropy(gameconf.anisotropy);
+      glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
       if (OpenGL::checkError()) throw std::runtime_error("Tile database: tonemap error");
     }
   }

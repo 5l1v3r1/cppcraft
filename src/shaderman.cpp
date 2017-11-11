@@ -20,27 +20,7 @@ namespace cppcraft
 
 	std::string tokenizer(std::string text)
 	{
-		if (text == "const int TX_REPEAT")
-		{
-			text += " = " + std::to_string(RenderConst::TX_REPEAT) + ";";
-		}
-		else if (text == "const int TX_SOLID")
-		{
-			text += " = " + std::to_string(RenderConst::TX_SOLID) + ";";
-		}
-		else if (text == "const int TX_2SIDED")
-		{
-			text += " = " + std::to_string(RenderConst::TX_2SIDED) + ";";
-		}
-		else if (text == "const int TX_CROSS")
-		{
-			text += " = " + std::to_string(RenderConst::TX_CROSS) + ";";
-		}
-		else if (text == "const int TX_WATER")
-		{
-			text += " = " + std::to_string(RenderConst::TX_WATER) + ";";
-		}
-		else if (text == "const float VERTEX_SCALE")
+		if (text == "const float VERTEX_SCALE")
 		{
 			text += " = " + std::to_string(RenderConst::VERTEX_SCALE) + ";";
 		}
@@ -83,11 +63,12 @@ namespace cppcraft
 
 		// load and initialize all shaders
 		std::vector<std::string> linkstage;
-
 		linkstage.emplace_back("in_vertex");
 		linkstage.emplace_back("in_normal");
 		linkstage.emplace_back("in_texture");
 		linkstage.emplace_back("in_biome");
+    linkstage.emplace_back("in_data1");
+    linkstage.emplace_back("in_data2");
 
 		// block shaders
 		for (int i = 0; i < 8; i++)

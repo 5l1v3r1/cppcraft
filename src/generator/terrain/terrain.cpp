@@ -136,7 +136,7 @@ namespace terragen
 		static const int grid_pfac = BLOCKS_XZ / NGRID;
     static const int FACTOR_2D = BLOCKS_XZ / GRID2D;
 		static const int y_step = 4;
-		static const int y_points = BLOCKS_Y / y_step + 1;
+		static const int y_points = BLOCKS_Y / y_step + 3;
 
 		// terrain heightmaps
     glm::vec3 heightmap_und[GRID2D+1][GRID2D+1] ALIGN_AVX;
@@ -199,14 +199,18 @@ namespace terragen
 			// create unprocessed 3D volumes
 			glm::vec3 p = data->getBaseCoords3D(x * grid_pfac, 0.0, z * grid_pfac);
 
+      // the worst slope can add alot more than just MAX_GND to to have
+      // smooth terrain we need to go quite a bit more up, still efficient
+      const int WORST_SLOPE_Y = MAX_GND + y_step + 8;
+
       // let's zero out everything above the max value to avoid interp. errors
-      for (int y = MAX_GND + y_step-1; y < BLOCKS_Y; y += y_step)
+      for (int y = WORST_SLOPE_Y; y < BLOCKS_Y; y += y_step)
       {
         cave_array[x][z][y / y_step] = 1.0f;
         noisearray[x][z][y / y_step] = 1.0f;
       }
 
-      for (int y = 0; y < MAX_GND + y_step; y += y_step)
+      for (int y = 0; y <= WORST_SLOPE_Y; y += y_step)
 			{
 				p.y = y / float(BLOCKS_Y);
 
