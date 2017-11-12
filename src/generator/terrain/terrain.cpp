@@ -43,7 +43,6 @@ namespace terragen
 
 		// middle = waterlevel + beachhead
 		float beachhead  = in_beachhead * 0.025; // sand above water (0.0075 + ...)
-		const float soil_lower = -0.05; // underground soil density
 
 		// upper = waterlevel + beachhead + lower_to_upper
 		const float lower_to_upper  = 0.1;  // transition length from lower to upper
@@ -54,32 +53,17 @@ namespace terragen
 			{
 				// lower hemisphere, dense
 
-				if (caves + cavetresh < cave_lower)
+				if (UNLIKELY(caves + cavetresh < cave_lower))
 				{
 					// lower caves
 					if (y < lava_height) return LAVA_BLOCK;
 					return _AIR;
 				}
 
-				if (density < stone_lower)
+				if (LIKELY(density < stone_lower))
 				{
 					// lower stone
 					return STONE_BLOCK;
-				}
-
-				// soil deposits underground =)
-				if (density < soil_lower)
-					return SOIL_BLOCK;
-
-				// tone down sand the higher up we get
-				if (y >= WATERHEIGHT)
-				{
-					// transitional density for sand to soil
-					float deltay = (beachhead > 0.0) ? (y - WATERHEIGHT) / beachhead : 0.0;
-					deltay *= deltay;
-
-					if (deltay > 1.0 - (density / soil_lower) )
-						return SOIL_BLOCK;
 				}
 
 				// remaining density = sand
@@ -196,6 +180,7 @@ namespace terragen
       // the worst slope can add alot more than just MAX_GND to to have
       // smooth terrain we need to go quite a bit more up, still efficient
       const int WORST_SLOPE_Y = MAX_GND + y_step + 8;
+      //const int WORST_SLOPE_Y = BLOCKS_Y + y_step - 1;
 
       // let's zero out everything above the max value to avoid interp. errors
       for (int y = WORST_SLOPE_Y; y < BLOCKS_Y; y += y_step)
