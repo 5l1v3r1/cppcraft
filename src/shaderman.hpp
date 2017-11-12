@@ -3,6 +3,7 @@
 
 #include <library/opengl/shader.hpp>
 #include "renderman.hpp"
+#include <array>
 #include <string>
 
 namespace library
@@ -65,10 +66,12 @@ namespace cppcraft
 
 		} shaderlist_t;
 
-		library::Shader& operator[] (shaderlist_t);
+		auto& operator[] (shaderlist_t shd) {
+      return shaders[shd];
+    }
 
 	private:
-		library::Shader shaders[NUMBER_OF_SHADERS];
+		std::array<library::Shader, NUMBER_OF_SHADERS> shaders;
 	};
 	extern Shaderman shaderman;
 }

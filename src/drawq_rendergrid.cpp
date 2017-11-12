@@ -5,6 +5,7 @@
 #include <library/opengl/opengl.hpp>
 #include "camera.hpp"
 #include "columns.hpp"
+#include "player.hpp"
 #include "sectors.hpp"
 
 using namespace library;
@@ -121,17 +122,19 @@ namespace cppcraft
 		}
 
 		x = x0; z = z0;
-		const float CENTER_GRID = sectors.getXZ() / 2;
-		const float MAX_GRIDRAD = (camera.cameraViewSectors + 2.0f) * (camera.cameraViewSectors + 2.0f);
+		const float MAX_GRIDRAD =
+        (camera.cameraViewSectors+1) * (camera.cameraViewSectors+1);
 
-		float fx = (x + 0.5) - CENTER_GRID;
-		float fz = (z + 0.5) - CENTER_GRID;
+    // center measured in sectors
+    const auto center_grid = glm::vec2(player.pos.x, player.pos.z) / float(BLOCKS_XZ);
 
 		while (true)
 		{
 			auto& cv = columns(x, z, rg.wdx, rg.wdz);
 			if (cv.renderable)
 			{
+        const float fx = (x + 0.5f) - center_grid.x;
+    		const float fz = (z + 0.5f) - center_grid.y;
 				if (fx*fx + fz*fz < MAX_GRIDRAD)
 				{
 					static const float gs_half = BLOCKS_XZ / 2;
@@ -180,9 +183,6 @@ namespace cppcraft
 					z = z0;
 				}
 				else z += rg.zstp;
-				// set new (fx, fy) centroidal position
-				fx = (x + 0.5) - CENTER_GRID;
-				fz = (z + 0.5) - CENTER_GRID;
 			}
 			else
 			{
@@ -195,9 +195,6 @@ namespace cppcraft
 					x = x0;
 				}
 				else x += rg.xstp;
-				// set new (fx, fy) centroidal position
-				fx = (x + 0.5) - CENTER_GRID;
-				fz = (z + 0.5) - CENTER_GRID;
 			} // majority
 
 		} // do loop

@@ -35,7 +35,6 @@ namespace cppcraft
 		this->znear = 0.136;
 		this->zfar  = cameraViewSectors * Sector::BLOCKS_XZ;
 
-    this->update(renderer);
     renderer.on_resize({this, &Camera::update});
 	}
   void Camera::update(Renderer& renderer)

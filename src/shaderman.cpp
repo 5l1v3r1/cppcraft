@@ -158,7 +158,6 @@ namespace cppcraft
 
 		shaders[PARTICLE] = Shader("shaders/particles.glsl", tokenizer, linkstage);
 		shaders[PARTICLE].sendInteger("texture", 0);
-		shaders[PARTICLE].sendMatrix("matproj", camera.getProjection());
 
 		// atmospherics shader
 		linkstage.clear();
@@ -167,27 +166,22 @@ namespace cppcraft
 		shaders[ATMOSPHERE] = Shader("shaders/atmosphere.glsl", tokenizer, linkstage);
 		shaders[ATMOSPHERE].sendInteger("skymap",  0);
 		shaders[ATMOSPHERE].sendInteger("starmap", 1);
-		shaders[ATMOSPHERE].sendMatrix("matproj", camera.getProjection());
 
 		// sun shader
 		shaders[SUN] = Shader("shaders/sun.glsl", tokenizer, linkstage);
-		shaders[SUN].sendMatrix("matproj", camera.getProjection());
 		shaders[SUN].sendInteger("texture", 0);
 
 		// projected sun shader
 		shaders[SUNPROJ] = Shader("shaders/sunproj.glsl", tokenizer, linkstage);
-		shaders[SUNPROJ].sendMatrix("matproj", camera.getProjection());
 		shaders[SUNPROJ].sendInteger("texture", 0);
 		shaders[SUNPROJ].sendInteger("depth",   1);
 
 		// moon shader
 		shaders[MOON] = Shader("shaders/moon.glsl", tokenizer, linkstage);
-		shaders[MOON].sendMatrix("matproj", camera.getProjection());
 		shaders[MOON].sendInteger("texture", 0);
 
 		// clouds shader
 		shaders[CLOUDS] = Shader("shaders/clouds.glsl", tokenizer, linkstage);
-		shaders[CLOUDS].sendMatrix("matproj", camera.getProjectionLong());
 		shaders[CLOUDS].sendInteger("cloudstex", 0);
 
 		// screenspace fog shader
@@ -241,7 +235,6 @@ namespace cppcraft
 
 		shaders[PLAYERHAND] = Shader("shaders/playerhand.glsl", tokenizer, linkstage);
 		shaders[PLAYERHAND].sendInteger("texture", 0);
-		shaders[PLAYERHAND].sendMatrix("matproj", camera.getProjection());
 
 		// playerhand held-item, re-using meshobjects
 		shaders[PHAND_HELDITEM] = Shader("shaders/playerhand_helditem.glsl", tokenizer, linkstage);
@@ -274,13 +267,28 @@ namespace cppcraft
     		glm::vec3 vecScreen(renderer.width(), renderer.height(), renderer.aspect());
         glm::vec3 vecSuperScreen(renderer.width() * gameconf.supersampling, renderer.height() * gameconf.supersampling, renderer.aspect());
 
+        // update projection matrices
+        shaders[ATMOSPHERE].bind();
+        shaders[ATMOSPHERE].sendMatrix("matproj", camera.getProjection());
+        shaders[CLOUDS].bind();
+        shaders[CLOUDS].sendMatrix("matproj", camera.getProjectionLong());
+        shaders[SUN].bind();
+        shaders[SUN].sendMatrix("matproj", camera.getProjection());
+        shaders[SUNPROJ].bind();
+    		shaders[SUNPROJ].sendMatrix("matproj", camera.getProjection());
+        shaders[MOON].bind();
+    		shaders[MOON].sendMatrix("matproj", camera.getProjection());
+
         for (int i = 0; i < 8; i++)
     		{
           const int sbase = (int)STD_BLOCKS;
-          // update projection matrix
           shaders[sbase + i].bind();
           shaders[sbase + i].sendMatrix("matproj", camera.getProjection());
         }
+        shaders[PLAYERHAND].bind();
+        shaders[PLAYERHAND].sendMatrix("matproj", camera.getProjection());
+        shaders[PARTICLE].bind();
+        shaders[PARTICLE].sendMatrix("matproj", camera.getProjection());
 
         // update near plane half size
         shaders[BLOCKS_WATER].bind();
@@ -302,10 +310,4 @@ namespace cppcraft
         shaders[SUPERSAMPLING].sendVec2("offsets", glm::vec2(1.0f) / glm::vec2(vecSuperScreen));
       });
 	}
-
-	Shader& Shaderman::operator[] (shaderlist_t shader)
-	{
-		return shaders[shader];
-	}
-
 }

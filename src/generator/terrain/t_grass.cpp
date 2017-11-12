@@ -18,31 +18,36 @@ using namespace library;
 namespace terragen
 {
   FastPlacement place_trees(64, 7.0f, 256);
-  static const float GRASS_OVER = 0.1f;
+
+  template<typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+  }
 
   float step(float x, float step)
   {
     return std::trunc(x * step) / step;
   }
+  inline float canyonize(vec3 p)
+  {
+    float noise = glm::perlin(p);
+    float canyon = sgn(noise);
+
+    //canyon = (canyon < 0.0f) ? 0.0f : canyon;
+    canyon = glm::clamp(canyon, -0.25f, 1.0f);
+    return canyon;
+  }
 
   static glm::vec3 getunder_grass(vec2 p, const float height)
   {
-    float mod_x = Simplex::noise(p * 0.006f);
-    p.x += mod_x * 100.0f;
-    float land =
-          Simplex::worleyNoise(p * vec2(0.006f, 0.004f))
-          + 0.2f * glm::perlin(p * 0.01f);
-    float platforms = mod_x * mod_x *
-          0.2f * step(glm::perlin(p * vec2(0.01f, 0.04f)), 8.0f);
-
-    float ground = height - 0.2f + land * 0.1f;
+    float ground = height - 0.15f;
     return {ground, 0.0f, 0.0f};
   }
+  static const float GRASS_OVER = 0.1f;
   static float getnoise_grass(vec3 p, const glm::vec3 under)
 	{
-    float noise = 0.0f;
-          //Simplex::ridgedMF(p * 0.00222f);
-        //+ Simplex::noise(p * 0.222f);
+    float canyon = canyonize(p * vec3(0.01f, 2.0f, 0.01f));
+
+    float noise = canyon;
 		return p.y - under.x - GRASS_OVER + noise * GRASS_OVER;
 	}
 
@@ -176,15 +181,12 @@ namespace terragen
             else if (rand > 0.75)
   					{
   						// note: this is an inverse of the otreeHuge noise
-              glm::vec2 p = gdata->getBaseCoords2D(x, z);
-  						if (glm::simplex(p * 0.005f) > 0.0) {
-                if (rand > 0.775)
-  							   gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
-                else if (rand > 0.765)
- 							     gdata->getb(x, y+1, z).setID(db::getb("flower_red"));
-                else
- 							     gdata->getb(x, y+1, z).setID(db::getb("flower_yellow"));
-  						}
+              if (rand > 0.775)
+							     gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
+              else if (rand > 0.765)
+							     gdata->getb(x, y+1, z).setID(db::getb("flower_red"));
+              else
+					         gdata->getb(x, y+1, z).setID(db::getb("flower_yellow"));
   					}
 
           }
@@ -192,10 +194,10 @@ namespace terragen
           if (place_trees.test(wx, wz) && air > 16)
 					{
             glm::vec2 p = gdata->getBaseCoords2D(x, z);
-						if (glm::simplex(p * 0.005f) < -0.2)
+						if (glm::simplex(p * 0.005f) < 0.3f)
 						{
 							unsigned height = 5 + randf(wx, y-1, wz) * 3;
-							if (y + height < 160)
+							if (y + height < 220)
 							{
 								gdata->add_object("basic_tree", wx, y+1, wz, height);
 							}

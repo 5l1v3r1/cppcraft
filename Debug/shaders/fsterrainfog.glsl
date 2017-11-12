@@ -115,7 +115,7 @@ void main()
 
 	// final fog color (AFTER sky, and after sun)
 	color.rgb = mix(color.rgb, fogData.rgb, fogAmount);
-	// ... and, use alpha-channel as depth
+	// alpha-channel is linearized depth
 	color.a   = depth;
 }
 

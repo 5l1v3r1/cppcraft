@@ -16,13 +16,13 @@ out vec2 screenPos;
 void main(void)
 {
 	texCoord = in_vertex.xy + vec2(0.5);
-	
+
 	vec4 position = matview * vec4(in_vertex.xyz, 1.0);
-	
+
 	norm = normalize(position.xyz * mat3(matrot));
-	
+
 	gl_Position = matproj * position;
-	
+
 	// scale position to range [0, 1] on screen
 	screenPos = gl_Position.xy / gl_Position.w / vec2(2.0) + vec2(0.5);
 }
@@ -45,10 +45,10 @@ void main(void)
 {
 	color = texture2D(texture, texCoord);
 	color.rgb *= SUNCOLOR;
-	
+
 	// discard if something is blocking
 	color.rgb *= step(0.9, texture2D(depth, screenPos).a);
-	
+
 	// limit flare to horizon
 	color.rgb *= pow( 1.0 - clamp(-norm.y / 0.01,  0.0, 1.0),  3.0 );
 }
