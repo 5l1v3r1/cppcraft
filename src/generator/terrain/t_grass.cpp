@@ -27,27 +27,44 @@ namespace terragen
   {
     return std::trunc(x * step) / step;
   }
-  inline float canyonize(vec3 p)
+  inline float canyonize(float noise)
   {
-    float noise = glm::perlin(p);
     float canyon = sgn(noise);
 
     //canyon = (canyon < 0.0f) ? 0.0f : canyon;
     canyon = glm::clamp(canyon, -0.25f, 1.0f);
     return canyon;
   }
+  inline float riverize(float noise, vec2 p)
+  {
+    float river = 0.0f;
+    if (noise < 0.0) river = -0.1f * noise;
+
+    return 0.0f;
+  }
 
   static glm::vec3 getunder_grass(vec2 p, const float height)
   {
-    float ground = height - 0.15f;
+    vec2 npos = p * 0.01f;
+    float riv_noise = glm::perlin(npos);
+    float river = riverize(riv_noise, npos);
+
+    float ground = height - 0.15f + river;
     return {ground, 0.0f, 0.0f};
   }
   static const float GRASS_OVER = 0.1f;
   static float getnoise_grass(vec3 p, const glm::vec3 under)
 	{
-    float canyon = canyonize(p * vec3(0.01f, 2.0f, 0.01f));
+    const bool is_over = under.x > WATERLEVEL_FLT;
+    vec3 npos = p * vec3(0.01f, 5.0f, 0.01f);
 
-    float noise = canyon;
+    float noise = 0.0f;
+    // enable canyon over water
+    if (is_over) {
+      float can_noise = glm::perlin(npos);
+      noise += canyonize(can_noise);
+    }
+
 		return p.y - under.x - GRASS_OVER + noise * GRASS_OVER;
 	}
 
