@@ -27,12 +27,10 @@ namespace terragen
   {
     return std::trunc(x * step) / step;
   }
-  inline float canyonize(float noise)
+  inline float canyonize(float noise, float strength)
   {
-    float canyon = sgn(noise);
-
-    //canyon = (canyon < 0.0f) ? 0.0f : canyon;
-    canyon = glm::clamp(canyon, -0.25f, 1.0f);
+    float canyon = sgn(noise) * hermite(powf(fabs(noise), 1.0f / strength));
+    //canyon = glm::clamp(canyon, -0.25f, 1.0f);
     return canyon;
   }
   inline float riverize(float noise, vec2 p)
@@ -52,20 +50,21 @@ namespace terragen
     float ground = height - 0.15f + river;
     return {ground, 0.0f, 0.0f};
   }
-  static const float GRASS_OVER = 0.1f;
+  static const float GRASS_OVER = 0.2f;
   static float getnoise_grass(vec3 p, const glm::vec3 under)
 	{
-    const bool is_over = under.x > WATERLEVEL_FLT;
-    vec3 npos = p * vec3(0.01f, 5.0f, 0.01f);
+    const bool is_over = under.x + GRASS_OVER * 0.4f > WATERLEVEL_FLT;
+    vec3 npos = p * vec3(0.005f, 3.0f, 0.005f);
 
     float noise = 0.0f;
     // enable canyon over water
     if (is_over) {
-      float can_noise = glm::perlin(npos);
-      noise += canyonize(can_noise);
+      float can_noise = Simplex::fBm(npos);
+      float strength = 0.25f + (p.y - under.x) / GRASS_OVER;
+      noise += canyonize(can_noise, 3.0f * strength);
     }
 
-		return p.y - under.x - GRASS_OVER + noise * GRASS_OVER;
+		return p.y - under.x - (1.0f + noise) * GRASS_OVER * 0.5f;
 	}
 
 	static int grass_process(gendata_t*, int x, int z, const int Y, const int);
@@ -100,12 +99,12 @@ namespace terragen
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
 			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-			return RGBA8(100 + v * 40.0f, 80 - v * 80.0f, 0, 255);
+			return RGBA8(120 + v * 40.0f, 110 - v * 80.0f, 0, 255);
 		});
     terrain.setColor(Biomes::CL_TREES_B,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
-			return RGBA8(30, 104, 0, 255);
+			return RGBA8(60, 154, 0, 255);
 		});
 		// Stone color
 		terrain.setColor(Biomes::CL_STONE,
