@@ -53,16 +53,13 @@ namespace terragen
   static const float GRASS_OVER = 0.2f;
   static float getnoise_grass(vec3 p, const glm::vec3 under)
 	{
-    const bool is_over = under.x + GRASS_OVER * 0.4f > WATERLEVEL_FLT;
     vec3 npos = p * vec3(0.005f, 3.0f, 0.005f);
 
     float noise = 0.0f;
     // enable canyon over water
-    if (is_over) {
-      float can_noise = Simplex::fBm(npos);
-      float strength = 0.25f + (p.y - under.x) / GRASS_OVER;
-      noise += canyonize(can_noise, 3.0f * strength);
-    }
+    float can_noise = Simplex::fBm(npos);
+    float strength = 0.25f + (p.y - under.x) / GRASS_OVER;
+    noise += canyonize(can_noise, 3.0f * strength);
 
 		return p.y - under.x - (1.0f + noise) * GRASS_OVER * 0.5f;
 	}
@@ -127,8 +124,10 @@ namespace terragen
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
-		// count current form of dirt/sand etc.
-		int soilCounter = 0;
+		// count whatever
+		int     counter = 0;
+    block_t lastID    = 0;
+    int     lastCount = 0;
 		// start counting from top (pretend really high)
 		int air = BLOCKS_Y; // simple _AIR counter
 
@@ -141,7 +140,10 @@ namespace terragen
 			if (block.isAir()) {
         air++; continue;
       }
-
+      else if (lastID != block.getID()) {
+        counter = 0;
+      }
+      counter++;
 
       if (block.getID() == SOIL_BLOCK)
 			{
@@ -164,19 +166,24 @@ namespace terragen
 			// which are specifically greensoil & sandbeach
 			if (block.getID() == SOIL_BLOCK || block.getID() == BEACH_BLOCK)
 			{
-				soilCounter++;
-
 				// making stones under water level has priority!
-				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
+				if (y < WATERLEVEL && counter > PostProcess::STONE_CONV_UNDER)
 				{
 					block.setID(STONE_BLOCK);
 				}
-				else if (soilCounter > PostProcess::STONE_CONV_OVERW)
+				else if (counter > PostProcess::STONE_CONV_OVERW)
 				{
 					block.setID(STONE_BLOCK);
 				}
 			}
-			else soilCounter = 0;
+      // drop some sea weeds
+      if (block.getID() == BEACH_BLOCK && lastID == WATER_BLOCK)
+      {
+        if (lastCount > 2) {
+          float rand = randf(wx, y, wz);
+          if (rand < 0.05f) gdata->getb(x, y+1, z).setID(db::getb("seaweed"));
+        }
+      }
 
 			// check if decent air
 			if (air > 8)
@@ -226,6 +233,8 @@ namespace terragen
 				}
 			}
       air = 0;
+      lastID = block.getID();
+      lastCount = counter;
 
 		} // y
     return 1;

@@ -114,6 +114,13 @@
       "sound": "cloth"
     },
 
+    "seaweed": {
+      "type": "cross",
+      "name": "Sea Weed",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "seaweed"]
+    },
     "cross_grass": {
       "type": "cross",
       "name": "Grass Bush",

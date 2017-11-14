@@ -38,8 +38,9 @@
 
       "wood_oak": [0, 7],
       "leaf": [14,1, 14,0],
-      "grass_bush": [12,4, 13,4],
 
+      "seaweed": [6,0],
+      "grass_bush": [12,4, 13,4],
       "flower_red": [10, 0],
       "flower_yellow": [11, 0],
 
