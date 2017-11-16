@@ -64,6 +64,25 @@ namespace terragen
 		return p.y - under.x - (1.0f + noise) * GRASS_OVER * 0.5f;
 	}
 
+  static vec3 getunder_meadows(vec2 p, const float height)
+  {
+    const float AVG_HEIGHT = WATERLEVEL_FLT + 0.025f;
+    float ground = height * 0.25f + 0.75f * AVG_HEIGHT;
+    return {ground, 0.0f, 0.0f};
+  }
+  static float getnoise_meadows(vec3 p, const glm::vec3 under)
+	{
+    vec3 npos = p * vec3(0.004f, 1.0f, 0.004f);
+
+    float noise = 0.0f;
+    // enable canyon over water
+    float can_noise = Simplex::noise(npos);
+    float strength = 0.25f + (p.y - under.x) / GRASS_OVER;
+    noise += canyonize(can_noise, 1.0f * strength);
+
+		return p.y - under.x - (1.0f + noise) * GRASS_OVER * 0.5f;
+	}
+
 	static int grass_process(gendata_t*, int x, int z, const int Y, const int);
 
   static block_t GRASS_ID = 0;
@@ -116,7 +135,14 @@ namespace terragen
 			return RGBA8(62, 82, 107, 255);
 		});
 
-	} // _init();
+    auto& copy =
+		terrains.add("meadow",  "Meadows", Biome::biome_t{0.45f, 0.5f, 0.25f});
+
+    copy.copy_from(terrain);
+    copy.hmap_und = getunder_meadows;
+    copy.func3d = getnoise_meadows;
+
+	} // terrain_grass_init
 
   int grass_process(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{

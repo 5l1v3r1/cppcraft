@@ -17,6 +17,7 @@ namespace terragen
                                const float MAX_DISTANCE,
                                const Terrains& terralist)
   {
+    static const float HEIGHT_STRENGTH = 4.0f;
     // suitability vector
     std::vector<terrain_value_t> values;
 
@@ -31,7 +32,7 @@ namespace terragen
       float dx = b.temperature   - in_coords.x;
       float dy = b.precipitation - in_coords.y;
       float dz = b.height        - in_coords.z;
-      values.emplace_back(i, sqrtf(dx*dx + dy*dy + dz*dz));
+      values.emplace_back(i, sqrtf(dx*dx + dy*dy + dz*dz * HEIGHT_STRENGTH));
     }
     // sort by distance
     std::sort(values.begin(), values.end(),

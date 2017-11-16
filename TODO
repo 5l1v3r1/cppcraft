@@ -1,4 +1,4 @@
-1. Lag quickbar
+1. [x] Lag quickbar
 2. Lag inventory logikk
 3. Fiks opp bygging
 4. Legg til en desert, legg til kaktus
@@ -21,11 +21,6 @@ Implement post-processing in Lua
 - Make the post-processing callback a Lua function
 - Create Lua script wrapper
 - Load a Lua script, which again loads the rest (?)
-
-Implement configuration via JSON
-- [x] Add JSON git submodule
-- [x] Read JSON config file
-- Provide API to terrains (and other things)
 
 Fix issues with atmospheric voxel lighting
 - More tests
@@ -56,9 +51,3 @@ World simulation
 - Liquid flow simulation
 - Rivers using flow
 - Generate rivers naturally
-
-
-
-Perf:
-- It's possible that disabling atmospherics until at least a 3x3 is complete
-  will result in better performance overall (including objects)
