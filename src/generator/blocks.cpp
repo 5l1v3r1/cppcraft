@@ -58,6 +58,56 @@ namespace terragen
     }
     return color_index_from(obj.GetString());
   }
+  static void set_tiling_function(db::BlockData& block,
+                                  const cppcraft::tile_database& tiles,
+                                  const rapidjson::Value& v)
+  {
+    // a single string means a single tile for all sides
+    if (v.IsString())
+    {
+      const std::string id = v.GetString();
+      block.useTileID(tiles(id));
+    }
+    // array can mean (top, side, bottom) or (top, side, face, bottom)
+    else if (v.IsArray())
+    {
+      auto array = v.GetArray();
+      if (array.Size() == 3)
+      {
+        const block_t top = tiles(array[0].GetString());
+        const block_t side = tiles(array[1].GetString());
+        const block_t bottom = tiles(array[2].GetString());
+        block.useTextureFunction(
+        [top, side, bottom] (const Block&, uint8_t face)
+        {
+          if (face == 2) return top;
+          if (face != 3) return side;
+          return bottom;
+        });
+      }
+      else if (array.Size() == 4)
+      {
+        const block_t front = tiles(array[0].GetString());
+        const block_t top   = tiles(array[1].GetString());
+        const block_t side  = tiles(array[2].GetString());
+        const block_t bottom = tiles(array[3].GetString());
+        block.useTextureFunction(
+        [front, top, side, bottom] (const Block& blk, uint8_t face)
+        {
+          if (blk.getBits() == face) return front;
+          if (face == 2) return top;
+          if (face != 3) return side;
+          return bottom;
+        });
+      }
+      else {
+        throw std::out_of_range("Tile array must have 3 or 4 elements.");
+      }
+    }
+    else {
+      throw std::out_of_range("Tile identity had incorrect type. Must be string or array.");
+    }
+  }
 
   static void
   parse_block(const std::string name, const rapidjson::Value& v)
@@ -94,13 +144,14 @@ namespace terragen
       CC_ASSERT(tile.IsArray(), "JSON tile field can only contain array");
       // tile type and ID
       const std::string type = tile[0].GetString();
-      const std::string id = tile[1].GetString();
       //
       if (type == "tiles")
       {
         bool is_connected = false;
         // subtype check
-        if (tile.Size() == 3) {
+        if (tile.Size() == 3)
+        {
+          const std::string id = tile[1].GetString();
           const std::string attr = tile[2].GetString();
           if (attr == "connected") {
             // gather tiles
@@ -125,13 +176,14 @@ namespace terragen
         // regular tiles
         if (is_connected == false)
         {
-          block.useTileID(tiledb.tiles(id));
+          set_tiling_function(block, tiledb.tiles, tile[1]);
         }
       } // tiles
       else if (type == "big" or type == "bigtiles")
       {
         block.repeat_y = false;
-        if (tile.Size() == 3) {
+        if (tile.Size() == 3)
+        {
           const std::string attr = tile[2].GetString();
           // repeating tiles
           if (attr == "repeat") {
@@ -140,7 +192,8 @@ namespace terragen
             throw std::out_of_range("Not acceptable tiling attribute: " + attr);
           }
         } // attr
-        block.useTileID(tiledb.bigtiles(id));
+
+        set_tiling_function(block, tiledb.bigtiles, tile[1]);
         block.shader = cppcraft::RenderConst::TX_REPEAT;
       }
     }
@@ -208,48 +261,6 @@ namespace terragen
     }
     printf("* Loaded %zu blocks\n", db.size());
 
-		// _SOILGRASS (green, snow, ...)
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_GRASS);
-      solid.setMinimapColor(Biomes::CL_GRASS);
-			solid.getName = [] (const Block&) { return "Grass Block"; };
-      const short soil = tiledb.bigtiles("soil");
-      const short grass_top = tiledb.bigtiles("grass_top");
-      const short grass_side = tiledb.bigtiles("grass_side");
-      solid.useTextureFunction(
-			[soil, grass_top, grass_side] (const Block&, uint8_t face)
-			{
-				if (face == 2) return grass_top;
-        if (face != 3) return grass_side;
-				return soil; // bottom
-			});
-			solid.repeat_y = false;
-      solid.shader = RenderConst::TX_REPEAT;
-			solid.getSound = [] (const Block&) { return "grass"; };
-			db.assign("grass_block", solid);
-		}
-    // grass_random (green, snow, ...)
-		{
-			auto& solid = BlockData::createSolid();
-			solid.setColorIndex(Biomes::CL_GRASS);
-      solid.setMinimapColor(Biomes::CL_GRASS);
-			solid.getName = [] (const Block&) { return "Grass Block w/Flowers"; };
-      const short soil = tiledb.bigtiles("soil");
-      const short grass_top = tiledb.bigtiles("grass_random");
-      const short grass_side = tiledb.bigtiles("grass_side");
-      solid.useTextureFunction(
-			[soil, grass_top, grass_side] (const Block&, uint8_t face)
-			{
-				if (face == 2) return grass_top;
-        if (face != 3) return grass_side;
-				return soil; // bottom
-			});
-			solid.repeat_y = false;
-      solid.shader = RenderConst::TX_REPEAT;
-			solid.getSound = [] (const Block&) { return "grass"; };
-			db.assign("grass_random", solid);
-		}
 		// create _WATER
 		{
 			auto& fluid = BlockData::createFluid();

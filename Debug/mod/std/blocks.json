@@ -61,6 +61,24 @@
       "tile": ["big", "desert_sand", "repeat"],
       "sound": "sand"
     },
+
+    "grass_block": {
+      "type": "solid",
+      "name": "Grass Block",
+      "minimap": "grass",
+      "color": "grass",
+      "tile": ["big", ["grass_top", "grass_side", "soil"]],
+      "sound": "grass"
+    },
+    "grass_random": {
+      "type": "solid",
+      "name": "Flowery Grass Block",
+      "minimap": "grass",
+      "color": "grass",
+      "tile": ["big", ["grass_random", "grass_side", "soil"]],
+      "sound": "grass"
+    },
+
     "gravel": {
       "type": "solid",
       "name": "Gravel",
@@ -75,6 +93,7 @@
       "tile": ["tiles", "gravel_dirt"],
       "sound": "gravel"
     },
+
     "clay_blue": {
       "type": "solid",
       "name": "Blue Clay",
