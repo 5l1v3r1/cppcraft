@@ -38,16 +38,16 @@ namespace cppcraft
 
     // a reduced-size array containing 4x4 less data
     const caveland_t& cave(int x, int z) const {
-			return m_cave.at(x / 4 * 4 + z / 4);
+			return m_cave.at(x / CAVE_GRID2D * CAVE_GRID2D + z / CAVE_GRID2D);
 		}
     caveland_t& cave(int x, int z) {
-			return m_cave.at(x / 4 * 4 + z / 4);
+			return m_cave.at(x / CAVE_GRID2D * CAVE_GRID2D + z / CAVE_GRID2D);
 		}
 
     void assign_new()
     {
       m_data = data_array_t(BLOCKS_XZ * BLOCKS_XZ);
-      m_cave = cave_array_t(4 * 4);
+      m_cave = cave_array_t(CAVE_GRID2D * CAVE_GRID2D);
     }
 		// assigns new data from some source, eg. a terrain generator
     typedef std::pair<data_array_t, cave_array_t> assign_pair;

@@ -18,6 +18,7 @@ namespace terragen
 {
 	using cppcraft::BLOCKS_XZ;
 	using cppcraft::BLOCKS_Y;
+  using cppcraft::CAVE_GRID2D;
 	using cppcraft::Flatland;
 	using cppcraft::Sector;
 	using cppcraft::Block;
@@ -69,7 +70,7 @@ namespace terragen
 			// create new flatland data, since it isnt allocated by default :(
 			flatl.assign({
         Flatland::data_array_t(BLOCKS_XZ*BLOCKS_XZ),
-        Flatland::cave_array_t(4 * 4)
+        Flatland::cave_array_t(CAVE_GRID2D * CAVE_GRID2D)
       });
 		}
 		gendata_t(const gendata_t&) = delete;

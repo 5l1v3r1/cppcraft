@@ -6,6 +6,7 @@
 namespace cppcraft
 {
 	static const int BLOCKS_XZ  =   16;
+  static const int CAVE_GRID2D =   4;
 	static const int BLOCKS_Y   =  320;
 	static const int WATERLEVEL =  128;
   static const float WATERLEVEL_FLT = WATERLEVEL / float(BLOCKS_Y-1);

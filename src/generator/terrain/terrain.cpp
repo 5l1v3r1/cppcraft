@@ -115,7 +115,7 @@ namespace terragen
 	void Terrain::generate(gendata_t* data)
 	{
 		// interpolation grid dimensions
-    static const int GRID2D = 4;
+    static const int GRID2D = BLOCKS_XZ / 4;
     static const int FACTOR_2D = BLOCKS_XZ / GRID2D;
 		static const int y_step = 4;
 		static const int y_points = BLOCKS_Y / y_step + 3;
