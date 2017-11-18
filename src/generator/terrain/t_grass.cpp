@@ -108,7 +108,7 @@ namespace terragen
 		[] (uint16_t, uint8_t, glm::vec2 p)
 		{
 			float v = glm::simplex(p * 0.01f) + glm::simplex(p * 0.04f); v *= 0.5;
-			return RGBA8(64 + 30 * v, 106, 20, 255);
+      return RGBA8(64 + v * 20, 110 + v * 10, 20, 255);
 		});
 		// Trees
 		terrain.setColor(Biomes::CL_TREES_A,

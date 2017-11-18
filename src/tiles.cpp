@@ -63,30 +63,31 @@ namespace cppcraft
       doc.Parse(str.c_str());
 
       CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
-      if (doc.HasMember("tiles"))
+      if (doc.HasMember("block_tiles"))
       {
-        auto& obj = doc["tiles"];
+        auto& obj = doc["block_tiles"];
         parse_tile_database(tiledb.tiles, obj);
       }
-      if (doc.HasMember("bigtiles"))
+      if (doc.HasMember("big_tiles"))
       {
-        auto& obj = doc["bigtiles"];
+        auto& obj = doc["big_tiles"];
         parse_tile_database(tiledb.bigtiles, obj);
       }
-      if (doc.HasMember("items"))
+      if (doc.HasMember("item_tiles"))
       {
-        auto& obj = doc["items"];
+        auto& obj = doc["item_tiles"];
         parse_tile_database(tiledb.items, obj);
       }
-      if (doc.HasMember("particles"))
+      if (doc.HasMember("particle_tiles"))
       {
-        auto& obj = doc["particles"];
+        auto& obj = doc["particle_tiles"];
         parse_tile_database(tiledb.particles, obj);
       }
     }
     printf("* Loaded %zu big tiles\n", tiledb.bigtiles.size());
     printf("* Loaded %zu tiles\n", tiledb.tiles.size());
     printf("* Loaded %zu item tiles\n", tiledb.items.size());
+    printf("* Loaded %zu particle tiles\n", tiledb.particles.size());
 
     // free some memory
     this->unload_temp_store();

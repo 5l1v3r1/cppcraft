@@ -1,5 +1,5 @@
 {
-  "bigtiles": {
+  "big_tiles": {
     "source": "mod/std/bitmaps/bigdiff.png",
     "data":
     {
@@ -18,7 +18,7 @@
       "beach_sand": [3, 3]
     }
   },
-  "tiles": {
+  "block_tiles": {
     "source": "mod/std/bitmaps/diffuse.png",
     "data":
     {
@@ -64,7 +64,7 @@
       "lava": [15, 14]
     }
   },
-  "items": {
+  "item_tiles": {
     "source": "mod/std/bitmaps/items.png",
     "data": {
       "wooden_stick": [0, 0],
@@ -83,7 +83,7 @@
       "torch": [1, 6]
     }
   },
-  "particles": {
+  "particle_tiles": {
     "source": "mod/std/bitmaps/particles.png",
     "data": {
       "leaf": [0, 0],

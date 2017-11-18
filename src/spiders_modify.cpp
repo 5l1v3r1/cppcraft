@@ -20,6 +20,12 @@ namespace cppcraft
   }
   bool Spiders::updateBlock(Sector& sector, int bx, int by, int bz, block_t bits)
   {
+    if (UNLIKELY(sector.generated() == false))
+		{
+			printf("Could not setblock on %d, %d: not generated\n",
+					   sector.getX(), sector.getZ());
+			return false;
+		}
 		Block& block = sector(bx, by, bz);
 		// set bitfield directly
 		block.setBits(bits);
@@ -39,16 +45,16 @@ namespace cppcraft
 					   bx, by, bz);
 			return false;
 		}
-    if (UNLIKELY(s->generated() == false))
-		{
-			printf("Could not setblock(%d, %d, %d): not generated\t",
-					   bx, by, bz);
-			return false;
-		}
     return setBlock(*s, bx, by, bz, newblock);
   }
   bool Spiders::setBlock(Sector& sector, int bx, int by, int bz, const Block& newblock)
   {
+    if (UNLIKELY(sector.generated() == false))
+		{
+			printf("Could not setblock on %d, %d: not generated\n",
+					   sector.getX(), sector.getZ());
+			return false;
+		}
     ::total_blocks_placed++;
 		// set new block
 		Block& blk = sector(bx, by, bz);
