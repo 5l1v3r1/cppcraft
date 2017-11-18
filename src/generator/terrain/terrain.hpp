@@ -46,6 +46,8 @@ namespace terragen
     // create a clone of this terrain
     inline void copy_from(const Terrain&);
 
+    int getID() const noexcept { return this->id; }
+
 		bool hasColor(int cl) const noexcept {
 			return colors[cl] != nullptr;
 		}

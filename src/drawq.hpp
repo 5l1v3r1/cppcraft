@@ -17,7 +17,7 @@ namespace cppcraft
 	{
 	private:
     typedef std::vector<Column*> drawq_shaderline_t;
-		std::array<drawq_shaderline_t, RenderConst::MAX_UNIQUE_SHADERS+1> lines;
+		std::array<drawq_shaderline_t, RenderConst::MAX_UNIQUE_SHADERS> lines;
 		bool above;
 
 	public:

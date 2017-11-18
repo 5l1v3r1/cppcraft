@@ -135,10 +135,11 @@ namespace terragen
 			return RGBA8(62, 82, 107, 255);
 		});
 
+    const int T_GRASS = terrain.getID();
     auto& copy =
 		terrains.add("meadow",  "Meadows", Biome::biome_t{0.45f, 0.5f, 0.25f});
 
-    copy.copy_from(terrain);
+    copy.copy_from(terrains[T_GRASS]);
     copy.hmap_und = getunder_meadows;
     copy.func3d = getnoise_meadows;
 
@@ -154,6 +155,7 @@ namespace terragen
 		int     counter = 0;
     block_t lastID    = 0;
     int     lastCount = 0;
+    int   soilCounter = 0;
 		// start counting from top (pretend really high)
 		int air = BLOCKS_Y; // simple _AIR counter
 
@@ -192,16 +194,19 @@ namespace terragen
 			// which are specifically greensoil & sandbeach
 			if (block.getID() == SOIL_BLOCK || block.getID() == BEACH_BLOCK)
 			{
+        soilCounter++;
 				// making stones under water level has priority!
-				if (y < WATERLEVEL && counter > PostProcess::STONE_CONV_UNDER)
+				if (y < WATERLEVEL && soilCounter > PostProcess::STONE_CONV_UNDER)
 				{
 					block.setID(STONE_BLOCK);
 				}
-				else if (counter > PostProcess::STONE_CONV_OVERW)
+				else if (soilCounter > PostProcess::STONE_CONV_OVERW)
 				{
 					block.setID(STONE_BLOCK);
 				}
 			}
+      else soilCounter = 0;
+
       // drop some sea weeds
       if (block.getID() == BEACH_BLOCK && lastID == WATER_BLOCK)
       {
