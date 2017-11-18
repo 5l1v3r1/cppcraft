@@ -12,8 +12,6 @@
 #include "sectors.hpp"
 #include "shaderman.hpp"
 #include "threading.hpp"
-#include <cmath>
-#include <sstream>
 #include <glm/vec3.hpp>
 #include <library/math/matrix.hpp>
 #include <nanogui/nanogui.h>

@@ -49,6 +49,7 @@ set(SUB_SOURCES
     generator/terrain/noise.cpp
     generator/terrain/terrain.cpp
     generator/terrain/terrains.cpp
+    generator/terrain/t_desert.cpp
     generator/terrain/t_grass.cpp
     generator/terrain/t_jungle.cpp
     generator/terrain/t_snow.cpp

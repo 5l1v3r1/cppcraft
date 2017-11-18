@@ -43,6 +43,7 @@
       "grass_bush": [12,4, 13,4],
       "flower_red": [10, 0],
       "flower_yellow": [11, 0],
+      "cactus_flower": [6, 4],
 
       "mushroom_blue":  [9, 2],
       "mushroom_red":  [10, 2],
@@ -50,14 +51,14 @@
 
       "torch": [0, 13],
 
-      "mushroom_top": [13, 8],
-      "mushroom_speckle": [14, 8],
-      "mushroom_topedge": [15, 8],
-      "mushroom_topunder": [15, 9],
+      "mushroom_top":     [13,8,  13,9],
+      "mushroom_speckle": [14,8,  14,9],
+      "mushroom_topedge": [15,8,  15,9],
+      "mushroom_topunder": [15, 10],
 
-      "mushroom_under": [15, 9],
-      "mushroom_core": [13, 9],
-      "mushroom_coretop": [14, 9],
+      "mushroom_under": [15, 10],
+      "mushroom_core": [13, 10],
+      "mushroom_coretop": [14, 10],
 
       "water": [15, 13],
       "lava": [15, 14]

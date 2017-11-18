@@ -67,7 +67,7 @@ namespace terragen
   static vec3 getunder_meadows(vec2 p, const float height)
   {
     const float AVG_HEIGHT = WATERLEVEL_FLT + 0.025f;
-    float ground = height * 0.25f + 0.75f * AVG_HEIGHT;
+    float ground = height * 0.5f + 0.5f * AVG_HEIGHT;
     return {ground, 0.0f, 0.0f};
   }
   static float getnoise_meadows(vec3 p, const glm::vec3 under)
@@ -96,7 +96,7 @@ namespace terragen
     GRASS_ID = db::getb("grass_block");
     CROSS_GRASS_ID = db::getb("cross_grass");
 
-		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.7f), 48);
+		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.5f), 48);
 		terrain.on_tick =
 		[] (double)
 		{

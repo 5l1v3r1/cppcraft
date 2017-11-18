@@ -54,7 +54,7 @@
       "tile": ["big", "beach_sand", "repeat"],
       "sound": "sand"
     },
-    "desert": {
+    "desert_sand": {
       "type": "solid",
       "name": "Desert Sand",
       "minimap": [220, 210, 174, 255],
@@ -89,7 +89,7 @@
     "gravel_dirt": {
       "type": "solid",
       "name": "Gravel Dirt",
-      "minimap": [220, 210, 174, 255],
+      "minimap": [90, 70, 40, 255],
       "tile": ["tiles", "gravel_dirt"],
       "sound": "gravel"
     },
@@ -97,7 +97,7 @@
     "clay_blue": {
       "type": "solid",
       "name": "Blue Clay",
-      "minimap": [174, 210, 220, 255],
+      "minimap": [50, 70, 80, 255],
       "tile": ["tiles", "clay_blue"],
       "sound": "gravel"
     },
@@ -160,6 +160,13 @@
       "color": "grass",
       "minimap": "grass",
       "tile": ["tiles", "flower_yellow"]
+    },
+    "cactus_flower": {
+      "type": "cross",
+      "name": "Cactus Flower",
+      "color": "grass",
+      "minimap": "grass",
+      "tile": ["tiles", "cactus_flower"]
     },
 
     "mushroom_red": {

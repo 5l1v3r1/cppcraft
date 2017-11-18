@@ -85,16 +85,17 @@ namespace terragen
                  nullptr, 0.0f, getnoise_basin, process_caves);
 		basin.setFog(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), 96);
 
-		// add T_SNOW
 		extern void terrain_icecap_init();
 		terrain_icecap_init();
 
-		// add T_GRASS
 		extern void terrain_grass_init();
 		terrain_grass_init();
 
     extern void terrain_jungle_init();
     terrain_jungle_init();
+
+    extern void terrain_desert_init();
+    terrain_desert_init();
 	}
 
 	///////////////////////////////////////////////////
@@ -315,48 +316,6 @@ namespace terragen
 
 		// final value + river
 		return n1 + river * 0.04; //fabsf(n2) * 8.0;
-	}
-
-	float getnoise_desert(vec3 p, float hvalue)
-	{
-		p.x *= 0.01;
-		p.z *= 0.01;
-
-		float s = barchans(p.x + snoise1(p.z*0.4)*1.0f, p.z + glm::simplex(p*0.2f)*0.3f);
-		float n = snoise2(p.x*0.05, p.z*0.05);
-		s = 0.3 + n * 0.2 + s * (0.6 + n*0.4) * 0.3;
-
-		s = p.y - (0.3 + s * 0.4);
-
-		glm::vec2 p2(p.x, p.z);
-
-		float x = glm::simplex(p2 * 0.2f) + glm::simplex(p2 * 0.3f);
-		x *= 0.5; // normalize
-
-		const float EDGE = 0.45;
-		const float RAMP_EDGE = 0.60;
-		if (x > EDGE)
-		{
-			float linear = (x - EDGE) / (1.0 - EDGE);
-			linear = library::hermite(linear);
-
-			// ramp up the value
-			float power = std::pow(linear, 0.25 - linear * 0.15);
-			// apply height
-			float height = power * 0.35 + glm::simplex(p2 * 0.7f) * 0.01;
-
-			if (x > RAMP_EDGE)
-			{
-				if (s < height) s = -1.0;
-				else s = 1.0;
-			}
-			else
-			{
-				x = (x - EDGE) / (RAMP_EDGE - EDGE);
-				s -= x * x * height * 0.6;
-			}
-		}
-		return s;
 	}
 
 }

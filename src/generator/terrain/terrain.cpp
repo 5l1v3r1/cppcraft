@@ -185,8 +185,8 @@ namespace terragen
       // let's zero out everything above the max value to avoid interp. errors
       for (int y = WORST_SLOPE_Y; y < BLOCKS_Y; y += y_step)
       {
-        cave_array[x][z][y / y_step] = 1.0f;
-        noisearray[x][z][y / y_step] = 1.0f;
+        cave_array[x][z][y / y_step] = 0.0f;
+        noisearray[x][z][y / y_step] = 0.0f;
       }
 
       for (int y = 0; y <= WORST_SLOPE_Y; y += y_step)
