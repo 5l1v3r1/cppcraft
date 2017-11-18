@@ -24,7 +24,7 @@ namespace terragen
           + simplex(p * vec2(2.7f, 2.8f)) * 0.02f
           + simplex(p * vec2(5.8f, 5.6f)) * 0.05f;
 
-		return {height - 0.075f + land, 0.0f, 0.0f};
+		return {height + land, 0.0f, 0.0f};
   }
   static float getnoise_jungle(vec3 p, glm::vec3 under)
 	{

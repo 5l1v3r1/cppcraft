@@ -37,7 +37,8 @@ namespace terragen
 
 			if (x > RAMP_EDGE)
 			{
-		    return noise-0.15f;
+		    //return noise-0.15f;
+        return noise-height;
 			}
 			else
 			{
@@ -72,6 +73,7 @@ namespace terragen
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
+    int soil = 0;
 		// start counting from top
 		int air = BLOCKS_Y - MAX_Y;
 
@@ -81,8 +83,13 @@ namespace terragen
 
 			if (block.getID() == SOIL_BLOCK)
 			{
-          block.setID(DESERT_BLOCK);
+          soil++;
+          if (soil >= 4)
+              block.setID(STONE_BLOCK);
+          else
+              block.setID(DESERT_BLOCK);
       }
+      else soil = 0;
 
 			// place greenery when enough air
 			if (air > 8)
@@ -121,7 +128,7 @@ namespace terragen
 		terrains.add("desert", "Desert Dunes", Biome::biome_t{0.8f, 0.2f, 0.4f},
         getground_desert, DESERT_HEIGHT3D, getnoise_desert, process_desert);
 
-    terrain.setFog(glm::vec4(1.0f, 0.9f, 0.8f, 0.7f), 200);
+    terrain.setFog(glm::vec4(0.9f, 0.8f, 0.7f, 1.0f), 200);
 		terrain.on_tick =
 		[] (double)
 		{
