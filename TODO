@@ -25,7 +25,7 @@ Implement post-processing in Lua
 Fix issues with atmospheric voxel lighting
 - More tests
 - [x] Pass sector around in lighting algos to improve performance
-- Re-enable torchlight fill, test with lava
+- [x] Re-enable torchlight fill, test with lava
 
 Implement connected textures
 - [x] Make optional

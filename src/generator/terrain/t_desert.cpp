@@ -91,6 +91,16 @@ namespace terragen
       }
       else soil = 0;
 
+      // remove beach/water
+      if (block.getID() == WATER_BLOCK)
+      {
+        block.setID(_AIR);
+      }
+      if (block.getID() == BEACH_BLOCK)
+      {
+        block.setID(DESERT_BLOCK);
+      }
+
 			// place greenery when enough air
 			if (air > 8)
 			{
