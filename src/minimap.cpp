@@ -106,7 +106,7 @@ namespace cppcraft
 		minimapVAO.render(GL_QUADS);
 	}
 
-	static Bitmap::rgba8_t mixColor(Bitmap::rgba8_t a, Bitmap::rgba8_t b, float mixlevel)
+  static Bitmap::rgba8_t mixColor(Bitmap::rgba8_t a, Bitmap::rgba8_t b, float mixlevel)
 	{
 		if (a == b) return a;
 
@@ -115,40 +115,28 @@ namespace cppcraft
 
 		for (unsigned int i = 0; i < sizeof(a); i++)
 		{
-			p[i] = (int)(p[i] * (1.0 - mixlevel) + q[i] * mixlevel);
+			p[i] = uint8_t(p[i] * (1.0 - mixlevel) + q[i] * mixlevel);
 		}
 		return a;
 	}
 
-	// constants
-	static const int HEIGHTMAP_F = 80;
-	static const int HEIGHTMAP_R = HEIGHTMAP_F;
-	static const int HEIGHTMAP_G = HEIGHTMAP_F;
-	static const int HEIGHTMAP_B = HEIGHTMAP_F;
+  static const float ELEVATION_MEAN   = WATERLEVEL + 16;
+  static const float ELEVATION_FACTOR = 0.7f;
 
-	static Bitmap::rgba8_t lowColor(Bitmap::rgba8_t c)
+	static Bitmap::rgba8_t elevationColor(Bitmap::rgba8_t c, float dy)
 	{
 		unsigned char* p = (unsigned char*)&c;
-		// overflow checks
-		p[0] = std::max(0, int(p[0]) - HEIGHTMAP_R);
-		p[1] = std::max(0, int(p[1]) - HEIGHTMAP_G);
-		p[2] = std::max(0, int(p[2]) - HEIGHTMAP_B);
-		return c;
-	}
-	static Bitmap::rgba8_t highColor(Bitmap::rgba8_t c)
-	{
-		unsigned char* p = (unsigned char*)&c;
-		// overflow checks
-		p[0] = std::min(255, int(p[0]) + HEIGHTMAP_R);
-		p[1] = std::min(255, int(p[1]) + HEIGHTMAP_G);
-		p[2] = std::min(255, int(p[2]) + HEIGHTMAP_B);
+		// result = source + dy * luminance
+		p[0] = glm::clamp(int(p[0] + dy), 0, 255);
+		p[1] = glm::clamp(int(p[1] + dy), 0, 255);
+		p[2] = glm::clamp(int(p[2] + dy), 0, 255);
 		return c;
 	}
 
 	static Bitmap::rgba8_t getBlockColor(Sector& sector, int x, int z)
 	{
 		// get the topmost block at location
-		int y = sector.flat()(x, z).skyLevel-1;
+		const int y = sector.flat()(x, z).skyLevel-1;
     const auto& blk = sector(x, y, z);
 		const auto& db  = blk.db();
 		// determine the minimap color
@@ -159,16 +147,8 @@ namespace cppcraft
 		  c = db.getMinimapColor(blk, sector, x, y, z);
     }
 
-		// basic height coloring
-		const int HEIGHT_BIAS = 128;
-		if (y < HEIGHT_BIAS)
-		{	// downwards
-			return mixColor(c, lowColor(c), 0.01 * (HEIGHT_BIAS - y));
-		}
-		else
-		{	// upwards
-			return mixColor(c, highColor(c), 0.01 * (y - HEIGHT_BIAS));
-		}
+		// basic elevation coloring
+		return elevationColor(c, (y - ELEVATION_MEAN) * ELEVATION_FACTOR);
 	}
 
 	void Minimap::setUpdated()
