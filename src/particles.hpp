@@ -86,7 +86,7 @@ namespace cppcraft
 		{
 			return types[i];
 		}
-		int operator[] (const std::string& name) const
+		int operator() (const std::string& name) const
 		{
 			return names.at(name);
 		}

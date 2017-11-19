@@ -18,6 +18,7 @@ using namespace library;
 
 namespace cppcraft
 {
+  static const int PIX_PER_SECT = 2;
 	// the one and only Minimap(TM)
 	Minimap minimap;
 	VAO minimapVAO;
@@ -34,11 +35,12 @@ namespace cppcraft
 		logger << Log::INFO << "* Initializing minimap" << Log::ENDL;
 
 		// 32-bits, one pixel per sector on (X, Z) axes
-		bitmap = new Bitmap(sectors.getXZ() * 2, sectors.getXZ() * 2);
+		bitmap = new Bitmap(sectors.getXZ() * PIX_PER_SECT,
+                        sectors.getXZ() * PIX_PER_SECT);
 		memset(bitmap->data(), 0, bitmap->getWidth() * bitmap->getHeight() * sizeof(Bitmap::rgba8_t));
 		// create texture
 		texture = new Texture(GL_TEXTURE_2D);
-		texture->create(*bitmap, true, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
+		texture->create(*bitmap, true, GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
 		typedef struct
 		{
@@ -64,15 +66,18 @@ namespace cppcraft
 	void Minimap::update(double px, double pz)
 	{
 		// minimap subpixel offset
-		this->ofsX = (px - (sectors.getXZ() * Sector::BLOCKS_XZ / 2)) / Seamless::OFFSET * 2;
-		this->ofsY = (pz - (sectors.getXZ() * Sector::BLOCKS_XZ / 2)) / Seamless::OFFSET * 2;
+    glm::vec2 sub_offset(
+      (px - (sectors.getXZ() * Sector::BLOCKS_XZ / PIX_PER_SECT)) / Seamless::OFFSET * PIX_PER_SECT,
+      (pz - (sectors.getXZ() * Sector::BLOCKS_XZ / PIX_PER_SECT)) / Seamless::OFFSET * PIX_PER_SECT
+    );
 
 		minimapMutex.lock();
+    this->render_offset = glm::vec2(this->offset.x, this->offset.y) + sub_offset;
+
 		// update synchronization
 		if (this->needs_update)
 		{
 			this->needs_update = false;
-
 			// bind minimap texture
 			texture->bind(0);
 			// re-upload pixel data (and auto-generate mipmaps)
@@ -90,8 +95,10 @@ namespace cppcraft
 		shd.sendMatrix("matprojview", mvp);
 
 		// position intra-block offset
-		glm::vec2 offset(0.5 + this->ofsX / bitmap->getWidth(), 0.5 + this->ofsY / bitmap->getHeight());
-		shd.sendVec2("offset", offset);
+    glm::vec2 shd_offset = this->render_offset;
+		shd_offset = glm::vec2(0.5f + shd_offset.x / bitmap->getWidth(),
+                           0.5f + shd_offset.y / bitmap->getHeight());
+		shd.sendVec2("offset", shd_offset);
 
 		// bind minimap texture
 		texture->bind(0);
@@ -123,18 +130,18 @@ namespace cppcraft
 	{
 		unsigned char* p = (unsigned char*)&c;
 		// overflow checks
-		p[0] = (p[0] - HEIGHTMAP_R >= 0) ? p[0] - HEIGHTMAP_R : 0;
-		p[1] = (p[1] - HEIGHTMAP_G >= 0) ? p[1] - HEIGHTMAP_G : 0;
-		p[2] = (p[2] - HEIGHTMAP_B >= 0) ? p[2] - HEIGHTMAP_B : 0;
+		p[0] = std::max(0, int(p[0]) - HEIGHTMAP_R);
+		p[1] = std::max(0, int(p[1]) - HEIGHTMAP_G);
+		p[2] = std::max(0, int(p[2]) - HEIGHTMAP_B);
 		return c;
 	}
 	static Bitmap::rgba8_t highColor(Bitmap::rgba8_t c)
 	{
 		unsigned char* p = (unsigned char*)&c;
 		// overflow checks
-		p[0] = (p[0] + HEIGHTMAP_R >= 255) ? 255 : p[0] + HEIGHTMAP_R;
-		p[1] = (p[1] + HEIGHTMAP_G >= 255) ? 255 : p[1] + HEIGHTMAP_G;
-		p[2] = (p[2] + HEIGHTMAP_B >= 255) ? 255 : p[2] + HEIGHTMAP_B;
+		p[0] = std::min(255, int(p[0]) + HEIGHTMAP_R);
+		p[1] = std::min(255, int(p[1]) + HEIGHTMAP_G);
+		p[2] = std::min(255, int(p[2]) + HEIGHTMAP_B);
 		return c;
 	}
 
@@ -197,85 +204,27 @@ namespace cppcraft
 					getBlockColor(sector, 11, 11), 0.5);
 
 		// set final color @ pixel (px, pz)
-		int px = bitmap->getWidth()  / 2 - sectors.getXZ() + 2 * sector.getX();
-		int pz = bitmap->getHeight() / 2 - sectors.getXZ() + 2 * sector.getZ();
+    int px = (sector.getX() * PIX_PER_SECT + offset.x) % bitmap->getWidth();
+    int py = (sector.getZ() * PIX_PER_SECT + offset.y) % bitmap->getHeight();
 
 		Bitmap::rgba8_t* pixels = bitmap->data();
-		int scan = bitmap->getWidth();
+		const int scan = bitmap->getWidth();
 
-		pixels[ pz      * scan + px] = colors[0];
-		pixels[(pz + 1) * scan + px] = colors[1];
-		pixels[ pz      * scan + px + 1] = colors[2];
-		pixels[(pz + 1) * scan + px + 1] = colors[3];
+		pixels[ py      * scan + px] = colors[0];
+		pixels[(py + 1) * scan + px] = colors[1];
+		pixels[ py      * scan + px + 1] = colors[2];
+		pixels[(py + 1) * scan + px + 1] = colors[3];
+
+    std::lock_guard<std::mutex> lock(minimapMutex);
+    // will see it, eventually
+		this->needs_update = true;
 	}
 
 	void Minimap::roll(int x, int z)
 	{
-		if (bitmap == nullptr) return;
-		if (bitmap->isValid() == false) return;
-
-		int page = bitmap->getWidth(); // size of scanline, aka. pitch
-		Bitmap::rgba8_t* pixels = bitmap->data();
-
-		if (x > 0)
-		{
-			for (int py = 0; py < bitmap->getHeight(); py++)
-			{
-				for (int px = 0; px <= bitmap->getWidth()-2 - 2; px += 2)
-				{
-					int p = py * page + px;
-
-					pixels[p + 0] = pixels[p + 2];
-					pixels[p + 1] = pixels[p + 3];
-				}
-				// set to black
-				//pixels[ py * page + page-2 ] = 0;
-				//pixels[ py * page + page-1 ] = 0;
-			}
-		}
-		else if (x < 0)
-		{
-			for (int py = 0; py < bitmap->getHeight(); py++)
-			{
-				for (int px = bitmap->getWidth()-2; px >= 2; px -= 2)
-				{
-					int p = py * page + px;
-
-					pixels[p + 0] = pixels[p - 2];
-					pixels[p + 1] = pixels[p - 1];
-				}
-				// set to black
-				//pixels[ py * page + 0 ] = 0;
-				//pixels[ py * page + 1 ] = 0;
-			}
-		} // x-axis
-
-		if (z > 0)
-		{
-			for (int py = 0; py <= bitmap->getHeight()-2 - 2; py += 2)
-			{
-				int p = py * page;
-				// to pixels + offset, from pixels + offset + 2 pages, copy 2 pages
-				memcpy(pixels + p, pixels + p + page * 2, page * 2 * sizeof(Bitmap::rgba8_t));
-			}
-			// clear last 2 scanlines
-			//memset(pixels + (bitmap->getHeight()-2) * page, 0, page * 2 * sizeof(Bitmap::rgba8_t));
-		}
-		else if (z < 0)
-		{
-			for (int py = bitmap->getHeight()-2; py >= 2; py -= 2)
-			{
-				int p = py * page;
-				// to pixels + offset, from pixels + offset - 2 pages, copy 2 pages
-				memcpy(pixels + p, pixels + p - page * 2, page * 2 * sizeof(Bitmap::rgba8_t));
-			}
-			// clear first 2 scanlines
-			//memset(pixels, 0, page * 2 * sizeof(Bitmap::rgba8_t));
-		}
-
-		minimapMutex.lock();
-			// mark as updated
-			this->needs_update = true;
-		minimapMutex.unlock();
+    std::lock_guard<std::mutex> lock(minimapMutex);
+    this->offset += glm::ivec2(x, z) * PIX_PER_SECT;
+    if (offset.x < 0) offset.x += bitmap->getWidth();
+    if (offset.y < 0) offset.y += bitmap->getHeight();
 	}
 }

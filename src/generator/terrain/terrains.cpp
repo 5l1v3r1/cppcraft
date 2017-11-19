@@ -88,6 +88,9 @@ namespace terragen
 		extern void terrain_icecap_init();
 		terrain_icecap_init();
 
+    extern void terrain_taiga_init();
+		terrain_taiga_init();
+
 		extern void terrain_grass_init();
 		terrain_grass_init();
 

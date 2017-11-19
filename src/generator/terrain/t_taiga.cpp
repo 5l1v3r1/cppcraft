@@ -23,24 +23,24 @@ using namespace library;
 
 namespace terragen
 {
-  static const float ICECAP_HEIGHT = 0.2f;
+  static const float HEIGHT_3D = 0.2f;
 
-  static glm::vec3 icecap_cave_height(vec2 p, float height)
+  static glm::vec3 getground_taiga(vec2 p, float height)
   {
     p *= 0.0025f;
 		float n = 0.5f + 0.5f * glm::simplex(p);
 		return {WATERLEVEL_FLT + powf(n, 0.55) * 0.1f, 0.0f, 0.0f};
   }
-	static float getnoise_icecap(vec3 p, const vec3 under)
+	static float getnoise_taiga(vec3 p, const vec3 under)
 	{
     p *= vec3(0.006f, 1.0f, 0.006f);
     float noise = 0.5f + 0.5f * Simplex::worleyfBm(p, 4, 1.2f);
-		return p.y - under.x + ICECAP_HEIGHT * (noise - 1.0f);
+		return p.y - under.x + HEIGHT_3D * (noise - 1.0f);
 	}
 
   static block_t SNOW_ID = 0;
   static block_t ICE_ID = 0;
-	static int icecap_process(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
+	static int taiga_process(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{
 		const int wx = gdata->wx * BLOCKS_XZ + x;
 		const int wz = gdata->wz * BLOCKS_XZ + z;
@@ -102,45 +102,20 @@ namespace terragen
     return 1;
 	}
 
-	void terrain_icecap_init()
+	void terrain_taiga_init()
 	{
     auto& terrain =
-		  terrains.add("icecap", "Icecap", Biome::biome_t{0.05f, 0.1f, 0.6f},
-      icecap_cave_height, ICECAP_HEIGHT, getnoise_icecap, icecap_process);
+		  terrains.add("taiga", "Taiga", Biome::biome_t{0.15f, 0.2f, 0.5f},
+      getground_taiga, HEIGHT_3D, getnoise_taiga, taiga_process);
 
-    SNOW_ID  = db::getb("snow");
-    ICE_ID   = db::getb("ice");
+    SNOW_ID = db::getb("snow");
+    ICE_ID  = db::getb("ice");
 
-		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 200);
+		terrain.setFog(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f), 140);
     //terrain.music_name = "amb_winter";
 
 		// snow particle
-    short p_snow_tile = tiledb.particles("snowflake");
-		int P_SNOW = particleSystem.add("snowflake",
-		[] (Particle& p, glm::vec3)
-		{
-			// slow falling snow
-			p.acc = glm::vec3(0.0f);
-			p.spd = glm::vec3(0.0f, -0.05f, 0.0f);
-			p.ttl = 180;
-		},
-		[p_snow_tile] (Particle& p, particle_vertex_t& pv)
-		{
-			pv.size    = 16;
-			pv.tileID  = p_snow_tile;
-			pv.uvscale = 255;
-			pv.shiny   = 0;
-
-			// determina fade level
-			float fade = std::min(p.ttl, 32) / 32.0f;
-			// set visibility
-			pv.alpha  = fade * 255;
-			pv.bright = thesun.getRealtimeDaylight() * 255;
-			pv.offsetX = 0;
-			pv.offsetY = 0;
-			// snow (white + 100% alpha)
-			pv.color = 0xFFFFFFFF;
-		});
+		const int P_SNOW = particleSystem("snowflake");
 
 		terrain.on_tick =
 		[P_SNOW] (double)

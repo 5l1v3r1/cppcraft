@@ -96,7 +96,7 @@ namespace terragen
     GRASS_ID = db::getb("grass_block");
     CROSS_GRASS_ID = db::getb("cross_grass");
 
-		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.5f), 60);
+		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.35f), 60);
 		terrain.on_tick =
 		[] (double)
 		{
@@ -167,23 +167,6 @@ namespace terragen
         counter = 0;
       }
       counter++;
-
-      if (block.getID() == SOIL_BLOCK)
-			{
-        auto p2d = gdata->getBaseCoords2D(x, z);
-        const float bubble = glm::simplex(p2d * 0.00154f);
-        if (bubble < -0.9) {
-          block.setID(db::getb("clay_blue"));
-        }
-        else if (bubble > 0.6)
-        {
-          block.setID(GRAVEL_BLOCK);
-        }
-        else if (bubble >= -0.2 && bubble < 0.2)
-        {
-          block.setID(STONE_BLOCK);
-        }
-      }
 
 			// we only count primary blocks produced by generator,
 			// which are specifically greensoil & sandbeach

@@ -2,6 +2,7 @@
 #define MINIMAP_HPP
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include "sector.hpp"
 
 namespace library
@@ -36,8 +37,10 @@ namespace cppcraft
 		library::Bitmap*  bitmap;
 		library::Texture* texture;
 
-		bool needs_update;
-		float ofsX, ofsY;
+    glm::vec2 render_offset;
+
+    bool needs_update;
+    glm::ivec2 offset;
 	};
 	extern Minimap minimap;
 }
