@@ -1,0 +1,10 @@
+{
+  "files": [
+    "audio.json",
+    "blocks.json",
+    "items.json",
+    "ores.json",
+    "tiles.json",
+    "mushrooms.json"
+  ]
+}

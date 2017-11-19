@@ -47,49 +47,52 @@ namespace cppcraft
     // load sounds and streams from mods
     for (const auto& mod : cppcraft::game.mods())
     {
-      std::ifstream file(mod.modpath() + "/audio.json");
-      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-      rapidjson::Document doc;
-      doc.Parse(str.c_str());
-      CC_ASSERT(doc.IsObject(), "Audio JSON must be valid");
+      for (const auto& mod_file : mod.json_files())
+      {
+        std::ifstream file(mod_file);
+        const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        rapidjson::Document doc;
+        doc.Parse(str.c_str());
+        CC_ASSERT(doc.IsObject(), "Audio JSON must be valid");
 
-      if (doc.HasMember("sounds"))
-      {
-        const auto& sound_type = doc["sounds"];
-        if (sound_type.HasMember("single"))
+        if (doc.HasMember("sounds"))
         {
-          const auto& single = sound_type["single"];
-          for (auto itr = single.MemberBegin(); itr != single.MemberEnd(); ++itr)
+          const auto& sound_type = doc["sounds"];
+          if (sound_type.HasMember("single"))
+          {
+            const auto& single = sound_type["single"];
+            for (auto itr = single.MemberBegin(); itr != single.MemberEnd(); ++itr)
+            {
+              const auto name = itr->name.GetString();
+              const auto value = itr->value.GetString();
+              // load single sound
+              this->create_sound(name, mod.modpath() + value);
+            }
+          }
+          if (sound_type.HasMember("materials"))
+          {
+            const auto& smat = sound_type["materials"];
+            for (auto itr = smat.MemberBegin(); itr != smat.MemberEnd(); ++itr)
+            {
+              const auto name = itr->name.GetString();
+              const auto value = itr->value.GetString();
+              // load material sound
+              this->create_material(name, mod.modpath() + value);
+            }
+          }
+        }
+        if (doc.HasMember("streams"))
+        {
+          const auto& strims = doc["streams"];
+          for (auto itr = strims.MemberBegin(); itr != strims.MemberEnd(); ++itr)
           {
             const auto name = itr->name.GetString();
             const auto value = itr->value.GetString();
-            // load single sound
-            this->create_sound(name, mod.modpath() + value);
+            // load stream
+            this->create_stream(name, mod.modpath() + value);
           }
         }
-        if (sound_type.HasMember("materials"))
-        {
-          const auto& smat = sound_type["materials"];
-          for (auto itr = smat.MemberBegin(); itr != smat.MemberEnd(); ++itr)
-          {
-            const auto name = itr->name.GetString();
-            const auto value = itr->value.GetString();
-            // load material sound
-            this->create_material(name, mod.modpath() + value);
-          }
-        }
-      }
-      if (doc.HasMember("streams"))
-      {
-        const auto& strims = doc["streams"];
-        for (auto itr = strims.MemberBegin(); itr != strims.MemberEnd(); ++itr)
-        {
-          const auto name = itr->name.GetString();
-          const auto value = itr->value.GetString();
-          // load stream
-          this->create_stream(name, mod.modpath() + value);
-        }
-      }
+      } // mod_file
     } // mod
     logger << "* Audio system loaded " << sounds.size() << " sounds and "
             << streams.size() << " streams" << Log::ENDL;

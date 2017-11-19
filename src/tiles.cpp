@@ -57,33 +57,36 @@ namespace cppcraft
     // load and apply the tiles JSON for each mod
     for (const auto& mod : game.mods())
     {
-      std::ifstream file(mod.modpath() + "/tiles.json");
-      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-      rapidjson::Document doc;
-      doc.Parse(str.c_str());
+      for (const auto& mod_file : mod.json_files())
+      {
+        std::ifstream file(mod_file);
+        const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        rapidjson::Document doc;
+        doc.Parse(str.c_str());
 
-      CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
-      if (doc.HasMember("block_tiles"))
-      {
-        auto& obj = doc["block_tiles"];
-        parse_tile_database(tiledb.tiles, obj);
-      }
-      if (doc.HasMember("big_tiles"))
-      {
-        auto& obj = doc["big_tiles"];
-        parse_tile_database(tiledb.bigtiles, obj);
-      }
-      if (doc.HasMember("item_tiles"))
-      {
-        auto& obj = doc["item_tiles"];
-        parse_tile_database(tiledb.items, obj);
-      }
-      if (doc.HasMember("particle_tiles"))
-      {
-        auto& obj = doc["particle_tiles"];
-        parse_tile_database(tiledb.particles, obj);
-      }
-    }
+        CC_ASSERT(doc.IsObject(), "Tiles JSON must be valid");
+        if (doc.HasMember("block_tiles"))
+        {
+          auto& obj = doc["block_tiles"];
+          parse_tile_database(tiledb.tiles, obj);
+        }
+        if (doc.HasMember("big_tiles"))
+        {
+          auto& obj = doc["big_tiles"];
+          parse_tile_database(tiledb.bigtiles, obj);
+        }
+        if (doc.HasMember("item_tiles"))
+        {
+          auto& obj = doc["item_tiles"];
+          parse_tile_database(tiledb.items, obj);
+        }
+        if (doc.HasMember("particle_tiles"))
+        {
+          auto& obj = doc["particle_tiles"];
+          parse_tile_database(tiledb.particles, obj);
+        }
+      } // mod file
+    } // mods
     printf("* Loaded %zu big tiles\n", tiledb.bigtiles.size());
     printf("* Loaded %zu tiles\n", tiledb.tiles.size());
     printf("* Loaded %zu item tiles\n", tiledb.items.size());

@@ -82,33 +82,36 @@ namespace terragen
     // load and apply the tiles JSON for each mod
     for (const auto& mod : cppcraft::game.mods())
     {
-      std::ifstream file(mod.modpath() + "/items.json");
-      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-      rapidjson::Document doc;
-      doc.Parse(str.c_str());
-
-      CC_ASSERT(doc.IsObject(), "Items JSON must be valid");
-      if (doc.HasMember("items"))
+      for (const auto& mod_file : mod.json_files())
       {
-        auto& obj = doc["items"];
-        for (auto itr = obj.MemberBegin(); itr != obj.MemberEnd(); ++itr)
-        {
-          CC_ASSERT(itr->value.IsObject(), "Item must be JSON object");
-          const std::string name = itr->name.GetString();
-          const auto& v = itr->value.GetObject();
+        std::ifstream file(mod_file);
+        const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        rapidjson::Document doc;
+        doc.Parse(str.c_str());
 
-          try
+        CC_ASSERT(doc.IsObject(), "Items JSON must be valid");
+        if (doc.HasMember("items"))
+        {
+          auto& obj = doc["items"];
+          for (auto itr = obj.MemberBegin(); itr != obj.MemberEnd(); ++itr)
           {
-            parse_item(name, v);
-          }
-          catch (std::exception& e)
-          {
-            printf("Error parsing item %s: %s\n", name.c_str(), e.what());
-            throw;
+            CC_ASSERT(itr->value.IsObject(), "Item must be JSON object");
+            const std::string name = itr->name.GetString();
+            const auto& v = itr->value.GetObject();
+
+            try
+            {
+              parse_item(name, v);
+            }
+            catch (std::exception& e)
+            {
+              printf("Error parsing item %s: %s\n", name.c_str(), e.what());
+              throw;
+            }
           }
         }
-      }
-    }
+      } // mod_file
+    } // mod
     printf("* Loaded %zu items\n", db.size());
 	}
 }

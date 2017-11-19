@@ -232,34 +232,36 @@ namespace terragen
     // load and apply the tiles JSON for each mod
     for (const auto& mod : cppcraft::game.mods())
     {
-      std::ifstream file(mod.modpath() + "/blocks.json");
-      const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-      rapidjson::Document doc;
-      doc.Parse(str.c_str());
-
-      CC_ASSERT(doc.IsObject(), "Blocks JSON must be valid");
-      if (doc.HasMember("blocks"))
+      for (const auto& mod_file : mod.json_files())
       {
-        auto& obj = doc["blocks"];
-        for (auto itr = obj.MemberBegin(); itr != obj.MemberEnd(); ++itr)
-        {
-          CC_ASSERT(itr->value.IsObject(), "Block must be JSON object");
-          const std::string name = itr->name.GetString();
-          const auto& v = itr->value.GetObject();
+        std::ifstream file(mod_file);
+        const std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        rapidjson::Document doc;
+        doc.Parse(str.c_str());
 
-          try
+        CC_ASSERT(doc.IsObject(), "Blocks JSON must be valid");
+        if (doc.HasMember("blocks"))
+        {
+          auto& obj = doc["blocks"];
+          for (auto itr = obj.MemberBegin(); itr != obj.MemberEnd(); ++itr)
           {
-            parse_block(name, v);
-          }
-          catch (std::exception& e)
-          {
-            printf("Error parsing block %s: %s\n", name.c_str(), e.what());
-            throw;
+            CC_ASSERT(itr->value.IsObject(), "Block must be JSON object");
+            const std::string name = itr->name.GetString();
+            const auto& v = itr->value.GetObject();
+
+            try
+            {
+              parse_block(name, v);
+            }
+            catch (std::exception& e)
+            {
+              printf("Error parsing block %s: %s\n", name.c_str(), e.what());
+              throw;
+            }
           }
         }
-      }
-    }
-    printf("* Loaded %zu blocks\n", db.size());
+      } // mod_file
+    } // mod
 
 		// create _WATER
 		{
@@ -291,6 +293,7 @@ namespace terragen
 			fluid.setLightColor(10, 7, 3);
 			db.assign("lava", fluid);
 		}
+    printf("* Loaded %zu blocks\n", db.size());
 
     // initialize essential blocks
     BEDROCK      = db::getb("bedrock");

@@ -52,7 +52,8 @@ namespace terragen
   static glm::vec3 getground_desert(vec2 p, float height)
   {
     p *= 0.01f;
-    float s = barchans(p.x + Simplex::noise(p.y*0.1f), p.y*0.5f);
+    float n1d = 0.5f + 0.5f * Simplex::noise(p.y*0.1f);
+    float s = barchans(p.x + n1d, p.y * 0.3f);
 		float n = s * 0.05f;
     float h = (WATERLEVEL_FLT + height) * 0.5f;
 
@@ -109,13 +110,12 @@ namespace terragen
 				///-////////////////////////////////////-///
 				if (block.getID() == DESERT_BLOCK)
 				{
-					// TODO: use poisson disc here
+          /// terrain specific objects ///
 					const float rand = randf(wx, y, wz);
-          const glm::vec2 p = gdata->getBaseCoords2D(x, z);
-
-					/// terrain specific objects ///
 					if (rand < 0.05 && air > 16)
 					{
+            // TODO: cactus
+            // TODO: oasis with palms
 					}
 					else if (rand > 0.997)
 					{
