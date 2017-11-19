@@ -298,29 +298,51 @@ namespace terragen
 			db.assign("lava", fluid);
 		}
 
+    /*
     auto& grass = db::BlockDB::get()[db::getb("grass_block")];
     grass.on_tick =
     [] (cppcraft::GridWalker& walker) {
       // validate atmospherics
       if (walker.atmospherics() == false) return;
-      // validate self
+      // demote self if too dark
       if (walker.peek_above().getSkyLight() < 8)
       {
         walker.set(Block(db::getb("soil")));
         return;
       }
-      // look for rad=1 nearby soil with air above
-      walker.move((rand() % 3) - 1, (rand() % 3) - 1, (rand() % 3) - 1);
-      // validate location
-      if (walker.buildable())
+    };
+    */
+
+    auto& soil = db::BlockDB::get()[db::getb("soil")];
+    block_t GRASS_BLOCK = db::getb("grass_block");
+    soil.on_tick =
+    [GRASS_BLOCK] (cppcraft::GridWalker& walker)
+    {
+      // validate atmospherics
+      if (walker.atmospherics() == false) return;
+      // if enough light, ...
+      if (walker.peek_above().getSkyLight() > 8)
       {
-        // promote if soil
-        if (walker.get().getID() == db::getb("soil"))
+        // look for rad=1 nearby grass with air above
+        for (int x = 0; x < 3; x++)
+        for (int z = 0; z < 3; z++)
         {
-          // however, must be right amount of skylight
-          if (walker.peek_above().getSkyLight() > 8) {
-            printf("Promoted block\n");
-            walker.set(Block(db::getb("grass_block")));
+          if (x == 1 && z == 1) continue;
+          GridWalker copy(walker);
+          copy.move(x-1, -1, z-1);
+          // validate location
+          if (copy.buildable())
+          {
+            for (int y = 0; y < 3; y++)
+            {
+              // promote if grass
+              if (copy.get().getID() == GRASS_BLOCK)
+              {
+                //printf("Promoted block\n");
+                walker.set(Block(GRASS_BLOCK));
+              }
+              copy.move_y(1);
+            }
           }
         }
       }

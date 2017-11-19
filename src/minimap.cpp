@@ -159,6 +159,7 @@ namespace cppcraft
 		// read certain blocks from sector, and determine pixel value
 		// set pixel value in the correct 2x2 position on pixel table
 		Bitmap::rgba8_t colors[4];
+    /*
 		colors[0] = mixColor( //  sector ( x,  z )
 					getBlockColor(sector,  3,  3),
 					getBlockColor(sector,  4,  4), 0.5);
@@ -174,6 +175,11 @@ namespace cppcraft
 		colors[3] = mixColor(
 					getBlockColor(sector, 12, 12),
 					getBlockColor(sector, 11, 11), 0.5);
+    */
+    colors[0] = getBlockColor(sector, 3, 3);
+    colors[1] = getBlockColor(sector, 3, 12);
+    colors[2] = getBlockColor(sector, 12, 3);
+		colors[3] = getBlockColor(sector, 12, 12);
 
 		// set final color @ pixel (px, pz)
     const int px = (sector.getX() * PIX_PER_SECT + offset.x) % bitmap->getWidth();

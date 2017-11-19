@@ -6,7 +6,7 @@ namespace terragen
   struct Simulator
   {
     static const int TERRA_PICKS = 8;
-    static const int BLOCK_ROUNDS = 3;
+    static const int BLOCK_ROUNDS = 2;
 
     static const int SIM_RADIUS = 12;
 
