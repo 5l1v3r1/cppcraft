@@ -126,6 +126,10 @@ namespace terragen
     if (v.HasMember("model")) {
       block.setModel(v["model"].GetInt());
     }
+    // shader
+    if (v.HasMember("shader")) {
+      block.shader = v["shader"].GetInt();
+    }
     // color
     if (v.HasMember("color")) {
       uint32_t color = color_index_from(v["color"]);

@@ -5,6 +5,9 @@
     "items.json",
     "ores.json",
     "tiles.json",
+
+    "agricult.json",
+    "desert.json",
     "mushrooms.json"
   ]
 }

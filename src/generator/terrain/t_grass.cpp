@@ -96,7 +96,7 @@ namespace terragen
     GRASS_ID = db::getb("grass_block");
     CROSS_GRASS_ID = db::getb("cross_grass");
 
-		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.5f), 48);
+		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.5f), 60);
 		terrain.on_tick =
 		[] (double)
 		{
@@ -152,23 +152,18 @@ namespace terragen
 		const int wz = gdata->wz * BLOCKS_XZ + z;
 
 		// count whatever
-		int     counter = 0;
-    block_t lastID    = 0;
-    int     lastCount = 0;
+		int   counter = 0;
     int   soilCounter = 0;
 		// start counting from top (pretend really high)
-		int air = BLOCKS_Y; // simple _AIR counter
+    block_t lastID    = _AIR;
+    int     lastCount = BLOCKS_Y;
 
 		for (int y = MAX_Y; y > 0; y--)
 		{
 			Block& block = gdata->getb(x, y, z);
       if (block.getID() == STONE_BLOCK) return y;
 
-      // count air
-			if (block.isAir()) {
-        air++; continue;
-      }
-      else if (lastID != block.getID()) {
+      if (lastID != block.getID()) {
         counter = 0;
       }
       counter++;
@@ -217,7 +212,7 @@ namespace terragen
       }
 
 			// check if decent air
-			if (air > 8)
+			if (lastID == _AIR && lastCount > 8)
 			{
 				///-////////////////////////////////////-///
 				///- create objects, and litter crosses -///
@@ -245,7 +240,7 @@ namespace terragen
 
           }
 
-          if (place_trees.test(wx, wz) && air > 16)
+          if (place_trees.test(wx, wz) && lastCount > 16)
 					{
             glm::vec2 p = gdata->getBaseCoords2D(x, z);
 						if (glm::simplex(p * 0.005f) < 0.3f)
@@ -257,15 +252,19 @@ namespace terragen
 							}
 						}
 					}
-          else if (rand < 0.00005 && air > 40) {
+          else if (rand < 0.00005 && lastCount > 40) {
             if (y < BLOCKS_Y - 44)
             gdata->add_object("mushroom_huge", wx, y+1, wz, 40);
           }
 				}
 			}
-      air = 0;
-      lastID = block.getID();
-      lastCount = counter;
+
+      if (block.getID() != lastID)
+      {
+        lastID = block.getID();
+        lastCount = 1;
+      }
+      else lastCount++;
 
 		} // y
     return 1;

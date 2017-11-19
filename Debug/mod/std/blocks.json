@@ -161,13 +161,6 @@
       "minimap": "grass",
       "tile": ["tiles", "flower_yellow"]
     },
-    "cactus_flower": {
-      "type": "cross",
-      "name": "Cactus Flower",
-      "color": "grass",
-      "minimap": "grass",
-      "tile": ["tiles", "cactus_flower"]
-    },
 
     "ore_coal": {
       "type": "solid",

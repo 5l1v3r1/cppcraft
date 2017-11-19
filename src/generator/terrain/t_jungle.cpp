@@ -7,6 +7,7 @@
 #include <library/bitmap/colortools.hpp>
 #include <library/noise/cosnoise.hpp>
 #include <glm/gtc/noise.hpp>
+#include <Simplex.h>
 
 using namespace glm;
 using namespace cppcraft;
@@ -14,27 +15,33 @@ using namespace library;
 
 namespace terragen
 {
-  static const float COSN_HEIGHT = 0.2f;
+  static const float COSN_HEIGHT = 0.15f;
 
   static glm::vec3 getground_jungle(vec2 p, float height)
   {
     p *= 0.001f;
-		float land = glm::simplex(p * vec2(0.7f, 0.7f)) * 0.05f;
-		land += simplex(p) * 0.03f
-          + simplex(p * vec2(2.7f, 2.8f)) * 0.02f
-          + simplex(p * vec2(5.8f, 5.6f)) * 0.05f;
+    height = (WATERLEVEL_FLT + height) * 0.5f - 0.1f;
 
-		return {height + land, 0.0f, 0.0f};
+		const float land = simplex(p)         * 0.3f
+          + simplex(p * vec2(2.7f, 2.8f)) * 0.2f
+          + simplex(p * vec2(5.8f, 5.6f)) * 0.5f;
+
+    const float EDGE = 0.3f;
+    const float FACT = (land - EDGE) / (1.0f - EDGE);
+    if (land > EDGE) height += powf(FACT, 0.5f) * 0.2f;
+
+		return {height, 0.0f, 0.0f};
   }
   static float getnoise_jungle(vec3 p, glm::vec3 under)
 	{
-    vec3 N = p * vec3(0.01f, 8.0f, 0.01f);
-    float n1 = glm::simplex(N);
-		return p.y - under.x - COSN_HEIGHT +
-      0.5f * COSN_HEIGHT * (1.0f + cosnoise(N, n1, 1.0f, 1.0f, 1.0 + fabsf(n1), 1.0f, 0.0f));
+    vec3 N = p * vec3(0.005f, 4.0f, 0.005f);
+    float n1 = Simplex::fBm(N);
+    float noise = (cosnoise(N, n1, 1.0f, 1.0f, 2.0f + n1, 1.0f, 1.0f) + 1.0f) * 0.5f;
+		return p.y - under.x - COSN_HEIGHT + COSN_HEIGHT * noise;
 	}
 
   static block_t GRASS_BLOCK;
+  static block_t PUMPKIN_BLOCK;
   static block_t CROSS_GRASS_ID;
 	static int process_jungle(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{
@@ -43,8 +50,9 @@ namespace terragen
 
 		// count current form of dirt/sand etc.
 		int soilCounter = 0;
-		// start counting from top
-		int air = BLOCKS_Y - MAX_Y;
+    // start counting from top
+    block_t lastID    = _AIR;
+    int     lastCount = BLOCKS_Y;
 
 		for (int y = MAX_Y; y > 0; y--)
 		{
@@ -66,7 +74,7 @@ namespace terragen
 					block.setID(STONE_BLOCK);
 				}
 			}
-      else if (block.getID() == STONE_BLOCK)
+      else if (block.getID() == STONE_BLOCK && lastID == _AIR)
       {
         // we are done
         return y;
@@ -74,7 +82,7 @@ namespace terragen
 			else soilCounter = 0;
 
 			// place greenery when enough air
-			if (air > 8)
+			if (lastID == _AIR && lastCount > 4)
 			{
 				///-////////////////////////////////////-///
 				///- create objects, and litter crosses -///
@@ -88,12 +96,12 @@ namespace terragen
           const glm::vec2 p = gdata->getBaseCoords2D(x, z);
 
 					/// terrain specific objects ///
-					if (rand < 0.05 && air > 16)
+					if (rand < 0.01 && lastCount > 40)
 					{
-						if (glm::simplex(p * 0.005f) < -0.2)
+						if (glm::simplex(p * 0.01f) < -0.2)
 						{
 							unsigned height = 40 + randf(wx, y-1, wz) * 15;
-							if (y + height < WATERLEVEL + 64)
+							if (y + height < WATERLEVEL + 80)
 							{
 								gdata->add_object("jungle_tree", wx, y+1, wz, height);
 							}
@@ -102,15 +110,22 @@ namespace terragen
 					else if (rand > 0.65)
 					{
 						// note: this is an inverse of the forest noise
-						if (glm::simplex(p * 0.005f) > -0.1)
-						{
+            float n = glm::simplex(p * 0.005f);
+            if (n > 0.9) {
+              if (rand > 0.99)
+                gdata->getb(x, y+1, z).setID(PUMPKIN_BLOCK);
+            } else if (n > -0.1) {
 							gdata->getb(x, y+1, z).setID(CROSS_GRASS_ID);
 						}
 					}
 				}
 			}
-      // count air
-      if (block.isAir()) air++; else air = 0;
+      if (block.getID() != lastID)
+      {
+        lastID = block.getID();
+        lastCount = 1;
+      }
+      else lastCount++;
 		} // y
     return 1;
 	}
@@ -118,13 +133,14 @@ namespace terragen
 	void terrain_jungle_init()
 	{
     GRASS_BLOCK = db::getb("grass_block");
+    PUMPKIN_BLOCK = db::getb("pumpkin_block");
     CROSS_GRASS_ID = db::getb("cross_grass");
 
 		auto& terrain =
 		terrains.add("jungle", "Jungle", Biome::biome_t{0.8f, 0.8f, 0.3f},
         getground_jungle, COSN_HEIGHT, getnoise_jungle, process_jungle);
 
-    terrain.setFog(glm::vec4(0.9f, 0.9f, 1.0f, 0.7f), 180);
+    terrain.setFog(glm::vec4(0.9f, 1.0f, 0.9f, 0.5f), 130);
 		terrain.on_tick =
 		[] (double)
 		{

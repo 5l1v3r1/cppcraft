@@ -68,6 +68,7 @@ namespace terragen
 	}
 
   static block_t DESERT_BLOCK;
+  static block_t CACTUS_BLOCK;
   static block_t CROSS_CACTUS_ID;
 	static int process_desert(gendata_t* gdata, int x, int z, const int MAX_Y, const int)
 	{
@@ -112,9 +113,11 @@ namespace terragen
 				{
           /// terrain specific objects ///
 					const float rand = randf(wx, y, wz);
-					if (rand < 0.05 && air > 16)
+					if (rand < 0.0005 && air > 16 && y < 140)
 					{
             // TODO: cactus
+            for (int h = 1; h < 4; h++)
+              gdata->getb(x, y+h, z).setID(CACTUS_BLOCK);
             // TODO: oasis with palms
 					}
 					else if (rand > 0.997)
@@ -132,13 +135,14 @@ namespace terragen
 	void terrain_desert_init()
 	{
     DESERT_BLOCK = db::getb("desert_sand");
+    CACTUS_BLOCK = db::getb("cactus_block");
     CROSS_CACTUS_ID = db::getb("cactus_flower");
 
 		auto& terrain =
 		terrains.add("desert", "Desert Dunes", Biome::biome_t{0.8f, 0.2f, 0.4f},
         getground_desert, DESERT_HEIGHT3D, getnoise_desert, process_desert);
 
-    terrain.setFog(glm::vec4(0.9f, 0.8f, 0.7f, 1.0f), 200);
+    terrain.setFog(glm::vec4(0.87f, 0.83f, 0.7f, 1.0f), 180);
 		terrain.on_tick =
 		[] (double)
 		{

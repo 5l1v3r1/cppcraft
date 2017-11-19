@@ -17,12 +17,14 @@ namespace cppcraft
   static void
   parse_tile_database(tile_database& db, rapidjson::Value& obj)
   {
+    CC_ASSERT(obj.HasMember("source"), "Tiles JSON object must have 'source'");
     const std::string source_file = obj["source"].GetString();
 
+    CC_ASSERT(obj.HasMember("data"), "Tiles JSON object must have 'data'");
     auto& data = obj["data"];
     for (auto itr = data.MemberBegin(); itr != data.MemberEnd(); ++itr)
     {
-      CC_ASSERT(itr->value.IsArray(), "Tile must be array of two coordinates");
+      CC_ASSERT(itr->value.IsArray(), "Tile must be array of two or more coordinates");
       const auto v = itr->value.GetArray();
       const int DIFF_X = v[0].GetInt();
       const int DIFF_Y = v[1].GetInt();

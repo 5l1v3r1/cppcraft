@@ -54,7 +54,7 @@ float fog(in vec3  ray,
 	const float fogY = WATERLEVEL;
 
 	// distance in fog
-	float foglen = depth;
+	float foglen = sqrt(depth);
 
 	// how far are we from center of fog?
 	float foglevel = max(0.0, 1.0 - abs(point.y - fogY) / fogHeight);
