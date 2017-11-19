@@ -118,24 +118,18 @@ namespace terragen
 		const int P_SNOW = particleSystem("snowflake");
 
 		terrain.on_tick =
-		[P_SNOW] (double)
+    [P_SNOW] (double, GridWalker& walker)
 		{
+      glm::vec3 position(walker.getX(), walker.flat().skyLevel, walker.getZ());
+
 			// every time we tick this piece of shit, we create some SNOW YEEEEEEEEEEEEEE
 			for (int i = 0; i < 5; i++)
 			{
-				// create random position relative to player
-				glm::vec3 position(player.pos.x, 0, player.pos.z);
-
-				// create particle at skylevel + some value
-				auto* fs = sectors.flatland_at(position.x, position.z);
-				if (fs == nullptr) break;
-
 				// use skylevel as particle base height
-				position.y = fs->skyLevel;
-				position += glm::vec3(rndNorm(64), 14 + rndNorm(20), rndNorm(64));
+				glm::vec3 p = position + glm::vec3(rndNorm(16), 14 + rndNorm(10), rndNorm(16));
 
 				// now create particle
-				particleSystem.newParticle(position, P_SNOW);
+				particleSystem.newParticle(p, P_SNOW);
 			}
 		};
 

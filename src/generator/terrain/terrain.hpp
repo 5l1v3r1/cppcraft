@@ -5,19 +5,20 @@
 #include <glm/vec4.hpp>
 #include <array>
 #include "delegate.hpp"
-#include "../../common.hpp"
-#include "../../block.hpp"
+#include <common.hpp>
+#include <grid_walker.hpp>
 #include "../biomegen/biome.hpp"
 
 namespace terragen
 {
   using cppcraft::Block;
+  using cppcraft::GridWalker;
 	struct gendata_t;
 
 	class Terrain {
 	public:
 		// ENGINE
-		typedef delegate<void(double)> tick_func_t;
+    typedef delegate<void(double, GridWalker&)> tick_func_t;
 		// GENERATOR
     typedef delegate<glm::vec3(glm::vec2, float)> under_func_t;
 		typedef delegate<float(glm::vec3, glm::vec3)> terfunc3d;
@@ -87,7 +88,7 @@ namespace terragen
 		uint16_t fog_start;
 
     /// simulation ///
-		// terrain tick-function
+		// terrain tick-functions
 		tick_func_t on_tick = nullptr;
     // terrain music filename
     std::string music_name = "";
@@ -109,6 +110,6 @@ namespace terragen
     this->fog_height = other.fog_height;
     this->fog_start  = other.fog_start;
     // simulation
-    this->on_tick  = other.on_tick;
+    this->on_tick    = other.on_tick;
   }
 }

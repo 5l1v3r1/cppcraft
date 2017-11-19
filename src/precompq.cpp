@@ -116,7 +116,9 @@ namespace cppcraft
 		sector.meshgen = false;
     // sneak in a minimap update if scheduled
     if (sector.has_flag(Sector::MINIMAP)) {
+      sector.rem_genflag(Sector::MINIMAP);
       minimap.addSector(sector);
+      minimap.setUpdated();
     }
 
     const int y0 = 0;

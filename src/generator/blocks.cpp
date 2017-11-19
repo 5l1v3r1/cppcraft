@@ -4,8 +4,8 @@
 #include "../db/blockdata.hpp"
 #include "../game.hpp"
 #include "../renderconst.hpp"
-#include "../sector.hpp"
 #include "../tiles.hpp"
+#include <grid_walker.hpp>
 #include <library/bitmap/colortools.hpp>
 #include <rapidjson/document.h>
 #include <fstream>
@@ -297,6 +297,35 @@ namespace terragen
 			fluid.setLightColor(10, 7, 3);
 			db.assign("lava", fluid);
 		}
+
+    auto& grass = db::BlockDB::get()[db::getb("grass_block")];
+    grass.on_tick =
+    [] (cppcraft::GridWalker& walker) {
+      // validate atmospherics
+      if (walker.atmospherics() == false) return;
+      // validate self
+      if (walker.peek_above().getSkyLight() < 8)
+      {
+        walker.set(Block(db::getb("soil")));
+        return;
+      }
+      // look for rad=1 nearby soil with air above
+      walker.move((rand() % 3) - 1, (rand() % 3) - 1, (rand() % 3) - 1);
+      // validate location
+      if (walker.buildable())
+      {
+        // promote if soil
+        if (walker.get().getID() == db::getb("soil"))
+        {
+          // however, must be right amount of skylight
+          if (walker.peek_above().getSkyLight() > 8) {
+            printf("Promoted block\n");
+            walker.set(Block(db::getb("grass_block")));
+          }
+        }
+      }
+    };
+
     printf("* Loaded %zu blocks\n", db.size());
 
     // initialize essential blocks

@@ -8,6 +8,7 @@ namespace cppcraft
 {
 	class Block;
 	class Sector;
+  struct GridWalker;
 	class PTD;
   struct connected_textures_t;
 }
@@ -16,6 +17,7 @@ namespace db
 {
 	using cppcraft::Block;
 	using cppcraft::Sector;
+  using cppcraft::GridWalker;
   using cppcraft::connected_textures_t;
 
 	class BlockData {
@@ -70,15 +72,6 @@ namespace db
     int model() const noexcept { return m_model; }
     void setModel(int model) noexcept { m_model = model; }
 
-		// returns true if the block has an activation function
-		delegate <bool(const Block&)> hasActivation = nullptr;
-		// returns true if the block physically blocks movement
-		delegate <bool(const Block&)> blocksMovement = nullptr;
-		// slightly different, because it should add stairs and halfblocks,
-		// as walking through them will lift the player up, unstucking him,
-		// and also allowing smooth movement over small height-changes
-		delegate <bool(const Block&)> forwardMovement = nullptr;
-
     /// tile, texture & connected texture ///
     typedef delegate<short(const Block&, uint8_t face)> texture_func_t;
     typedef delegate<short(const connected_textures_t&, uint8_t face)> conntex_func_t;
@@ -96,13 +89,24 @@ namespace db
     texture_func_t textureFunction = nullptr;
     conntex_func_t connTexFunction = nullptr;
 
-		//! returns the non-zero facing mask @facing, if determined visible
-		//! first block is source, second is the block we are checking against
+    // returns true if the block has an activation function
+		delegate <bool(const Block&)> hasActivation = nullptr;
+		// returns true if the block physically blocks movement
+		delegate <bool(const Block&)> blocksMovement = nullptr;
+		// slightly different, because it should add stairs and halfblocks,
+		// as walking through them will lift the player up, unstucking him,
+		// and also allowing smooth movement over small height-changes
+		delegate <bool(const Block&)> forwardMovement = nullptr;
+		// returns the non-zero facing mask @facing, if determined visible
+		// first block is source, second is the block we are checking against
 		delegate <uint16_t(const Block&, const Block&, uint16_t)> visibilityComp = nullptr;
-		//! \brief Physical hitbox test for this block
+		// Physical hitbox test for this block
 		delegate <bool(const Block&, float, float, float)> physicalHitbox3D = nullptr;
-		//! \brief Selection hitbox test for this block
+		// Selection hitbox test for this block
 		delegate <bool(const Block&, float, float, float)> selectionHitbox3D = nullptr;
+
+    // tick function for this block, if any
+    delegate <void(GridWalker&)> on_tick = nullptr;
 
     typedef delegate<uint32_t(const Block&, const Sector&, int, int, int)> minimap_func_t;
     inline uint32_t getMinimapColor(const Block&, const Sector&, int, int, int) const;

@@ -51,7 +51,6 @@ namespace cppcraft
 
 	void Generator::run()
 	{
-    bool minimap_updated = false;
 		// sort by distance from center (radius)
     // the queue should on average be mostly sorted
 		std::sort(queue.begin(), queue.end(), GenerationOrder);
@@ -88,6 +87,7 @@ namespace cppcraft
     mtx_genq.lock();
     auto finvec = std::move(finished);
     mtx_genq.unlock();
+    bool minimap_updated = false;
 
 		// finished generator jobs
 		for (auto& gdata : finvec)
@@ -127,8 +127,8 @@ namespace cppcraft
                 return true;
               });
         }
-				// add it to the minimap!!!
-				minimap.addSector(dest);
+				// add it to the minimap right now
+        minimap.addSector(dest);
         minimap_updated = true;
 			}
 			else
@@ -137,10 +137,9 @@ namespace cppcraft
 				printf("INVALID sector was generated: (%d, %d)\n", x, z);
 			#endif
 			}
+      if (minimap_updated) minimap.setUpdated();
 		}
 
-    // re-upload minimap texture on render thread
-    if (minimap_updated) minimap.setUpdated();
     // allow more jobs in the async pool
     AsyncPool::release(finvec.size());
 	}
@@ -217,8 +216,6 @@ namespace cppcraft
 		if (z1 < 0) z1 = 0;            // CLAMP AFTER z2 IS SET!!!
 		if (z2 > sectors.getXZ()) z2 = sectors.getXZ();
 
-		bool minimapUpdated = false;
-
 		for (int x = x1; x < x2; x++)
 		{
 			for (int z = z1; z < z2; z++)
@@ -243,9 +240,8 @@ namespace cppcraft
 						// compressed column also contains the flatland(x, z) for this area
 						Compressor::load(cf, g_compres[dx][dz], x, z);
 
-						// update minimap (colors)
-						minimap.addSector(sector);
-						minimapUpdated = true;
+						// update minimap (eventually)
+						minimap.sched(sector);
 					}
 					else
 					{
@@ -271,9 +267,6 @@ namespace cppcraft
 
 			} // z
 		} // x
-
-		if (minimapUpdated)
-			minimap.setUpdated();
 
 		if (timer)
 			return (timer->getTime() > timeOut);

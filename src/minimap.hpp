@@ -25,8 +25,8 @@ namespace cppcraft
 
     // update minimap now
 		void addSector(Sector& s);
-		void roll(int x, int z);
-	  void setUpdated();
+		void roll(int x, int z) noexcept;
+    void setUpdated() noexcept;
 
     // delay-update minimap for this sector
     void sched(Sector& sector) {

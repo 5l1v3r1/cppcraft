@@ -42,14 +42,13 @@ namespace cppcraft
 		texture = new Texture(GL_TEXTURE_2D);
 		texture->create(*bitmap, true, GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
-		typedef struct
+		struct minimap_vertex_t
 		{
 			GLfloat x, y, z;
-
-		} minimap_vertex_t;
+		};
 
 		// vertices
-		minimap_vertex_t vertices[4] =
+		const minimap_vertex_t vertices[4] =
 		{
 			{ -0.5, -0.5, 0.0 },
 			{  0.5, -0.5, 0.0 },
@@ -151,13 +150,6 @@ namespace cppcraft
 		return elevationColor(c, (y - ELEVATION_MEAN) * ELEVATION_FACTOR);
 	}
 
-	void Minimap::setUpdated()
-	{
-		minimapMutex.lock();
-			this->needs_update = true;
-		minimapMutex.unlock();
-	}
-
 	// addSector: called from Generator::generate()
 	// each time block data at skylevel is updated, this function COULD be called
 	// one solution is to wait for 8 block changes, disregard skylevel, and update
@@ -184,8 +176,8 @@ namespace cppcraft
 					getBlockColor(sector, 11, 11), 0.5);
 
 		// set final color @ pixel (px, pz)
-    int px = (sector.getX() * PIX_PER_SECT + offset.x) % bitmap->getWidth();
-    int py = (sector.getZ() * PIX_PER_SECT + offset.y) % bitmap->getHeight();
+    const int px = (sector.getX() * PIX_PER_SECT + offset.x) % bitmap->getWidth();
+    const int py = (sector.getZ() * PIX_PER_SECT + offset.y) % bitmap->getHeight();
 
 		Bitmap::rgba8_t* pixels = bitmap->data();
 		const int scan = bitmap->getWidth();
@@ -194,13 +186,15 @@ namespace cppcraft
 		pixels[(py + 1) * scan + px] = colors[1];
 		pixels[ py      * scan + px + 1] = colors[2];
 		pixels[(py + 1) * scan + px + 1] = colors[3];
-
+	}
+  void Minimap::setUpdated() noexcept
+  {
     std::lock_guard<std::mutex> lock(minimapMutex);
     // will see it, eventually
 		this->needs_update = true;
-	}
+  }
 
-	void Minimap::roll(int x, int z)
+	void Minimap::roll(int x, int z) noexcept
 	{
     std::lock_guard<std::mutex> lock(minimapMutex);
     this->offset += glm::ivec2(x, z) * PIX_PER_SECT;

@@ -40,6 +40,7 @@ namespace cppcraft
   static nanogui::IntBox<int>* sectlts = nullptr;
   static nanogui::IntBox<int>* sectstage = nullptr;
   static nanogui::IntBox<int>* sectobjs = nullptr;
+  static nanogui::IntBox<int>* sectatmos = nullptr;
 
   static nanogui::TextBox* trnbox = nullptr;
   static nanogui::IntBox<int>* skybox = nullptr;
@@ -138,6 +139,11 @@ namespace cppcraft
     sectobjs->setEditable(false);
     sectobjs->setFixedSize(Vector2i(25, 20));
 
+    new Label(sector, "Atmospherics");
+    sectatmos = new nanogui::IntBox<int>(sector);
+    sectatmos->setEditable(false);
+    sectatmos->setFixedSize(Vector2i(25, 20));
+
     stats->setPosition({0, 0});
     game.gui().screen()->performLayout();
 	}
@@ -192,6 +198,7 @@ namespace cppcraft
       sectlts->setValue(sector->getLightCount());
       sectstage->setValue(sector->isUpdatingMesh());
       sectobjs->setValue(sector->objects);
+      sectatmos->setValue(sector->atmospherics);
       // only show flatland values when generated
       if (sector->generated())
       {

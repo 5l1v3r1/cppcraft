@@ -22,9 +22,19 @@ namespace cppcraft
     inline Block& get() const;
     inline bool   set(const Block& blk) const;
     inline Block  remove() const;
+    inline Block& peek_above() const;
+
+    int getY() const noexcept { return y; }
+    int getX() const noexcept { return sector->getX() * BLOCKS_XZ + x; }
+    int getZ() const noexcept { return sector->getZ() * BLOCKS_XZ + z; }
+
+    int terrain() const { return flat().terrain; }
+    const Flatland::flatland_t& flat() const { return sector->flat()(x, z); }
+    Flatland::flatland_t& flat() { return sector->flat()(x, z); }
 
     bool good() const noexcept { return sector != nullptr; }
     bool buildable() const noexcept { return good() && sector->generated(); }
+    bool atmospherics() const noexcept { return good() && sector->atmospherics; }
   private:
     Sector* sector;
     int x, y, z;
@@ -96,5 +106,9 @@ namespace cppcraft
   inline Block GridWalker::remove() const
   {
     return Spiders::removeBlock(*sector, x, y, z);
+  }
+  inline Block& GridWalker::peek_above() const
+  {
+    return (*sector)(this->x, this->y+1, this->z);
   }
 }

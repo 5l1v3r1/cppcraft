@@ -7,6 +7,7 @@
 #include "game.hpp"
 #include "generator.hpp"
 #include "generator/objectq.hpp"
+#include "generator/simulation/simulator.hpp"
 #include "lighting.hpp"
 #include "particles.hpp"
 #include "player.hpp"
@@ -61,6 +62,11 @@ namespace cppcraft
 					//       PLAYER RELATED STUFF       //
 					//----------------------------------//
 					player.handlePlayerTicks(_ticktimer);
+
+          ///----------------------------------///
+  				/// ---------- WORLD SIM ----------- ///
+  				///----------------------------------///
+          terragen::Simulator::run(_ticktimer);
 
 					// handle actors & particles & objects
 					particleSystem.update(_ticktimer);

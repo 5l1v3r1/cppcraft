@@ -98,7 +98,7 @@ namespace terragen
 
 		terrain.setFog(glm::vec4(0.7f, 0.7f, 0.75f, 0.35f), 60);
 		terrain.on_tick =
-		[] (double)
+		[] (double, GridWalker&)
 		{
 			// ... particles here & there
 		};
@@ -120,7 +120,7 @@ namespace terragen
     terrain.setColor(Biomes::CL_TREES_B,
 		[] (uint16_t, uint8_t, glm::vec2)
 		{
-			return RGBA8(60, 154, 0, 255);
+			return RGBA8(45, 104, 50, 255);
 		});
 		// Stone color
 		terrain.setColor(Biomes::CL_STONE,

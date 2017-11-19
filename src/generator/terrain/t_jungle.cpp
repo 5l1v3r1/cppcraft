@@ -142,7 +142,7 @@ namespace terragen
 
     terrain.setFog(glm::vec4(0.9f, 1.0f, 0.9f, 0.5f), 130);
 		terrain.on_tick =
-		[] (double)
+		[] (double, GridWalker&)
 		{
 			// ... particles here & there
 		};

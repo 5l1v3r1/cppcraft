@@ -7,11 +7,8 @@
 #include "player_actions.hpp"
 #include "player_logic.hpp"
 #include "player_physics.hpp"
-#include "renderconst.hpp"
-#include "sectors.hpp"
 #include "spiders.hpp"
 #include "threading.hpp"
-#include "generator/terrain/terrains.hpp"
 #include <cmath>
 
 using namespace glm;
@@ -85,10 +82,6 @@ namespace cppcraft
 		plogic.translatePlayer();
 		// play some sounds
 		plogic.playerSounds();
-
-		// terrain tick function
-    if (plogic.terrain().on_tick != nullptr)
-        plogic.terrain().on_tick(time);
 	}
 
 	void PlayerClass::handleActions(double frametime)

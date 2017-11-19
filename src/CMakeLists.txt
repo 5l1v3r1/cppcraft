@@ -42,6 +42,7 @@ set(SUB_SOURCES
     generator/objects/volumetrics.cpp
     generator/oregen.cpp
     generator/postproc.cpp
+    generator/simulation/simulator.cpp
     generator/terragen.cpp
     generator/terragen_objects.cpp
     generator/terrain/helpers.cpp
