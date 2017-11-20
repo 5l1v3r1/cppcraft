@@ -2,7 +2,7 @@
 #include <spiders.hpp>
 #include <generator/terrain/terrains.hpp>
 #include <glm/gtc/random.hpp>
-#include <library/timing/timer.hpp>
+#include <library/timing/rolling_avg.hpp>
 
 using namespace cppcraft;
 using namespace library;
@@ -18,13 +18,14 @@ namespace terragen
   {
     const int SIZE  = sectors.getXZ()/4;
     const int START = (sectors.getXZ()/2 - SIZE) * BLOCKS_XZ;
-    int x = START + std::rand() % (2*SIZE * BLOCKS_XZ);
-    int z = START + std::rand() % (2*SIZE * BLOCKS_XZ);
+    int r = std::rand();
+    int x = START + r % (2*SIZE * BLOCKS_XZ); r /= 32768;
+    int z = START + r % (2*SIZE * BLOCKS_XZ);
     return GridWalker(x, 0, z);
   }
   inline GridWalker random_sector_xyz(Sector& sector) noexcept
   {
-    int r = std::rand() % (BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y);
+    int r = std::rand();
     int x = r % BLOCKS_XZ; r /= BLOCKS_XZ;
     int z = r % BLOCKS_XZ; r /= BLOCKS_XZ;
     int y = r % sector.flat()(x, z).skyLevel;
@@ -34,7 +35,8 @@ namespace terragen
   void Simulator::run(double time)
   {
 #ifdef TIMING
-    library::Timer timer;
+    static library::RollingAvg timer;
+    timer.begin();
 #endif
     for (int i = 0; i < TERRA_PICKS; i++)
     {
@@ -68,6 +70,7 @@ namespace terragen
       }
     } // sim radius
 #ifdef TIMING
+    timer.measure();
     printf("Simulator took %f seconds\n", timer.getTime());
 #endif
   } // Simulator::run()

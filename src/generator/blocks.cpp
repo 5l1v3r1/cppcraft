@@ -340,6 +340,7 @@ namespace terragen
               {
                 //printf("Promoted block\n");
                 walker.set(Block(GRASS_BLOCK));
+                return;
               }
               copy.move_y(1);
             }
