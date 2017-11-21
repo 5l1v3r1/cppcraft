@@ -108,8 +108,8 @@ namespace db
     // tick function for this block, if any
     delegate <void(GridWalker&)> on_tick = nullptr;
 
-    typedef delegate<uint32_t(const Block&, const Sector&, int, int, int)> minimap_func_t;
-    inline uint32_t getMinimapColor(const Block&, const Sector&, int, int, int) const;
+    typedef delegate<uint32_t(const Block&, GridWalker&)> minimap_func_t;
+    inline uint32_t getMinimapColor(const Block&, GridWalker&) const;
     inline void setMinimapColor(uint32_t color); // BGRA8 or color index
     inline void useMinimapFunction(minimap_func_t);
     uint32_t getMinimapColor() const noexcept { return this->minimap_color; }
@@ -180,14 +180,14 @@ namespace db
 
   // minimap
   inline uint32_t BlockData::getMinimapColor(
-      const Block& blk, const Sector& s, int x, int y, int z) const
+      const Block& blk, GridWalker& walker) const
   {
     // index
     if (this->minimap_color) {
       return this->minimap_color;
     }
     else if (minimap_color_callback) {
-      return minimap_color_callback(blk, s, x, y, z);
+      return minimap_color_callback(blk, walker);
     }
     return 0xFFFF00FF;
   }

@@ -5,6 +5,7 @@
 #include <library/bitmap/colortools.hpp>
 #include <library/opengl/vao.hpp>
 #include <library/opengl/texture.hpp>
+#include <grid_walker.hpp>
 #include "biome.hpp"
 #include "player.hpp"
 #include "sectors.hpp"
@@ -143,7 +144,8 @@ namespace cppcraft
     if (db.isMinimapIndexColored()) {
       c = sector.flat()(x, z).fcolor[db.getMinimapColor()];
     } else {
-		  c = db.getMinimapColor(blk, sector, x, y, z);
+      GridWalker walker(sector, x, y, z);
+		  c = db.getMinimapColor(blk, walker);
     }
 
 		// basic elevation coloring

@@ -1,4 +1,6 @@
 #include "simulator.hpp"
+
+#include "timers.hpp"
 #include <spiders.hpp>
 #include <generator/terrain/terrains.hpp>
 #include <glm/gtc/random.hpp>
@@ -38,6 +40,12 @@ namespace terragen
     static library::RollingAvg timer;
     timer.begin();
 #endif
+    /// TIMER SYSTEM ///
+
+    Timers::handle();
+
+    /// RANDOM PICKING SYSTEM ///
+
     for (int i = 0; i < TERRA_PICKS; i++)
     {
       auto walker = random_xz();
@@ -71,7 +79,7 @@ namespace terragen
     } // sim radius
 #ifdef TIMING
     timer.measure();
-    printf("Simulator took %f seconds\n", timer.getTime());
+    printf("Simulator took %f seconds (high: %f)\n", timer.getTime(), timer.highest());
 #endif
   } // Simulator::run()
 

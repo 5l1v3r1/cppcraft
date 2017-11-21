@@ -39,7 +39,7 @@ namespace cppcraft
     }
 
 		// unused atm
-		bool generate(Sector& sector, library::Timer* timer, double timeOut);
+		bool generate(Sector& sector);
 
 	private:
 		static void loadSector(Sector&, std::ifstream&, unsigned int);

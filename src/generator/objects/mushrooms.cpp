@@ -40,7 +40,7 @@ namespace terragen
         return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
       };
 			blk.useMinimapFunction(
-  			[] (const Block& blk, const Sector&, int, int, int)
+  			[] (const Block& blk, GridWalker&)
   			{
   				return Biomes::getSpecialColorRGBA(blk.getExtra() & 0xF);
   			});

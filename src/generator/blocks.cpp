@@ -1,7 +1,7 @@
 #include "blocks.hpp"
 
 #include "biomegen/biome.hpp"
-#include "../db/blockdata.hpp"
+#include "simulation/auto_growth.hpp"
 #include "../game.hpp"
 #include "../renderconst.hpp"
 #include "../tiles.hpp"
@@ -24,9 +24,13 @@ namespace terragen
 	using cppcraft::tiledb;
 	using cppcraft::RenderConst;
 
-	static inline int getDepth(const Block* blk, const int MAX_Y)
+	static inline int getDepth(GridWalker& walker, const block_t ID)
 	{
-		for (int y = MAX_Y;y > 0; y--) if (!blk[y].isFluid()) return MAX_Y - y;
+    const int MAX_Y = walker.getY();
+		for (int y = MAX_Y;y > 0; y--) {
+      if (walker.get().getID() != ID) return MAX_Y - y;
+      walker.move_y(-1);
+    }
 		return 1;
 	}
 
@@ -272,10 +276,10 @@ namespace terragen
 			auto& fluid = BlockData::createFluid();
       fluid.setColorIndex(Biomes::CL_WATER);
 			fluid.useMinimapFunction(
-  			[] (const Block&, const Sector& sect, int x, int y, int z)
+  			[] (const Block&, GridWalker& walker)
   			{
           // measure ocean depth
-  				const float depth = 1.0 - getDepth(&sect(x, 0, z), y) / 64.0;
+  				const float depth = 1.0 - getDepth(walker, WATER_BLOCK) / 64.0;
   				// create gradiented ocean blue
   				return RGBA8(depth * depth * 62, depth*depth * 140, depth * 128, 255);
   			});
@@ -297,59 +301,10 @@ namespace terragen
 			fluid.setLightColor(10, 7, 3);
 			db.assign("lava", fluid);
 		}
-
-    /*
-    auto& grass = db::BlockDB::get()[db::getb("grass_block")];
-    grass.on_tick =
-    [] (cppcraft::GridWalker& walker) {
-      // validate atmospherics
-      if (walker.atmospherics() == false) return;
-      // demote self if too dark
-      if (walker.peek_above().getSkyLight() < 8)
-      {
-        walker.set(Block(db::getb("soil")));
-        return;
-      }
-    };
-    */
-
-    auto& soil = db::BlockDB::get()[db::getb("soil")];
-    block_t GRASS_BLOCK = db::getb("grass_block");
-    soil.on_tick =
-    [GRASS_BLOCK] (cppcraft::GridWalker& walker)
-    {
-      // validate atmospherics
-      if (walker.atmospherics() == false) return;
-      // if enough light, ...
-      if (walker.peek_above().getSkyLight() > 8)
-      {
-        // look for rad=1 nearby grass with air above
-        for (int x = 0; x < 3; x++)
-        for (int z = 0; z < 3; z++)
-        {
-          if (x == 1 && z == 1) continue;
-          GridWalker copy(walker);
-          copy.move(x-1, -1, z-1);
-          // validate location
-          if (copy.buildable())
-          {
-            for (int y = 0; y < 3; y++)
-            {
-              // promote if grass
-              if (copy.get().getID() == GRASS_BLOCK)
-              {
-                //printf("Promoted block\n");
-                walker.set(Block(GRASS_BLOCK));
-                return;
-              }
-              copy.move_y(1);
-            }
-          }
-        }
-      }
-    };
-
     printf("* Loaded %zu blocks\n", db.size());
+
+    // for now ...
+    auto_growth(db::getb("soil"), db::getb("grass_block"));
 
     // initialize essential blocks
     BEDROCK      = db::getb("bedrock");

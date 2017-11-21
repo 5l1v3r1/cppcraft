@@ -1,5 +1,6 @@
 #pragma once
-#include "../block.hpp"
+#include <block.hpp>
+#include <db/blockdata.hpp>
 
 namespace terragen
 {

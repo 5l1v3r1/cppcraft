@@ -52,38 +52,30 @@ namespace cppcraft
 			}
 
 			// integrator
-			try
+			double _localtime = localTime;
+
+			while (_localtime >= _ticktimer + TIMING_TICKTIMER)
 			{
-				double _localtime = localTime;
+				//----------------------------------//
+				//       PLAYER RELATED STUFF       //
+				//----------------------------------//
+				player.handlePlayerTicks(_ticktimer);
 
-				while (_localtime >= _ticktimer + TIMING_TICKTIMER)
-				{
-					//----------------------------------//
-					//       PLAYER RELATED STUFF       //
-					//----------------------------------//
-					player.handlePlayerTicks(_ticktimer);
+        ///----------------------------------///
+				/// ---------- WORLD SIM ----------- ///
+				///----------------------------------///
+        terragen::Simulator::run(_ticktimer);
 
-          ///----------------------------------///
-  				/// ---------- WORLD SIM ----------- ///
-  				///----------------------------------///
-          terragen::Simulator::run(_ticktimer);
+				// handle actors & particles & objects
+				particleSystem.update(_ticktimer);
 
-					// handle actors & particles & objects
-					particleSystem.update(_ticktimer);
+				// handle sound, music & ambience
+				soundman.sound_processing();
 
-					// handle sound, music & ambience
-					soundman.sound_processing();
+				_ticktimer += TIMING_TICKTIMER;
 
-					_ticktimer += TIMING_TICKTIMER;
-
-					// fixed timestep
-					_localtime = timer.getTime();
-				}
-			}
-			catch (std::string exc)
-			{
-				logger << Log::ERR << "Error from worldmanager ticker: " << exc << Log::ENDL;
-				break;
+				// fixed timestep
+				_localtime = timer.getTime();
 			}
 
 			try

@@ -2,7 +2,6 @@
 
 #include <library/config.hpp>
 #include <library/log.hpp>
-#include <library/timing/timer.hpp>
 #include "chunks.hpp"
 #include "minimap.hpp"
 #include "player.hpp"
@@ -18,6 +17,9 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
+
+#include <library/timing/rolling_avg.hpp>
+//#define TIMING
 
 using namespace library;
 
@@ -38,19 +40,22 @@ namespace cppcraft
 		/// our esteemed generator ///
 		terragen::Generator::init();
     terragen::ObjectQueue::init();
-		// load all block data in view
+		// schedule everything to be generated
 		for (int x = 0; x < sectors.getXZ(); x++)
 		for (int z = 0; z < sectors.getXZ(); z++)
 		{
-			// during loading, some sectors may have been loaded through files,
-      // so we check if the sector isnt already generated
-			if (sectors(x, z).generated() == false)
-				Generator::add(sectors(x, z));
+			Generator::add(sectors(x, z));
 		}
+    // pre-sort generator queue
+		std::sort(queue.begin(), queue.end(), GenerationOrder);
 	}
 
 	void Generator::run()
 	{
+#ifdef TIMING
+    static library::RollingAvg timer;
+    timer.begin();
+#endif
 		// sort by distance from center (radius)
     // the queue should on average be mostly sorted
 		std::sort(queue.begin(), queue.end(), GenerationOrder);
@@ -142,6 +147,12 @@ namespace cppcraft
 
     // allow more jobs in the async pool
     AsyncPool::release(finvec.size());
+
+#ifdef TIMING
+    timer.measure();
+    printf("Generator took %f seconds (high: %f)\n",
+          timer.getTime(), timer.highest());
+#endif
 	}
 
 	void Generator::loadSector(Sector& sector, std::ifstream& file, unsigned int PL)
@@ -165,7 +176,7 @@ namespace cppcraft
 	 * and attempt to load as many sectors from this chunk as possible in one go.
 	 * Will first attempt to decompress a compressed column, then replace with modified sectors as they appear
 	**/
-	bool Generator::generate(Sector& sector, Timer* timer, double timeOut)
+	bool Generator::generate(Sector& sector)
 	{
 		if (sector.generated())
 		{
@@ -267,9 +278,6 @@ namespace cppcraft
 
 			} // z
 		} // x
-
-		if (timer)
-			return (timer->getTime() > timeOut);
 
 		// time did not run out
 		return false;
