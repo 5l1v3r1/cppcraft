@@ -153,7 +153,7 @@ namespace cppcraft
 			// if we failed to read, currentCnt must be set to 0
 			if (!File) currentCnt = 0;
 
-			PL = (1 + chunk_offset) * sizeof(int) + currentCnt * sizeof(Sector::sectorblock_t);
+			PL = (1 + chunk_offset) * sizeof(int) + currentCnt * sizeof(sectorblock_t);
 
 			// put location of data
 			File.seekp(P);
@@ -170,7 +170,7 @@ namespace cppcraft
 
 		// write sectorblock_t to disk
 		File.seekp(PL);
-		File.write( (char*) &s.getBlocks(), sizeof(Sector::sectorblock_t) );
+		File.write( (char*) &s.getBlocks(), sizeof(sectorblock_t) );
 
 		if (!File)
 		{
@@ -190,7 +190,7 @@ namespace cppcraft
     auto& blocks = sector.getBlocks();
 
 		File.seekg(PL);
-		File.read( (char*) &blocks, sizeof(Sector::sectorblock_t) );
+		File.read( (char*) &blocks, sizeof(sectorblock_t) );
 
 		if (!File.good())
 		{

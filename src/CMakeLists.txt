@@ -2,7 +2,6 @@
 set(SUB_SOURCES
     arch.cpp
     atmosphere.cpp
-    biome.cpp
     blockmodels.cpp
     blockmodels_crosses.cpp
     blockmodels_cubes.cpp
@@ -15,15 +14,13 @@ set(SUB_SOURCES
     blockmodels_poles.cpp
     blockmodels_stairs.cpp
     blocks_bordered.cpp
-    block.cpp
+    block_clientside.cpp
     camera.cpp
     chat.cpp
     chunks.cpp
     columns.cpp
     compilers.cpp
     compressor.cpp
-    db/blockdata.cpp
-    db/itemdata.cpp
     drawq.cpp
     drawq_rendergrid.cpp
     game.cpp

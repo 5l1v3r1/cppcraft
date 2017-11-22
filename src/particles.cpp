@@ -62,8 +62,8 @@ namespace cppcraft
 			}
 
 			// find delta between worldpos and particle worldpos
-			int dx = (p.wx - world.getWX()) << Sector::BLOCKS_XZ_SH;
-			int dz = (p.wz - world.getWZ()) << Sector::BLOCKS_XZ_SH;
+			int dx = (p.wx - world.getWX()) * BLOCKS_XZ;
+			int dz = (p.wz - world.getWZ()) * BLOCKS_XZ;
 
 			// accelerate speed
 			p.spd += p.acc;

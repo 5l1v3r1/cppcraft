@@ -1,12 +1,15 @@
 #include "itemdata.hpp"
 
-#include "../tiles.hpp"
 #include <cassert>
+#ifdef CPPCRAFT_CLIENT
+# include <tiles.hpp>
+#endif
 
 using namespace cppcraft;
 
 namespace db
 {
+#ifdef CPPCRAFT_CLIENT
   uint32_t ItemData::getDiffuseTexture() const noexcept
   {
     return tiledb.items.diff_texture().getHandle();
@@ -15,5 +18,6 @@ namespace db
   {
     return tiledb.items.tone_texture().getHandle();
   }
+#endif
 
 }

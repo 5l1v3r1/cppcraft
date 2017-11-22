@@ -3,7 +3,7 @@
 #include "../blocks.hpp"
 #include "../object.hpp"
 #include "../random.hpp"
-#include "../../biome.hpp"
+#include <biomes.hpp>
 #include "../../grid_walker.hpp"
 #include "../../tiles.hpp"
 #include "../../renderconst.hpp"

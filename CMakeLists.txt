@@ -36,8 +36,10 @@ if (WIN32)
 
 endif()
 
+add_definitions(-DCPPCRAFT_CLIENT)
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
+include_directories(common)
 include_directories(src)
 include_directories(inc)
 include_directories(inc/glm)
@@ -50,6 +52,7 @@ include_directories(ext/nanogui/include)
 include_directories(ext/nanogui/ext/eigen)
 include_directories(ext/nanogui/ext/nanovg/src)
 
+add_subdirectory(common)
 add_subdirectory(library)
 add_subdirectory(src)
 add_subdirectory(ext)
@@ -79,7 +82,7 @@ if (UNIX)
   set_target_properties(fmod PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Debug/libfmod.so.10.0)
 
   target_link_libraries(cppcraft -pthread)
-  target_link_libraries(cppcraft nanogui library tacopie nanogui fmod ${LUA_LIBS})
+  target_link_libraries(cppcraft nanogui common library tacopie nanogui fmod ${LUA_LIBS})
   target_link_libraries(cppcraft glfw ${GLFW3_LIBRARIES} libGLEW.a GL)
 
   if (GPERF)

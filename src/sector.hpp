@@ -1,10 +1,9 @@
 #ifndef SECTOR_HPP
 #define SECTOR_HPP
 
-#include "common.hpp"
-#include "block.hpp"
+#include <common.hpp>
+#include <sectorblock.hpp>
 #include "flatland.hpp"
-#include <array>
 #include <memory>
 #include <unordered_map>
 
@@ -16,37 +15,11 @@ namespace cppcraft
 		// sector size constants
 		static const int BLOCKS_XZ = cppcraft::BLOCKS_XZ;
 		static const int BLOCKS_Y  = cppcraft::BLOCKS_Y;
-		// sector bitshift size constants
-		static const int BLOCKS_XZ_SH = 4;
 
 		static const int GENERATED  = 0x1;
 		static const int GENERATING = 0x2;
     static const int MINIMAP    = 0x8;
 
-		struct sectorblock_t
-		{
-			Block& operator() (int x, int y, int z)
-			{
-				return b.at(x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y);
-			}
-
-			std::array<Block, BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y> b;
-      std::array<uint64_t, BLOCKS_Y / 64> lights;
-			unsigned short light_count = 0;
-      short highest_light_y = 0;
-			unsigned short nothing_yet = 0;
-			unsigned short checksum = 0;
-
-      inline void setLight(short y) noexcept {
-        lights.at(y / 64) |= 1 << (y % 64);
-        highest_light_y = std::max(highest_light_y, y);
-      }
-      inline bool getLight(int y) const noexcept {
-        return lights.at(y / 64) & (1 << (y % 64));
-      }
-		};
-    static_assert(sizeof(sectorblock_t::b) == BLOCKS_XZ*BLOCKS_XZ*BLOCKS_Y* sizeof(Block),
-                  "The sectorblock array must be the size of an entire sector");
 		struct sectordata_t
 		{
 			sectordata_t() {}

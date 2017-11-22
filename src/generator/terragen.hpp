@@ -1,5 +1,5 @@
 #pragma once
-#include "../sector.hpp"
+#include <sectorblock.hpp>
 #include "../flatlands.hpp"
 #include "biomegen/biome.hpp"
 #include "oregen.hpp"
@@ -19,8 +19,8 @@ namespace terragen
 	using cppcraft::BLOCKS_XZ;
 	using cppcraft::BLOCKS_Y;
   using cppcraft::CAVE_GRID2D;
+  using cppcraft::sectorblock_t;
 	using cppcraft::Flatland;
-	using cppcraft::Sector;
 	using cppcraft::Block;
 
 	struct gendata_t
@@ -64,9 +64,8 @@ namespace terragen
 			genz = (wz - cppcraft::World::WORLD_CENTER) * BLOCKS_XZ;
 
 			// allocate new block data to avoid a copy at the end
-			sblock.reset(new Sector::sectorblock_t);
-      // clear light bits, just to be sure
-      for (auto& bits : sblock->lights) bits = 0;
+			sblock.reset(new sectorblock_t);
+      sblock->clearLights();
 			// create new flatland data, since it isnt allocated by default :(
 			flatl.assign({
         Flatland::data_array_t(BLOCKS_XZ*BLOCKS_XZ),
@@ -92,7 +91,7 @@ namespace terragen
     Flatland flatl;                // 2d data, colors etc.
   private:
     std::vector<SchedObject> objects;
-		std::unique_ptr<Sector::sectorblock_t> sblock = nullptr;
+		std::unique_ptr<sectorblock_t> sblock = nullptr;
 		/// === results === ///
 
     // biome weights are 17x17 because of bilinear interpolation

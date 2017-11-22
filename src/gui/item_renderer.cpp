@@ -3,7 +3,7 @@
 #include <library/bitmap/colortools.hpp>
 #include <library/opengl/shader.hpp>
 #include <library/math/matrix.hpp>
-#include "../block.hpp"
+#include <block.hpp>
 #include "../shaderman.hpp"
 #include "../textureman.hpp"
 #include <cmath>

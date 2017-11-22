@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../common.hpp"
-#include "../block.hpp"
+#include <common.hpp>
+#include <block.hpp>
 #include "delegate.hpp"
 #include <map>
 #include <string>

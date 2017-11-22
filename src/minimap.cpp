@@ -6,7 +6,7 @@
 #include <library/opengl/vao.hpp>
 #include <library/opengl/texture.hpp>
 #include <grid_walker.hpp>
-#include "biome.hpp"
+#include <biomes.hpp>
 #include "player.hpp"
 #include "sectors.hpp"
 #include "seamless.hpp"

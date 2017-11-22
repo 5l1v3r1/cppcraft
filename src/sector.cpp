@@ -25,8 +25,8 @@ namespace cppcraft
 	float Sector::distanceTo(const Sector& sector, int bx, int bz) const
 	{
 		// centroidal
-		int dx = ((getX() - sector.getX()) << BLOCKS_XZ_SH) + (BLOCKS_XZ / 2 - bx);
-		int dz = ((getZ() - sector.getZ()) << BLOCKS_XZ_SH) + (BLOCKS_XZ / 2 - bz);
+		int dx = ((getX() - sector.getX()) * BLOCKS_XZ) + (BLOCKS_XZ / 2 - bx);
+		int dz = ((getZ() - sector.getZ()) * BLOCKS_XZ) + (BLOCKS_XZ / 2 - bz);
 
 		return sqrtf(dx*dx + dz*dz) - (BLOCKS_XZ / 2) * sqrtf(3.0);
 	}

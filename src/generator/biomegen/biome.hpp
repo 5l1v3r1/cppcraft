@@ -2,7 +2,7 @@
 #define TERRAGEN_BIOME_HPP
 
 #include <glm/vec2.hpp>
-#include "../../biome.hpp"
+#include <biomes.hpp>
 #include <cstdint>
 #include <vector>
 

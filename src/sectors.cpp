@@ -26,7 +26,7 @@ namespace cppcraft
 		// set number of sectors on X/Z axes
 		this->sectors_XZ = sectors_xz;
     // rebuild vector
-    size_t sectsz = sizeof(Sector) + sizeof(Sector::sectorblock_t);
+    size_t sectsz = sizeof(Sector) + sizeof(sectorblock_t);
     size_t total = this->sectors_XZ * this->sectors_XZ;
     size_t bytes = sectsz * total;
     printf("Allocating %zu * %zu sectors = %zu bytes (%zu MiB)\n",

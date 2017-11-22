@@ -1,4 +1,4 @@
-#include "biome.hpp"
+#include "biomes.hpp"
 
 #include <library/bitmap/colortools.hpp>
 
@@ -6,7 +6,7 @@ using namespace library;
 
 namespace cppcraft
 {
-	static int colors16[16][3] =
+	static uint8_t colors16[16][3] =
 	{
 		{ 20,  12,   28 },
 		{ 68,  36,   52 },

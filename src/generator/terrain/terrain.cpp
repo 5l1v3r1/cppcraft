@@ -1,6 +1,6 @@
 #include "terrain.hpp"
 
-#include "../../common.hpp"
+#include <common.hpp>
 #include "../terragen.hpp"
 #include "../blocks.hpp"
 #include "terrains.hpp"
