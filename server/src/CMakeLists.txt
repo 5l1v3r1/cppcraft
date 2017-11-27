@@ -1,6 +1,8 @@
 
 set(SUB_SOURCES
     server_main.cpp
+    client.cpp
+    pollinator.cpp
   )
 
 FUNCTION(PREPEND var prefix)

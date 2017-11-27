@@ -28,8 +28,9 @@ set(LUA_LIBS luajit-5.1)
 
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
-include_directories(../common)
-include_directories(../library/include)
+include_directories(common)
+include_directories(library/include)
+include_directories(ext/cbuffer/include)
 include_directories(../inc)
 include_directories(../inc/glm)
 include_directories(../inc/LuaBridge/Source/LuaBridge)
@@ -39,6 +40,7 @@ include_directories(../inc/SimplexNoise/include)
 add_subdirectory(common)
 add_subdirectory(library)
 add_subdirectory(src)
+add_subdirectory(ext/cbuffer)
 
 ### linker stage ###
 link_directories(${CMAKE_BINARY_DIR})
@@ -48,7 +50,7 @@ add_executable(server ${SOURCES})
 set_target_properties(server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 target_link_libraries(server -pthread)
-target_link_libraries(server library common ${LUA_LIBS})
+target_link_libraries(server library common cbuffer ${LUA_LIBS})
 
 if (GPERF)
   target_link_libraries(server /usr/local/lib/libprofiler.a)

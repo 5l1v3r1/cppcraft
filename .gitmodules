@@ -25,3 +25,6 @@
 [submodule "inc/SimplexNoise"]
 	path = inc/SimplexNoise
 	url = https://github.com/fwsGonzo/SimplexNoise.git
+[submodule "ext/cbuffer"]
+	path = ext/cbuffer
+	url = https://github.com/fwsGonzo/cbuffer.git
