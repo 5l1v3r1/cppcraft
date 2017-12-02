@@ -26,6 +26,7 @@ include(FindPkgConfig)
 #link_directories("${LUA_STATIC_LIBRARY_DIRS}")
 set(LUA_LIBS luajit-5.1)
 
+add_definitions(-DCPPCRAFT_SERVER)
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
 include_directories(common)

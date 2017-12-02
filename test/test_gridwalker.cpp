@@ -1,4 +1,4 @@
-#include "grid_walker.hpp"
+#include <grid_walker.hpp>
 
 #include <catch.hpp>
 using namespace cppcraft;

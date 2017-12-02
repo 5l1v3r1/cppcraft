@@ -9,9 +9,11 @@ namespace cppcraft
 {
   struct sectorblock_t
   {
-    Block& operator() (int x, int y, int z)
-    {
-      return b.at(x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y);
+    Block& operator() (int x, int y, int z) {
+      return b[x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y];
+    }
+    const Block& operator() (int x, int y, int z) const {
+      return b[x * BLOCKS_XZ * BLOCKS_Y + z * BLOCKS_Y + y];
     }
     std::array<Block, BLOCKS_XZ * BLOCKS_XZ * BLOCKS_Y> b;
 

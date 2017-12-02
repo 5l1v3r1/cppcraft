@@ -16,7 +16,8 @@ namespace cppcraft
 	class alignas(32) Precomp {
 	public:
 		/// this constructor MUST be called from main world thread
-		explicit Precomp(Sector& sector, int y0, int y1);
+		explicit Precomp(Sector& sect)
+  		: sector(sect) {}
 
 		// our source sector (with additional data)
 		bordered_sector_t sector;

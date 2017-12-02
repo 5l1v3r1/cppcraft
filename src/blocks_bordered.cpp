@@ -2,14 +2,11 @@
 
 #include "sectors.hpp"
 #include <cstring>
-#include <csignal>
 
 namespace cppcraft
 {
-	extern Block air_block;
-
-	bordered_sector_t::bordered_sector_t(Sector& sector, int Y0, int Y1)
-    : y0(Y0), y1(Y1), wx(sector.getWX()), wz(sector.getWZ())
+	bordered_sector_t::bordered_sector_t(Sector& sector)
+    : wx(sector.getWX()), wz(sector.getWZ())
 	{
 		// copy entire row from sector into sectorblock
 		for (int x = 0; x < BLOCKS_XZ; x++)
@@ -36,7 +33,7 @@ namespace cppcraft
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(-1, y, z) = air_block;
+				get(-1, y, z) = Block(_AIR);
 		}
 		// (+X)
 		if (sector.getX()+1 < sectors.getXZ())
@@ -54,7 +51,7 @@ namespace cppcraft
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(BLOCKS_XZ, y, z) = air_block;
+				get(BLOCKS_XZ, y, z) = Block(_AIR);
 		}
 		// (-Z)
 		if (sector.getZ() > 0)
@@ -72,7 +69,7 @@ namespace cppcraft
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(x, y, -1) = air_block;
+				get(x, y, -1) = Block(_AIR);
 		}
 		// (+Z)
 		if (sector.getZ()+1 < sectors.getXZ())
@@ -90,7 +87,7 @@ namespace cppcraft
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(x, y, BLOCKS_XZ) = air_block;
+				get(x, y, BLOCKS_XZ) = Block(_AIR);
 		}
 		// (-XZ)
 		if (sector.getX() > 0 && sector.getZ() > 0)
@@ -105,7 +102,7 @@ namespace cppcraft
 		{
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(-1, y, -1) = air_block;
+				get(-1, y, -1) = Block(_AIR);
 		}
 		// (+XZ)
 		if (sector.getX() < sectors.getXZ()-1
@@ -121,7 +118,7 @@ namespace cppcraft
 		{
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(BLOCKS_XZ, y, BLOCKS_XZ) = air_block;
+				get(BLOCKS_XZ, y, BLOCKS_XZ) = Block(_AIR);
 		}
 		// (+X-Z)
 		if (sector.getX() < sectors.getXZ()-1 && sector.getZ() > 0)
@@ -136,7 +133,7 @@ namespace cppcraft
 		{
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(BLOCKS_XZ, y, -1) = air_block;
+				get(BLOCKS_XZ, y, -1) = Block(_AIR);
 		}
 		// (-X+Z)
 		if (sector.getX() > 0 && sector.getZ() < sectors.getXZ()-1)
@@ -151,7 +148,7 @@ namespace cppcraft
 		{
 			// when out of range, we need to set it to _AIR to prevent strange things
 			for (int y = 0; y < BLOCKS_Y; y++)
-				get(-1, y, BLOCKS_XZ) = air_block;
+				get(-1, y, BLOCKS_XZ) = Block(_AIR);
 		}
 
 		/// flatland data ///
@@ -168,8 +165,7 @@ namespace cppcraft
 		if (sector.getX() < sectors.getXZ()-1)
 		{
 			Sector& nbor = sectors(sector.getX()+1, sector.getZ());
-			if (nbor.generated() == false)
-				std::raise(SIGINT);
+      CC_ASSERT(nbor.generated(), "Neighboring sector wasn't generated");
 
 			for (int z = 0; z < BLOCKS_XZ; z++)
 			{
@@ -180,8 +176,7 @@ namespace cppcraft
 		if (sector.getZ() < sectors.getXZ()-1)
 		{
 			Sector& nbor = sectors(sector.getX(), sector.getZ()+1);
-			if (nbor.generated() == false)
-				std::raise(SIGINT);
+      CC_ASSERT(nbor.generated(), "Neighboring sector wasn't generated");
 
 			for (int x = 0; x < BLOCKS_XZ; x++)
 			{
@@ -194,8 +189,7 @@ namespace cppcraft
 			sector.getZ() < sectors.getXZ()-1)
 		{
 			Sector& nbor = sectors(sector.getX()+1, sector.getZ()+1);
-			if (nbor.generated() == false)
-				std::raise(SIGINT);
+      CC_ASSERT(nbor.generated(), "Neighboring sector wasn't generated");
 
 			this->fget(BLOCKS_XZ, BLOCKS_XZ) = nbor.flat()(0, 0);
 		}

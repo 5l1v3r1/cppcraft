@@ -1,7 +1,7 @@
 #include "../object.hpp"
 #include "../random.hpp"
 #include "../blocks.hpp"
-#include "../../grid_walker.hpp"
+#include <grid_walker.hpp>
 #include <library/math/toolbox.hpp>
 #include "helpers.hpp"
 

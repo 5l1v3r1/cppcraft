@@ -121,9 +121,7 @@ namespace cppcraft
       minimap.setUpdated();
     }
 
-    const int y0 = 0;
-    const int y1 = BLOCKS_Y;
-    auto precomp = std::make_unique<Precomp> (sector, y0, y1);
+    auto precomp = std::make_unique<Precomp> (sector);
 
     // go go go!
     AsyncPool::sched(

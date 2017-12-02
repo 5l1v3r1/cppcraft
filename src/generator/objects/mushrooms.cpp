@@ -4,7 +4,7 @@
 #include "../object.hpp"
 #include "../random.hpp"
 #include <biomes.hpp>
-#include "../../grid_walker.hpp"
+#include <grid_walker.hpp>
 #include "../../tiles.hpp"
 #include "../../renderconst.hpp"
 #include "helpers.hpp"

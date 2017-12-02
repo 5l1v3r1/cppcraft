@@ -18,19 +18,16 @@ namespace cppcraft
 		// set sector from precomp
 		ptd.sector = &pc.sector;
 
-		// iterate all (for now)
-		const int y0 = pc.sector.y0;
-		const int y1 = pc.sector.y1;
-
+		// iterate up to skylevel for each (x, z)
 		for (int bx = 0;  bx < BLOCKS_XZ; bx++)
 		for (int bz = 0;  bz < BLOCKS_XZ; bz++)
-		for (int by = y0; by < y1; by++)
+		for (int by = 0;  by < pc.sector(bx, bz).skyLevel; by++)
 		{
 			// get pointer to current block
 			Block& block = pc.sector(bx, by, bz);
 
 			// ignore AIR
-			if (block.getID() != _AIR)
+			if (LIKELY(block.getID() != _AIR))
 			{
 				// process one block id, and potentially add it to mesh
 				// the generated mesh is added to a shaderline determined by its block id

@@ -1,6 +1,6 @@
 #include "helpers.hpp"
 
-#include "../../grid_walker.hpp"
+#include <grid_walker.hpp>
 #include "../random.hpp"
 #include <cmath>
 

@@ -80,7 +80,6 @@ set(SUB_SOURCES
     player_logic.cpp
     player_physics.cpp
     player_translate.cpp
-    precompiler.cpp
     precomp_optimize.cpp
     precompq.cpp
     precomp_thread_ao.cpp

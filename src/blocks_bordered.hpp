@@ -6,17 +6,9 @@
 
 namespace cppcraft
 {
-	struct alignas(32) bordered_sector_t
+	struct bordered_sector_t
 	{
-		bordered_sector_t(Sector& sector, int y0, int y1);
-
-		// all the blocks from source sector and neighbors
-		alignas(32) std::array<Block, (BLOCKS_XZ+2) * (BLOCKS_XZ+2) * BLOCKS_Y> blks;
-		const int y0, y1;
-		const int wx, wz;
-
-		// all the 2D data from source sector and neighbors
-		alignas(32) std::array<Flatland::flatland_t, (BLOCKS_XZ+1) * (BLOCKS_XZ+1)> flats;
+		bordered_sector_t(Sector& sector);
 
 		// Block & biome retrieval functions
 		inline Block& get (int bx, int by, int bz)
@@ -37,5 +29,12 @@ namespace cppcraft
 			return fget(bx, bz);
 		}
 
+    const int wx, wz;
+  private:
+    // all the blocks from source sector and neighbors
+		alignas(32) std::array<Block, (BLOCKS_XZ+2) * (BLOCKS_XZ+2) * BLOCKS_Y> blks;
+
+		// all the 2D data from source sector and neighbors
+ 	  alignas(32) std::array<Flatland::flatland_t, (BLOCKS_XZ+1) * (BLOCKS_XZ+1)> flats;
 	};
 }

@@ -3,7 +3,9 @@ project (cppcraft C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+add_definitions(-DCPPCRAFT_CLIENT)
 
+include_directories(../common)
 include_directories(../src)
 include_directories(../library/include)
 include_directories(../inc)
@@ -13,6 +15,7 @@ include_directories(Catch/include)
 set(SOURCES
     test_gridwalker.cpp
     test_lighting.cpp
+    test_readonly_blocks.cpp
     test_sector.cpp
     catch.cpp
     mock_generator.cpp
@@ -20,7 +23,6 @@ set(SOURCES
     mock_precompq.cpp
     mock_sectors.cpp
     mock_stuff.cpp
-    ../src/block.cpp
     #../src/db/blockdata.cpp
     ../src/gameconf.cpp
     ../src/lighting.cpp
@@ -33,6 +35,7 @@ set(SOURCES
     ../src/spiders_modify.cpp
     ../src/spiders_world.cpp
     ../src/world.cpp
+    ../common/readonly_blocks.cpp
   )
 
 set(LIB_SOURCES
